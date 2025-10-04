@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\obj\</IntDir>
+    <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+
+  <!-- Applies only to EXE projects -->
+  <ItemDefinitionGroup Condition="'$(ConfigurationType)'=='Application'">
+    <PostBuildEvent>
+      <Command>
+        if exist "$(SolutionDir)engine\resources" xcopy /E /I /Y /Q "$(SolutionDir)engine\resources" "$(OutDir)resources" &amp;&amp; if exist "$(ProjectDir)assets" xcopy /E /I /Y /Q "$(ProjectDir)assets" "$(OutDir)assets"
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+</Project>
