@@ -47,3 +47,6 @@ body:
     attributes:
       label: Priority
       options:
+        - Priority: Low
+        - Priority: Medium
+        - Priority: High
