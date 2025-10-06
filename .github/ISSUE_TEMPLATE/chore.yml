@@ -1,13 +1,25 @@
-name: "Chore / Refactor / Docs"
-description: "Non-feature work: refactors, build, CI, docs"
-labels: ["Type: Refactor", "Status: Planned"]
+---
+name: Chore / Refactor
+description: Maintenance, cleanup, or non-functional changes.
+labels:
+  - "Type: Refactor"
+  - "Status: Planned"
 body:
-  - type: textarea
-    id: goal
-    attributes: { label: Goal }
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: One-sentence goal.
+    validations:
+      required: true
   - type: textarea
     id: tasks
     attributes:
       label: Tasks
       value: |
         - [ ] ...
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Optional context.
