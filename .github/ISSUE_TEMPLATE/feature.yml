@@ -1,26 +1,27 @@
-name: "Feature"
-description: "New capability or major addition"
-labels: ["Type: Feature", "Status: Planned"]
+---
+name: Feature
+description: Add or improve functionality.
+labels:
+  - "Type: Feature"
+  - "Status: Planned"
 body:
-  - type: dropdown
-    id: area
-    attributes:
-      label: Area
-      options: ["Area: Engine", "Area: Graphics", "Area: Physics", "Area: Math"]
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority
-      options: ["Priority: Low", "Priority: Medium", "Priority: High"]
-  - type: textarea
+  - type: input
     id: summary
     attributes:
       label: Summary
-      description: One-paragraph intent and success criteria.
+      description: One-sentence description.
+    validations:
+      required: true
   - type: textarea
-    id: checklist
+    id: details
+    attributes:
+      label: Details
+      description: What should this feature do?
+  - type: textarea
+    id: tasks
     attributes:
       label: Tasks
-      description: Break into small checkboxes.
       value: |
-        - [ ] ...
+        - [ ] Implementation
+        - [ ] Test
+        - [ ] Docs
