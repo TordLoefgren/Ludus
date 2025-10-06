@@ -1,34 +1,31 @@
-\## What
+## What
 
 Short, imperative sentence.
 
 
 
-\## Why
+## Why
 
 Link issues: Closes #123 (Repo setup), Relates #124
 
 
 
-\## How
+## How
 
-\- Key changes
+- Key changes
 
-\- Trade-offs
-
-
-
-\## Test plan
-
-\- \[ ] Manual steps or sample project
-
-\- \[ ] Screenshots/logs if visual
+- Trade-offs
 
 
 
-\## Labels
+## Test plan
+
+- [ ] Manual steps or sample project
+
+- [ ] Screenshots/logs if visual
+
+
+
+## Labels
 
 Apply: Status: In Progress → move to In Review when ready
-
-
-
