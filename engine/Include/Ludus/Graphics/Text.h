@@ -1,0 +1,26 @@
+#pragma once
+
+#include <ft2build.h>
+#include <iostream>
+#include <unordered_map>
+#include FT_FREETYPE_H
+
+#include <Ludus/Graphics/Texture.h>
+#include <Ludus/Graphics/Glyph.h>
+
+namespace Ludus::Graphics
+{
+	class Text
+	{
+	private:
+		FT_Library m_FT_Library;
+		FT_Face m_Face;
+		int m_PixelSize;
+		std::unordered_map<char, Glyph> m_GlyphMap;
+	public:
+		Text();
+		~Text();
+
+		const Glyph* GetGlyph(const char character);
+	};
+}
