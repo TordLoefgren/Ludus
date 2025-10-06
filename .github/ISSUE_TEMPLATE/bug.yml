@@ -1,0 +1,21 @@
+name: "Bug"
+description: "Something isn't working"
+labels: ["Type: Fix", "Status: Planned"]
+body:
+  - type: input
+    id: version
+    attributes: { label: Affected version/commit }
+  - type: textarea
+    id: repro
+    attributes: { label: Repro steps, description: Exact steps + expected vs actual }
+  - type: textarea
+    id: scope
+    attributes: { label: Scope, description: Renderer? Physics? Specific game? }
+  - type: textarea
+    id: logs
+    attributes: { label: Logs/screenshots }
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options: ["Priority: Low", "Priority: Medium", "Priority: High"]

@@ -1,0 +1,13 @@
+name: "Chore / Refactor / Docs"
+description: "Non-feature work: refactors, build, CI, docs"
+labels: ["Type: Refactor", "Status: Planned"]
+body:
+  - type: textarea
+    id: goal
+    attributes: { label: Goal }
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Tasks
+      value: |
+        - [ ] ...
