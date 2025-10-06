@@ -23,9 +23,3 @@ Link issues: Closes #123 (Repo setup), Relates #124
 - [ ] Manual steps or sample project
 
 - [ ] Screenshots/logs if visual
-
-
-
-## Labels
-
-Apply: Status: In Progress → move to In Review when ready
