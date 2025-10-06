@@ -1,52 +1,34 @@
 name: "Story"
-description: "A cohesive user or gameplay capability delivered through multiple linked issues."
+description: "Broad goal made up of multiple features or fixes."
 labels: ["Type: Story", "Status: Planned"]
 body:
   - type: input
     id: summary
     attributes:
       label: Summary
-      description: One-sentence description of the story goal.
-      placeholder: "e.g., Implement basic 2D physics interactions."
+      description: One-sentence goal.
+    validations:
+      required: true
 
   - type: textarea
     id: motivation
     attributes:
       label: Motivation
-      description: Why this story matters for gameplay, architecture, or user value.
-      placeholder: "e.g., Physics is needed for movement, collisions, and projectiles in future games."
-
-  - type: textarea
-    id: scope
-    attributes:
-      label: Scope
-      description: "Define what's included or explicitly out-of-scope."
-      placeholder: "Include: CircleCollider, Rigidbody2D; Exclude: Rotation constraints."
+      description: Why this story matters.
 
   - type: textarea
     id: child_issues
     attributes:
-      label: Child issues
-      description: Link or list smaller issues or features that complete this story.
+      label: Linked Issues
+      description: Related features or fixes.
       value: |
-        - [ ] #<issue_number> – Feature: ...
-        - [ ] #<issue_number> – Fix: ...
+        - [ ] #<issue_number>
 
   - type: textarea
-    id: acceptance_criteria
+    id: acceptance
     attributes:
       label: Acceptance Criteria
-      description: What must be true for this story to be considered done?
+      description: When is this Story complete?
       value: |
         - [ ] All child issues closed
-        - [ ] Code compiles and runs without regressions
-        - [ ] Documented in README or Wiki
-
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority
-      options:
-        - Priority: Low
-        - Priority: Medium
-        - Priority: High
+        - [ ] Code compiles and runs
