@@ -7,21 +7,21 @@ body:
     attributes:
       label: Summary
       description: One-sentence description of the story goal.
-      placeholder: e.g., Implement basic 2D physics interactions.
+      placeholder: "e.g., Implement basic 2D physics interactions."
 
   - type: textarea
     id: motivation
     attributes:
       label: Motivation
       description: Why this story matters for gameplay, architecture, or user value.
-      placeholder: e.g., Physics is needed for movement, collisions, and projectiles in future games.
+      placeholder: "e.g., Physics is needed for movement, collisions, and projectiles in future games."
 
   - type: textarea
     id: scope
     attributes:
       label: Scope
-      description: Define what’s included or explicitly out-of-scope.
-      placeholder: Include: CircleCollider, Rigidbody2D; Exclude: Rotation constraints.
+      description: "Define what's included or explicitly out-of-scope."
+      placeholder: "Include: CircleCollider, Rigidbody2D; Exclude: Rotation constraints."
 
   - type: textarea
     id: child_issues
@@ -31,7 +31,7 @@ body:
       value: |
         - [ ] #<issue_number> – Feature: ...
         - [ ] #<issue_number> – Fix: ...
-  
+
   - type: textarea
     id: acceptance_criteria
     attributes:
@@ -47,6 +47,3 @@ body:
     attributes:
       label: Priority
       options:
-        - Priority: Low
-        - Priority: Medium
-        - Priority: High
