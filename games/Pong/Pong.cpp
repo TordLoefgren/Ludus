@@ -1,5 +1,9 @@
+#include <vector>
+
+#include <Ludus/Engine/GameObject.h>
 #include <Ludus/Engine/Random.h>
 #include <Ludus/Engine/TimeStep.h>
+#include <Ludus/Engine/TransformRegistry.h>
 #include <Ludus/Engine/Utilities.h>
 #include <Ludus/Graphics/Camera2D.h>
 #include <Ludus/Graphics/Color.h>
@@ -15,14 +19,16 @@
 #include <Ludus/Platform/Window.h>
 #include <Ludus/Platform/WindowOptions.h>
 
+using Ludus::Engine::GameObject;
+using Ludus::Engine::GameObjectHandle;
+using Ludus::Graphics::Camera2D;
+using Ludus::Graphics::Color;
+using Ludus::Graphics::GLContext;
+using Ludus::Graphics::Renderer2D;
+using Ludus::Graphics::Shader;
 using Ludus::Math::Vector2D;
 using Ludus::Math::Transform2D;
 using Ludus::Math::Rectangle2D;
-using Ludus::Graphics::Camera2D;
-using Ludus::Graphics::Renderer2D;
-using Ludus::Graphics::Shader;
-using Ludus::Graphics::GLContext;
-using Ludus::Graphics::Color;
 using Ludus::Platform::Input;
 using Ludus::Platform::Key;
 using Ludus::Platform::Window;
@@ -39,36 +45,47 @@ enum GameState
 const int Width = 800;
 const int Height = 640;
 
-const float BallSize = 10.0f;
-const float BallSpeedDefault = 600.0f;
-const float BallSpeedIncrement = 20.0f;
-const float PaddleRightSpeed = 400;
-const float PaddleLeftSpeed = 600.0f;
-const int MaxScore = 3;
+const int HalfWidth = Width * 0.5f;
+const int HalfHeight = Height * 0.5f;
 
-const int PaddleScoreTextSize = 50;
-const int PaddleScoreTextOffset = 75;
 const float PaddleWidth = 10.0f;
 const float PaddleHeight = 40.0f;
 const float PaddleWidthOffset = 50;
-const float PaddleHeightOffset = PaddleHeight / 2.0f;
+const float HalfPaddleHeight = PaddleHeight * 0.5f;
+const float WallThickness = 20.0f;
+const int ScoreTextOffset = 75;
+const int NumLines = 25;
+const int LineHeight = Height / NumLines;
+const int HalfLineHeight = LineHeight * 0.5f;
 
-Rectangle2D LeftScoreTextRect;
-Rectangle2D RightScoreTextRect;
-Rectangle2D PaddleLeftRect;
-Rectangle2D PaddleRightRect;
-Rectangle2D BallRect;
+const float BallSize = 10.0f;
+const float BallSpeedDefault = 600.0f;
+const float BallSpeedIncrement = 20.0f;
+const float Player1Speed = 600.0f;
+const float Player2Speed = 500.0f;
+const int MaxScore = 5;
 
 Ludus::Engine::Random random;
 Ludus::Engine::TimeStep Timer;
+Ludus::Engine::TransformRegistry transformRegistry;
 
-Vector2D PaddleLeftCenter;
-Vector2D PaddleLeftDirection;
+std::vector<GameObject> GameObjects;
 
-Vector2D PaddleRightCenter;
-Vector2D PaddleRightDirection;
+Rectangle2D LeftScoreTextRect;
+Rectangle2D RightScoreTextRect;
+Rectangle2D Player1Rect;
+Rectangle2D Player2Rect;
+Rectangle2D BallRect;
 
-Vector2D BallCenter;
+GameObjectHandle Player1Handle;
+GameObjectHandle Player2Handle;
+GameObjectHandle BallHandle;
+
+GameObjectHandle BoundaryLeftHandle;
+GameObjectHandle BoundaryTopHandle;
+GameObjectHandle BoundaryRightHandle;
+GameObjectHandle BoundaryBottomHandle;
+
 Vector2D BallDirection;
 
 GameState State = Menu;
@@ -76,11 +93,11 @@ int MenuIndex = 1;
 
 float BallSpeed = BallSpeedDefault;
 
-int PaddleLeftScore = 0;
-int PaddleRightScore = 0;
+int Player1Score = 0;
+int Player2Score = 0;
 
 bool IsBallServed = false;
-bool isMultiplayer = false;
+bool IsMultiplayer = false;
 bool IsRunning = false;
 
 
@@ -88,15 +105,25 @@ bool IsRunning = false;
 
 void static Clear()
 {
-	PaddleLeftCenter = Vector2D(PaddleWidthOffset, Height / 2.0f);
-	PaddleLeftDirection = Vector2D::Zero();
+	auto ballTransform = transformRegistry.TryGetByOwnerMutable(BallHandle);
+	if (ballTransform)
+	{
+		ballTransform->Position = { HalfWidth, HalfHeight };
+	}
 
-	PaddleRightCenter = Vector2D(Width - PaddleWidthOffset, Height / 2.0f);
-	PaddleRightDirection = Vector2D::Zero();
+	auto player1Transform = transformRegistry.TryGetByOwnerMutable(Player1Handle);
+	if (player1Transform)
+	{
+		player1Transform->Position = { PaddleWidthOffset, HalfHeight };
+	}
 
-	BallCenter = Vector2D(Width / 2.0f, Height / 2.0f);
+	auto player2Transform = transformRegistry.TryGetByOwnerMutable(Player2Handle);
+	if (player2Transform)
+	{
+		player2Transform->Position = { Width - PaddleWidthOffset, HalfHeight };
+	}
+
 	BallDirection = Vector2D::Zero();
-
 	BallSpeed = BallSpeedDefault;
 
 	IsRunning = false;
@@ -115,21 +142,6 @@ void static Start()
 	IsRunning = true;
 }
 
-void static UpdateRects()
-{
-	PaddleLeftRect = Rectangle2D(PaddleLeftCenter.X - PaddleWidth / 2.0f,
-		PaddleLeftCenter.Y - PaddleHeight / 2.0f,
-		PaddleWidth, PaddleHeight);
-
-	PaddleRightRect = Rectangle2D(PaddleRightCenter.X - PaddleWidth / 2.0f,
-		PaddleRightCenter.Y - PaddleHeight / 2.0f,
-		PaddleWidth, PaddleHeight);
-
-	BallRect = Rectangle2D(BallCenter.X - BallSize / 2.0f,
-		BallCenter.Y - BallSize / 2.0f,
-		BallSize, BallSize);
-}
-
 #pragma endregion
 
 #pragma region Rendering Helpers
@@ -137,58 +149,56 @@ void static UpdateRects()
 void static RenderGame(Renderer2D& renderer)
 {
 	// Render stippled center line.
-	auto numLines = 40;
-	auto lineHeight = Height / numLines;
-	auto xCenter = Width / 2.0f;
-
-	for (int i = 0; i < numLines; i += 2)
+	for (int y = 0; y < Height; y += LineHeight)
 	{
-		auto padding = lineHeight / 2.0f;
-		auto y1 = lineHeight * i + padding;
-		auto y2 = lineHeight * i + lineHeight + padding;
-		renderer.DrawLine(xCenter, y1, xCenter, y2, Colors::White);
+		renderer.DrawLine(HalfWidth, y, HalfWidth, y + HalfLineHeight, Colors::White);
 	}
 
-	// Render scores
-	LeftScoreTextRect = Rectangle2D(xCenter - PaddleScoreTextOffset - PaddleScoreTextSize / 2.0f, Height - PaddleScoreTextSize - 10.0f, 50.0f, 50.0);
-	renderer.DrawText(Transform2D(0, Vector2D(LeftScoreTextRect.GetX(), LeftScoreTextRect.GetY())), std::to_string(PaddleLeftScore));
+	// Render score text.
+	renderer.DrawText(Transform2D(0, { HalfWidth - ScoreTextOffset - 25.0f, Height - ScoreTextOffset }), std::to_string(Player1Score));
+	renderer.DrawText(Transform2D(0, { HalfWidth + ScoreTextOffset, Height - ScoreTextOffset }), std::to_string(Player2Score));
 
-	RightScoreTextRect = Rectangle2D(xCenter + PaddleScoreTextOffset - PaddleScoreTextSize / 2.0f, Height - PaddleScoreTextSize - 10.0f, 50.0f, 50.0);
-	renderer.DrawText(Transform2D(0, Vector2D(RightScoreTextRect.GetX(), RightScoreTextRect.GetY())), std::to_string(PaddleRightScore));
+	auto* player1Ptr = transformRegistry.TryGetByOwnerMutable(Player1Handle);
+	auto* player2Ptr = transformRegistry.TryGetByOwnerMutable(Player2Handle);
+	auto* ballPtr = transformRegistry.TryGetByOwnerMutable(BallHandle);
 
-	// Render left paddle.
-	renderer.DrawQuad(Transform2D(0, Vector2D(PaddleLeftRect.GetX(), PaddleLeftRect.GetY()), Vector2D(PaddleLeftRect.GetWidth(), PaddleLeftRect.GetHeight())), Colors::White);
+	if (!(player1Ptr && player2Ptr && ballPtr))
+	{
+		Ludus::Engine::Utilities::WriteLine(
+			"[Rendering] An error occurred while attempting to get object transforms."
+		);
+		return;
+	}
 
-	// Render right paddle.
-	renderer.DrawQuad(Transform2D(0, Vector2D(PaddleRightRect.GetX(), PaddleRightRect.GetY()), Vector2D(PaddleRightRect.GetWidth(), PaddleRightRect.GetHeight())), Colors::White);
-
-	// Render ball.
-	renderer.DrawQuad(Transform2D(0, Vector2D(BallRect.GetX(), BallRect.GetY()), Vector2D(BallRect.GetWidth(), BallRect.GetHeight())), Colors::White);
+	// Render ball and players.
+	renderer.DrawQuad(*player1Ptr);
+	renderer.DrawQuad(*player2Ptr);
+	renderer.DrawQuad(*ballPtr);
 }
 
 void static RenderMenuScreen(Renderer2D& renderer)
 {
-	renderer.DrawText(Transform2D(0, Vector2D(Width / 2.0f - 150.0f, Height - 150.0f), 3.0f), "Pong", Colors::White);
-	renderer.DrawText(Transform2D(0, Vector2D(Width / 2.0f - 150.0f, Height / 2.0f)), "Single Player", MenuIndex == 1 ? Colors::White : Colors::LightGray);
-	renderer.DrawText(Transform2D(0, Vector2D(Width / 2.0f - 150.0f, Height / 2.0f - 100.0f)), "Multiplayer", MenuIndex == 2 ? Colors::White : Colors::LightGray);
-	renderer.DrawText(Transform2D(0, Vector2D(Width / 2.0f - 150.0f, Height / 2.0f - 200.0f)), "Exit", MenuIndex == 3 ? Colors::White : Colors::LightGray);
+	renderer.DrawText(Transform2D(0, { HalfWidth - 175.0f, Height - 150.0f }, 3.0f), "Pong");
+	renderer.DrawText(Transform2D(0, { HalfWidth - 150.0f, HalfHeight }), "Single Player", MenuIndex == 1 ? Colors::White : Colors::LightGray);
+	renderer.DrawText(Transform2D(0, { HalfWidth - 120.0f, HalfHeight - 100.0f }), "Multiplayer", MenuIndex == 2 ? Colors::White : Colors::LightGray);
+	renderer.DrawText(Transform2D(0, { HalfWidth - 60.0f, HalfHeight - 200.0f }), "Exit", MenuIndex == 3 ? Colors::White : Colors::LightGray);
 }
 
 void static RenderPausedScreen(Renderer2D& renderer)
 {
-	renderer.DrawText(Transform2D(0, Vector2D(Width / 2.0f - 150.0f, Height - 150.0f), 3.0f), "Pong", Colors::White);
-	renderer.DrawText(Transform2D(0, Vector2D(Width / 2.0f - 100.0f, Height / 2.0f)), "Continue", MenuIndex == 1 ? Colors::White : Colors::LightGray);
-	renderer.DrawText(Transform2D(0, Vector2D(Width / 2.0f - 50.0f, Height / 2.0f - 100.0f)), "Exit", MenuIndex == 2 ? Colors::White : Colors::LightGray);
+	renderer.DrawText(Transform2D(0, { HalfWidth - 175.0f, Height - 150.0f }, 3.0f), "Pong");
+	renderer.DrawText(Transform2D(0, { HalfWidth - 80.0f, HalfHeight }), "Continue", MenuIndex == 1 ? Colors::White : Colors::LightGray);
+	renderer.DrawText(Transform2D(0, { HalfWidth - 30.0f, HalfHeight - 100.0f }), "Exit", MenuIndex == 2 ? Colors::White : Colors::LightGray);
 }
 
 void static RenderScoreScreen(Renderer2D& renderer)
 {
-	std::string winnerName = PaddleLeftScore > PaddleRightScore ? "Left player" : "Right Player";
+	std::string winnerName = Player1Score > Player2Score ? "Player 1" : "Player 2";
 	std::string scoreText = winnerName + " Won!";
 
-	renderer.DrawText(Transform2D(0, Vector2D(Width / 2.0f - 200.0f, Height - 150.0f)), scoreText, Colors::White);
-	renderer.DrawText(Transform2D(0, Vector2D(Width / 2.0f - 125.0f, Height / 2.0f)), "New Game", MenuIndex == 1 ? Colors::White : Colors::LightGray);
-	renderer.DrawText(Transform2D(0, Vector2D(Width / 2.0f - 50.0f, Height / 2.0f - 100.0f)), "Exit", MenuIndex == 2 ? Colors::White : Colors::LightGray);
+	renderer.DrawText(Transform2D(0, { HalfWidth - 200.0f, Height - 150.0f }), scoreText);
+	renderer.DrawText(Transform2D(0, { HalfWidth - 125.0f, HalfHeight }), "New Game", MenuIndex == 1 ? Colors::White : Colors::LightGray);
+	renderer.DrawText(Transform2D(0, { HalfWidth - 50.0f, HalfHeight - 100.0f }), "Exit", MenuIndex == 2 ? Colors::White : Colors::LightGray);
 }
 
 #pragma endregion
@@ -223,6 +233,44 @@ int main()
 
 #pragma endregion
 
+#pragma region Game objects setup
+
+	// Game objects.
+	GameObject ballObject;
+	GameObject boundaryLeftObject;
+	GameObject boundaryTopObject;
+	GameObject boundaryRightObject;
+	GameObject boundaryBottomObject;
+	GameObject player1Object;
+	GameObject player2Object;
+
+	BallHandle = ballObject.Handle;
+	BoundaryLeftHandle = boundaryLeftObject.Handle;
+	BoundaryTopHandle = boundaryTopObject.Handle;
+	BoundaryRightHandle = boundaryRightObject.Handle;
+	BoundaryBottomHandle = boundaryBottomObject.Handle;
+	Player1Handle = player1Object.Handle;
+	Player2Handle = player2Object.Handle;
+
+	GameObjects.push_back(player1Object);
+	GameObjects.push_back(player2Object);
+	GameObjects.push_back(ballObject);
+	GameObjects.push_back(boundaryLeftObject);
+	GameObjects.push_back(boundaryTopObject);
+	GameObjects.push_back(boundaryRightObject);
+	GameObjects.push_back(boundaryBottomObject);
+
+	// Transforms.
+	transformRegistry.Add(BallHandle, { HalfWidth, HalfHeight }, BallSize);
+	transformRegistry.Add(BoundaryLeftHandle, { WallThickness * 0.5f, HalfHeight }, { WallThickness, Height });
+	transformRegistry.Add(BoundaryTopHandle, { HalfWidth, Height - WallThickness * 0.5f }, { Width, WallThickness });
+	transformRegistry.Add(BoundaryRightHandle, { Width - WallThickness * 0.5f, HalfHeight }, { WallThickness, Height });
+	transformRegistry.Add(BoundaryBottomHandle, { HalfWidth, WallThickness * 0.5f }, { Width, WallThickness });
+	transformRegistry.Add(Player1Handle, { PaddleWidthOffset, HalfHeight }, { PaddleWidth, PaddleHeight });
+	transformRegistry.Add(Player2Handle, { Width - PaddleWidthOffset, HalfHeight }, { PaddleWidth, PaddleHeight });
+
+#pragma endregion
+
 	while (!window.WindowShouldClose())
 	{
 
@@ -245,12 +293,16 @@ int main()
 				if (MenuIndex == 1)
 				{
 					State = Playing;
-					isMultiplayer = false;
+					IsMultiplayer = false;
+
+					Clear();
 				}
 				else if (MenuIndex == 2)
 				{
 					State = Playing;
-					isMultiplayer = true;
+					IsMultiplayer = true;
+
+					Clear();
 				}
 				else
 				{
@@ -261,7 +313,7 @@ int main()
 
 		if (State == Playing)
 		{
-			if (PaddleLeftScore == MaxScore || PaddleRightScore == MaxScore)
+			if (Player1Score == MaxScore || Player2Score == MaxScore)
 			{
 				Clear();
 
@@ -309,7 +361,7 @@ int main()
 				{
 					Clear();
 
-					PaddleLeftScore = PaddleRightScore = 0;
+					Player1Score = Player2Score = 0;
 
 					State = Playing;
 				}
@@ -329,73 +381,71 @@ int main()
 
 #pragma region Movement Integration
 
-		// TODO: Remove input references from the simulation region. It should only apply the result of already chosen inputs.
 		if (State == Playing)
 		{
-			float leftPaddleVerticalDirection = 0.0f;
-			if (window.GetInput().GetKey(Key::W))
+			auto* player1Ptr = transformRegistry.TryGetByOwnerMutable(Player1Handle);
+			auto* player2Ptr = transformRegistry.TryGetByOwnerMutable(Player2Handle);
+			auto* ballPtr = transformRegistry.TryGetByOwnerMutable(BallHandle);
+
+			if (!(player1Ptr && player2Ptr && ballPtr))
 			{
-				if (PaddleLeftCenter.Y <= Height - PaddleHeightOffset)
-				{
-					leftPaddleVerticalDirection = 1.0f;
-				}
-			}
-			else if (window.GetInput().GetKey(Key::S))
-			{
-				if (PaddleLeftCenter.Y >= 0.0f + PaddleHeightOffset)
-				{
-					leftPaddleVerticalDirection = -1.0f;
-				}
+				Ludus::Engine::Utilities::WriteLine(
+					"[Movement Integration] An error occurred while attempting to get object transforms."
+				);
+				continue;
 			}
 
-			PaddleLeftDirection.Y = leftPaddleVerticalDirection;
-			PaddleLeftDirection.Normalize();
-			auto paddleLeftVelocity = PaddleLeftDirection * PaddleLeftSpeed;
-			PaddleLeftCenter += paddleLeftVelocity * Timer;
+			auto& player1Transform = *player1Ptr;
+			auto& player2Transform = *player2Ptr;
+			auto& ballTransform = *ballPtr;
 
-			float rightPaddleVerticalDirection = 0.0f;
-			if (isMultiplayer)
+			// Player 1.
+			auto player1Direction = 0.0f;
+			if (window.GetInput().GetKey(Key::W) && player1Transform.Position.Y + player1Transform.Scale.Y * 0.5f <= Height)
 			{
-				if (window.GetInput().GetKey(Key::Up))
+				player1Direction = 1.0f;
+			}
+			else if (window.GetInput().GetKey(Key::S) && player1Transform.Position.Y - player1Transform.Scale.Y * 0.5f >= 0.0f)
+			{
+				player1Direction = -1.0f;
+			}
+
+			player1Transform.Position.Y += player1Direction * Player1Speed * Timer;
+
+			// Player 2.
+			auto player2Direction = 0.0f;
+			if (IsMultiplayer)
+			{
+				if (window.GetInput().GetKey(Key::Up) && player2Transform.Position.Y + player2Transform.Scale.Y * 0.5f <= Height)
 				{
-					if (PaddleRightCenter.Y <= Height - PaddleHeightOffset)
-					{
-						rightPaddleVerticalDirection = 1.0f;
-					}
+					player2Direction = 1.0f;
 				}
-				else if (window.GetInput().GetKey(Key::Down))
+				else if (window.GetInput().GetKey(Key::Down) && player2Transform.Position.Y - player2Transform.Scale.Y * 0.5f >= 0.0f)
 				{
-					if (PaddleRightCenter.Y >= 0.0f + PaddleHeightOffset)
-					{
-						rightPaddleVerticalDirection = -1.0f;
-					}
+					player2Direction = -1.0f;
 				}
 			}
 			else
 			{
-				if (IsRunning && abs(BallCenter.Y - PaddleRightCenter.Y) > BallSize / 2.0f && BallCenter.X >= Width / 2.0f)
+				if (IsRunning && abs(ballTransform.Position.Y - player2Transform.Position.Y) > BallSize && ballTransform.Position.X >= HalfWidth)
 				{
-					if (PaddleRightCenter.Y < BallCenter.Y && PaddleRightCenter.Y <= Height - PaddleHeightOffset)
+					if (player2Transform.Position.Y < ballTransform.Position.Y && player2Transform.Position.Y + player2Transform.Scale.Y * 0.5f <= Height)
 					{
-						rightPaddleVerticalDirection = 1.0f;
+						player2Direction = 1.0f;
 					}
-					else if (PaddleRightCenter.Y >= BallCenter.Y && PaddleRightCenter.Y >= 0.0f + PaddleHeightOffset)
+					else if (player2Transform.Position.Y >= ballTransform.Position.Y && player2Transform.Position.Y - player2Transform.Scale.Y * 0.5f >= 0.0f)
 					{
-						rightPaddleVerticalDirection = -1.0f;
+						player2Direction = -1.0f;
 					}
 				}
 			}
 
-			PaddleRightDirection.Y = rightPaddleVerticalDirection;
-			PaddleRightDirection.Normalize();
-			auto paddleRightVelocity = PaddleRightDirection * PaddleRightSpeed;
-			PaddleRightCenter += paddleRightVelocity * Timer;
+			player2Transform.Position.Y += player2Direction * Player2Speed * Timer;
 
-			auto ballVelocity = BallDirection * (IsBallServed ? BallSpeed : BallSpeed / 2.0f);
-			BallCenter += ballVelocity * Timer;
+			// Ball.
+			auto ballVelocity = BallDirection * (IsBallServed ? BallSpeed : BallSpeed * 0.5f);
+			ballTransform.Position += ballVelocity * Timer;
 		}
-
-		UpdateRects();
 
 #pragma endregion
 
@@ -403,23 +453,43 @@ int main()
 
 		if (State == Playing)
 		{
-			if (BallRect.GetX() <= 0.0f)
+			auto* player1Ptr = transformRegistry.TryGetByOwnerMutable(Player1Handle);
+			auto* player2Ptr = transformRegistry.TryGetByOwnerMutable(Player2Handle);
+			auto* ballPtr = transformRegistry.TryGetByOwnerMutable(BallHandle);
+
+			if (!(player1Ptr && player2Ptr && ballPtr))
 			{
-				PaddleRightScore++;
+				Ludus::Engine::Utilities::WriteLine(
+					"[Collision Handling] An error occurred while attempting to get object transforms."
+				);
+				continue;
+			}
+
+			auto& player1Transform = *player1Ptr;
+			auto& player2Transform = *player2Ptr;
+			auto& ballTransform = *ballPtr;
+
+			if (ballTransform.Position.X - BallSize * 0.5f <= 0.0f)
+			{
+				Player2Score++;
 				Clear();
 			}
-			if (BallCenter.X + BallRect.GetWidth() >= Width)
+			if (ballTransform.Position.X + BallSize * 0.5f >= Width)
 			{
-				PaddleLeftScore++;
+				Player1Score++;
 				Clear();
 			}
 
-			if (PaddleLeftRect.Intersects(BallRect))
+			auto player1Rect = Rectangle2D(player1Transform.Position - player1Transform.Scale * 0.5f, player1Transform.Scale);
+			auto player2Rect = Rectangle2D(player2Transform.Position - player2Transform.Scale * 0.5f, player2Transform.Scale);
+			auto ballRect = Rectangle2D(ballTransform.Position - ballTransform.Scale * 0.5f, ballTransform.Scale);
+
+			if (player1Rect.Intersects(ballRect))
 			{
 				auto collisionNormal = Vector2D(1.0f, 0.0f);
 				if (Vector2D::Dot(BallDirection, collisionNormal) < 0.0f)
 				{
-					auto collisionOffset = Numeric::Clamp((BallCenter.Y - PaddleLeftCenter.Y) / (PaddleHeight / 2.0f), -1.0f, 1.0f);
+					auto collisionOffset = Numeric::Clamp((ballTransform.Position.Y - player1Transform.Position.Y) / HalfPaddleHeight, -1.0f, 1.0f);
 					auto tangentialKick = 0.75f;
 
 					BallDirection.Reflect(collisionNormal).Normalize();
@@ -431,12 +501,12 @@ int main()
 				IsBallServed = true;
 			}
 
-			if (PaddleRightRect.Intersects(BallRect))
+			if (player2Rect.Intersects(ballRect))
 			{
 				auto collisionNormal = Vector2D(-1.0f, 0.0f);
 				if (Vector2D::Dot(BallDirection, collisionNormal) < 0.0f)
 				{
-					auto collisionOffset = Numeric::Clamp((BallCenter.Y - PaddleRightCenter.Y) / (PaddleHeight / 2.0f), -1.0f, 1.0f);
+					auto collisionOffset = Numeric::Clamp((ballTransform.Position.Y - player2Transform.Position.Y) / HalfPaddleHeight, -1.0f, 1.0f);
 					auto tangentialKick = 0.75f;
 
 					BallDirection.Reflect(collisionNormal).Normalize();
@@ -448,12 +518,12 @@ int main()
 				IsBallServed = true;
 			}
 
-			if (BallRect.GetY() + BallRect.GetHeight() >= Height)
+			if (ballTransform.Position.Y + player1Transform.Scale.Y * 0.5f >= Height)
 			{
 				BallDirection.Reflect(Vector2D(0.0f, -1.0f)).Normalize();
 			}
 
-			if (BallRect.GetY() <= 0.0f)
+			if (ballTransform.Position.Y - player1Transform.Scale.Y * 0.5f <= 0.0f)
 			{
 				BallDirection.Reflect(Vector2D(0.0f, 1.0f)).Normalize();
 			}
