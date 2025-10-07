@@ -100,8 +100,7 @@ int Player2ProjectileCount = 0;
 int Player1ProjectileBounceCount = 0;
 int Player2ProjectileBounceCount = 0;
 
-bool isMultiplayer = false;
-
+bool IsMultiplayer = false;
 
 #pragma region State helpers
 
@@ -138,7 +137,7 @@ void static DrawBackground(Renderer2D& renderer)
 	auto player1ScoreString = std::to_string(Player1Score);
 	renderer.DrawText(Transform2D(0, Vector2D(QuarterWidth, Height - PaddingHeight)), player1ScoreString, Colors::White);
 
-	if (isMultiplayer)
+	if (IsMultiplayer)
 	{
 		auto player2ScoreString = std::to_string(Player2Score);
 		renderer.DrawText(Transform2D(0, Vector2D(Width - QuarterWidth, Height - PaddingHeight)), player2ScoreString, Colors::White);
@@ -310,7 +309,7 @@ int main()
 		int player2Thrust;
 		int player2Turn;
 
-		if (isMultiplayer)
+		if (IsMultiplayer)
 		{
 			player2Thrust = (window.GetInput().GetKey(Key::Up) ? +1 : 0) + (window.GetInput().GetKey(Key::Down) ? -1 : 0);
 			player2Turn = (window.GetInput().GetKey(Key::Left) ? +1 : 0) + (window.GetInput().GetKey(Key::Right) ? -1 : 0);
@@ -349,7 +348,7 @@ int main()
 			Player1ProjectileCount++;
 		}
 
-		if (isMultiplayer)
+		if (IsMultiplayer)
 		{
 			if (window.GetInput().GetKeyDown(Key::Enter) && Player2ProjectileFireRate.CanFire() && Player2ProjectileCount < MaxActiveProjectiles)
 			{
