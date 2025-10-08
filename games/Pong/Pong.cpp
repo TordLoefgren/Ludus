@@ -1,5 +1,8 @@
+﻿#include <algorithm>
+#include <cmath> 
 #include <vector>
 
+#include <Ludus/Engine/ColliderRegistry.h>
 #include <Ludus/Engine/GameObject.h>
 #include <Ludus/Engine/Random.h>
 #include <Ludus/Engine/TimeStep.h>
@@ -14,6 +17,8 @@
 #include <Ludus/Math/Rectangle2D.h>
 #include <Ludus/Math/Transform2D.h>
 #include <Ludus/Math/Vector2D.h>
+#include <Ludus/Physics/Collider2D.h>
+#include <Ludus/Physics/Collision2DManager.h>
 #include <Ludus/Platform/Input.h>
 #include <Ludus/Platform/Key.h>
 #include <Ludus/Platform/Window.h>
@@ -21,6 +26,7 @@
 
 using Ludus::Engine::GameObject;
 using Ludus::Engine::GameObjectHandle;
+using Ludus::Engine::LayerMask;
 using Ludus::Graphics::Camera2D;
 using Ludus::Graphics::Color;
 using Ludus::Graphics::GLContext;
@@ -29,6 +35,7 @@ using Ludus::Graphics::Shader;
 using Ludus::Math::Vector2D;
 using Ludus::Math::Transform2D;
 using Ludus::Math::Rectangle2D;
+using Ludus::Physics::Collider2D;
 using Ludus::Platform::Input;
 using Ludus::Platform::Key;
 using Ludus::Platform::Window;
@@ -42,51 +49,60 @@ enum GameState
 	Menu, Playing, Paused, Score
 };
 
-const int Width = 800;
-const int Height = 640;
+const int Width = 1024;
+const int Height = 768;
 
-const int HalfWidth = Width * 0.5f;
-const int HalfHeight = Height * 0.5f;
+const float HalfWidth = Width * 0.5f;
+const float HalfHeight = Height * 0.5f;
+
+const int NumLines = 26;
+const int LineHeight = Height / NumLines;
+const int HalfLineHeight = (int)(LineHeight * 0.5f);
 
 const float PaddleWidth = 10.0f;
-const float PaddleHeight = 40.0f;
-const float PaddleWidthOffset = 50;
+const float PaddleHeight = 60.0f;
+const float PaddleWidthOffset = 100.0f;
 const float HalfPaddleHeight = PaddleHeight * 0.5f;
-const float WallThickness = 20.0f;
-const int ScoreTextOffset = 75;
-const int NumLines = 25;
-const int LineHeight = Height / NumLines;
-const int HalfLineHeight = LineHeight * 0.5f;
+const float WallWidthThickness = PaddleWidthOffset - 50.0f;
+const float WallHeightThickness = 15.0f;
+const float ScoreTextOffset = 75;
 
-const float BallSize = 10.0f;
-const float BallSpeedDefault = 600.0f;
-const float BallSpeedIncrement = 20.0f;
-const float Player1Speed = 600.0f;
-const float Player2Speed = 500.0f;
+const float BallSize = 12.0f;
+const float BallSpeedDefault = 900.0f;
+const float BallSpeedIncrement = 50.0f;
+const float MaxDeflectDegrees = 60.0f;
+const float MinCenterDegrees = 10.0f;
+const float Player1Speed = 900.0f;
+const float Player2Speed = 700.0f;
 const int MaxScore = 5;
 
 Ludus::Engine::Random random;
 Ludus::Engine::TimeStep Timer;
 Ludus::Engine::TransformRegistry transformRegistry;
+Ludus::Engine::ColliderRegistry colliderRegistry;
+Ludus::Physics::Collision2DManager collisionManager;
+
+const std::string BallLayerName = "Ball";
+const std::string BoundaryHorizontalLayerName = "BoundaryHorizontal";
+const std::string BoundaryVerticalLayerName = "BoundaryVertical";
+const std::string Player1LayerName = "Player1";
+const std::string Player2LayerName = "Player2";
 
 std::vector<GameObject> GameObjects;
+
+GameObjectHandle Player1Handle;
+GameObjectHandle Player2Handle;
+GameObjectHandle BallHandle;
+GameObjectHandle BoundaryLeftHandle;
+GameObjectHandle BoundaryTopHandle;
+GameObjectHandle BoundaryRightHandle;
+GameObjectHandle BoundaryBottomHandle;
 
 Rectangle2D LeftScoreTextRect;
 Rectangle2D RightScoreTextRect;
 Rectangle2D Player1Rect;
 Rectangle2D Player2Rect;
 Rectangle2D BallRect;
-
-GameObjectHandle Player1Handle;
-GameObjectHandle Player2Handle;
-GameObjectHandle BallHandle;
-
-GameObjectHandle BoundaryLeftHandle;
-GameObjectHandle BoundaryTopHandle;
-GameObjectHandle BoundaryRightHandle;
-GameObjectHandle BoundaryBottomHandle;
-
-Vector2D BallDirection;
 
 GameState State = Menu;
 int MenuIndex = 1;
@@ -100,30 +116,31 @@ bool IsBallServed = false;
 bool IsMultiplayer = false;
 bool IsRunning = false;
 
-
 #pragma region State Helpers
+
+static bool Is(const LayerMask& a, const LayerMask& b) { return a == b; };
+static bool IsPair(const LayerMask& a1, const LayerMask& b1, const LayerMask& a2, const LayerMask& b2)
+{
+	return (a1 == a2 && b1 == b2) || (a1 == b2 && b1 == a2);
+};
 
 void static Clear()
 {
-	auto ballTransform = transformRegistry.TryGetByOwnerMutable(BallHandle);
-	if (ballTransform)
+	if (auto ballTransform = transformRegistry.TryGetByOwnerMutable(BallHandle))
 	{
 		ballTransform->Position = { HalfWidth, HalfHeight };
 	}
 
-	auto player1Transform = transformRegistry.TryGetByOwnerMutable(Player1Handle);
-	if (player1Transform)
+	if (auto player1Transform = transformRegistry.TryGetByOwnerMutable(Player1Handle))
 	{
 		player1Transform->Position = { PaddleWidthOffset, HalfHeight };
 	}
 
-	auto player2Transform = transformRegistry.TryGetByOwnerMutable(Player2Handle);
-	if (player2Transform)
+	if (auto player2Transform = transformRegistry.TryGetByOwnerMutable(Player2Handle))
 	{
 		player2Transform->Position = { Width - PaddleWidthOffset, HalfHeight };
 	}
 
-	BallDirection = Vector2D::Zero();
 	BallSpeed = BallSpeedDefault;
 
 	IsRunning = false;
@@ -135,11 +152,38 @@ void static Start()
 	directionX = directionX < 0.0f ? -1.0f : 1.0f;
 	auto directionY = random.Next(-0.5f, 0.5f);
 
-	BallDirection = Vector2D(directionX, directionY);
-	BallDirection.Normalize();
+	if (auto ballTransform = transformRegistry.TryGetByOwnerMutable(BallHandle))
+	{
+		ballTransform->Rotation = Numeric::RadiansToDegrees(std::atan2(directionY, directionX));
+	}
 
 	IsBallServed = false;
 	IsRunning = true;
+}
+
+static float GetReflectionAngle(const Transform2D* ballTransform, const Transform2D* playerTransform, Vector2D normal)
+{
+	// Compute a signed offset in [-1,1] from the vertical paddle impact position.
+	auto offset = (ballTransform->Position.Y - playerTransform->Position.Y) / (playerTransform->Scale.Y * 0.5f);
+	offset = Numeric::Clamp(offset, -1.0f, 1.0f);
+
+	// Reflect the direction off the surface normal.
+	const auto direction = ballTransform->Forward();
+	const auto reflection = Vector2D::Reflect(direction, normal);
+
+	const float theta = std::copysign(
+		std::max(MinCenterDegrees, std::fabs(offset) * MaxDeflectDegrees),
+		(offset != 0.0f) ? offset : (direction.Y >= 0.0f ? 1.0f : -1.0f)
+	);
+	auto deflection = Vector2D::Rotate(reflection, theta);
+
+	// Make sure that the ball will not deflect completely vertical.
+	if (std::fabs(deflection.X) < 0.1f)
+	{
+		deflection.X = deflection.X < 0.0f ? -0.1f : 0.1f;
+	}
+
+	return Numeric::RotationDegreesFromDirection(deflection.X, deflection.Y);
 }
 
 #pragma endregion
@@ -149,7 +193,7 @@ void static Start()
 void static RenderGame(Renderer2D& renderer)
 {
 	// Render stippled center line.
-	for (int y = 0; y < Height; y += LineHeight)
+	for (float y = 0; y < Height; y += LineHeight)
 	{
 		renderer.DrawLine(HalfWidth, y, HalfWidth, y + HalfLineHeight, Colors::White);
 	}
@@ -158,22 +202,32 @@ void static RenderGame(Renderer2D& renderer)
 	renderer.DrawText(Transform2D(0, { HalfWidth - ScoreTextOffset - 25.0f, Height - ScoreTextOffset }), std::to_string(Player1Score));
 	renderer.DrawText(Transform2D(0, { HalfWidth + ScoreTextOffset, Height - ScoreTextOffset }), std::to_string(Player2Score));
 
-	auto* player1Ptr = transformRegistry.TryGetByOwnerMutable(Player1Handle);
-	auto* player2Ptr = transformRegistry.TryGetByOwnerMutable(Player2Handle);
-	auto* ballPtr = transformRegistry.TryGetByOwnerMutable(BallHandle);
+	// Render top and bottom boundaries.
+	const auto* boundaryTopTransform = transformRegistry.TryGetByOwnerMutable(BoundaryTopHandle);
+	const auto* boundaryBottomTransform = transformRegistry.TryGetByOwnerMutable(BoundaryBottomHandle);
+	if (!(boundaryTopTransform && boundaryBottomTransform))
+	{
+		Ludus::Engine::Utilities::WriteLine("[Rendering] Missing transform(s).");
+		return;
+	}
+
+	renderer.DrawQuad(*boundaryTopTransform);
+	renderer.DrawQuad(*boundaryBottomTransform);
+
+	const auto* player1Ptr = transformRegistry.TryGetByOwnerMutable(Player1Handle);
+	const auto* player2Ptr = transformRegistry.TryGetByOwnerMutable(Player2Handle);
+	const auto* ballPtr = transformRegistry.TryGetByOwnerMutable(BallHandle);
 
 	if (!(player1Ptr && player2Ptr && ballPtr))
 	{
-		Ludus::Engine::Utilities::WriteLine(
-			"[Rendering] An error occurred while attempting to get object transforms."
-		);
+		Ludus::Engine::Utilities::WriteLine("[Rendering] Missing transform(s).");
 		return;
 	}
 
 	// Render ball and players.
 	renderer.DrawQuad(*player1Ptr);
 	renderer.DrawQuad(*player2Ptr);
-	renderer.DrawQuad(*ballPtr);
+	renderer.DrawCircle(*ballPtr);
 }
 
 void static RenderMenuScreen(Renderer2D& renderer)
@@ -196,7 +250,7 @@ void static RenderScoreScreen(Renderer2D& renderer)
 	std::string winnerName = Player1Score > Player2Score ? "Player 1" : "Player 2";
 	std::string scoreText = winnerName + " Won!";
 
-	renderer.DrawText(Transform2D(0, { HalfWidth - 200.0f, Height - 150.0f }), scoreText);
+	renderer.DrawText(Transform2D(0, { HalfWidth - 150.0f, Height - 150.0f }), scoreText);
 	renderer.DrawText(Transform2D(0, { HalfWidth - 125.0f, HalfHeight }), "New Game", MenuIndex == 1 ? Colors::White : Colors::LightGray);
 	renderer.DrawText(Transform2D(0, { HalfWidth - 50.0f, HalfHeight - 100.0f }), "Exit", MenuIndex == 2 ? Colors::White : Colors::LightGray);
 }
@@ -236,13 +290,13 @@ int main()
 #pragma region Game objects setup
 
 	// Game objects.
-	GameObject ballObject;
-	GameObject boundaryLeftObject;
-	GameObject boundaryTopObject;
-	GameObject boundaryRightObject;
-	GameObject boundaryBottomObject;
-	GameObject player1Object;
-	GameObject player2Object;
+	const GameObject ballObject;
+	const GameObject boundaryLeftObject;
+	const GameObject boundaryTopObject;
+	const GameObject boundaryRightObject;
+	const GameObject boundaryBottomObject;
+	const GameObject player1Object;
+	const GameObject player2Object;
 
 	BallHandle = ballObject.Handle;
 	BoundaryLeftHandle = boundaryLeftObject.Handle;
@@ -252,20 +306,28 @@ int main()
 	Player1Handle = player1Object.Handle;
 	Player2Handle = player2Object.Handle;
 
-	GameObjects.push_back(player1Object);
-	GameObjects.push_back(player2Object);
-	GameObjects.push_back(ballObject);
-	GameObjects.push_back(boundaryLeftObject);
-	GameObjects.push_back(boundaryTopObject);
-	GameObjects.push_back(boundaryRightObject);
-	GameObjects.push_back(boundaryBottomObject);
+	// Layer masks.
+	LayerMask::AddLayer(BallLayerName, 1);
+	LayerMask::AddLayer(BoundaryHorizontalLayerName, 2);
+	LayerMask::AddLayer(BoundaryVerticalLayerName, 3);
+	LayerMask::AddLayer(Player1LayerName, 4);
+	LayerMask::AddLayer(Player2LayerName, 5);
+
+	// Colliders.
+	colliderRegistry.Add(BallHandle, 1, LayerMask::GetMask({ BoundaryVerticalLayerName, BoundaryHorizontalLayerName, Player1LayerName, Player2LayerName }));
+	colliderRegistry.Add(BoundaryLeftHandle, 3, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
+	colliderRegistry.Add(BoundaryTopHandle, 2, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
+	colliderRegistry.Add(BoundaryRightHandle, 3, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
+	colliderRegistry.Add(BoundaryBottomHandle, 2, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
+	colliderRegistry.Add(Player1Handle, 4, LayerMask::GetMask({ BallLayerName, BoundaryHorizontalLayerName }));
+	colliderRegistry.Add(Player2Handle, 5, LayerMask::GetMask({ BallLayerName, BoundaryHorizontalLayerName }));
 
 	// Transforms.
 	transformRegistry.Add(BallHandle, { HalfWidth, HalfHeight }, BallSize);
-	transformRegistry.Add(BoundaryLeftHandle, { WallThickness * 0.5f, HalfHeight }, { WallThickness, Height });
-	transformRegistry.Add(BoundaryTopHandle, { HalfWidth, Height - WallThickness * 0.5f }, { Width, WallThickness });
-	transformRegistry.Add(BoundaryRightHandle, { Width - WallThickness * 0.5f, HalfHeight }, { WallThickness, Height });
-	transformRegistry.Add(BoundaryBottomHandle, { HalfWidth, WallThickness * 0.5f }, { Width, WallThickness });
+	transformRegistry.Add(BoundaryLeftHandle, { WallWidthThickness * 0.5f, HalfHeight }, { WallWidthThickness, Height });
+	transformRegistry.Add(BoundaryTopHandle, { HalfWidth, Height - WallHeightThickness * 0.5f }, { Width - 2.0f * WallWidthThickness, WallHeightThickness });
+	transformRegistry.Add(BoundaryRightHandle, { Width - WallWidthThickness * 0.5f, HalfHeight }, { WallWidthThickness, Height });
+	transformRegistry.Add(BoundaryBottomHandle, { HalfWidth, WallHeightThickness * 0.5f }, { Width - 2.0f * WallWidthThickness, WallHeightThickness });
 	transformRegistry.Add(Player1Handle, { PaddleWidthOffset, HalfHeight }, { PaddleWidth, PaddleHeight });
 	transformRegistry.Add(Player2Handle, { Width - PaddleWidthOffset, HalfHeight }, { PaddleWidth, PaddleHeight });
 
@@ -381,6 +443,8 @@ int main()
 
 #pragma region Movement Integration
 
+		Timer.Step();
+
 		if (State == Playing)
 		{
 			auto* player1Ptr = transformRegistry.TryGetByOwnerMutable(Player1Handle);
@@ -389,9 +453,7 @@ int main()
 
 			if (!(player1Ptr && player2Ptr && ballPtr))
 			{
-				Ludus::Engine::Utilities::WriteLine(
-					"[Movement Integration] An error occurred while attempting to get object transforms."
-				);
+				Ludus::Engine::Utilities::WriteLine("[Movement Integration] Missing transform(s).");
 				continue;
 			}
 
@@ -400,34 +462,19 @@ int main()
 			auto& ballTransform = *ballPtr;
 
 			// Player 1.
-			auto player1Direction = 0.0f;
-			if (window.GetInput().GetKey(Key::W) && player1Transform.Position.Y + player1Transform.Scale.Y * 0.5f <= Height)
-			{
-				player1Direction = 1.0f;
-			}
-			else if (window.GetInput().GetKey(Key::S) && player1Transform.Position.Y - player1Transform.Scale.Y * 0.5f >= 0.0f)
-			{
-				player1Direction = -1.0f;
-			}
-
+			const auto player1Direction = (window.GetInput().GetKey(Key::W) ? 1.0f : 0.0f) + (window.GetInput().GetKey(Key::S) ? -1.0f : 0.0f);
 			player1Transform.Position.Y += player1Direction * Player1Speed * Timer;
 
 			// Player 2.
 			auto player2Direction = 0.0f;
 			if (IsMultiplayer)
 			{
-				if (window.GetInput().GetKey(Key::Up) && player2Transform.Position.Y + player2Transform.Scale.Y * 0.5f <= Height)
-				{
-					player2Direction = 1.0f;
-				}
-				else if (window.GetInput().GetKey(Key::Down) && player2Transform.Position.Y - player2Transform.Scale.Y * 0.5f >= 0.0f)
-				{
-					player2Direction = -1.0f;
-				}
+				player2Direction = (window.GetInput().GetKey(Key::Up) ? 1.0f : 0.0f) + (window.GetInput().GetKey(Key::Down) ? -1.0f : 0.0f);
 			}
 			else
 			{
-				if (IsRunning && abs(ballTransform.Position.Y - player2Transform.Position.Y) > BallSize && ballTransform.Position.X >= HalfWidth)
+				// Player 2 AI.
+				if (IsRunning && fabs(ballTransform.Position.Y - player2Transform.Position.Y) > BallSize && ballTransform.Position.X >= HalfWidth)
 				{
 					if (player2Transform.Position.Y < ballTransform.Position.Y && player2Transform.Position.Y + player2Transform.Scale.Y * 0.5f <= Height)
 					{
@@ -443,8 +490,11 @@ int main()
 			player2Transform.Position.Y += player2Direction * Player2Speed * Timer;
 
 			// Ball.
-			auto ballVelocity = BallDirection * (IsBallServed ? BallSpeed : BallSpeed * 0.5f);
-			ballTransform.Position += ballVelocity * Timer;
+			if (IsRunning)
+			{
+				const auto ballVelocity = ballTransform.Forward() * (IsBallServed ? BallSpeed : BallSpeed * 0.5f);
+				ballTransform.Position += ballVelocity * Timer;
+			}
 		}
 
 #pragma endregion
@@ -453,79 +503,142 @@ int main()
 
 		if (State == Playing)
 		{
-			auto* player1Ptr = transformRegistry.TryGetByOwnerMutable(Player1Handle);
-			auto* player2Ptr = transformRegistry.TryGetByOwnerMutable(Player2Handle);
-			auto* ballPtr = transformRegistry.TryGetByOwnerMutable(BallHandle);
+			collisionManager.Step(colliderRegistry, transformRegistry);
 
-			if (!(player1Ptr && player2Ptr && ballPtr))
+			const auto maskBall = LayerMask::NameToLayer(BallLayerName);
+			const auto maskBoundaryHorizontal = LayerMask::NameToLayer(BoundaryHorizontalLayerName);
+			const auto maskBoundaryVertical = LayerMask::NameToLayer(BoundaryVerticalLayerName);
+			const auto maskPlayer1 = LayerMask::NameToLayer(Player1LayerName);
+			const auto maskPlayer2 = LayerMask::NameToLayer(Player2LayerName);
+
+			const auto collisionInfo = collisionManager.GetCollisionInfo();
+			for (const auto& info : collisionInfo)
 			{
-				Ludus::Engine::Utilities::WriteLine(
-					"[Collision Handling] An error occurred while attempting to get object transforms."
-				);
-				continue;
-			}
+				const auto ownerHandleA = info.CollisionAOwnerHandle;
+				const auto ownerHandleB = info.CollisionBOwnerHandle;
 
-			auto& player1Transform = *player1Ptr;
-			auto& player2Transform = *player2Ptr;
-			auto& ballTransform = *ballPtr;
+				const auto& contactPoint = info.Point;
 
-			if (ballTransform.Position.X - BallSize * 0.5f <= 0.0f)
-			{
-				Player2Score++;
-				Clear();
-			}
-			if (ballTransform.Position.X + BallSize * 0.5f >= Width)
-			{
-				Player1Score++;
-				Clear();
-			}
+				const auto* colliderAPtr = colliderRegistry.TryGetByOwnerMutable(ownerHandleA);
+				const auto* colliderBPtr = colliderRegistry.TryGetByOwnerMutable(ownerHandleB);
 
-			auto player1Rect = Rectangle2D(player1Transform.Position - player1Transform.Scale * 0.5f, player1Transform.Scale);
-			auto player2Rect = Rectangle2D(player2Transform.Position - player2Transform.Scale * 0.5f, player2Transform.Scale);
-			auto ballRect = Rectangle2D(ballTransform.Position - ballTransform.Scale * 0.5f, ballTransform.Scale);
-
-			if (player1Rect.Intersects(ballRect))
-			{
-				auto collisionNormal = Vector2D(1.0f, 0.0f);
-				if (Vector2D::Dot(BallDirection, collisionNormal) < 0.0f)
+				if (!(colliderAPtr && colliderBPtr))
 				{
-					auto collisionOffset = Numeric::Clamp((ballTransform.Position.Y - player1Transform.Position.Y) / HalfPaddleHeight, -1.0f, 1.0f);
-					auto tangentialKick = 0.75f;
-
-					BallDirection.Reflect(collisionNormal).Normalize();
-					BallDirection.Y += collisionOffset * tangentialKick;
-					BallDirection.Normalize();
-					BallSpeed += BallSpeedIncrement;
+					Ludus::Engine::Utilities::WriteLine("[Collision Handling] Missing transform(s).");
+					continue;
 				}
 
-				IsBallServed = true;
-			}
+				const auto& colliderA = *colliderAPtr;
+				const auto& colliderB = *colliderBPtr;
 
-			if (player2Rect.Intersects(ballRect))
-			{
-				auto collisionNormal = Vector2D(-1.0f, 0.0f);
-				if (Vector2D::Dot(BallDirection, collisionNormal) < 0.0f)
+				auto* transformAPtr = transformRegistry.TryGetByOwnerMutable(ownerHandleA);
+				auto* transformBPtr = transformRegistry.TryGetByOwnerMutable(ownerHandleB);
+
+				if (!(transformAPtr && transformBPtr))
 				{
-					auto collisionOffset = Numeric::Clamp((ballTransform.Position.Y - player2Transform.Position.Y) / HalfPaddleHeight, -1.0f, 1.0f);
-					auto tangentialKick = 0.75f;
-
-					BallDirection.Reflect(collisionNormal).Normalize();
-					BallDirection.Y += collisionOffset * tangentialKick;
-					BallDirection.Normalize();
-					BallSpeed += BallSpeedIncrement;
+					Ludus::Engine::Utilities::WriteLine("[Collision Handling] Missing colliders(s).");
+					continue;
 				}
 
-				IsBallServed = true;
-			}
+				auto& transformA = *transformAPtr;
+				auto& transformB = *transformBPtr;
 
-			if (ballTransform.Position.Y + player1Transform.Scale.Y * 0.5f >= Height)
-			{
-				BallDirection.Reflect(Vector2D(0.0f, -1.0f)).Normalize();
-			}
+				const auto maskA = LayerMask::FromIndex(colliderA.LayerIndex);
+				const auto maskB = LayerMask::FromIndex(colliderB.LayerIndex);
 
-			if (ballTransform.Position.Y - player1Transform.Scale.Y * 0.5f <= 0.0f)
-			{
-				BallDirection.Reflect(Vector2D(0.0f, 1.0f)).Normalize();
+				if (!IsPair(maskA, maskB, maskBall, maskBoundaryVertical))
+				{
+					const auto isAStatic = Is(maskB, maskBall) && (Is(maskA, maskPlayer1) || Is(maskA, maskPlayer2)) ? true : colliderA.IsStatic;
+					const auto isBStatic = Is(maskA, maskBall) && (Is(maskB, maskPlayer1) || Is(maskB, maskPlayer2)) ? true : colliderB.IsStatic;
+					const auto correction = contactPoint.Normal * contactPoint.Penetration;
+					collisionManager.ResolveCollision(transformAPtr, transformBPtr, isAStatic, isBStatic, correction);
+				}
+
+				auto* ballTransform =
+					(colliderA.LayerIndex == LayerMask::NameToLayerIndex(BallLayerName)) ? &transformA :
+					(colliderB.LayerIndex == LayerMask::NameToLayerIndex(BallLayerName)) ? &transformB : nullptr;
+
+				if (ballTransform)
+				{
+					if (IsPair(maskA, maskB, maskBall, maskBoundaryHorizontal))
+					{
+						Ludus::Engine::Utilities::WriteLine("[Collision Handling] Ball <-> Boundary (horizontal)");
+
+						const Vector2D normal = (ballTransform->Position.Y > HalfHeight) ? Vector2D(0.0f, -1.0f) : Vector2D(0.0f, 1.0f);
+						if (Vector2D::Dot(ballTransform->Forward(), normal) < 0.0f)
+						{
+							const auto reflectionVector = Vector2D::Reflect(ballTransform->Forward(), normal);
+							ballTransform->Rotate(reflectionVector);
+							ballTransform->Position += normal * 0.25f; // Add tolerance.
+						}
+					}
+					else if (IsPair(maskA, maskB, maskBall, maskPlayer1))
+					{
+						Ludus::Engine::Utilities::WriteLine("[Collision Handling] Ball <-> Player 1");
+
+						const auto& player1Transform = transformRegistry.TryGetByOwner(Player1Handle);
+						if (!player1Transform)
+						{
+							Ludus::Engine::Utilities::WriteLine("[Collision Handling] Missing transform(s).");
+							continue;
+						}
+
+						const Vector2D normal = { 1.0f, 0.0f };
+						if (Vector2D::Dot(ballTransform->Forward(), normal) < 0.0f)
+						{
+							const auto reflectionAngle = GetReflectionAngle(ballTransform, player1Transform, normal);
+							ballTransform->Rotation = reflectionAngle;
+							ballTransform->Position += normal * 0.25f; // Add tolerance.
+						}
+					}
+					else if (IsPair(maskA, maskB, maskBall, maskPlayer2))
+					{
+						Ludus::Engine::Utilities::WriteLine("[Collision Handling] Ball <-> Player 2");
+
+						const auto& player2Transform = transformRegistry.TryGetByOwner(Player2Handle);
+						if (!player2Transform)
+						{
+							Ludus::Engine::Utilities::WriteLine("[Collision Handling] Missing transform(s).");
+							continue;
+						}
+
+						const Vector2D normal = { -1.0f, 0.0f };
+						if (Vector2D::Dot(ballTransform->Forward(), normal) < 0.0f)
+						{
+							const auto reflectionAngle = GetReflectionAngle(ballTransform, player2Transform, normal);
+							ballTransform->Rotation = reflectionAngle;
+							ballTransform->Position += normal * 0.25f; // Add tolerance.
+						}
+					}
+					else
+					{
+						Ludus::Engine::Utilities::WriteLine("[Collision Handling] Ball <-> Boundary (vertical)");
+
+						if (ballTransform->Position.X < HalfWidth)
+						{
+							Player2Score++;
+							Clear();
+						}
+						else if (ballTransform->Position.X > HalfWidth)
+						{
+							Player1Score++;
+							Clear();
+						}
+					}
+
+					IsBallServed = true;
+				}
+				else
+				{
+					if (IsPair(maskA, maskB, maskPlayer1, maskBoundaryHorizontal))
+					{
+						Ludus::Engine::Utilities::WriteLine("[Collision Handling] Player 1 <-> Boundary (horizontal)");
+					}
+					else
+					{
+						Ludus::Engine::Utilities::WriteLine("[Collision Handling] Player 2 <-> Boundary (horizontal)");
+					}
+				}
 			}
 		}
 
@@ -562,7 +675,5 @@ int main()
 
 		window.SwapBuffers();
 		window.PollEvents();
-
-		Timer.Step();
 	}
 }

@@ -16,16 +16,16 @@ namespace Ludus::Physics
 		{
 			for (size_t j = i + 1; j < colliders.size(); j++)
 			{
-				auto& colliderA = colliders[i];
-				auto& colliderB = colliders[j];
+				const auto& colliderA = colliders[i];
+				const auto& colliderB = colliders[j];
 
 				if (colliderA.IsStatic && colliderB.IsStatic)
 				{
 					continue;
 				}
 
-				auto transformA = transformRegistry.TryGetByOwner(colliderA.OwnerHandle);
-				auto transformB = transformRegistry.TryGetByOwner(colliderB.OwnerHandle);
+				const auto transformA = transformRegistry.TryGetByOwner(colliderA.OwnerHandle);
+				const auto transformB = transformRegistry.TryGetByOwner(colliderB.OwnerHandle);
 
 				if (!transformA || !transformB)
 				{
@@ -55,7 +55,6 @@ namespace Ludus::Physics
 	void Collision2DManager::ResolveCollision(Transform2D* transformA, Transform2D* transformB, bool isStaticA, bool isStaticB, const Vector2D& correction)
 	{
 		// Resolve MTV (Minimum Translation Vector).
-
 		if (isStaticA && !isStaticB)
 		{
 			// If collider A is static, push B away from A.

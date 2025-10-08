@@ -131,14 +131,14 @@ namespace Ludus::Math
 
 	float Vector2D::Magnitude(const Vector2D& v)
 	{
-		return float(sqrt(v.X * v.X + v.Y * v.Y));
+		return (float)sqrt(v.X * v.X + v.Y * v.Y);
 	}
 
 	Direction Vector2D::GetDirection(const Vector2D& v, float threshold)
 	{
 		if (v.X > threshold)
 		{
-			return Direction::Up;
+			return Direction::Right;
 		}
 		if (v.X < -threshold)
 		{
@@ -158,12 +158,12 @@ namespace Ludus::Math
 
 	bool Vector2D::IsVertical(const Vector2D& v, float threshold)
 	{
-		return std::abs(v.X) > threshold;
+		return std::abs(v.X) <= threshold && std::abs(v.Y) > threshold;
 	}
 
 	bool Vector2D::IsHorizontal(const Vector2D& v, float threshold)
 	{
-		return std::abs(v.Y) > threshold;
+		return std::abs(v.Y) <= threshold && std::abs(v.X) > threshold;
 	}
 
 	Vector2D Vector2D::Normalize(const Vector2D& v)
@@ -210,7 +210,7 @@ namespace Ludus::Math
 
 	Vector2D Vector2D::Rotate(const Vector2D& v, float angle)
 	{
-		auto angleRadians = Numeric::DegreesToRadians(angle);
+		auto angleRadians = angle * Constants::DEGREE_TO_RADIANS;
 		auto x = v.X * cos(angleRadians) - v.Y * sin(angleRadians);
 		auto y = v.X * sin(angleRadians) + v.Y * cos(angleRadians);
 
@@ -219,7 +219,7 @@ namespace Ludus::Math
 
 	Vector2D& Vector2D::Rotate(float angle)
 	{
-		auto angleRadians = Numeric::DegreesToRadians(angle);
+		auto angleRadians = angle * Constants::DEGREE_TO_RADIANS;
 		auto x = X * cos(angleRadians) - Y * sin(angleRadians);
 		auto y = X * sin(angleRadians) + Y * cos(angleRadians);
 
