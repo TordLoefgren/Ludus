@@ -74,11 +74,11 @@ namespace Ludus::Math
 					Vector2D(0, -1), Vector2D(0, 1),
 				};
 
-				Vector2D maxA = boxAPos + boxASize;
-				Vector2D minA = boxAPos - boxASize;
+				const auto maxA = boxAPos + boxASize;
+				const auto minA = boxAPos - boxASize;
 
-				Vector2D maxB = boxBPos + boxBSize;
-				Vector2D minB = boxBPos - boxBSize;
+				const auto maxB = boxBPos + boxBSize;
+				const auto minB = boxBPos - boxBSize;
 
 				float distances[4] =
 				{
@@ -87,7 +87,7 @@ namespace Ludus::Math
 					(maxB.Y - minA.Y),	// Distance of box B to bottom of A.
 					(maxA.Y - minB.Y),	// Distance of box B to top of A.
 				};
-				float penetration = FLT_MAX;
+				auto penetration = FLT_MAX;
 				Vector2D bestAxis;
 
 				for (int i = 0; i < 4; i++)
@@ -100,7 +100,7 @@ namespace Ludus::Math
 				}
 
 				// Allow a small penetration threshold in order to avoid jitters. 
-				const float allowance = 0.001f;
+				const float allowance = 0.01f;
 				penetration = std::max(0.f, penetration - allowance);
 
 				contactPoint = ContactPoint(Vector2D::Zero(), Vector2D::Zero(), bestAxis, penetration);
