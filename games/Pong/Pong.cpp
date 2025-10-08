@@ -14,7 +14,6 @@
 #include <Ludus/Graphics/Renderer2D.h>
 #include <Ludus/Graphics/Shader.h>
 #include <Ludus/Math/Numeric.h>
-#include <Ludus/Math/Rectangle2D.h>
 #include <Ludus/Math/Transform2D.h>
 #include <Ludus/Math/Vector2D.h>
 #include <Ludus/Physics/Collider2D.h>
@@ -34,7 +33,6 @@ using Ludus::Graphics::Renderer2D;
 using Ludus::Graphics::Shader;
 using Ludus::Math::Vector2D;
 using Ludus::Math::Transform2D;
-using Ludus::Math::Rectangle2D;
 using Ludus::Physics::Collider2D;
 using Ludus::Platform::Input;
 using Ludus::Platform::Key;
@@ -97,12 +95,6 @@ GameObjectHandle BoundaryLeftHandle;
 GameObjectHandle BoundaryTopHandle;
 GameObjectHandle BoundaryRightHandle;
 GameObjectHandle BoundaryBottomHandle;
-
-Rectangle2D LeftScoreTextRect;
-Rectangle2D RightScoreTextRect;
-Rectangle2D Player1Rect;
-Rectangle2D Player2Rect;
-Rectangle2D BallRect;
 
 GameState State = Menu;
 int MenuIndex = 1;
