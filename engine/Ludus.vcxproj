@@ -51,7 +51,6 @@
     <ClInclude Include="Include\Ludus\Graphics\VertexBufferObject.h" />
     <ClInclude Include="Include\Ludus\Math\Bounds2D.h" />
     <ClInclude Include="Include\Ludus\Math\Numeric.h" />
-    <ClInclude Include="Include\Ludus\Math\Rectangle2D.h" />
     <ClInclude Include="Include\Ludus\Math\Transform2D.h" />
     <ClInclude Include="Include\Ludus\Math\Vector2D.h" />
     <ClInclude Include="Include\Ludus\Physics\Collider2D.h" />
@@ -376,7 +375,6 @@
     <ClCompile Include="Source\Ludus\Graphics\Texture.cpp" />
     <ClCompile Include="Source\Ludus\Graphics\VertexArrayObject.cpp" />
     <ClCompile Include="Source\Ludus\Graphics\VertexBufferObject.cpp" />
-    <ClCompile Include="Source\Ludus\Math\Rectangle2D.cpp" />
     <ClCompile Include="Source\Ludus\Math\Vector2D.cpp" />
     <ClCompile Include="Source\Ludus\Physics\Collision2DManager.cpp" />
     <ClCompile Include="Source\Ludus\Platform\Input.cpp" />
