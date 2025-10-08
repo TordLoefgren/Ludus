@@ -43,7 +43,6 @@ namespace Ludus::Math
 
 		bool operator==(const Transform2D& other) const { return Handle == other.Handle; }
 
-
 		/// <summary>
 		/// Computes the forward unit vector from the transform's rotation.
 		/// </summary>
@@ -52,6 +51,11 @@ namespace Ludus::Math
 		{
 			const float r = Numeric::DegreesToRadians(Rotation);
 			return { std::cos(r), std::sin(r) };
+		}
+
+		void Rotate(const Vector2D& unitVector)
+		{
+			Rotation = Numeric::RotationDegreesFromDirection(unitVector.X, unitVector.Y);
 		}
 	};
 }

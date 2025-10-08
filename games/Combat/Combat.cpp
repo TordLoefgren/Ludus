@@ -231,7 +231,7 @@ int main()
 
 #pragma endregion
 
-#pragma region Game objects setup
+#pragma region Game Objects Setup
 
 	// Game objects.
 	GameObject player1Object;
@@ -447,7 +447,7 @@ int main()
 			auto transformA = transformRegistry.TryGetByOwnerMutable(ownerHandleA);
 			auto transformB = transformRegistry.TryGetByOwnerMutable(ownerHandleB);
 
-			Vector2D correction = collision.Point.Normal * collision.Point.Penetration;
+			auto correction = collision.Point.Normal * collision.Point.Penetration;
 
 			collisionManager.ResolveCollision(transformA, transformB, colliderA->IsStatic, colliderB->IsStatic, correction);
 
