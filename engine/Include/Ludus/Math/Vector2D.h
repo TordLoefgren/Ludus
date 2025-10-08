@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-#include <Ludus/Math/Numeric.h>
+#include <Ludus/Math/Constants.h>
 
 namespace Ludus::Math
 {
@@ -41,9 +41,9 @@ namespace Ludus::Math
 		static float Dot(const Vector2D& v1, const Vector2D& v2);
 		static float Cross(const Vector2D& v1, const Vector2D& v2);
 		static float Magnitude(const Vector2D& v);
-		static Direction GetDirection(const Vector2D& v, float threshold = Numeric::EPSILON);
-		static bool IsVertical(const Vector2D& v, float threshold = Numeric::EPSILON);
-		static bool IsHorizontal(const Vector2D& v, float threshold = Numeric::EPSILON);
+		static Direction GetDirection(const Vector2D& v, float threshold = Constants::EPSILON);
+		static bool IsVertical(const Vector2D& v, float threshold = Constants::EPSILON);
+		static bool IsHorizontal(const Vector2D& v, float threshold = Constants::EPSILON);
 		static Vector2D Normalize(const Vector2D& v);
 		static Vector2D Reflect(const Vector2D& v, const Vector2D& normal);
 		static Vector2D Rotate(const Vector2D& v, float angle);

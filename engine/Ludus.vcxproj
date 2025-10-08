@@ -26,6 +26,7 @@
     <Font Include="Resources\Fonts\ARIAL.TTF" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\Math\Constants.h" />
     <ClInclude Include="Include\Ludus\Editor\ImguiAPI.h" />
     <ClInclude Include="Include\Ludus\Engine\ColliderRegistry.h" />
     <ClInclude Include="Include\Ludus\Engine\Cooldown.h" />

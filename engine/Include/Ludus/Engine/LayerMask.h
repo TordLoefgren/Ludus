@@ -90,7 +90,7 @@ namespace Ludus::Engine
 
 		static void AddLayer(const std::string& layerName, const LayerIndex layerIndex)
 		{
-			assert(layerIndex > 0u || layerIndex < 32u);
+			assert(layerIndex > 0u && layerIndex < 32u);
 
 			auto iterName = s_NameToIndex.find(layerName);
 			if (iterName != s_NameToIndex.end())
@@ -121,7 +121,7 @@ namespace Ludus::Engine
 			return -1;
 		}
 
-		static LayerMask NameToLayer(const std::string& layerName)
+		static const LayerMask NameToLayer(const std::string& layerName)
 		{
 			auto it = s_NameToIndex.find(layerName);
 			if (it != s_NameToIndex.end())
@@ -176,12 +176,12 @@ namespace Ludus::Engine
 			}
 		}
 
-		static LayerMask GetMask(const std::string& layerName)
+		static const LayerMask GetMask(const std::string& layerName)
 		{
 			return NameToLayer(layerName);
 		}
 
-		static LayerMask GetMask(const std::vector<std::string>& layerNames)
+		static const LayerMask GetMask(const std::vector<std::string>& layerNames)
 		{
 			auto mask = GetEmpty();
 
