@@ -5,6 +5,7 @@
 #include <Ludus/Engine/ColliderRegistry.h>
 #include <Ludus/Engine/GameObject.h>
 #include <Ludus/Engine/Random.h>
+#include <Ludus/Engine/Scene.h>
 #include <Ludus/Engine/TimeStep.h>
 #include <Ludus/Engine/TransformRegistry.h>
 #include <Ludus/Engine/Utilities.h>
@@ -74,11 +75,11 @@ const float Player1Speed = 900.0f;
 const float Player2Speed = 700.0f;
 const int MaxScore = 5;
 
-Ludus::Engine::ColliderRegistry colliderRegistry;
-Ludus::Physics::Collision2DManager collisionManager;
-Ludus::Engine::TransformRegistry transformRegistry;
+
+Ludus::Engine::Scene scene;
 Ludus::Engine::Random random;
 Ludus::Engine::TimeStep Timer;
+Ludus::Physics::Collision2DManager collisionManager;
 
 const std::string BallLayerName = "Ball";
 const std::string BoundaryHorizontalLayerName = "BoundaryHorizontal";
@@ -116,17 +117,17 @@ static bool IsPair(const LayerMask& a1, const LayerMask& b1, const LayerMask& a2
 
 void static Clear()
 {
-	if (auto ballTransform = transformRegistry.TryGetByOwnerMutable(BallHandle))
+	if (auto ballTransform = scene.Transforms.TryGetByOwnerMutable(BallHandle))
 	{
 		ballTransform->Position = { HalfWidth, HalfHeight };
 	}
 
-	if (auto player1Transform = transformRegistry.TryGetByOwnerMutable(Player1Handle))
+	if (auto player1Transform = scene.Transforms.TryGetByOwnerMutable(Player1Handle))
 	{
 		player1Transform->Position = { PaddleWidthOffset, HalfHeight };
 	}
 
-	if (auto player2Transform = transformRegistry.TryGetByOwnerMutable(Player2Handle))
+	if (auto player2Transform = scene.Transforms.TryGetByOwnerMutable(Player2Handle))
 	{
 		player2Transform->Position = { Width - PaddleWidthOffset, HalfHeight };
 	}
@@ -142,7 +143,7 @@ void static Start()
 	directionX = directionX < 0.0f ? -1.0f : 1.0f;
 	auto directionY = random.Next(-0.5f, 0.5f);
 
-	if (auto ballTransform = transformRegistry.TryGetByOwnerMutable(BallHandle))
+	if (auto ballTransform = scene.Transforms.TryGetByOwnerMutable(BallHandle))
 	{
 		ballTransform->Rotation = Numeric::RadiansToDegrees(std::atan2(directionY, directionX));
 	}
@@ -193,8 +194,8 @@ void static RenderGame(Renderer2D& renderer)
 	renderer.DrawText(Transform2D(0, { HalfWidth + ScoreTextOffset, Height - ScoreTextOffset }), std::to_string(Player2Score));
 
 	// Render top and bottom boundaries.
-	const auto* boundaryTopTransform = transformRegistry.TryGetByOwnerMutable(BoundaryTopHandle);
-	const auto* boundaryBottomTransform = transformRegistry.TryGetByOwnerMutable(BoundaryBottomHandle);
+	const auto* boundaryTopTransform = scene.Transforms.TryGetByOwnerMutable(BoundaryTopHandle);
+	const auto* boundaryBottomTransform = scene.Transforms.TryGetByOwnerMutable(BoundaryBottomHandle);
 	if (!(boundaryTopTransform && boundaryBottomTransform))
 	{
 		Ludus::Engine::Utilities::WriteLine("[Rendering] Missing transform(s).");
@@ -204,9 +205,9 @@ void static RenderGame(Renderer2D& renderer)
 	renderer.DrawQuad(*boundaryTopTransform);
 	renderer.DrawQuad(*boundaryBottomTransform);
 
-	const auto* player1Ptr = transformRegistry.TryGetByOwnerMutable(Player1Handle);
-	const auto* player2Ptr = transformRegistry.TryGetByOwnerMutable(Player2Handle);
-	const auto* ballPtr = transformRegistry.TryGetByOwnerMutable(BallHandle);
+	const auto* player1Ptr = scene.Transforms.TryGetByOwnerMutable(Player1Handle);
+	const auto* player2Ptr = scene.Transforms.TryGetByOwnerMutable(Player2Handle);
+	const auto* ballPtr = scene.Transforms.TryGetByOwnerMutable(BallHandle);
 
 	if (!(player1Ptr && player2Ptr && ballPtr))
 	{
@@ -280,21 +281,13 @@ int main()
 #pragma region Game objects setup
 
 	// Game objects.
-	const GameObject ballObject;
-	const GameObject boundaryLeftObject;
-	const GameObject boundaryTopObject;
-	const GameObject boundaryRightObject;
-	const GameObject boundaryBottomObject;
-	const GameObject player1Object;
-	const GameObject player2Object;
-
-	BallHandle = ballObject.Handle;
-	BoundaryLeftHandle = boundaryLeftObject.Handle;
-	BoundaryTopHandle = boundaryTopObject.Handle;
-	BoundaryRightHandle = boundaryRightObject.Handle;
-	BoundaryBottomHandle = boundaryBottomObject.Handle;
-	Player1Handle = player1Object.Handle;
-	Player2Handle = player2Object.Handle;
+	BallHandle = scene.AddGameObject();
+	BoundaryLeftHandle = scene.AddGameObject();
+	BoundaryTopHandle = scene.AddGameObject();
+	BoundaryRightHandle = scene.AddGameObject();
+	BoundaryBottomHandle = scene.AddGameObject();
+	Player1Handle = scene.AddGameObject();
+	Player2Handle = scene.AddGameObject();
 
 	// Layer masks.
 	LayerMask::AddLayer(BallLayerName, 1);
@@ -304,22 +297,22 @@ int main()
 	LayerMask::AddLayer(Player2LayerName, 5);
 
 	// Colliders.
-	colliderRegistry.Add(BallHandle, 1, LayerMask::GetMask({ BoundaryVerticalLayerName, BoundaryHorizontalLayerName, Player1LayerName, Player2LayerName }));
-	colliderRegistry.Add(BoundaryLeftHandle, 3, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
-	colliderRegistry.Add(BoundaryTopHandle, 2, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
-	colliderRegistry.Add(BoundaryRightHandle, 3, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
-	colliderRegistry.Add(BoundaryBottomHandle, 2, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
-	colliderRegistry.Add(Player1Handle, 4, LayerMask::GetMask({ BallLayerName, BoundaryHorizontalLayerName }));
-	colliderRegistry.Add(Player2Handle, 5, LayerMask::GetMask({ BallLayerName, BoundaryHorizontalLayerName }));
+	scene.AttachCollider(BallHandle, 1, LayerMask::GetMask({ BoundaryVerticalLayerName, BoundaryHorizontalLayerName, Player1LayerName, Player2LayerName }));
+	scene.AttachCollider(BoundaryLeftHandle, 3, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
+	scene.AttachCollider(BoundaryTopHandle, 2, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
+	scene.AttachCollider(BoundaryRightHandle, 3, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
+	scene.AttachCollider(BoundaryBottomHandle, 2, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
+	scene.AttachCollider(Player1Handle, 4, LayerMask::GetMask({ BallLayerName, BoundaryHorizontalLayerName }));
+	scene.AttachCollider(Player2Handle, 5, LayerMask::GetMask({ BallLayerName, BoundaryHorizontalLayerName }));
 
 	// Transforms.
-	transformRegistry.Add(BallHandle, { HalfWidth, HalfHeight }, BallSize);
-	transformRegistry.Add(BoundaryLeftHandle, { WallWidthThickness * 0.5f, HalfHeight }, { WallWidthThickness, Height });
-	transformRegistry.Add(BoundaryTopHandle, { HalfWidth, Height - WallHeightThickness * 0.5f }, { Width - 2.0f * WallWidthThickness, WallHeightThickness });
-	transformRegistry.Add(BoundaryRightHandle, { Width - WallWidthThickness * 0.5f, HalfHeight }, { WallWidthThickness, Height });
-	transformRegistry.Add(BoundaryBottomHandle, { HalfWidth, WallHeightThickness * 0.5f }, { Width - 2.0f * WallWidthThickness, WallHeightThickness });
-	transformRegistry.Add(Player1Handle, { PaddleWidthOffset, HalfHeight }, { PaddleWidth, PaddleHeight });
-	transformRegistry.Add(Player2Handle, { Width - PaddleWidthOffset, HalfHeight }, { PaddleWidth, PaddleHeight });
+	scene.AttachTransform(BallHandle, { HalfWidth, HalfHeight }, BallSize);
+	scene.AttachTransform(BoundaryLeftHandle, { WallWidthThickness * 0.5f, HalfHeight }, { WallWidthThickness, Height });
+	scene.AttachTransform(BoundaryTopHandle, { HalfWidth, Height - WallHeightThickness * 0.5f }, { Width - 2.0f * WallWidthThickness, WallHeightThickness });
+	scene.AttachTransform(BoundaryRightHandle, { Width - WallWidthThickness * 0.5f, HalfHeight }, { WallWidthThickness, Height });
+	scene.AttachTransform(BoundaryBottomHandle, { HalfWidth, WallHeightThickness * 0.5f }, { Width - 2.0f * WallWidthThickness, WallHeightThickness });
+	scene.AttachTransform(Player1Handle, { PaddleWidthOffset, HalfHeight }, { PaddleWidth, PaddleHeight });
+	scene.AttachTransform(Player2Handle, { Width - PaddleWidthOffset, HalfHeight }, { PaddleWidth, PaddleHeight });
 
 #pragma endregion
 
@@ -437,9 +430,9 @@ int main()
 
 		if (State == Playing)
 		{
-			auto* player1Ptr = transformRegistry.TryGetByOwnerMutable(Player1Handle);
-			auto* player2Ptr = transformRegistry.TryGetByOwnerMutable(Player2Handle);
-			auto* ballPtr = transformRegistry.TryGetByOwnerMutable(BallHandle);
+			auto* player1Ptr = scene.Transforms.TryGetByOwnerMutable(Player1Handle);
+			auto* player2Ptr = scene.Transforms.TryGetByOwnerMutable(Player2Handle);
+			auto* ballPtr = scene.Transforms.TryGetByOwnerMutable(BallHandle);
 
 			if (!(player1Ptr && player2Ptr && ballPtr))
 			{
@@ -493,7 +486,7 @@ int main()
 
 		if (State == Playing)
 		{
-			collisionManager.Step(colliderRegistry, transformRegistry);
+			collisionManager.Step(scene.Colliders, scene.Transforms);
 
 			const auto maskBall = LayerMask::NameToLayer(BallLayerName);
 			const auto maskBoundaryHorizontal = LayerMask::NameToLayer(BoundaryHorizontalLayerName);
@@ -509,8 +502,8 @@ int main()
 
 				const auto& contactPoint = info.Point;
 
-				const auto* colliderAPtr = colliderRegistry.TryGetByOwnerMutable(ownerHandleA);
-				const auto* colliderBPtr = colliderRegistry.TryGetByOwnerMutable(ownerHandleB);
+				const auto* colliderAPtr = scene.Colliders.TryGetByOwnerMutable(ownerHandleA);
+				const auto* colliderBPtr = scene.Colliders.TryGetByOwnerMutable(ownerHandleB);
 
 				if (!(colliderAPtr && colliderBPtr))
 				{
@@ -521,8 +514,8 @@ int main()
 				const auto& colliderA = *colliderAPtr;
 				const auto& colliderB = *colliderBPtr;
 
-				auto* transformAPtr = transformRegistry.TryGetByOwnerMutable(ownerHandleA);
-				auto* transformBPtr = transformRegistry.TryGetByOwnerMutable(ownerHandleB);
+				auto* transformAPtr = scene.Transforms.TryGetByOwnerMutable(ownerHandleA);
+				auto* transformBPtr = scene.Transforms.TryGetByOwnerMutable(ownerHandleB);
 
 				if (!(transformAPtr && transformBPtr))
 				{
@@ -566,7 +559,7 @@ int main()
 					{
 						Ludus::Engine::Utilities::WriteLine("[Collision Handling] Ball <-> Player 1");
 
-						const auto& player1Transform = transformRegistry.TryGetByOwner(Player1Handle);
+						const auto& player1Transform = scene.Transforms.TryGetByOwner(Player1Handle);
 						if (!player1Transform)
 						{
 							Ludus::Engine::Utilities::WriteLine("[Collision Handling] Missing transform(s).");
@@ -585,7 +578,7 @@ int main()
 					{
 						Ludus::Engine::Utilities::WriteLine("[Collision Handling] Ball <-> Player 2");
 
-						const auto& player2Transform = transformRegistry.TryGetByOwner(Player2Handle);
+						const auto& player2Transform = scene.Transforms.TryGetByOwner(Player2Handle);
 						if (!player2Transform)
 						{
 							Ludus::Engine::Utilities::WriteLine("[Collision Handling] Missing transform(s).");

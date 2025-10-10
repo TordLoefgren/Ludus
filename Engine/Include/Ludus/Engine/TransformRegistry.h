@@ -86,6 +86,30 @@ namespace Ludus::Engine
 			return handle;
 		}
 
+		bool RemoveById(TransformHandle handle)
+		{
+			if (auto it = m_HandleToIndex.find(handle); it != m_HandleToIndex.end())
+			{
+				RemoveAndReorderIndices(it->second);
+				return true;
+			}
+
+			return false;
+		}
+
+		bool RemoveByOwner(GameObjectHandle ownerHandle)
+		{
+			if (auto it = m_OwnerHandleToIndex.find(ownerHandle); it != m_OwnerHandleToIndex.end())
+			{
+				RemoveAndReorderIndices(it->second);
+				return true;
+			}
+
+			return false;
+		}
+
+		const size_t GetCount() { return m_Data.size(); }
+
 #pragma region Lookups
 
 		const Transform2D* TryGetById(TransformHandle handle) const
@@ -126,28 +150,6 @@ namespace Ludus::Engine
 			}
 
 			return nullptr;
-		}
-
-		bool RemoveById(TransformHandle handle)
-		{
-			if (auto it = m_HandleToIndex.find(handle); it != m_HandleToIndex.end())
-			{
-				RemoveAndReorderIndices(it->second);
-				return true;
-			}
-
-			return false;
-		}
-
-		bool RemoveByOwner(GameObjectHandle ownerHandle)
-		{
-			if (auto it = m_OwnerHandleToIndex.find(ownerHandle); it != m_OwnerHandleToIndex.end())
-			{
-				RemoveAndReorderIndices(it->second);
-				return true;
-			}
-
-			return false;
 		}
 
 #pragma endregion
