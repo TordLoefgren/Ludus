@@ -36,7 +36,7 @@ namespace Ludus::Graphics
 		VertexArrayObject m_VertexArray;
 		VertexBufferObject m_VertexBuffer;
 		ElementBufferObject m_ElementBuffer;
-		Shader m_Shader;
+		Shader& m_Shader;
 		RendererState m_State;
 		int m_MaxQuads;
 		Texture m_WhiteTexture;
