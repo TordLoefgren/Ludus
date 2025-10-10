@@ -12,10 +12,18 @@ namespace Ludus::Engine
 		inline static GameObjectHandle s_NextHandle = 1;
 
 	public:
-		const GameObjectHandle Handle;
+		GameObjectHandle Handle;
 
 		GameObject()
 			: Handle(s_NextHandle++)
 		{ }
+
+		GameObject(const GameObject&) = delete;
+		GameObject& operator=(const GameObject&) = delete;
+		GameObject(GameObject&&) noexcept = default;
+		GameObject& operator=(GameObject&&) noexcept = default;
+		~GameObject() = default;
+
+		bool operator==(const GameObject& other) const { return Handle == other.Handle; }
 	};
 }

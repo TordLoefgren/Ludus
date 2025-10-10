@@ -74,19 +74,17 @@ const float Player1Speed = 900.0f;
 const float Player2Speed = 700.0f;
 const int MaxScore = 5;
 
-Ludus::Engine::Random random;
-Ludus::Engine::TimeStep Timer;
-Ludus::Engine::TransformRegistry transformRegistry;
 Ludus::Engine::ColliderRegistry colliderRegistry;
 Ludus::Physics::Collision2DManager collisionManager;
+Ludus::Engine::TransformRegistry transformRegistry;
+Ludus::Engine::Random random;
+Ludus::Engine::TimeStep Timer;
 
 const std::string BallLayerName = "Ball";
 const std::string BoundaryHorizontalLayerName = "BoundaryHorizontal";
 const std::string BoundaryVerticalLayerName = "BoundaryVertical";
 const std::string Player1LayerName = "Player1";
 const std::string Player2LayerName = "Player2";
-
-std::vector<GameObject> GameObjects;
 
 GameObjectHandle Player1Handle;
 GameObjectHandle Player2Handle;
@@ -503,7 +501,7 @@ int main()
 			const auto maskPlayer1 = LayerMask::NameToLayer(Player1LayerName);
 			const auto maskPlayer2 = LayerMask::NameToLayer(Player2LayerName);
 
-			const auto collisionInfo = collisionManager.GetCollisionInfo();
+			const auto& collisionInfo = collisionManager.GetCollisionInfo();
 			for (const auto& info : collisionInfo)
 			{
 				const auto ownerHandleA = info.CollisionAOwnerHandle;
