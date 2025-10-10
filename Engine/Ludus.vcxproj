@@ -62,6 +62,7 @@
     <ClInclude Include="Include\Ludus\Platform\Key.h" />
     <ClInclude Include="Include\Ludus\Platform\Window.h" />
     <ClInclude Include="Include\Ludus\Platform\WindowOptions.h" />
+    <ClInclude Include="Include\Ludus\Engine\Scene.h" />
     <ClInclude Include="Vendors\glad\include\glad\glad.h" />
     <ClInclude Include="Vendors\glad\include\KHR\khrplatform.h" />
     <ClInclude Include="Vendors\glm\common.hpp" />
