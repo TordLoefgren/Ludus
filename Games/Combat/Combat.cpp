@@ -123,7 +123,7 @@ void static SpawnProjectile(GameObjectHandle handle, std::string layerName, Laye
 			transform->Rotation
 		);
 		Projectiles.push_back(projectileObject.Handle);
-		GameObjects.push_back(projectileObject);
+		GameObjects.push_back(std::move(projectileObject));
 	}
 }
 
@@ -236,7 +236,6 @@ int main()
 	// Game objects.
 	GameObject player1Object;
 	GameObject player2Object;
-
 	GameObject boundaryLeftObject;
 	GameObject boundaryTopObject;
 	GameObject boundaryRightObject;
@@ -245,7 +244,6 @@ int main()
 
 	Player1Handle = player1Object.Handle;
 	Player2Handle = player2Object.Handle;
-
 	BoundaryLeftHandle = boundaryLeftObject.Handle;
 	BoundaryTopHandle = boundaryTopObject.Handle;
 	BoundaryRightHandle = boundaryRightObject.Handle;
@@ -262,7 +260,6 @@ int main()
 	// Colliders
 	colliderRegistry.Add(Player1Handle, LayerMask::NameToLayerIndex(Player1LayerName), LayerMask::GetMask({ Player2LayerName, Player2ProjectileLayerName, BoundaryLayerName }));
 	colliderRegistry.Add(Player2Handle, LayerMask::NameToLayerIndex(Player2LayerName), LayerMask::GetMask({ Player1LayerName, Player1ProjectileLayerName, BoundaryLayerName }));
-
 	auto boundaryCollisionMask = LayerMask::GetMask({ Player1LayerName, Player2LayerName, Player1ProjectileLayerName, Player2ProjectileLayerName });
 	colliderRegistry.Add(BoundaryLeftHandle, LayerMask::NameToLayerIndex(BoundaryLayerName), boundaryCollisionMask, true);
 	colliderRegistry.Add(BoundaryTopHandle, LayerMask::NameToLayerIndex(BoundaryLayerName), boundaryCollisionMask, true);
@@ -273,7 +270,6 @@ int main()
 	// Transforms.
 	transformRegistry.Add(Player1Handle, { PlayerStartOffset, WallHeight * 0.5f }, { PlayerSize }, 0.0f);
 	transformRegistry.Add(Player2Handle, { Width - PlayerStartOffset, WallHeight * 0.5f }, { PlayerSize }, 180.0f);
-
 	transformRegistry.Add(BoundaryLeftHandle, { WallThickness * 0.5f, WallHeight * 0.5f }, { WallThickness, WallHeight }, 0.0f);
 	transformRegistry.Add(BoundaryTopHandle, { Width * 0.5f, WallHeight - WallThickness * 0.5f }, { Width, WallThickness }, 0.0f);
 	transformRegistry.Add(BoundaryRightHandle, { Width - WallThickness * 0.5f, WallHeight * 0.5f }, { WallThickness, WallHeight }, 0.0f);
@@ -281,14 +277,13 @@ int main()
 	transformRegistry.Add(BoundaryCenterHandle, { Width * 0.5f, WallHeight * 0.5f }, { WallThickness, WallHeight * 0.25 }, 0.0f);
 
 	// Game objects.
-	GameObjects.push_back(player1Object);
-	GameObjects.push_back(player2Object);
-
-	GameObjects.push_back(boundaryLeftObject);
-	GameObjects.push_back(boundaryTopObject);
-	GameObjects.push_back(boundaryRightObject);
-	GameObjects.push_back(boundaryBottomObject);
-	GameObjects.push_back(boundaryCenterObject);
+	GameObjects.push_back(std::move(player1Object));
+	GameObjects.push_back(std::move(player2Object));
+	GameObjects.push_back(std::move(boundaryLeftObject));
+	GameObjects.push_back(std::move(boundaryTopObject));
+	GameObjects.push_back(std::move(boundaryRightObject));
+	GameObjects.push_back(std::move(boundaryBottomObject));
+	GameObjects.push_back(std::move(boundaryCenterObject));
 
 #pragma endregion
 
