@@ -3,18 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ludus", "Engine\Ludus.vcxproj", "{E5222F19-54E2-431B-B8A5-67DC31E554E1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ludus", "Ludus.Engine\Ludus.vcxproj", "{E5222F19-54E2-431B-B8A5-67DC31E554E1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sandbox", "Games\Sandbox\Sandbox.vcxproj", "{5FCC30EF-27AD-4277-B1AC-7EA8E79AEBBE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sandbox", "Ludus.Games\Sandbox\Sandbox.vcxproj", "{5FCC30EF-27AD-4277-B1AC-7EA8E79AEBBE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Pong", "Games\Pong\Pong.vcxproj", "{A543D0EF-17DB-4C1A-970D-1E469B6E43D6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Pong", "Ludus.Games\Pong\Pong.vcxproj", "{A543D0EF-17DB-4C1A-970D-1E469B6E43D6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E5222F19-54E2-431B-B8A5-67DC31E554E1} = {E5222F19-54E2-431B-B8A5-67DC31E554E1}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Combat", "Games\Combat\Combat.vcxproj", "{85620868-47C3-46ED-8CA5-CD81616F3FB0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Combat", "Ludus.Games\Combat\Combat.vcxproj", "{85620868-47C3-46ED-8CA5-CD81616F3FB0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E5222F19-54E2-431B-B8A5-67DC31E554E1} = {E5222F19-54E2-431B-B8A5-67DC31E554E1}
 	EndProjectSection
