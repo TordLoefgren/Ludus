@@ -5,6 +5,7 @@
 #include <Ludus/Engine/Cooldown.h>
 #include <Ludus/Engine/GameObject.h>
 #include <Ludus/Engine/LayerMask.h>
+#include <Ludus/Engine/Scene.h>
 #include <Ludus/Engine/TimeStep.h>
 #include <Ludus/Engine/TransformRegistry.h>
 #include <Ludus/Graphics/Camera2D.h>
@@ -45,7 +46,6 @@ const float PlayerBarrelWidth = 20.0f;
 const float PlayerBarrelHeight = 10.0f;
 const float PlayerStartOffset = Width * 0.1f;
 
-
 const float PlayerRotationSpeed = 200.0f;
 const float ProjectileSpeed = 1000.0f;
 const float ProjectileSize = 10.0f;
@@ -63,30 +63,22 @@ const std::string Player1ProjectileLayerName = "Player1Projectile";
 const std::string Player2ProjectileLayerName = "Player2Projectile";
 const std::string BoundaryLayerName = "Boundary";
 
+Ludus::Engine::Scene scene;
+
 GameObjectHandle Player1Handle;
 GameObjectHandle Player2Handle;
-
 GameObjectHandle BoundaryLeftHandle;
 GameObjectHandle BoundaryTopHandle;
 GameObjectHandle BoundaryRightHandle;
 GameObjectHandle BoundaryBottomHandle;
 GameObjectHandle BoundaryCenterHandle;
 
-std::vector<GameObject> GameObjects;
 std::vector<GameObjectHandle> Projectiles;
-
-LayerMask TankOnTankCollision;
-LayerMask TankOnBoundaryCollision;
-LayerMask ProjectileOnBoundaryCollision;
-LayerMask ProjectileOnPlayer1Collision;
-LayerMask ProjectileOnPlayer2Collision;
 
 Ludus::Engine::TimeStep Timer;
 Ludus::Engine::Cooldown Player1ProjectileFireRate(0.5f);
 Ludus::Engine::Cooldown Player2ProjectileFireRate(0.5f);
 
-Ludus::Engine::TransformRegistry transformRegistry;
-Ludus::Engine::ColliderRegistry colliderRegistry;
 Collision2DManager collisionManager;
 
 int GameWidth = Width;
@@ -106,24 +98,24 @@ bool IsMultiplayer = false;
 
 void static SpawnProjectile(GameObjectHandle handle, std::string layerName, LayerMask layerMask)
 {
-	auto transform = transformRegistry.TryGetByOwner(handle);
+	auto transform = scene.Transforms.TryGetByOwner(handle);
 	if (transform)
 	{
-		GameObject projectileObject;
+		auto projectileHandle = scene.AddGameObject();
 
-		colliderRegistry.Add(
-			projectileObject.Handle,
+		scene.AttachCollider(
+			projectileHandle,
 			LayerMask::NameToLayerIndex(layerName),
 			layerMask
 		);
-		transformRegistry.Add(
-			projectileObject.Handle,
+		scene.AttachTransform(
+			projectileHandle,
 			transform->Position + transform->Forward() * PlayerSize,
 			ProjectileSize,
 			transform->Rotation
 		);
-		Projectiles.push_back(projectileObject.Handle);
-		GameObjects.push_back(std::move(projectileObject));
+
+		Projectiles.emplace_back(projectileHandle);
 	}
 }
 
@@ -144,28 +136,28 @@ void static DrawBackground(Renderer2D& renderer)
 	}
 
 	// Draw lines that surrounds the game area (Left, Top, Right, Bottom).
-	auto boundaryLeftTransform = transformRegistry.TryGetByOwner(BoundaryLeftHandle);
+	auto boundaryLeftTransform = scene.Transforms.TryGetByOwner(BoundaryLeftHandle);
 	if (boundaryLeftTransform)
 	{
 		renderer.DrawQuad(*boundaryLeftTransform, Colors::White);
 	}
-	auto boundaryTopTransform = transformRegistry.TryGetByOwner(BoundaryTopHandle);
+	auto boundaryTopTransform = scene.Transforms.TryGetByOwner(BoundaryTopHandle);
 	if (boundaryTopTransform)
 	{
 		renderer.DrawQuad(*boundaryTopTransform, Colors::White);
 	}
-	auto boundaryRightTransform = transformRegistry.TryGetByOwner(BoundaryRightHandle);
+	auto boundaryRightTransform = scene.Transforms.TryGetByOwner(BoundaryRightHandle);
 	if (boundaryRightTransform)
 	{
 		renderer.DrawQuad(*boundaryRightTransform, Colors::White);
 	}
-	auto boundaryBottomTransform = transformRegistry.TryGetByOwner(BoundaryBottomHandle);
+	auto boundaryBottomTransform = scene.Transforms.TryGetByOwner(BoundaryBottomHandle);
 	if (boundaryBottomTransform)
 	{
 		renderer.DrawQuad(*boundaryBottomTransform, Colors::White);
 	}
 
-	auto boundaryCenterTransform = transformRegistry.TryGetByOwner(BoundaryCenterHandle);
+	auto boundaryCenterTransform = scene.Transforms.TryGetByOwner(BoundaryCenterHandle);
 	if (boundaryCenterTransform)
 	{
 		renderer.DrawQuad(*boundaryCenterTransform, Colors::White);
@@ -174,13 +166,13 @@ void static DrawBackground(Renderer2D& renderer)
 
 void static DrawPlayers(Renderer2D& renderer)
 {
-	auto player1Transform = transformRegistry.TryGetByOwner(Player1Handle);
+	auto player1Transform = scene.Transforms.TryGetByOwner(Player1Handle);
 	if (player1Transform)
 	{
 		renderer.DrawCircle(*player1Transform, Colors::Red);
 		renderer.DrawQuad(Transform2D(player1Transform->OwnerHandle, player1Transform->Position + player1Transform->Forward() * PlayerSize * 0.5f, { PlayerBarrelWidth, PlayerBarrelHeight }, player1Transform->Rotation), Colors::Red);
 	}
-	auto player2Transform = transformRegistry.TryGetByOwner(Player2Handle);
+	auto player2Transform = scene.Transforms.TryGetByOwner(Player2Handle);
 	if (player2Transform)
 	{
 		renderer.DrawCircle(*player2Transform, Colors::Blue);
@@ -192,8 +184,8 @@ void static DrawProjectiles(Renderer2D& renderer)
 {
 	for (auto& projectileOwnerHandle : Projectiles)
 	{
-		auto projectileCollider = colliderRegistry.TryGetByOwner(projectileOwnerHandle);
-		auto projectileTransform = transformRegistry.TryGetByOwner(projectileOwnerHandle);
+		auto projectileCollider = scene.Colliders.TryGetByOwner(projectileOwnerHandle);
+		auto projectileTransform = scene.Transforms.TryGetByOwner(projectileOwnerHandle);
 
 		if (projectileCollider && projectileTransform)
 		{
@@ -234,21 +226,13 @@ int main()
 #pragma region Game Objects Setup
 
 	// Game objects.
-	GameObject player1Object;
-	GameObject player2Object;
-	GameObject boundaryLeftObject;
-	GameObject boundaryTopObject;
-	GameObject boundaryRightObject;
-	GameObject boundaryBottomObject;
-	GameObject boundaryCenterObject;
-
-	Player1Handle = player1Object.Handle;
-	Player2Handle = player2Object.Handle;
-	BoundaryLeftHandle = boundaryLeftObject.Handle;
-	BoundaryTopHandle = boundaryTopObject.Handle;
-	BoundaryRightHandle = boundaryRightObject.Handle;
-	BoundaryBottomHandle = boundaryBottomObject.Handle;
-	BoundaryCenterHandle = boundaryCenterObject.Handle;
+	Player1Handle = scene.AddGameObject();
+	Player2Handle = scene.AddGameObject();
+	BoundaryLeftHandle = scene.AddGameObject();
+	BoundaryTopHandle = scene.AddGameObject();
+	BoundaryRightHandle = scene.AddGameObject();
+	BoundaryBottomHandle = scene.AddGameObject();
+	BoundaryCenterHandle = scene.AddGameObject();
 
 	// Layer masks.
 	LayerMask::AddLayer(Player1LayerName, 1);
@@ -258,32 +242,24 @@ int main()
 	LayerMask::AddLayer(BoundaryLayerName, 5);
 
 	// Colliders
-	colliderRegistry.Add(Player1Handle, LayerMask::NameToLayerIndex(Player1LayerName), LayerMask::GetMask({ Player2LayerName, Player2ProjectileLayerName, BoundaryLayerName }));
-	colliderRegistry.Add(Player2Handle, LayerMask::NameToLayerIndex(Player2LayerName), LayerMask::GetMask({ Player1LayerName, Player1ProjectileLayerName, BoundaryLayerName }));
+	scene.AttachCollider(Player1Handle, LayerMask::NameToLayerIndex(Player1LayerName), LayerMask::GetMask({ Player2LayerName, Player2ProjectileLayerName, BoundaryLayerName }));
+	scene.AttachCollider(Player2Handle, LayerMask::NameToLayerIndex(Player2LayerName), LayerMask::GetMask({ Player1LayerName, Player1ProjectileLayerName, BoundaryLayerName }));
+
 	auto boundaryCollisionMask = LayerMask::GetMask({ Player1LayerName, Player2LayerName, Player1ProjectileLayerName, Player2ProjectileLayerName });
-	colliderRegistry.Add(BoundaryLeftHandle, LayerMask::NameToLayerIndex(BoundaryLayerName), boundaryCollisionMask, true);
-	colliderRegistry.Add(BoundaryTopHandle, LayerMask::NameToLayerIndex(BoundaryLayerName), boundaryCollisionMask, true);
-	colliderRegistry.Add(BoundaryRightHandle, LayerMask::NameToLayerIndex(BoundaryLayerName), boundaryCollisionMask, true);
-	colliderRegistry.Add(BoundaryBottomHandle, LayerMask::NameToLayerIndex(BoundaryLayerName), boundaryCollisionMask, true);
-	colliderRegistry.Add(BoundaryCenterHandle, LayerMask::NameToLayerIndex(BoundaryLayerName), boundaryCollisionMask, true);
+	scene.AttachCollider(BoundaryLeftHandle, LayerMask::NameToLayerIndex(BoundaryLayerName), boundaryCollisionMask, true);
+	scene.AttachCollider(BoundaryTopHandle, LayerMask::NameToLayerIndex(BoundaryLayerName), boundaryCollisionMask, true);
+	scene.AttachCollider(BoundaryRightHandle, LayerMask::NameToLayerIndex(BoundaryLayerName), boundaryCollisionMask, true);
+	scene.AttachCollider(BoundaryBottomHandle, LayerMask::NameToLayerIndex(BoundaryLayerName), boundaryCollisionMask, true);
+	scene.AttachCollider(BoundaryCenterHandle, LayerMask::NameToLayerIndex(BoundaryLayerName), boundaryCollisionMask, true);
 
 	// Transforms.
-	transformRegistry.Add(Player1Handle, { PlayerStartOffset, WallHeight * 0.5f }, { PlayerSize }, 0.0f);
-	transformRegistry.Add(Player2Handle, { Width - PlayerStartOffset, WallHeight * 0.5f }, { PlayerSize }, 180.0f);
-	transformRegistry.Add(BoundaryLeftHandle, { WallThickness * 0.5f, WallHeight * 0.5f }, { WallThickness, WallHeight }, 0.0f);
-	transformRegistry.Add(BoundaryTopHandle, { Width * 0.5f, WallHeight - WallThickness * 0.5f }, { Width, WallThickness }, 0.0f);
-	transformRegistry.Add(BoundaryRightHandle, { Width - WallThickness * 0.5f, WallHeight * 0.5f }, { WallThickness, WallHeight }, 0.0f);
-	transformRegistry.Add(BoundaryBottomHandle, { Width * 0.5f, WallThickness * 0.5f }, { Width, WallThickness }, 0.0f);
-	transformRegistry.Add(BoundaryCenterHandle, { Width * 0.5f, WallHeight * 0.5f }, { WallThickness, WallHeight * 0.25 }, 0.0f);
-
-	// Game objects.
-	GameObjects.push_back(std::move(player1Object));
-	GameObjects.push_back(std::move(player2Object));
-	GameObjects.push_back(std::move(boundaryLeftObject));
-	GameObjects.push_back(std::move(boundaryTopObject));
-	GameObjects.push_back(std::move(boundaryRightObject));
-	GameObjects.push_back(std::move(boundaryBottomObject));
-	GameObjects.push_back(std::move(boundaryCenterObject));
+	scene.AttachTransform(Player1Handle, { PlayerStartOffset, WallHeight * 0.5f }, { PlayerSize }, 0.0f);
+	scene.AttachTransform(Player2Handle, { Width - PlayerStartOffset, WallHeight * 0.5f }, { PlayerSize }, 180.0f);
+	scene.AttachTransform(BoundaryLeftHandle, { WallThickness * 0.5f, WallHeight * 0.5f }, { WallThickness, WallHeight }, 0.0f);
+	scene.AttachTransform(BoundaryTopHandle, { Width * 0.5f, WallHeight - WallThickness * 0.5f }, { Width, WallThickness }, 0.0f);
+	scene.AttachTransform(BoundaryRightHandle, { Width - WallThickness * 0.5f, WallHeight * 0.5f }, { WallThickness, WallHeight }, 0.0f);
+	scene.AttachTransform(BoundaryBottomHandle, { Width * 0.5f, WallThickness * 0.5f }, { Width, WallThickness }, 0.0f);
+	scene.AttachTransform(BoundaryCenterHandle, { Width * 0.5f, WallHeight * 0.5f }, { WallThickness, WallHeight * 0.25 }, 0.0f);
 
 #pragma endregion
 
@@ -317,8 +293,8 @@ int main()
 			// TODO: Create player 2 movement AI.
 
 			// 1. Simple look at player test.
-			auto player1Transform = transformRegistry.TryGetByOwner(Player1Handle);
-			auto player2Transform = transformRegistry.TryGetByOwnerMutable(Player2Handle);
+			auto player1Transform = scene.Transforms.TryGetByOwner(Player1Handle);
+			auto player2Transform = scene.Transforms.TryGetByOwnerMutable(Player2Handle);
 			if (player1Transform && player2Transform)
 			{
 				// TODO: Refactor logic into Numeric and Vector2D static methods.
@@ -360,8 +336,8 @@ int main()
 			// 1. Simple attack when within range.
 			if (Player2ProjectileFireRate.CanFire() && Player2ProjectileCount < MaxActiveProjectiles)
 			{
-				auto player1Transform = transformRegistry.TryGetByOwner(Player1Handle);
-				auto player2Transform = transformRegistry.TryGetByOwnerMutable(Player2Handle);
+				auto player1Transform = scene.Transforms.TryGetByOwner(Player1Handle);
+				auto player2Transform = scene.Transforms.TryGetByOwnerMutable(Player2Handle);
 
 				if (player1Transform && player2Transform && std::abs(player1Transform->Position.X - player2Transform->Position.X) < GameWidth * 0.5f)
 				{
@@ -385,14 +361,14 @@ int main()
 #pragma region Movement Integration
 
 		// Player movement.
-		auto player1Transform = transformRegistry.TryGetByOwnerMutable(Player1Handle);
+		auto player1Transform = scene.Transforms.TryGetByOwnerMutable(Player1Handle);
 		if (player1Transform)
 		{
 			player1Transform->Rotation += player1Turn * PlayerRotationSpeed * Timer;
 			player1Transform->Position += player1Transform->Forward() * (player1Thrust * Player1Speed * Timer);
 		}
 
-		auto player2Transform = transformRegistry.TryGetByOwnerMutable(Player2Handle);
+		auto player2Transform = scene.Transforms.TryGetByOwnerMutable(Player2Handle);
 		if (player2Transform)
 		{
 			player2Transform->Rotation += player2Turn * PlayerRotationSpeed * Timer;
@@ -402,7 +378,7 @@ int main()
 		// Projectile movement.
 		for (auto& projectileOwnerHandle : Projectiles)
 		{
-			auto projectileTransform = transformRegistry.TryGetByOwnerMutable(projectileOwnerHandle);
+			auto projectileTransform = scene.Transforms.TryGetByOwnerMutable(projectileOwnerHandle);
 			if (projectileTransform)
 			{
 				auto velocity = projectileTransform->Forward() * ProjectileSpeed;
@@ -414,22 +390,21 @@ int main()
 
 #pragma region Collision Handling
 
-		collisionManager.Step(colliderRegistry, transformRegistry);
+		collisionManager.Step(scene.Colliders, scene.Transforms);
 
-		// TODO: Create combinations as const(expr) in the start of the program.
-		auto maskPlayer1 = LayerMask::NameToLayer(Player1LayerName);
-		auto maskPlayer2 = LayerMask::NameToLayer(Player2LayerName);
-		auto maskPlayer1Projectile = LayerMask::NameToLayer(Player1ProjectileLayerName);
-		auto maskPlayer2Projectile = LayerMask::NameToLayer(Player2ProjectileLayerName);
-		auto maskBoundary = LayerMask::NameToLayer(BoundaryLayerName);
+		const LayerMask maskPlayer1 = LayerMask::NameToLayer(Player1LayerName);
+		const LayerMask maskPlayer2 = LayerMask::NameToLayer(Player2LayerName);
+		const LayerMask maskPlayer1Projectile = LayerMask::NameToLayer(Player1ProjectileLayerName);
+		const LayerMask maskPlayer2Projectile = LayerMask::NameToLayer(Player2ProjectileLayerName);
+		const LayerMask maskBoundary = LayerMask::NameToLayer(BoundaryLayerName);
 
 		for (auto& collision : collisionManager.GetCollisionInfo())
 		{
 			auto ownerHandleA = collision.CollisionAOwnerHandle;
 			auto ownerHandleB = collision.CollisionBOwnerHandle;
 
-			auto colliderA = colliderRegistry.TryGetByOwner(ownerHandleA);
-			auto colliderB = colliderRegistry.TryGetByOwner(ownerHandleB);
+			auto colliderA = scene.Colliders.TryGetByOwner(ownerHandleA);
+			auto colliderB = scene.Colliders.TryGetByOwner(ownerHandleB);
 
 			if (!colliderA || !colliderB)
 			{
@@ -439,8 +414,12 @@ int main()
 			auto maskA = LayerMask::FromIndex(colliderA->LayerIndex);
 			auto maskB = LayerMask::FromIndex(colliderB->LayerIndex);
 
-			auto transformA = transformRegistry.TryGetByOwnerMutable(ownerHandleA);
-			auto transformB = transformRegistry.TryGetByOwnerMutable(ownerHandleB);
+			auto transformA = scene.Transforms.TryGetByOwnerMutable(ownerHandleA);
+			auto transformB = scene.Transforms.TryGetByOwnerMutable(ownerHandleB);
+			if (!transformA || !transformB)
+			{
+				continue;
+			}
 
 			auto correction = collision.Point.Normal * collision.Point.Penetration;
 
@@ -451,11 +430,10 @@ int main()
 			{
 				std::cout << "Player 2 hit by a Player 1's projectile!" << std::endl;
 
-				colliderRegistry.RemoveByOwner(ownerHandleA);
-				colliderRegistry.RemoveByOwner(ownerHandleB);
+				scene.DestroyGameObject(ownerHandleA);
+				scene.DestroyGameObject(ownerHandleB);
 
-				transformRegistry.RemoveByOwner(ownerHandleA);
-				transformRegistry.RemoveByOwner(ownerHandleB);
+				std::erase(Projectiles, maskA == maskPlayer1Projectile ? ownerHandleA : ownerHandleB);
 
 				Player1ProjectileCount = 0;
 				Player1ProjectileBounceCount = 0;
@@ -465,11 +443,10 @@ int main()
 			{
 				std::cout << "Player 1 hit by Player 2's projectile!" << std::endl;
 
-				colliderRegistry.RemoveByOwner(ownerHandleA);
-				colliderRegistry.RemoveByOwner(ownerHandleB);
+				scene.DestroyGameObject(ownerHandleA);
+				scene.DestroyGameObject(ownerHandleB);
 
-				transformRegistry.RemoveByOwner(ownerHandleA);
-				transformRegistry.RemoveByOwner(ownerHandleB);
+				std::erase(Projectiles, maskA == maskPlayer2Projectile ? ownerHandleA : ownerHandleB);
 
 				Player2ProjectileCount = 0;
 				Player2ProjectileBounceCount = 0;
@@ -480,7 +457,7 @@ int main()
 				std::cout << "Player 1's projectile collided with a boundary!" << std::endl;
 
 				auto ownerHandle = maskA == maskPlayer1Projectile ? ownerHandleA : ownerHandleB;
-				auto transform = transformRegistry.TryGetByOwnerMutable(ownerHandle);
+				auto transform = scene.Transforms.TryGetByOwnerMutable(ownerHandle);
 				if (!transform)
 				{
 					break;
@@ -498,8 +475,8 @@ int main()
 				}
 				else
 				{
-					colliderRegistry.RemoveByOwner(ownerHandle);
-					transformRegistry.RemoveByOwner(ownerHandle);
+					scene.DestroyGameObject(ownerHandle);
+					std::erase(Projectiles, ownerHandle);
 
 					Player1ProjectileBounceCount = 0;
 					Player1ProjectileCount = 0;
@@ -511,7 +488,7 @@ int main()
 				std::cout << "Player 2's projectile collided with a boundary!" << std::endl;
 
 				auto ownerHandle = maskA == maskPlayer2Projectile ? ownerHandleA : ownerHandleB;
-				auto transform = transformRegistry.TryGetByOwnerMutable(ownerHandle);
+				auto transform = scene.Transforms.TryGetByOwnerMutable(ownerHandle);
 				if (!transform)
 				{
 					break;
@@ -529,8 +506,8 @@ int main()
 				}
 				else
 				{
-					colliderRegistry.RemoveByOwner(ownerHandle);
-					transformRegistry.RemoveByOwner(ownerHandle);
+					scene.DestroyGameObject(ownerHandle);
+					std::erase(Projectiles, ownerHandle);
 
 					Player2ProjectileBounceCount = 0;
 					Player2ProjectileCount = 0;

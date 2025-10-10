@@ -85,5 +85,7 @@ namespace Ludus::Engine
 
 			return nullptr;
 		}
+
+		const size_t GetCount() { return m_Data.size(); }
 	};
 }
