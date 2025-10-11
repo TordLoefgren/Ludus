@@ -40,8 +40,11 @@ jobs:
           /p:Configuration=%Configuration% /p:Platform=%Platform%
       - name: Run GoogleTests
         shell: cmd
-        working-directory: .\x64\%Configuration%
-        run: Ludus.Tests.exe --gtest_output=xml:..\TestResults\gtest.xml
+        run: >
+          if not exist ".\x64\%Configuration%\TestResults" mkdir
+          ".\x64\%Configuration%\TestResults"
+
+          ".\x64\%Configuration%\Ludus.Tests.exe" --gtest_output=xml:".\x64\%Configuration%\TestResults\gtest.xml"
       - name: Publish test results
         if: always()
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
