@@ -51,7 +51,12 @@ namespace Ludus::Engine
 		std::span<const Collider2D> View() const { return { m_Data.data(), m_Data.size() }; }
 		std::span<Collider2D> ViewMutable() { return { m_Data.data(), m_Data.size() }; }
 
-		ColliderHandle Add(GameObjectHandle owner, Ludus::Physics::Index layer, LayerMask collidesWith = LayerMask::GetEmpty(), bool isStatic = false)
+		ColliderHandle Add(
+			GameObjectHandle owner, 
+			Ludus::Physics::Index layer, 
+			LayerMask collidesWith = LayerMask::GetEmpty(), 
+			bool isStatic = false
+		)
 		{
 			m_Data.emplace_back(owner, layer, collidesWith, isStatic);
 

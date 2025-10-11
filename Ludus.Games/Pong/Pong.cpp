@@ -18,7 +18,7 @@
 #include <Ludus/Math/Transform2D.h>
 #include <Ludus/Math/Vector2D.h>
 #include <Ludus/Physics/Collider2D.h>
-#include <Ludus/Physics/Collision2DManager.h>
+#include <Ludus/Physics/CollisionSystem2D.h>
 #include <Ludus/Platform/Input.h>
 #include <Ludus/Platform/Key.h>
 #include <Ludus/Platform/Window.h>
@@ -27,6 +27,7 @@
 using Ludus::Engine::GameObject;
 using Ludus::Engine::GameObjectHandle;
 using Ludus::Engine::LayerMask;
+using Ludus::Engine::LayerIndex;
 using Ludus::Graphics::Camera2D;
 using Ludus::Graphics::Color;
 using Ludus::Graphics::GLContext;
@@ -75,17 +76,22 @@ const float Player1Speed = 900.0f;
 const float Player2Speed = 700.0f;
 const int MaxScore = 5;
 
-
 Ludus::Engine::Scene scene;
 Ludus::Engine::Random random;
 Ludus::Engine::TimeStep Timer;
-Ludus::Physics::Collision2DManager collisionManager;
+Ludus::Physics::CollisionSystem2D collisionSystem;
 
 const std::string BallLayerName = "Ball";
 const std::string BoundaryHorizontalLayerName = "BoundaryHorizontal";
 const std::string BoundaryVerticalLayerName = "BoundaryVertical";
 const std::string Player1LayerName = "Player1";
 const std::string Player2LayerName = "Player2";
+
+const LayerIndex BallLayerIndex = 1;
+const LayerIndex BoundaryHorizontalLayerIndex = 2;
+const LayerIndex BoundaryVerticalLayerIndex = 3;
+const LayerIndex Player1LayerIndex = 4;
+const LayerIndex Player2LayerIndex = 5;
 
 GameObjectHandle Player1Handle;
 GameObjectHandle Player2Handle;
@@ -290,27 +296,27 @@ int main()
 	Player2Handle = scene.AddGameObject();
 
 	// Layer masks.
-	LayerMask::AddLayer(BallLayerName, 1);
-	LayerMask::AddLayer(BoundaryHorizontalLayerName, 2);
-	LayerMask::AddLayer(BoundaryVerticalLayerName, 3);
-	LayerMask::AddLayer(Player1LayerName, 4);
-	LayerMask::AddLayer(Player2LayerName, 5);
+	LayerMask::AddLayer(BallLayerName, BallLayerIndex);
+	LayerMask::AddLayer(BoundaryHorizontalLayerName, BoundaryHorizontalLayerIndex);
+	LayerMask::AddLayer(BoundaryVerticalLayerName, BoundaryVerticalLayerIndex);
+	LayerMask::AddLayer(Player1LayerName, Player1LayerIndex);
+	LayerMask::AddLayer(Player2LayerName, Player2LayerIndex);
 
 	// Colliders.
-	scene.AttachCollider(BallHandle, 1, LayerMask::GetMask({ BoundaryVerticalLayerName, BoundaryHorizontalLayerName, Player1LayerName, Player2LayerName }));
-	scene.AttachCollider(BoundaryLeftHandle, 3, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
-	scene.AttachCollider(BoundaryTopHandle, 2, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
-	scene.AttachCollider(BoundaryRightHandle, 3, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
-	scene.AttachCollider(BoundaryBottomHandle, 2, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
-	scene.AttachCollider(Player1Handle, 4, LayerMask::GetMask({ BallLayerName, BoundaryHorizontalLayerName }));
-	scene.AttachCollider(Player2Handle, 5, LayerMask::GetMask({ BallLayerName, BoundaryHorizontalLayerName }));
+	scene.AttachCollider(BallHandle, BallLayerIndex, LayerMask::GetMask({ BoundaryVerticalLayerName, BoundaryHorizontalLayerName, Player1LayerName, Player2LayerName }));
+	scene.AttachCollider(BoundaryTopHandle, BoundaryHorizontalLayerIndex, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
+	scene.AttachCollider(BoundaryBottomHandle, BoundaryHorizontalLayerIndex, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
+	scene.AttachCollider(BoundaryLeftHandle, BoundaryVerticalLayerIndex, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
+	scene.AttachCollider(BoundaryRightHandle, BoundaryVerticalLayerIndex, LayerMask::GetMask({ BallLayerName, Player1LayerName, Player2LayerName }), true);
+	scene.AttachCollider(Player1Handle, Player1LayerIndex, LayerMask::GetMask({ BallLayerName, BoundaryHorizontalLayerName }));
+	scene.AttachCollider(Player2Handle, Player2LayerIndex, LayerMask::GetMask({ BallLayerName, BoundaryHorizontalLayerName }));
 
 	// Transforms.
 	scene.AttachTransform(BallHandle, { HalfWidth, HalfHeight }, BallSize);
+	scene.AttachTransform(BoundaryTopHandle, { HalfWidth, Height - WallHeightThickness * 0.5f }, { Width, WallHeightThickness });
+	scene.AttachTransform(BoundaryBottomHandle, { HalfWidth, WallHeightThickness * 0.5f }, { Width, WallHeightThickness });
 	scene.AttachTransform(BoundaryLeftHandle, { WallWidthThickness * 0.5f, HalfHeight }, { WallWidthThickness, Height });
-	scene.AttachTransform(BoundaryTopHandle, { HalfWidth, Height - WallHeightThickness * 0.5f }, { Width - 2.0f * WallWidthThickness, WallHeightThickness });
 	scene.AttachTransform(BoundaryRightHandle, { Width - WallWidthThickness * 0.5f, HalfHeight }, { WallWidthThickness, Height });
-	scene.AttachTransform(BoundaryBottomHandle, { HalfWidth, WallHeightThickness * 0.5f }, { Width - 2.0f * WallWidthThickness, WallHeightThickness });
 	scene.AttachTransform(Player1Handle, { PaddleWidthOffset, HalfHeight }, { PaddleWidth, PaddleHeight });
 	scene.AttachTransform(Player2Handle, { Width - PaddleWidthOffset, HalfHeight }, { PaddleWidth, PaddleHeight });
 
@@ -486,7 +492,7 @@ int main()
 
 		if (State == Playing)
 		{
-			collisionManager.Step(scene.Colliders, scene.Transforms);
+			collisionSystem.Step(scene.Colliders, scene.Transforms);
 
 			const auto maskBall = LayerMask::NameToLayer(BallLayerName);
 			const auto maskBoundaryHorizontal = LayerMask::NameToLayer(BoundaryHorizontalLayerName);
@@ -494,7 +500,7 @@ int main()
 			const auto maskPlayer1 = LayerMask::NameToLayer(Player1LayerName);
 			const auto maskPlayer2 = LayerMask::NameToLayer(Player2LayerName);
 
-			const auto& collisionInfo = collisionManager.GetCollisionInfo();
+			const auto& collisionInfo = collisionSystem.GetCollisionInfo();
 			for (const auto& info : collisionInfo)
 			{
 				const auto ownerHandleA = info.CollisionAOwnerHandle;
@@ -534,7 +540,7 @@ int main()
 					const auto isAStatic = Is(maskB, maskBall) && (Is(maskA, maskPlayer1) || Is(maskA, maskPlayer2)) ? true : colliderA.IsStatic;
 					const auto isBStatic = Is(maskA, maskBall) && (Is(maskB, maskPlayer1) || Is(maskB, maskPlayer2)) ? true : colliderB.IsStatic;
 					const auto correction = contactPoint.Normal * contactPoint.Penetration;
-					collisionManager.ResolveCollision(transformAPtr, transformBPtr, isAStatic, isBStatic, correction);
+					collisionSystem.ResolveCollision(transformAPtr, transformBPtr, isAStatic, isBStatic, correction);
 				}
 
 				auto* ballTransform =
@@ -597,12 +603,12 @@ int main()
 					{
 						Ludus::Engine::Utilities::WriteLine("[Collision Handling] Ball <-> Boundary (vertical)");
 
-						if (ballTransform->Position.X < HalfWidth)
+						if (ballTransform->Position.X < 0.0f)
 						{
 							Player2Score++;
 							Clear();
 						}
-						else if (ballTransform->Position.X > HalfWidth)
+						else if (ballTransform->Position.X > Width)
 						{
 							Player1Score++;
 							Clear();

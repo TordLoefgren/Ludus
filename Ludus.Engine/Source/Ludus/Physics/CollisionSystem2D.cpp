@@ -1,10 +1,10 @@
 #include <iostream>
 
-#include <Ludus/Physics/Collision2DManager.h>
+#include <Ludus/Physics/CollisionSystem2D.h>
 
 namespace Ludus::Physics
 {
-	void Collision2DManager::Step(const ColliderRegistry& colliderRegistry, const TransformRegistry& transformRegistry)
+	void CollisionSystem2D::Step(const ColliderRegistry& colliderRegistry, const TransformRegistry& transformRegistry)
 	{
 		// TODO: N^2. Should be optimized.
 
@@ -19,6 +19,7 @@ namespace Ludus::Physics
 				const auto& colliderA = colliders[i];
 				const auto& colliderB = colliders[j];
 
+				// Validate static.
 				if (colliderA.IsStatic && colliderB.IsStatic)
 				{
 					continue;
@@ -32,6 +33,7 @@ namespace Ludus::Physics
 					continue;
 				}
 
+				// Validate LayerMask.
 				if (!(colliderA.CollidesWith.Contains(colliderB.LayerIndex) && colliderB.CollidesWith.Contains(colliderA.LayerIndex)))
 				{
 					continue;
@@ -44,7 +46,7 @@ namespace Ludus::Physics
 				// Broad phase (AABB).
 				if (boundsA.AABBIntersection(boundsB, contactPoint))
 				{
-					m_Collisions.emplace_back(colliderA.Handle, colliderB.Handle, contactPoint);
+					m_Collisions.emplace_back(colliderA.OwnerHandle, colliderB.OwnerHandle, contactPoint);
 				}
 
 				// TODO: Implement narrow phase.
@@ -52,7 +54,7 @@ namespace Ludus::Physics
 		}
 	}
 
-	void Collision2DManager::ResolveCollision(Transform2D* transformA, Transform2D* transformB, bool isStaticA, bool isStaticB, const Vector2D& correction)
+	void CollisionSystem2D::ResolveCollision(Transform2D* transformA, Transform2D* transformB, bool isStaticA, bool isStaticB, const Vector2D& correction)
 	{
 		// Resolve MTV (Minimum Translation Vector).
 		if (isStaticA && !isStaticB)
