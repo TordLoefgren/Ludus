@@ -1,0 +1,82 @@
+---
+name: Ludus CI — Build & Unit Tests (Windows, self-hosted)
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  push:
+    branches:
+      - "**"
+  workflow_dispatch: null
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  Configuration: Debug
+  Platform: x64
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+jobs:
+  build-and-test:
+    name: Build & test — x64 / Debug
+    runs-on:
+      - self-hosted
+      - windows
+      - x64
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1
+      - name: Restore NuGet packages
+        shell: cmd
+        run: nuget restore Ludus.sln
+      - name: Build tests
+        shell: cmd
+        run: msbuild .\Ludus.Tests\Ludus.Tests.vcxproj /m ^
+          /p:Configuration=%Configuration% /p:Platform=%Platform%
+      - name: Run GoogleTests
+        shell: cmd
+        run: |
+          setlocal enabledelayedexpansion
+          set "EXE="
+          for /f "delims=" %%F in ('dir /s /b "Ludus.Tests.exe"') do (
+            set "EXE=%%F"
+            set "EXEDIR=%%~dpF"
+            goto runit
+          )
+          echo Ludus.Tests.exe not found
+          exit /b 1
+          :runit
+          set "RESULTS=!EXEDIR!TestResults"
+          if not exist "!RESULTS!" mkdir "!RESULTS!"
+          "!EXE!" --gtest_output=xml:"!RESULTS!\gtest.xml"
+          exit /b !errorlevel!
+      - name: Publish Ludus Unit Tests
+        if: always()
+        uses: mikepenz/action-junit-report@v4
+        with:
+          report_paths: "**/TestResults/*.xml"
+          check_name: Ludus - Unit Tests
+          include_passed: true
+          detailed_summary: true
+          token: ${{ github.token }}
+      - name: Job summary
+        if: always()
+        shell: cmd
+        run: |
+          (
+            echo # Ludus CI - Build ^& Unit Tests
+            echo **Config:** %Configuration% ^| **Platform:** %Platform%
+            echo.
+            echo A "Ludus - Unit Tests" check is attached below with full details.
+          )>> "%GITHUB_STEP_SUMMARY%"
