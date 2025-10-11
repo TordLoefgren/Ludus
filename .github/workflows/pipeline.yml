@@ -31,6 +31,17 @@ jobs:
         uses: microsoft/setup-msbuild@v2
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1
+      - name: Ensure vcpkg deps (freetype)
+        shell: pwsh
+        run: >
+          $root = 'C:\dev\tools\vcpkg'
+
+          $triplet = 'x64-windows'
+
+          if (-not (Test-Path "$root\installed\$triplet\debug\lib\freetype.lib")) {
+            & "$root\vcpkg.exe" install freetype:$triplet
+            if ($LASTEXITCODE) { throw "vcpkg install failed" }
+          }
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
