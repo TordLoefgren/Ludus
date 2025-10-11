@@ -52,9 +52,9 @@ namespace Ludus::Engine
 		std::span<Collider2D> ViewMutable() { return { m_Data.data(), m_Data.size() }; }
 
 		ColliderHandle Add(
-			GameObjectHandle owner, 
-			Ludus::Physics::Index layer, 
-			LayerMask collidesWith = LayerMask::GetEmpty(), 
+			GameObjectHandle owner,
+			Ludus::Physics::Index layer,
+			LayerMask collidesWith = LayerMask::GetEmpty(),
 			bool isStatic = false
 		)
 		{
