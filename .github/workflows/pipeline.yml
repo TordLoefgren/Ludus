@@ -1,8 +1,8 @@
-name: Ludus CI (diagnostic)
+name: Build & Test (Self-hosted Windows)
 
 on:
   push:
-    branches: [ master ]
+    branches: ['**']
   pull_request:
   workflow_dispatch:
 
@@ -11,38 +11,41 @@ env:
   Platform: x64
 
 jobs:
-  diag:
+  build-and-test:
     runs-on: [self-hosted, windows, x64]
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: MSBuild/NuGet versions
-        shell: cmd
-        run: |
-          where msbuild
-          msbuild -version
-          nuget help | find "NuGet Version"
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
 
-      - name: Restore
-        shell: cmd
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v3
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.config') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Restore packages
         run: nuget restore Ludus.sln
-
-      - name: Build solution (all projects enabled for this config)
         shell: cmd
-        run: msbuild Ludus.sln /m /p:Configuration=%Configuration% /p:Platform=%Platform% /t:Build
 
-      - name: Build tests explicitly (in case solution config doesn't include them)
+      - name: Build solution
+        run: msbuild Ludus.sln /m /p:Configuration=%Configuration% /p:Platform=%Platform%
         shell: cmd
-        run: msbuild .\Ludus.Tests\Ludus.Tests.vcxproj /p:Configuration=%Configuration% /p:Platform=%Platform%
 
-      - name: List test output
-        shell: cmd
-        run: dir /s /b Ludus.Tests\*.exe
-
-      - name: Run GoogleTests (pinned path)
-        shell: cmd
-        working-directory: .\Ludus.Tests\x64\Debug
-        run: Ludus.Tests.exe --gtest_output=xml:..\..\..\TestResults\gtest.xml
+      - name: Run GoogleTests (auto-discover exe)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path TestResults | Out-Null
+          $exe = Get-ChildItem -Recurse -Filter Ludus.Tests.exe | Select-Object -First 1
+          if (-not $exe) { throw "Ludus.Tests.exe not found" }
+          & $exe.FullName --gtest_output=xml:TestResults\gtest.xml
+          exit $LASTEXITCODE
 
       - name: Publish test results
         if: always()
