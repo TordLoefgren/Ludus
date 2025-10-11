@@ -1,0 +1,44 @@
+<Project>
+  <PropertyGroup>
+    <!-- Adjust if your vcpkg root is different -->
+    <VcpkgRoot>C:\dev\tools\vcpkg</VcpkgRoot>
+    <VcpkgTriplet>x64-windows</VcpkgTriplet>
+  </PropertyGroup>
+
+  <!-- Common include path for ALL projects -->
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>
+        $(VcpkgRoot)\installed\$(VcpkgTriplet)\include;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <!-- Link FreeType in final EXEs -->
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <Link>
+      <AdditionalLibraryDirectories>
+        $(VcpkgRoot)\installed\$(VcpkgTriplet)\debug\lib;
+        %(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+        freetype.lib;
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <Link>
+      <AdditionalLibraryDirectories>
+        $(VcpkgRoot)\installed\$(VcpkgTriplet)\lib;
+        %(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+        freetype.lib;
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>

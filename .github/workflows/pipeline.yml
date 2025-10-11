@@ -1,11 +1,21 @@
 ---
 name: Build & Test (Self-hosted Windows)
 on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
   push:
     branches:
       - "**"
-  pull_request: null
   workflow_dispatch: null
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 env:
   Configuration: Debug
   Platform: x64
@@ -17,36 +27,29 @@ jobs:
       - x64
     steps:
       - uses: actions/checkout@v4
-      - uses: NuGet/setup-nuget@v1
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
           path: packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.config') }}
           restore-keys: ${{ runner.os }}-nuget-
-      - name: Restore packages
-        run: nuget restore Ludus.sln
+      - name: Restore
         shell: cmd
+        run: nuget restore Ludus.sln
       - name: Build solution
+        shell: cmd
         run: msbuild Ludus.sln /m /p:Configuration=%Configuration%
           /p:Platform=%Platform%
+      - name: Run GoogleTests
         shell: cmd
-      - name: Run GoogleTests (auto-discover exe)
-        shell: pwsh
-        run: >
-          New-Item -ItemType Directory -Force -Path TestResults | Out-Null
-
-          $exe = Get-ChildItem -Recurse -Filter Ludus.Tests.exe | Select-Object -First 1
-
-          if (-not $exe) { throw "Ludus.Tests.exe not found" }
-
-          & $exe.FullName --gtest_output=xml:TestResults\gtest.xml
-
-          exit $LASTEXITCODE
+        working-directory: .\x64\%Configuration%
+        run: Ludus.Tests.exe --gtest_output=xml:..\TestResults\gtest.xml
       - name: Publish test results
         if: always()
-        uses: EnricoMi/publish-unit-test-result-action@v2
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
         with:
           files: "**/TestResults/*.xml"
