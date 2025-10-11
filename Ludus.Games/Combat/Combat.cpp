@@ -15,7 +15,7 @@
 #include <Ludus/Math/Transform2D.h>
 #include <Ludus/Math/Vector2D.h>
 #include <Ludus/Physics/Collider2D.h>
-#include <Ludus/Physics/Collision2DManager.h>
+#include <Ludus/Physics/CollisionSystem2D.h>
 #include <Ludus/Platform/Input.h>
 #include <Ludus/Platform/Key.h>
 #include <Ludus/Platform/Window.h>
@@ -28,7 +28,7 @@ using Ludus::Graphics::Renderer2D;
 using Ludus::Graphics::GLContext;
 using Ludus::Math::Transform2D;
 using Ludus::Math::Vector2D;
-using Ludus::Physics::Collision2DManager;
+using Ludus::Physics::CollisionSystem2D;
 using Ludus::Physics::Collider2D;
 using Ludus::Platform::Key;
 
@@ -79,7 +79,7 @@ Ludus::Engine::TimeStep Timer;
 Ludus::Engine::Cooldown Player1ProjectileFireRate(0.5f);
 Ludus::Engine::Cooldown Player2ProjectileFireRate(0.5f);
 
-Collision2DManager collisionManager;
+CollisionSystem2D collisionSystem;
 
 int GameWidth = Width;
 int GameHeight = (int)WallHeight;
@@ -390,7 +390,7 @@ int main()
 
 #pragma region Collision Handling
 
-		collisionManager.Step(scene.Colliders, scene.Transforms);
+		collisionSystem.Step(scene.Colliders, scene.Transforms);
 
 		const LayerMask maskPlayer1 = LayerMask::NameToLayer(Player1LayerName);
 		const LayerMask maskPlayer2 = LayerMask::NameToLayer(Player2LayerName);
@@ -398,7 +398,7 @@ int main()
 		const LayerMask maskPlayer2Projectile = LayerMask::NameToLayer(Player2ProjectileLayerName);
 		const LayerMask maskBoundary = LayerMask::NameToLayer(BoundaryLayerName);
 
-		for (auto& collision : collisionManager.GetCollisionInfo())
+		for (auto& collision : collisionSystem.GetCollisionInfo())
 		{
 			auto ownerHandleA = collision.CollisionAOwnerHandle;
 			auto ownerHandleB = collision.CollisionBOwnerHandle;
@@ -423,7 +423,7 @@ int main()
 
 			auto correction = collision.Point.Normal * collision.Point.Penetration;
 
-			collisionManager.ResolveCollision(transformA, transformB, colliderA->IsStatic, colliderB->IsStatic, correction);
+			collisionSystem.ResolveCollision(transformA, transformB, colliderA->IsStatic, colliderB->IsStatic, correction);
 
 			// TODO: Use the LayerMask as the value directly, and perform fast bit operations using a switch statement.
 			if ((maskA == maskPlayer2 && maskB == maskPlayer1Projectile) || (maskA == maskPlayer1Projectile && maskB == maskPlayer2))
