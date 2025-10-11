@@ -10,7 +10,6 @@ namespace Ludus::Engine
 
 	struct Scene
 	{
-
 	private:
 		Ludus::Engine::GameObjectRegistry m_GameObjects;
 
