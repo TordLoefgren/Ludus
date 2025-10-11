@@ -38,13 +38,26 @@ jobs:
         shell: cmd
         run: msbuild .\Ludus.Tests\Ludus.Tests.vcxproj /m
           /p:Configuration=%Configuration% /p:Platform=%Platform%
-      - name: Run GoogleTests
-        shell: cmd
+      - name: Run GoogleTests (auto-discover exe)
+        shell: pwsh
         run: >
-          if not exist ".\x64\%Configuration%\TestResults" mkdir
-          ".\x64\%Configuration%\TestResults"
+          $exe = Get-ChildItem -Path . -Recurse -Filter 'Ludus.Tests.exe' |
+          Select-Object -First 1
 
-          ".\x64\%Configuration%\Ludus.Tests.exe" --gtest_output=xml:".\x64\%Configuration%\TestResults\gtest.xml"
+          if (-not $exe) { Write-Error "Ludus.Tests.exe not found"; exit 1 }
+
+
+          $resultsDir = Join-Path $exe.Directory.FullName 'TestResults'
+
+          New-Item -ItemType Directory -Force -Path $resultsDir | Out-Null
+
+
+          & $exe.FullName --gtest_output=xml:$($resultsDir)\gtest.xml
+
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: list test output folder
+        shell: cmd
+        run: dir /s /b .\x64\%Configuration% || dir /s /b .
       - name: Publish test results
         if: always()
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
