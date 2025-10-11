@@ -1,9 +1,9 @@
 ---
-name: Chore
-description: Maintenance, cleanup, or non-functional changes.
-title: "[Chore]: "
+name: Idea
+description: Early research, spike, or design thought.
+title: "[Idea]: "
 labels:
-  - "Type: Chore"
+  - "Type: Idea"
   - "Status: Planned"
 assignees:
   - TordLoefgren
@@ -13,6 +13,6 @@ body:
     id: description
     attributes:
       label: Description
-      description: What needs doing and why.
+      description: What you’re exploring and what you hope to learn or create.
     validations:
       required: true

@@ -1,9 +1,9 @@
 ---
-name: Chore
-description: Maintenance, cleanup, or non-functional changes.
-title: "[Chore]: "
+name: Docs
+description: Documentation-only change.
+title: "[Docs]: "
 labels:
-  - "Type: Chore"
+  - "Type: Docs"
   - "Status: Planned"
 assignees:
   - TordLoefgren
@@ -13,6 +13,6 @@ body:
     id: description
     attributes:
       label: Description
-      description: What needs doing and why.
+      description: Pages/sections to add or update.
     validations:
       required: true
