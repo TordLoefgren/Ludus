@@ -6,8 +6,6 @@ namespace Ludus::Physics
 {
 	void CollisionSystem2D::Step(const ColliderRegistry& colliderRegistry, const TransformRegistry& transformRegistry)
 	{
-		// TODO: N^2. Should be optimized.
-
 		m_Collisions.clear();
 
 		auto colliders = colliderRegistry.View();
@@ -48,8 +46,6 @@ namespace Ludus::Physics
 				{
 					m_Collisions.emplace_back(colliderA.OwnerHandle, colliderB.OwnerHandle, contactPoint);
 				}
-
-				// TODO: Implement narrow phase.
 			}
 		}
 	}

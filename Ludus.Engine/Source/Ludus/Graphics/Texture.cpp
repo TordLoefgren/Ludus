@@ -60,7 +60,6 @@ namespace Ludus::Graphics
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-		// Using GL_RGBA8 because GL_RGBA is deprecated. TODO: Check.
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_Data);
 		glBindTexture(GL_TEXTURE_2D, 0);
 

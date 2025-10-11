@@ -290,14 +290,13 @@ int main()
 			player2Thrust = 0;
 			player2Turn = 0;
 
-			// TODO: Create player 2 movement AI.
+			// --- Player 2 movement AI ---
 
-			// 1. Simple look at player test.
+			// Look at player.
 			auto player1Transform = scene.Transforms.TryGetByOwner(Player1Handle);
 			auto player2Transform = scene.Transforms.TryGetByOwnerMutable(Player2Handle);
 			if (player1Transform && player2Transform)
 			{
-				// TODO: Refactor logic into Numeric and Vector2D static methods.
 				auto objectPos = player2Transform->Position;
 				auto targ = player1Transform->Position;
 				targ.X = targ.X - objectPos.X;
@@ -306,8 +305,6 @@ int main()
 				float angle = Numeric::RadiansToDegrees(std::atan2f(targ.Y, targ.X));
 				player2Transform->Rotation = angle;
 			}
-
-			// 2. ...
 		}
 
 		// Projectile inputs.
@@ -331,9 +328,9 @@ int main()
 		}
 		else
 		{
-			// TODO: Create player 2 attack AI.
+			// --- Player 2 attack AI ---
 
-			// 1. Simple attack when within range.
+			// Attack when in range.
 			if (Player2ProjectileFireRate.CanFire() && Player2ProjectileCount < MaxActiveProjectiles)
 			{
 				auto player1Transform = scene.Transforms.TryGetByOwner(Player1Handle);
@@ -425,7 +422,6 @@ int main()
 
 			collisionSystem.ResolveCollision(transformA, transformB, colliderA->IsStatic, colliderB->IsStatic, correction);
 
-			// TODO: Use the LayerMask as the value directly, and perform fast bit operations using a switch statement.
 			if ((maskA == maskPlayer2 && maskB == maskPlayer1Projectile) || (maskA == maskPlayer1Projectile && maskB == maskPlayer2))
 			{
 				std::cout << "Player 2 hit by a Player 1's projectile!" << std::endl;
