@@ -3,7 +3,7 @@ name: Build & Test (Self-hosted Windows)
 on:
   push:
     branches:
-      - main
+      - master
   pull_request: null
 env:
   Configuration: Release
