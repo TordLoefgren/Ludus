@@ -55,11 +55,8 @@ jobs:
           if not exist "!RESULTS!" mkdir "!RESULTS!"
           "!EXE!" --gtest_output=xml:"!RESULTS!\gtest.xml"
           exit /b !errorlevel!
-      - name: list test output folder
-        shell: cmd
-        run: dir /s /b .\x64\%Configuration% || dir /s /b .
       - name: Publish test results
         if: always()
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        uses: EnricoMi/publish-unit-test-result-action/node@v2
         with:
-          files: "**/TestResults/*.xml"
+          files: '**/TestResults/*.xml'
