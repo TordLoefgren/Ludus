@@ -1,25 +1,9 @@
-## What
+# Summary
+One or two sentences describing what changed and why.
 
-Short, imperative sentence.
+# Linked
+- Closes #<id>
+- Story: #<id>  
 
-
-
-## Why
-
-Link issues: Closes #123 (Repo setup), Relates #124
-
-
-
-## How
-
-- Key changes
-
-- Trade-offs
-
-
-
-## Test plan
-
-- [ ] Manual steps or sample project
-
-- [ ] Screenshots/logs if visual
+# Notes (optional)
+- Risks, follow-ups, or other context.
