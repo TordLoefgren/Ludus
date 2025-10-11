@@ -28,12 +28,22 @@ namespace Ludus::Physics
 		Index LayerIndex;
 		LayerMask CollidesWith;
 		bool IsStatic;
+		bool IsTrigger;
 
 		// TODO: Implement shape.
 		// enum class Shape : uint8_t { Box, Circle };
 
-		Collider2D(GameObjectHandle owner, Index layerIndex, LayerMask collidesWith = LayerMask::GetEmpty(), bool isStatic = false)
-			: Handle(s_NextHandle++), OwnerHandle(owner), LayerIndex(layerIndex), CollidesWith(collidesWith), IsStatic(isStatic)
+		Collider2D(
+			GameObjectHandle owner, 
+			Index layerIndex, 
+			LayerMask collidesWith = LayerMask::GetEmpty(), 
+			bool isStatic = false
+		) : 
+			Handle(s_NextHandle++), 
+			OwnerHandle(owner), 
+			LayerIndex(layerIndex), 
+			CollidesWith(collidesWith), 
+			IsStatic(isStatic) 
 		{ }
 
 		Collider2D(const Collider2D&) = delete;
