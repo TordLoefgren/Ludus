@@ -6,7 +6,7 @@ namespace LudusTests::Math
 
 	namespace Constants = Ludus::Math::Constants;
 
-	static TEST(Vector2D, Dot_ReturnsZero_When_VectorsAreOrthogonal)
+	TEST(Vector2D, Dot_ReturnsZero_When_VectorsAreOrthogonal)
 	{
 		// Arrange.
 		auto v1 = Vector2D(1.0f, 0.0f);
@@ -19,7 +19,7 @@ namespace LudusTests::Math
 		EXPECT_NEAR(dot, 0.0f, Constants::EPSILON);
 	}
 
-	static TEST(Vector2D, Dot_ReturnsPositive_When_AngleIsAcute)
+	TEST(Vector2D, Dot_ReturnsPositive_When_AngleIsAcute)
 	{
 		// Arrange.
 		auto v1 = Vector2D(1.0f, 2.0f);
@@ -32,7 +32,7 @@ namespace LudusTests::Math
 		EXPECT_NEAR(dot, 4.0f, Constants::EPSILON);
 	}
 
-	static TEST(Vector2D, Dot_ReturnsNegative_When_AngleIsObtuse)
+	TEST(Vector2D, Dot_ReturnsNegative_When_AngleIsObtuse)
 	{
 		// Arrange.
 		auto v1 = Vector2D(1.0f, 0.0f);
