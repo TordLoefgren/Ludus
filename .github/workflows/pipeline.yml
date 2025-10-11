@@ -74,10 +74,10 @@ jobs:
         if: always()
         shell: cmd
         run: >
-          echo 
+          echo # Ludus CI - Build & Unit Tests>> "%GITHUB_STEP_SUMMARY%"
 
           echo **Config:** %Configuration% ^| **Platform:** %Platform%>> "%GITHUB_STEP_SUMMARY%"
 
           echo.>> "%GITHUB_STEP_SUMMARY%"
 
-          echo A "Ludus • Unit Tests" check is attached below with full details.>> "%GITHUB_STEP_SUMMARY%"
+          echo A "Ludus - Unit Tests" check is attached below with full details.>> "%GITHUB_STEP_SUMMARY%"
