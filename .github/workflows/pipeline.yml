@@ -38,21 +38,23 @@ jobs:
         shell: cmd
         run: msbuild .\Ludus.Tests\Ludus.Tests.vcxproj /m
           /p:Configuration=%Configuration% /p:Platform=%Platform%
-      - name: Run GoogleTests (auto-discover exe)
-        shell: powershell
-        run: >
-          $exe = Get-ChildItem -Recurse -Filter 'Ludus.Tests.exe' | Select-Object
-          -First 1
-
-          if (-not $exe) { throw "Ludus.Tests.exe not found" }
-
-          $resultsDir = Join-Path $exe.Directory.FullName 'TestResults'
-
-          New-Item -ItemType Directory -Force -Path $resultsDir | Out-Null
-
-          & $exe.FullName --gtest_output=xml:"$resultsDir\gtest.xml"
-
-          exit $LASTEXITCODE
+      - name: Run GoogleTests (cmd, auto-discover exe)
+        shell: cmd
+        run: |
+          setlocal enabledelayedexpansion
+          set "EXE="
+          for /f "delims=" %%F in ('dir /s /b "Ludus.Tests.exe"') do (
+            set "EXE=%%F"
+            set "EXEDIR=%%~dpF"
+            goto runit
+          )
+          echo Ludus.Tests.exe not found
+          exit /b 1
+          :runit
+          set "RESULTS=!EXEDIR!TestResults"
+          if not exist "!RESULTS!" mkdir "!RESULTS!"
+          "!EXE!" --gtest_output=xml:"!RESULTS!\gtest.xml"
+          exit /b !errorlevel!
       - name: list test output folder
         shell: cmd
         run: dir /s /b .\x64\%Configuration% || dir /s /b .
