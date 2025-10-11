@@ -1,54 +1,52 @@
+---
 name: Build & Test (Self-hosted Windows)
-
 on:
   push:
-    branches: ['**']
-  pull_request:
-  workflow_dispatch:
-
+    branches:
+      - "**"
+  pull_request: null
+  workflow_dispatch: null
 env:
   Configuration: Debug
   Platform: x64
-
 jobs:
   build-and-test:
-    runs-on: [self-hosted, windows, x64]
-
+    runs-on:
+      - self-hosted
+      - windows
+      - x64
     steps:
       - uses: actions/checkout@v4
-
+      - uses: NuGet/setup-nuget@v1
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
-
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v3
-
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
           path: packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.config') }}
           restore-keys: ${{ runner.os }}-nuget-
-
       - name: Restore packages
         run: nuget restore Ludus.sln
         shell: cmd
-
       - name: Build solution
-        run: msbuild Ludus.sln /m /p:Configuration=%Configuration% /p:Platform=%Platform%
+        run: msbuild Ludus.sln /m /p:Configuration=%Configuration%
+          /p:Platform=%Platform%
         shell: cmd
-
       - name: Run GoogleTests (auto-discover exe)
         shell: pwsh
-        run: |
+        run: >
           New-Item -ItemType Directory -Force -Path TestResults | Out-Null
-          $exe = Get-ChildItem -Recurse -Filter Ludus.Tests.exe | Select-Object -First 1
-          if (-not $exe) { throw "Ludus.Tests.exe not found" }
-          & $exe.FullName --gtest_output=xml:TestResults\gtest.xml
-          exit $LASTEXITCODE
 
+          $exe = Get-ChildItem -Recurse -Filter Ludus.Tests.exe | Select-Object -First 1
+
+          if (-not $exe) { throw "Ludus.Tests.exe not found" }
+
+          & $exe.FullName --gtest_output=xml:TestResults\gtest.xml
+
+          exit $LASTEXITCODE
       - name: Publish test results
         if: always()
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
-          files: '**/TestResults/*.xml'
+          files: "**/TestResults/*.xml"
