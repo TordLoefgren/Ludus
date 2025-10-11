@@ -19,6 +19,7 @@
 #include <Ludus/Math/Vector2D.h>
 #include <Ludus/Physics/Collider2D.h>
 #include <Ludus/Physics/CollisionSystem2D.h>
+#include <Ludus/Physics/Constants.h>
 #include <Ludus/Platform/Input.h>
 #include <Ludus/Platform/Key.h>
 #include <Ludus/Platform/Window.h>
@@ -42,6 +43,7 @@ using Ludus::Platform::Window;
 using Ludus::Platform::WindowOptions;
 
 namespace Colors = Ludus::Graphics::Colors;
+namespace Collisions = Ludus::Physics::Constants::Collisions;
 namespace Numeric = Ludus::Math::Numeric;
 
 enum GameState
@@ -558,7 +560,7 @@ int main()
 						{
 							const auto reflectionVector = Vector2D::Reflect(ballTransform->Forward(), normal);
 							ballTransform->Rotate(reflectionVector);
-							ballTransform->Position += normal * 0.25f; // Add tolerance.
+							ballTransform->Position += normal * Collisions::SEPARATION_NUDGE_FACTOR;
 						}
 					}
 					else if (IsPair(maskA, maskB, maskBall, maskPlayer1))
@@ -577,7 +579,7 @@ int main()
 						{
 							const auto reflectionAngle = GetReflectionAngle(ballTransform, player1Transform, normal);
 							ballTransform->Rotation = reflectionAngle;
-							ballTransform->Position += normal * 0.25f; // Add tolerance.
+							ballTransform->Position += normal * Collisions::SEPARATION_NUDGE_FACTOR;
 						}
 					}
 					else if (IsPair(maskA, maskB, maskBall, maskPlayer2))
@@ -596,7 +598,7 @@ int main()
 						{
 							const auto reflectionAngle = GetReflectionAngle(ballTransform, player2Transform, normal);
 							ballTransform->Rotation = reflectionAngle;
-							ballTransform->Position += normal * 0.25f; // Add tolerance.
+							ballTransform->Position += normal * Collisions::SEPARATION_NUDGE_FACTOR;
 						}
 					}
 					else
