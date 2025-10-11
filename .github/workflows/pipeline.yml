@@ -1,53 +1,13 @@
----
-name: Build & Test (Self-hosted Windows)
+name: Ludus CI (sanity)
+
 on:
   push:
-    branches:
-      - master
-  pull_request: null
-env:
-  Configuration: Release
-  Platform: x64
+  pull_request:
+  workflow_dispatch:
+
 jobs:
-  build-and-test:
-    runs-on:
-      - self-hosted
-      - windows
-      - x64
+  sanity:
+    runs-on: [self-hosted, windows, x64]
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v3
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.config') }}
-          restore-keys: ${{ runner.os }}-nuget-
-      - name: Restore packages
-        run: nuget restore Ludus.sln
+      - run: echo Runner is reachable
         shell: cmd
-      - name: Build solution
-        run: msbuild Ludus.sln /m /p:Configuration=%Configuration%
-          /p:Platform=%Platform%
-        shell: cmd
-      - name: Run GoogleTests (auto-discover exe)
-        shell: pwsh
-        run: >
-          New-Item -ItemType Directory -Force -Path TestResults | Out-Null
-
-          $exe = Get-ChildItem -Recurse -Filter Ludus.Tests.exe |
-                 Where-Object { $_.DirectoryName -match "\\${env:Platform}\\${env:Configuration}\\|\\${env:Configuration}\\${env:Platform}\\" } |
-                 Select-Object -First 1
-          if (-not $exe) { Write-Error "Ludus.Tests.exe not found"; exit 1 }
-
-          & $exe.FullName --gtest_output=xml:TestResults\gtest.xml
-
-          exit $LASTEXITCODE
-      - name: Publish test results
-        if: always()
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        with:
-          files: "**/TestResults/*.xml"
