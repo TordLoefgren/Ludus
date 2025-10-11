@@ -1,34 +1,36 @@
-name: "Story"
-description: "Broad goal made up of multiple features or fixes."
-labels: ["Type: Story", "Status: Planned"]
+---
+name: Story
+description: Broad goal made up of multiple issues.
+title: "[Story]: "
+labels:
+  - "Type: Story"
+  - "Status: Planned"
+assignees:
+  - TordLoefgren
+
 body:
-  - type: input
-    id: summary
+  - type: textarea
+    id: description
     attributes:
-      label: Summary
-      description: One-sentence goal.
+      label: Description
+      description: One-paragraph overview of the goal and scope.
     validations:
       required: true
-
-  - type: textarea
-    id: motivation
-    attributes:
-      label: Motivation
-      description: Why this story matters.
-
-  - type: textarea
-    id: child_issues
-    attributes:
-      label: Linked Issues
-      description: Related features or fixes.
-      value: |
-        - [ ] #<issue_number>
 
   - type: textarea
     id: acceptance
     attributes:
       label: Acceptance Criteria
-      description: When is this Story complete?
+      description: Definition of done.
       value: |
-        - [ ] All child issues closed
+        - [ ] All linked issues closed
         - [ ] Code compiles and runs
+        - [ ] Minimal docs updated
+
+  - type: textarea
+    id: links
+    attributes:
+      label: Related Issues (optional)
+      description: Reference related items (even if sub-issues are used).
+      value: |
+        - #<id> 
