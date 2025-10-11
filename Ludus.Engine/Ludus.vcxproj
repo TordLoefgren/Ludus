@@ -55,7 +55,7 @@
     <ClInclude Include="Include\Ludus\Math\Transform2D.h" />
     <ClInclude Include="Include\Ludus\Math\Vector2D.h" />
     <ClInclude Include="Include\Ludus\Physics\Collider2D.h" />
-    <ClInclude Include="Include\Ludus\Physics\Collision2DManager.h" />
+    <ClInclude Include="Include\Ludus\Physics\CollisionSystem2D.h" />
     <ClInclude Include="Include\Ludus\Physics\CollisionInfo2D.h" />
     <ClInclude Include="Include\Ludus\Physics\ContactPoint.h" />
     <ClInclude Include="Include\Ludus\Platform\Input.h" />
@@ -378,7 +378,7 @@
     <ClCompile Include="Source\Ludus\Graphics\VertexArrayObject.cpp" />
     <ClCompile Include="Source\Ludus\Graphics\VertexBufferObject.cpp" />
     <ClCompile Include="Source\Ludus\Math\Vector2D.cpp" />
-    <ClCompile Include="Source\Ludus\Physics\Collision2DManager.cpp" />
+    <ClCompile Include="Source\Ludus\Physics\CollisionSystem2D.cpp" />
     <ClCompile Include="Source\Ludus\Platform\Input.cpp" />
     <ClCompile Include="Source\Ludus\Platform\Window.cpp" />
     <ClCompile Include="Vendors\glad\src\glad.c" />
