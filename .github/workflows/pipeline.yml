@@ -19,6 +19,10 @@ concurrency:
 env:
   Configuration: Debug
   Platform: x64
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
 jobs:
   build-and-test:
     runs-on:
@@ -59,6 +63,7 @@ jobs:
         if: always()
         uses: mikepenz/action-junit-report@v4
         with:
-          report_paths: '**/TestResults/*.xml'   
-          check_name: 'Test Results'
-          require_tests: true
+          report_paths: "**/TestResults/*.xml"
+          include_passed: true
+          detailed_summary: true
+          token: ${{ github.token }}
