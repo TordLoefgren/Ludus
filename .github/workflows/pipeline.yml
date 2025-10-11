@@ -1,5 +1,5 @@
 ---
-name: Build & Test (Self-hosted Windows)
+name: Ludus CI — Build & Unit Tests (Windows, self-hosted)
 on:
   pull_request:
     branches:
@@ -25,24 +25,26 @@ permissions:
   pull-requests: write
 jobs:
   build-and-test:
+    name: Build & test — x64 / Debug
     runs-on:
       - self-hosted
       - windows
       - x64
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1
-      - name: Restore
+      - name: Restore NuGet packages
         shell: cmd
         run: nuget restore Ludus.sln
-      - name: Build tests (pulls Engine as dependency)
+      - name: Build tests
         shell: cmd
-        run: msbuild .\Ludus.Tests\Ludus.Tests.vcxproj /m
+        run: msbuild .\Ludus.Tests\Ludus.Tests.vcxproj /m ^
           /p:Configuration=%Configuration% /p:Platform=%Platform%
-      - name: Run GoogleTests (cmd, auto-discover exe)
+      - name: Run GoogleTests
         shell: cmd
         run: |
           setlocal enabledelayedexpansion
@@ -59,11 +61,23 @@ jobs:
           if not exist "!RESULTS!" mkdir "!RESULTS!"
           "!EXE!" --gtest_output=xml:"!RESULTS!\gtest.xml"
           exit /b !errorlevel!
-      - name: Publish test results
+      - name: Publish Ludus Unit Tests
         if: always()
         uses: mikepenz/action-junit-report@v4
         with:
           report_paths: "**/TestResults/*.xml"
+          check_name: Ludus • Unit Tests
           include_passed: true
           detailed_summary: true
           token: ${{ github.token }}
+      - name: Job summary
+        if: always()
+        shell: cmd
+        run: >
+          echo 
+
+          echo **Config:** %Configuration% ^| **Platform:** %Platform%>> "%GITHUB_STEP_SUMMARY%"
+
+          echo.>> "%GITHUB_STEP_SUMMARY%"
+
+          echo A "Ludus • Unit Tests" check is attached below with full details.>> "%GITHUB_STEP_SUMMARY%"
