@@ -18,25 +18,11 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="Assets\textures\container.jpg" />
-    <Image Include="Assets\textures\logo.jpg" />
-    <Image Include="Assets\textures\WallTextureBrick1Light.png" />
-    <Image Include="Assets\textures\WallTextureBrick2Light.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Ludus\Ludus.vcxproj">
-      <Project>{e5222f19-54e2-431b-b8a5-67dc31e554e1}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{a543d0ef-17db-4c1a-970d-1e469b6e43d6}</ProjectGuid>
-    <RootNamespace>Pong</RootNamespace>
+    <ProjectGuid>{21ee533c-c5b6-4f80-8bcb-92e4756af0d4}</ProjectGuid>
+    <RootNamespace>LudusLab</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -120,7 +106,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -130,8 +116,8 @@
       <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d  "$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"
-xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"
+      <Command>xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"
+xcopy /y /d  "$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -149,5 +135,23 @@ xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\AABBDemo2.cpp" />
+    <ClCompile Include="Source\AABBDemo1.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Ludus\Ludus.vcxproj">
+      <Project>{e5222f19-54e2-431b-b8a5-67dc31e554e1}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Include\AABBDemo2.h" />
+    <ClInclude Include="Include\AABBDemo1.h" />
+    <ClInclude Include="Include\IDemo.h" />
+    <ClInclude Include="Vendors\PerlinNoise-3.0.0\PerlinNoise.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
 </Project>

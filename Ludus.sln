@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ludus", "Ludus.Engine\Ludus.vcxproj", "{E5222F19-54E2-431B-B8A5-67DC31E554E1}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sandbox", "Ludus.Games\Sandbox\Sandbox.vcxproj", "{5FCC30EF-27AD-4277-B1AC-7EA8E79AEBBE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ludus", "Ludus\Ludus.vcxproj", "{E5222F19-54E2-431B-B8A5-67DC31E554E1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 EndProject
@@ -20,6 +18,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Combat", "Ludus.Games\Comba
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ludus.Tests", "Ludus.Tests\Ludus.Tests.vcxproj", "{C6D4E52B-8470-417D-96AD-48DBE33B43ED}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ludus.Lab", "Ludus.Lab\Ludus.Lab.vcxproj", "{21EE533C-C5B6-4F80-8BCB-92E4756AF0D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,14 +37,6 @@ Global
 		{E5222F19-54E2-431B-B8A5-67DC31E554E1}.Release|x64.Build.0 = Release|x64
 		{E5222F19-54E2-431B-B8A5-67DC31E554E1}.Release|x86.ActiveCfg = Release|Win32
 		{E5222F19-54E2-431B-B8A5-67DC31E554E1}.Release|x86.Build.0 = Release|Win32
-		{5FCC30EF-27AD-4277-B1AC-7EA8E79AEBBE}.Debug|x64.ActiveCfg = Debug|x64
-		{5FCC30EF-27AD-4277-B1AC-7EA8E79AEBBE}.Debug|x64.Build.0 = Debug|x64
-		{5FCC30EF-27AD-4277-B1AC-7EA8E79AEBBE}.Debug|x86.ActiveCfg = Debug|Win32
-		{5FCC30EF-27AD-4277-B1AC-7EA8E79AEBBE}.Debug|x86.Build.0 = Debug|Win32
-		{5FCC30EF-27AD-4277-B1AC-7EA8E79AEBBE}.Release|x64.ActiveCfg = Release|x64
-		{5FCC30EF-27AD-4277-B1AC-7EA8E79AEBBE}.Release|x64.Build.0 = Release|x64
-		{5FCC30EF-27AD-4277-B1AC-7EA8E79AEBBE}.Release|x86.ActiveCfg = Release|Win32
-		{5FCC30EF-27AD-4277-B1AC-7EA8E79AEBBE}.Release|x86.Build.0 = Release|Win32
 		{A543D0EF-17DB-4C1A-970D-1E469B6E43D6}.Debug|x64.ActiveCfg = Debug|x64
 		{A543D0EF-17DB-4C1A-970D-1E469B6E43D6}.Debug|x64.Build.0 = Debug|x64
 		{A543D0EF-17DB-4C1A-970D-1E469B6E43D6}.Debug|x86.ActiveCfg = Debug|Win32
@@ -69,6 +61,14 @@ Global
 		{C6D4E52B-8470-417D-96AD-48DBE33B43ED}.Release|x64.Build.0 = Release|x64
 		{C6D4E52B-8470-417D-96AD-48DBE33B43ED}.Release|x86.ActiveCfg = Release|Win32
 		{C6D4E52B-8470-417D-96AD-48DBE33B43ED}.Release|x86.Build.0 = Release|Win32
+		{21EE533C-C5B6-4F80-8BCB-92E4756AF0D4}.Debug|x64.ActiveCfg = Debug|x64
+		{21EE533C-C5B6-4F80-8BCB-92E4756AF0D4}.Debug|x64.Build.0 = Debug|x64
+		{21EE533C-C5B6-4F80-8BCB-92E4756AF0D4}.Debug|x86.ActiveCfg = Debug|Win32
+		{21EE533C-C5B6-4F80-8BCB-92E4756AF0D4}.Debug|x86.Build.0 = Debug|Win32
+		{21EE533C-C5B6-4F80-8BCB-92E4756AF0D4}.Release|x64.ActiveCfg = Release|x64
+		{21EE533C-C5B6-4F80-8BCB-92E4756AF0D4}.Release|x64.Build.0 = Release|x64
+		{21EE533C-C5B6-4F80-8BCB-92E4756AF0D4}.Release|x86.ActiveCfg = Release|Win32
+		{21EE533C-C5B6-4F80-8BCB-92E4756AF0D4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

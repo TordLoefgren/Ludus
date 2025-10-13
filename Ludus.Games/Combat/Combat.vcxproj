@@ -107,18 +107,18 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Ludus.Engine\Vendors\GLFW\include;$(SolutionDir)Ludus.Engine\Vendors\glad\include;$(SolutionDir)Ludus.Engine\Include;$(SolutionDir)Ludus.Engine\Vendors</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Ludus.Engine\Vendors\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d  "$(SolutionDir)Ludus.Engine\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"
-xcopy /y /e /i /d  "$(SolutionDir)Ludus.Engine\Resources\*"  "$(OutDir)Resources\"
+      <Command>xcopy /y /d  "$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"
+xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -137,10 +137,10 @@ xcopy /y /e /i /d  "$(SolutionDir)Ludus.Engine\Resources\*"  "$(OutDir)Resources
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Combat.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Ludus.Engine\Ludus.vcxproj">
+    <ProjectReference Include="..\..\Ludus\Ludus.vcxproj">
       <Project>{e5222f19-54e2-431b-b8a5-67dc31e554e1}</Project>
     </ProjectReference>
   </ItemGroup>
