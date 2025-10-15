@@ -25,12 +25,34 @@
     <Image Include="Assets\textures\WallTextureBrick2Light.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Include\Pong\States\GameState.h" />
+    <ClCompile Include="Include\Pong\States\IPongState.h" />
+    <ClCompile Include="Source\Pong\States\ScoreMenuState.cpp" />
+    <ClCompile Include="Source\Pong\States\PauseMenuState.cpp" />
+    <ClCompile Include="Source\Pong\States\PlayingState.cpp" />
+    <ClCompile Include="Source\Pong\States\IPongState.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Source\Pong\States\MainMenuState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Ludus\Ludus.vcxproj">
       <Project>{e5222f19-54e2-431b-b8a5-67dc31e554e1}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Include\Pong\Core\Configuration.h" />
+    <ClInclude Include="Include\Pong\Core\Layers.h" />
+    <ClInclude Include="Include\Pong\Core\MenuItem.h" />
+    <ClInclude Include="Include\Pong\Models\Entities.h" />
+    <ClInclude Include="Include\Pong\Core\GameInfo.h" />
+    <ClInclude Include="Include\Pong\Models\Intents.h" />
+    <ClInclude Include="Include\Pong\Models\RenderData.h" />
+    <ClInclude Include="Include\Pong\Models\RuntimeData.h" />
+    <ClInclude Include="Include\Pong\States\MainMenuState.h" />
+    <ClInclude Include="Include\Pong\States\PlayingState.h" />
+    <ClInclude Include="Include\Pong\States\PauseMenuState.h" />
+    <ClInclude Include="Include\Pong\Core\PongInfo.h" />
+    <ClInclude Include="Include\Pong\States\ScoreMenuState.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -120,7 +142,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)\Include;$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>

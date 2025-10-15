@@ -88,6 +88,17 @@ namespace Ludus::Engine
 			return LayerMask(1u << index);
 		}
 
+		static LayerMask FromIndices(std::initializer_list<LayerIndex> indices)
+		{
+			LayerMask mask = GetEmpty();
+			for (auto index : indices)
+			{
+				mask |= FromIndex(index);
+			}
+
+			return mask;
+		}
+
 		static void AddLayer(const std::string& layerName, const LayerIndex layerIndex)
 		{
 			assert(layerIndex > 0u && layerIndex < 32u);
@@ -181,7 +192,7 @@ namespace Ludus::Engine
 			return NameToLayer(layerName);
 		}
 
-		static const LayerMask GetMask(const std::vector<std::string>& layerNames)
+		static const LayerMask GetMask(const std::initializer_list<std::string>& layerNames)
 		{
 			auto mask = GetEmpty();
 
