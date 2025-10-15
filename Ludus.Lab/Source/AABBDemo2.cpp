@@ -62,9 +62,6 @@ namespace Ludus::Lab
 			}
 		}
 
-		Ludus::Engine::Utilities::Write("[OBJECTS]: ");
-		Ludus::Engine::Utilities::WriteLine(std::to_string(m_Scene.GetGameObjectCount()));
-
 		// Movement Integration.
 		auto cursorTransform = m_Scene.Transforms.TryGetByOwnerMutable(m_Info.CursorHandle);
 		if (!cursorTransform)
