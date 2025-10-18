@@ -14,23 +14,20 @@ on:
       - "**"
   workflow_dispatch: null
 concurrency:
-  group: ci-${{ github.ref }}-${{ matrix.Configuration }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build-and-test:
+    concurrency:
+        group: ci-${{ github.ref }}-${{ matrix.Configuration }}
+        cancel-in-progress: true
     strategy:
       fail-fast: false
       matrix:
-        Platform:
-          - x64
-        Configuration:
-          - Debug
-          - Release
+        Platform: [ x64 ]
+        Configuration: [ Debug, Release ]
     name: Build & test — ${{ matrix.Platform }} / ${{ matrix.Configuration }}
-    runs-on:
-      - self-hosted
-      - windows
-      - x64
+    runs-on: [ self-hosted, windows, x64 ]
     env:
       Configuration: ${{ matrix.Configuration }}
       Platform: ${{ matrix.Platform }}
