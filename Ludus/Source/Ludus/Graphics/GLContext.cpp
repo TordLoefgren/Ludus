@@ -1,26 +1,39 @@
+#include <format>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <Ludus/Debug/Debug.h>
+#include <Ludus/Debug/DebugGL.h>
 #include <Ludus/Graphics/GLContext.h>
 
 namespace Ludus::Graphics
 {
-	using Ludus::Engine::Utilities::WriteLine;
-
 	void GLContext::Init()
 	{
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		{
-			WriteLine("Failed to initialize GLAD.");
+			LUDUS_LOG_CRITICAL("Failed to initialize GLAD.");
+
 			return;
 		}
 
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glDebugMessageCallback(Ludus::Engine::Utilities::ErrorMessageCallback, nullptr);
+		Ludus::Debug::EnableOpenGLDebug();
 
-		Ludus::Engine::Utilities::Write("GL version: ");
-		WriteLine((const char*)glGetString(GL_VERSION));
+		auto* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+		if (version)
+		{
+			LUDUS_LOG_INFO(
+				std::format(
+					"GL version: {}",
+					version
+				)
+			);
+		}
+		else
+		{
+			LUDUS_LOG_ERROR("Failed to determine OpenGL version.");
+		}
 	}
 
 	void GLContext::EnableBlending()

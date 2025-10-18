@@ -26,6 +26,8 @@
     <Font Include="Resources\Fonts\ARIAL.TTF" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\Debug\Debug.h" />
+    <ClInclude Include="Include\Ludus\Debug\DebugGL.h" />
     <ClInclude Include="Include\Ludus\Math\Circle.h" />
     <ClInclude Include="Include\Ludus\Engine\GameObjectRegistry.h" />
     <ClInclude Include="Include\Ludus\Math\Constants.h" />

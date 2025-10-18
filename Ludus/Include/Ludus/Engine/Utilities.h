@@ -7,19 +7,6 @@
 
 namespace Ludus::Engine::Utilities
 {
-#pragma region Error Handling
-
-	void __stdcall ErrorMessageCallback(
-		unsigned int source,
-		unsigned int type,
-		unsigned int id,
-		unsigned int severity,
-		int length,
-		const char* message,
-		const void* userParam
-	);
-#pragma endregion
-
 	std::vector<std::string> GetFileNames(std::string filePath);
 
 	std::string ReadFile(std::filesystem::path path);
