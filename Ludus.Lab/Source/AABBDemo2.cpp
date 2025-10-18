@@ -134,10 +134,10 @@ namespace Ludus::Lab
 	FallingQuad AABBDemo2::CreateQuad()
 	{
 		auto handle = m_Scene.AddGameObject();
-		auto scaleX = m_Random.Next((float)m_Width * 0.01f, (float)m_Width * 0.08f);
-		auto scaleY = m_Random.Next((float)m_Width * 0.01f, (float)m_Width * 0.08f);
-		auto xPosition = m_Random.Next(0.0f, (float)m_Width);
-		auto speed = m_Random.Next(50.0f, 250.0f);
+		auto scaleX = m_Random.NextFloat((float)m_Width * 0.01f, (float)m_Width * 0.08f);
+		auto scaleY = m_Random.NextFloat((float)m_Width * 0.01f, (float)m_Width * 0.08f);
+		auto xPosition = m_Random.NextFloat(0.0f, (float)m_Width);
+		auto speed = m_Random.NextFloat(50.0f, 250.0f);
 
 		m_Scene.AttachTransform(handle, { xPosition, (float)m_Height + scaleY * 2.0f }, { scaleX, scaleY });
 		m_Scene.AttachCollider(handle, m_Info.QuadLayerIndex, Ludus::Engine::LayerMask::FromIndex(m_Info.CursorLayerIndex));

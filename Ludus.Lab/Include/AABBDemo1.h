@@ -22,15 +22,15 @@ namespace Ludus::Lab
 {
 	struct AABBDemo1Info
 	{
-		AABBOverlapInfo OverlapInfo;
+		AABBOverlapInfo OverlapInfo { };
 		const Ludus::Graphics::Color CollisionColor = Ludus::Graphics::Colors::Red;
 		const Ludus::Graphics::Color NonCollisionColor = Ludus::Graphics::Colors::Green;
 		const int CursorLayerIndex = 1;
 		const int BoxLayerIndex = 1;
 		const std::string CursorLayerName = "Cursor";
 		const std::string BoxLayerName = "Box";
-		Ludus::Engine::GameObjectHandle CursorHandle;
-		Ludus::Engine::GameObjectHandle BoxHandle;
+		Ludus::Engine::GameObjectHandle CursorHandle = 0;
+		Ludus::Engine::GameObjectHandle BoxHandle = 0;
 		bool IsColliding = false;
 		bool IsCircle = false;
 	};

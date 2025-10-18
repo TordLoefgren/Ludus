@@ -7,9 +7,9 @@ namespace Pong::States
 
 	void PlayingState::Start()
 	{
-		auto directionX = m_GameInfo.Random.Next(-1.0f, 1.0f);
+		auto directionX = m_GameInfo.Random.NextFloat(-1.0f, 1.0f);
 		directionX = directionX < 0.0f ? -1.0f : 1.0f;
-		auto directionY = m_GameInfo.Random.Next(-0.5f, 0.5f);
+		auto directionY = m_GameInfo.Random.NextFloat(-0.5f, 0.5f);
 
 		if (auto ballTransform = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.BallHandle))
 		{
