@@ -1,3 +1,5 @@
+#pragma once
+
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -22,7 +24,15 @@ namespace Ludus::Engine::Utilities
 
 	std::string ReadFile(std::filesystem::path path);
 
-	void Write(const std::string& message);
+	template<typename T>
+	void Write(const T& message)
+	{
+		std::cout << message;
+	}
 
-	void WriteLine(const std::string& message);
+	template<typename T>
+	void WriteLine(const T& message)
+	{
+		std::cout << message << "\n";
+	}
 }

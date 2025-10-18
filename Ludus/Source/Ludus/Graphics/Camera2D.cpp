@@ -15,8 +15,9 @@ namespace Ludus::Graphics
 
 	void Camera2D::SetZoom(float zoom)
 	{
-		m_Zoom = std::max(0.0f, zoom);
+		m_Zoom = std::max(0.01f, zoom);
 	}
+
 	void Camera2D::SetViewport(int width, int height)
 	{
 		m_ScreenCenter = { 0.5f * width, 0.5f * height };

@@ -105,13 +105,13 @@ namespace Pong::States
 		m_LayerMaskPlayer2 = Ludus::Engine::LayerMask::FromIndex(m_LayerIndexPlayer2);
 
 		// Game objects.
-		m_Entities.Player1Handle = m_GameInfo.Scene.AddGameObject();
-		m_Entities.Player2Handle = m_GameInfo.Scene.AddGameObject();
 		m_Entities.BallHandle = m_GameInfo.Scene.AddGameObject();
 		m_Entities.LeftWallHandle = m_GameInfo.Scene.AddGameObject();
 		m_Entities.TopWallHandle = m_GameInfo.Scene.AddGameObject();
 		m_Entities.RightWallHandle = m_GameInfo.Scene.AddGameObject();
 		m_Entities.BottomWallHandle = m_GameInfo.Scene.AddGameObject();
+		m_Entities.Player1Handle = m_GameInfo.Scene.AddGameObject();
+		m_Entities.Player2Handle = m_GameInfo.Scene.AddGameObject();
 
 		// Colliders.
 		m_GameInfo.Scene.AttachCollider(m_Entities.BallHandle, m_LayerIndexBall, (m_LayerMaskVertical | m_LayerMaskHorizontal | m_LayerMaskPlayer1 | m_LayerMaskPlayer2));
@@ -161,7 +161,6 @@ namespace Pong::States
 			{ (float)m_RenderData.Width - Pong::Core::Configuration::Defaults::PaddleXOffset, m_RenderData.GetHalfHeight() },
 			{ Pong::Core::Configuration::Defaults::PaddleWidth, Pong::Core::Configuration::Defaults::PaddleHeight });
 	}
-
 
 	void PlayingState::Reset()
 	{ }

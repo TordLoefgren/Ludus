@@ -69,14 +69,4 @@ namespace Ludus::Engine::Utilities
 
 		return { std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>() };
 	}
-
-	void Write(const std::string& message)
-	{
-		std::cout << message;
-	}
-
-	void WriteLine(const std::string& message)
-	{
-		std::cout << message << std::endl;
-	}
 }

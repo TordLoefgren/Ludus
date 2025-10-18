@@ -1,7 +1,5 @@
 #pragma once
 
-#include <sstream>
-#include <stdexcept>
 #include <string>
 
 #include <Ludus/Math/Constants.h>
@@ -55,6 +53,6 @@ namespace Ludus::Math
 		Vector2D& Reflect(const Vector2D& normal);
 		Vector2D& Rotate(float angle);
 
-		const std::string ToString();
+		std::string ToString() const;
 	};
 }
