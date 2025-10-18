@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 
+#include <Ludus/Debug/Debug.h>
 #include <Ludus/Graphics/ElementBufferObject.h>
 
 namespace Ludus::Graphics
@@ -53,7 +54,8 @@ namespace Ludus::Graphics
 		auto previousCount = m_Count;
 		if (m_Count + count > m_MaxCount)
 		{
-			Ludus::Engine::Utilities::WriteLine("Cannot add dynamic data. The element buffer is full.");
+			LUDUS_LOG_ERROR("Cannot add dynamic data. The element buffer is full.");
+
 			return;
 		}
 
