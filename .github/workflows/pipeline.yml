@@ -14,22 +14,26 @@ on:
       - "**"
   workflow_dispatch: null
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.ref }}-${{ matrix.Configuration }}
   cancel-in-progress: true
-env:
-  Configuration: Debug
-  Platform: x64
-permissions:
-  contents: read
-  checks: write
-  pull-requests: write
 jobs:
   build-and-test:
-    name: Build & test — x64 / Debug
+    strategy:
+      fail-fast: false
+      matrix:
+        Platform:
+          - x64
+        Configuration:
+          - Debug
+          - Release
+    name: Build & test — ${{ matrix.Platform }} / ${{ matrix.Configuration }}
     runs-on:
       - self-hosted
       - windows
       - x64
+    env:
+      Configuration: ${{ matrix.Configuration }}
+      Platform: ${{ matrix.Platform }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -66,7 +70,7 @@ jobs:
         uses: mikepenz/action-junit-report@v4
         with:
           report_paths: "**/TestResults/*.xml"
-          check_name: Ludus - Unit Tests
+          check_name: Ludus - Unit Tests (${{ matrix.Configuration }})
           include_passed: true
           detailed_summary: true
           token: ${{ github.token }}
