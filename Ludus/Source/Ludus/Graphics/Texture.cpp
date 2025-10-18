@@ -1,6 +1,9 @@
+#include <format>
+
 #include <glad/glad.h>
 #include <stb_image/stb_image.h>
 
+#include <Ludus/Debug/Debug.h>
 #include <Ludus/Engine/Utilities.h>
 #include <Ludus/Graphics/Texture.h>
 
@@ -46,7 +49,10 @@ namespace Ludus::Graphics
 		auto m_Data = stbi_load(path.c_str(), &width, &height, &_, 4);
 		if (!m_Data)
 		{
-			Ludus::Engine::Utilities::WriteLine("Failed to load texture: " + std::string(path));
+			LUDUS_LOG_ERROR(
+				std::format("Failed to load texture: {}", path)
+			);
+
 			return Texture::White();
 		}
 

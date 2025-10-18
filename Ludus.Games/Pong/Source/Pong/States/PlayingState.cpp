@@ -1,5 +1,7 @@
 #include <Pong/States/PlayingState.h>
 
+#include <Ludus/Debug/Debug.h>
+
 namespace Pong::States
 {
 
@@ -202,7 +204,7 @@ namespace Pong::States
 
 		if (!(player1Ptr && player2Ptr && ballPtr))
 		{
-			Ludus::Engine::Utilities::WriteLine("[Movement Integration] Missing transform(s).");
+			LUDUS_LOG_DEBUG("[Movement Integration] Missing transform(s).");
 			return GameState::Exit;
 		}
 
@@ -267,7 +269,7 @@ namespace Pong::States
 
 			if (!(colliderAPtr && colliderBPtr))
 			{
-				Ludus::Engine::Utilities::WriteLine("[Collision Handling] Missing transform(s).");
+				LUDUS_LOG_DEBUG("[Collision Handling] Missing transform(s).");
 				continue;
 			}
 
@@ -279,7 +281,7 @@ namespace Pong::States
 
 			if (!(transformAPtr && transformBPtr))
 			{
-				Ludus::Engine::Utilities::WriteLine("[Collision Handling] Missing colliders(s).");
+				LUDUS_LOG_DEBUG("[Collision Handling] Missing colliders(s).");
 				continue;
 			}
 
@@ -305,7 +307,7 @@ namespace Pong::States
 			{
 				if (IsPair(maskA, maskB, m_LayerMaskBall, m_LayerMaskHorizontal))
 				{
-					Ludus::Engine::Utilities::WriteLine("[Collision Handling] Ball <-> Boundary (horizontal)");
+					LUDUS_LOG_DEBUG("[Collision Handling] Ball <-> Boundary (horizontal)");
 
 					const Ludus::Math::Vector2D normal = (ballTransform->Position.Y > m_RenderData.GetHalfHeight() ? Ludus::Math::Vector2D(0.0f, -1.0f) : Ludus::Math::Vector2D(0.0f, 1.0f));
 					if (Ludus::Math::Vector2D::Dot(ballTransform->Forward(), normal) < 0.0f)
@@ -317,12 +319,12 @@ namespace Pong::States
 				}
 				else if (IsPair(maskA, maskB, m_LayerMaskBall, m_LayerMaskPlayer1))
 				{
-					Ludus::Engine::Utilities::WriteLine("[Collision Handling] Ball <-> Player 1");
+					LUDUS_LOG_DEBUG("[Collision Handling] Ball <-> Player 1");
 
 					const auto& player1Transform = m_GameInfo.Scene.Transforms.TryGetByOwner(m_Entities.Player1Handle);
 					if (!player1Transform)
 					{
-						Ludus::Engine::Utilities::WriteLine("[Collision Handling] Missing transform(s).");
+						LUDUS_LOG_DEBUG("[Collision Handling] Missing transform(s).");
 						continue;
 					}
 
@@ -342,12 +344,12 @@ namespace Pong::States
 				}
 				else if (IsPair(maskA, maskB, m_LayerMaskBall, m_LayerMaskPlayer2))
 				{
-					Ludus::Engine::Utilities::WriteLine("[Collision Handling] Ball <-> Player 2");
+					LUDUS_LOG_DEBUG("[Collision Handling] Ball <-> Player 2");
 
 					const auto& player2Transform = m_GameInfo.Scene.Transforms.TryGetByOwner(m_Entities.Player2Handle);
 					if (!player2Transform)
 					{
-						Ludus::Engine::Utilities::WriteLine("[Collision Handling] Missing transform(s).");
+						LUDUS_LOG_DEBUG("[Collision Handling] Missing transform(s).");
 						continue;
 					}
 
@@ -367,7 +369,7 @@ namespace Pong::States
 				}
 				else
 				{
-					Ludus::Engine::Utilities::WriteLine("[Collision Handling] Ball <-> Boundary (vertical)");
+					LUDUS_LOG_DEBUG("[Collision Handling] Ball <-> Boundary (vertical)");
 
 					if (ballTransform->Position.X <= Pong::Core::Configuration::Defaults::WallWidthThickness)
 					{
@@ -387,11 +389,11 @@ namespace Pong::States
 			{
 				if (IsPair(maskA, maskB, m_LayerMaskPlayer1, m_LayerMaskHorizontal))
 				{
-					Ludus::Engine::Utilities::WriteLine("[Collision Handling] Player 1 <-> Boundary (horizontal)");
+					LUDUS_LOG_DEBUG("[Collision Handling] Player 1 <-> Boundary (horizontal)");
 				}
 				else
 				{
-					Ludus::Engine::Utilities::WriteLine("[Collision Handling] Player 2 <-> Boundary (horizontal)");
+					LUDUS_LOG_DEBUG("[Collision Handling] Player 2 <-> Boundary (horizontal)");
 				}
 			}
 		}
@@ -417,7 +419,7 @@ namespace Pong::States
 		const auto* boundaryBottomTransform = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.BottomWallHandle);
 		if (!(boundaryTopTransform && boundaryBottomTransform))
 		{
-			Ludus::Engine::Utilities::WriteLine("[Rendering] Missing transform(s).");
+			LUDUS_LOG_DEBUG("[Rendering] Missing transform(s).");
 			return;
 		}
 
@@ -430,7 +432,7 @@ namespace Pong::States
 
 		if (!(player1Ptr && player2Ptr && ballPtr))
 		{
-			Ludus::Engine::Utilities::WriteLine("[Rendering] Missing transform(s).");
+			LUDUS_LOG_DEBUG("[Rendering] Missing transform(s).");
 			return;
 		}
 

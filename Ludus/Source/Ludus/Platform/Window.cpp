@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 
+#include <Ludus/Debug/Debug.h>
 #include <Ludus/Platform/Window.h>
 
 namespace Ludus::Platform
@@ -26,7 +27,7 @@ namespace Ludus::Platform
 	{
 		if (!glfwInit())
 		{
-			Ludus::Engine::Utilities::WriteLine("Failed to initialize GLFW.");
+			LUDUS_LOG_CRITICAL("Failed to initialize GLFW.");
 			return;
 		}
 
@@ -38,7 +39,8 @@ namespace Ludus::Platform
 		m_Handle = glfwCreateWindow(m_Width, m_Height, m_Title.data(), NULL, NULL);
 		if (!m_Handle)
 		{
-			Ludus::Engine::Utilities::WriteLine("Failed to create a GLFW window.");
+			LUDUS_LOG_CRITICAL("Failed to create a GLFW window.");
+
 			glfwTerminate();
 			return;
 		}
