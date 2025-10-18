@@ -2,22 +2,20 @@
 name: Ludus CI — Build & Unit Tests (Windows, self-hosted)
 on:
   pull_request:
-    branches:
-      - master
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
+    branches: [ master ]
+    types: [ opened, synchronize, reopened, ready_for_review ]
   push:
-    branches:
-      - "**"
+    branches: [ master ]
   workflow_dispatch: null
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build-and-test:
+    permissions:
+        contents: read
+        checks: write
+        pull-requests: write
     concurrency:
         group: ci-${{ github.ref }}-${{ matrix.Configuration }}
         cancel-in-progress: true
