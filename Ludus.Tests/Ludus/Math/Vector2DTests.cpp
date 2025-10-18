@@ -1,6 +1,6 @@
 #include "pch.h"
 
-namespace LudusTests::Math
+namespace Ludus::Tests::Math
 {
 	using Ludus::Math::Vector2D;
 
