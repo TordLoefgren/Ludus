@@ -4,8 +4,6 @@
 
 namespace Ludus::Platform
 {
-	using Ludus::Engine::Utilities::WriteLine;
-
 	Window::Window(WindowOptions options)
 		: m_Width(options.Width), m_Height(options.Height), m_Title(options.Title), m_Resizable(options.resizeable), m_Handle(nullptr), m_Input()
 	{
@@ -28,7 +26,7 @@ namespace Ludus::Platform
 	{
 		if (!glfwInit())
 		{
-			WriteLine("Failed to initialize GLFW.");
+			Ludus::Engine::Utilities::WriteLine("Failed to initialize GLFW.");
 			return;
 		}
 
@@ -40,7 +38,7 @@ namespace Ludus::Platform
 		m_Handle = glfwCreateWindow(m_Width, m_Height, m_Title.data(), NULL, NULL);
 		if (!m_Handle)
 		{
-			WriteLine("Failed to create a GLFW window.");
+			Ludus::Engine::Utilities::WriteLine("Failed to create a GLFW window.");
 			glfwTerminate();
 			return;
 		}

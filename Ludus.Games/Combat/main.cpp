@@ -344,8 +344,6 @@ int main()
 					Player2ProjectileCount++;
 				}
 			}
-
-			// 2. ...
 		}
 
 		if (window.GetInput().GetKeyDown(Key::Escape))

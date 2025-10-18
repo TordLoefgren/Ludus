@@ -1,5 +1,9 @@
 #include <Ludus/Math/Vector2D.h>
 
+#include <cmath>
+#include <sstream>
+#include <stdexcept>
+
 namespace Ludus::Math
 {
 #pragma region Constructor / Destructor
@@ -229,7 +233,7 @@ namespace Ludus::Math
 		return *this;
 	}
 
-	const std::string Vector2D::ToString()
+	std::string Vector2D::ToString() const
 	{
 		std::ostringstream stream;
 		stream << "Vector2D(" << X << ", " << Y << ")";
