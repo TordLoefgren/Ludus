@@ -28,7 +28,7 @@ namespace Ludus::Lab
 {
 	struct AABBDemo2Info
 	{
-		AABBOverlapInfo OverlapInfo;
+		AABBOverlapInfo OverlapInfo { };
 		const Ludus::Graphics::Color CollisionColor = Ludus::Graphics::Colors::Orange.WithAlpha(0.5f);
 		const Ludus::Graphics::Color NonCollisionColor = Ludus::Graphics::Colors::LightBlue.WithAlpha(0.5f);
 		Ludus::Graphics::Color CursorColor = Ludus::Graphics::Colors::Gray;
@@ -37,7 +37,7 @@ namespace Ludus::Lab
 		const int MaxCount = 120;
 		const std::string CursorLayerName = "Cursor";
 		const std::string QuadLayerName = "Quad";
-		Ludus::Engine::GameObjectHandle CursorHandle;
+		Ludus::Engine::GameObjectHandle CursorHandle = 0;
 		bool IsColliding = false;
 		bool IsCircle = false;
 	};

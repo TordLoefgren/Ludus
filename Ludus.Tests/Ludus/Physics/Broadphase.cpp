@@ -1,6 +1,6 @@
 #include "pch.h"
 
-namespace LudusTests::Physics
+namespace Ludus::Tests::Physics
 {
 	namespace Broadphase = Ludus::Physics::Broadphase;
 
