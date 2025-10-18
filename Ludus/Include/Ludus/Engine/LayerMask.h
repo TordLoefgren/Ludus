@@ -1,12 +1,13 @@
 #pragma once
 
-#include <assert.h>
 #include <bit>
 #include <cstdint>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include <Ludus/Debug/Debug.h>
 
 namespace Ludus::Engine
 {
@@ -78,7 +79,7 @@ namespace Ludus::Engine
 
 		static LayerMask FromIndex(LayerIndex index)
 		{
-			assert(index < 32u);
+			LUDUS_ASSERT(index < 32u, "Index must be smaller than 32.");
 
 			if (index >= 32u)
 			{
@@ -101,7 +102,7 @@ namespace Ludus::Engine
 
 		static void AddLayer(const std::string& layerName, const LayerIndex layerIndex)
 		{
-			assert(layerIndex > 0u && layerIndex < 32u);
+			LUDUS_ASSERT(layerIndex > 0u && layerIndex < 32u, "Index must be between 1 and 31, inclusive.");
 
 			auto iterName = s_NameToIndex.find(layerName);
 			if (iterName != s_NameToIndex.end())

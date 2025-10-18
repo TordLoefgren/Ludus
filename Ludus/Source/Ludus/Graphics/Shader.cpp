@@ -1,13 +1,13 @@
+#include <format>
+
 #include <glad/glad.h>
 
+#include <Ludus/Debug/Debug.h>
 #include <Ludus/Engine/Utilities.h>
 #include <Ludus/Graphics/Shader.h>
 
 namespace Ludus::Graphics
 {
-	using Ludus::Engine::Utilities::WriteLine;
-	using Ludus::Engine::Utilities::ReadFile;
-
 	Shader::Shader(std::filesystem::path path)
 	{
 		m_Handle = LoadShaders(path);
@@ -63,9 +63,11 @@ namespace Ludus::Graphics
 		glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &status);
 		if (status == GL_FALSE)
 		{
-			WriteLine(
-				"Failed to compile the " +
-				std::string(shaderType == GL_VERTEX_SHADER ? "vertex shader" : "fragment shader")
+			LUDUS_LOG_CRITICAL(
+				std::format(
+					"Failed to compile the {}",
+					(shaderType == GL_VERTEX_SHADER ? "vertex shader" : "fragment shader")
+				)
 			);
 
 			int logLength;
@@ -74,8 +76,15 @@ namespace Ludus::Graphics
 			std::string logMessage(logLength, '\0');
 			glGetShaderInfoLog(shaderHandle, logLength, nullptr, &logMessage[0]);
 
-			WriteLine(logMessage);
+			LUDUS_LOG_INFO(logMessage);
 		}
+
+		LUDUS_LOG_INFO(
+			std::format(
+				"Successfully compiled the {}",
+				(shaderType == GL_VERTEX_SHADER ? "vertex shader" : "fragment shader")
+			)
+		);
 
 		return shaderHandle;
 	}
@@ -98,7 +107,7 @@ namespace Ludus::Graphics
 		glGetProgramiv(programHandle, GL_LINK_STATUS, &status);
 		if (status == GL_FALSE)
 		{
-			WriteLine("Failed to link the program.");
+			LUDUS_LOG_CRITICAL("Failed to link the program.");
 		}
 
 		for (size_t i = 0; i < shaders.size(); i++)
@@ -111,8 +120,8 @@ namespace Ludus::Graphics
 
 	unsigned int Shader::LoadShaders(std::filesystem::path path)
 	{
-		auto vertexSource = ReadFile((path / "shader.vert").string().data());
-		auto fragmentSource = ReadFile((path / "shader.frag").string().data());
+		auto vertexSource = Ludus::Engine::Utilities::ReadFile((path / "shader.vert").string().data());
+		auto fragmentSource = Ludus::Engine::Utilities::ReadFile((path / "shader.frag").string().data());
 
 		auto shaders = std::vector<std::tuple<unsigned int, std::string>>();
 		shaders.push_back({ GL_VERTEX_SHADER, std::string(vertexSource) });
