@@ -8,6 +8,7 @@
 #include <Ludus/Graphics/Camera2D.h>
 #include <Ludus/Graphics/Color.h>
 #include <Ludus/Graphics/ElementBufferObject.h>
+#include <Ludus/Graphics/HorizontalTextAlignment.h>
 #include <Ludus/Graphics/Shader.h>
 #include <Ludus/Graphics/Text.h>
 #include <Ludus/Graphics/Texture.h>
@@ -69,7 +70,7 @@ namespace Ludus::Graphics
 		void DrawQuad(const Ludus::Math::Transform2D& transform, Color color = Colors::White, Texture* texture = nullptr, bool fill = true);
 		void DrawLine(float x1, float y1, float x2, float y2, Color color = Colors::White);
 		void DrawCircle(const Ludus::Math::Transform2D& transform, Color color = Colors::White, bool fill = true);
-		void DrawText(const Ludus::Math::Transform2D& transform, std::string_view text, Color color = Colors::White);
+		void DrawText(const Ludus::Math::Transform2D& transform, std::string_view text, Color color = Colors::White, HorizontalTextAlignment horizontalAlignment = HorizontalTextAlignment::Left);
 
 		void Clear() const;
 		void Flush();
