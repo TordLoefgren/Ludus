@@ -146,9 +146,23 @@ namespace Ludus::Graphics
 		DrawQuadInternal(transform, color, nullptr, 1, fill ? 0 : 1);
 	}
 
-	void Renderer2D::DrawText(const Ludus::Math::Transform2D& transform, std::string_view string, Color color)
+	void Renderer2D::DrawText(const Ludus::Math::Transform2D& transform, std::string_view string, Color color, HorizontalTextAlignment horizontalAlignment)
 	{
 		auto position = transform.Position;
+
+		if (horizontalAlignment != HorizontalTextAlignment::Left)
+		{
+			const auto widthPixels = m_Text.MeasureTextWidth(string) * transform.Scale.X;
+
+			if (horizontalAlignment == HorizontalTextAlignment::Center)
+			{
+				position.X -= 0.5f * widthPixels;
+			}
+			else
+			{
+				position.X -= widthPixels;
+			}
+		}
 
 		for (char character : string)
 		{

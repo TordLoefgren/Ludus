@@ -62,4 +62,19 @@ namespace Ludus::Graphics
 		auto [it, _] = m_GlyphMap.emplace(character, std::move(glyph));
 		return &it->second;
 	}
+
+	float Text::MeasureTextWidth(std::string_view text)
+	{
+		auto widthPixels = 0.0f;
+		for (auto c : text)
+		{
+			const auto* glyph = GetGlyph(c);
+			if (glyph)
+			{
+				widthPixels += glyph->Advance / 64.0f;
+			}
+		}
+
+		return widthPixels;
+	}
 }

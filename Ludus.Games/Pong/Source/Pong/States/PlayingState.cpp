@@ -410,9 +410,21 @@ namespace Pong::States
 		}
 
 		// Render score text.
+		auto color = Ludus::Graphics::Colors::White;
+		auto horizontalAlignment = Ludus::Graphics::HorizontalTextAlignment::Center;
+
 		m_GameInfo.Renderer.DrawText(
-			Ludus::Math::Transform2D(0, { m_RenderData.GetHalfWidth() - Pong::Core::Configuration::Defaults::ScoreTextOffset - 25.0f, m_RenderData.Height - Pong::Core::Configuration::Defaults::ScoreTextOffset }), std::to_string(m_PongInfo.Player1Score));
-		m_GameInfo.Renderer.DrawText(Ludus::Math::Transform2D(0, { m_RenderData.GetHalfWidth() + Pong::Core::Configuration::Defaults::ScoreTextOffset, m_RenderData.Height - Pong::Core::Configuration::Defaults::ScoreTextOffset }), std::to_string(m_PongInfo.Player2Score));
+			Ludus::Math::Transform2D(0, { m_RenderData.GetHalfWidth() - Pong::Core::Configuration::Defaults::ScoreTextOffset, m_RenderData.Height - Pong::Core::Configuration::Defaults::ScoreTextOffset }),
+			std::to_string(m_PongInfo.Player1Score),
+			color,
+			horizontalAlignment
+		);
+		m_GameInfo.Renderer.DrawText(
+			Ludus::Math::Transform2D(0, { m_RenderData.GetHalfWidth() + Pong::Core::Configuration::Defaults::ScoreTextOffset, m_RenderData.Height - Pong::Core::Configuration::Defaults::ScoreTextOffset }),
+			std::to_string(m_PongInfo.Player2Score),
+			color,
+			horizontalAlignment
+		);
 
 		// Render top and bottom boundaries.
 		const auto* boundaryTopTransform = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.TopWallHandle);
