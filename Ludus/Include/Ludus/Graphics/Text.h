@@ -2,6 +2,7 @@
 
 #include <ft2build.h>
 #include <iostream>
+#include <string_view>
 #include <unordered_map>
 #include FT_FREETYPE_H
 
@@ -22,5 +23,6 @@ namespace Ludus::Graphics
 		~Text();
 
 		const Glyph* GetGlyph(const char character);
+		float MeasureTextWidth(std::string_view text);
 	};
 }
