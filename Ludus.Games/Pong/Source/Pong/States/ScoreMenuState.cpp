@@ -8,9 +8,9 @@ namespace Pong::States
 		auto halfHeight = m_GameInfo.WindowOptions.Height * 0.5f;
 		auto colorWhite = Ludus::Graphics::Colors::White;
 
-		m_MenuItems.emplace_back("", Ludus::Math::Transform2D(0, { halfWidth - 150.0f, m_GameInfo.WindowOptions.Height - 150.0f }), colorWhite, colorWhite);
-		m_MenuItems.emplace_back("New Game", Ludus::Math::Transform2D(0, { halfWidth - 125.0f, halfHeight }));
-		m_MenuItems.emplace_back("Exit", Ludus::Math::Transform2D(0, { halfWidth - 50.0f, halfHeight - 100.0f }));
+		m_MenuItems.emplace_back("", Ludus::Math::Transform2D(0, { halfWidth, m_GameInfo.WindowOptions.Height - 150.0f }), colorWhite, colorWhite);
+		m_MenuItems.emplace_back("New Game", Ludus::Math::Transform2D(0, { halfWidth, halfHeight }));
+		m_MenuItems.emplace_back("Exit", Ludus::Math::Transform2D(0, { halfWidth, halfHeight - 100.0f }));
 	}
 
 	void ScoreMenuState::Reset()
@@ -52,7 +52,7 @@ namespace Pong::States
 		std::string scoreText = winnerName + " Won!";
 
 		auto& header = m_MenuItems[0];
-		m_GameInfo.Renderer.DrawText(header.Transform, scoreText, header.ActiveColor);
+		m_GameInfo.Renderer.DrawText(header.Transform, scoreText, header.ActiveColor, header.HorizontalTextAlignment);
 
 		for (size_t i = 1; i < m_MenuItems.size(); i++)
 		{
@@ -62,7 +62,8 @@ namespace Pong::States
 			m_GameInfo.Renderer.DrawText(
 				menuItem.Transform,
 				menuItem.MenuText,
-				color
+				color,
+				menuItem.HorizontalTextAlignment
 			);
 		}
 	}
