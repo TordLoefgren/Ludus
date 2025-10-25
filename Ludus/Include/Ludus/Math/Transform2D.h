@@ -3,7 +3,7 @@
 #include <cmath>
 #include <cstdint>
 
-#include <Ludus\Engine\Gameobject.h>  
+#include <Ludus\Engine\Entity.h>  
 #include <Ludus\Math\Numeric.h>  
 #include <Ludus\Math\Vector2D.h>
 
@@ -18,14 +18,14 @@ namespace Ludus::Math
 
 	public:
 		TransformHandle  Handle;
-		Ludus::Engine::GameObjectHandle OwnerHandle;
+		Ludus::Engine::EntityHandle OwnerHandle;
 
 		Vector2D Position { 0.0f, 0.0f };
 		Vector2D Scale { 1.0f, 1.0f };
 		float Rotation { 0.0f };
 
 		explicit Transform2D(
-			Ludus::Engine::GameObjectHandle ownerHandle,
+			Ludus::Engine::EntityHandle ownerHandle,
 			Vector2D position = { 0.0f, 0.0f },
 			Vector2D scale = { 1.0f, 1.0f },
 			float rotation = 0.0f

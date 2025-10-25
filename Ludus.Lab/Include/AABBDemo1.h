@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Ludus/Engine/GameObject.h>
+#include <Ludus/Engine/Entity.h>
+#include <Ludus/Engine/EntityComponentSystem.h>
 #include <Ludus/Engine/LayerMask.h>
-#include <Ludus/Engine/Scene.h>
 #include <Ludus/Engine/Utilities.h>
 #include <Ludus/Graphics/Camera2D.h>
 #include <Ludus/Graphics/Color.h>
@@ -29,8 +29,8 @@ namespace Ludus::Lab
 		const int BoxLayerIndex = 1;
 		const std::string CursorLayerName = "Cursor";
 		const std::string BoxLayerName = "Box";
-		Ludus::Engine::GameObjectHandle CursorHandle = 0;
-		Ludus::Engine::GameObjectHandle BoxHandle = 0;
+		Ludus::Engine::EntityHandle CursorHandle = 0;
+		Ludus::Engine::EntityHandle BoxHandle = 0;
 		bool IsColliding = false;
 		bool IsCircle = false;
 	};
@@ -45,7 +45,7 @@ namespace Ludus::Lab
 		Ludus::Graphics::Renderer2D m_Renderer;
 		Ludus::Graphics::Camera2D m_Camera;
 		AABBDemo1Info m_Info;
-		Ludus::Engine::Scene m_Scene;
+		Ludus::Engine::EntityComponentSystem m_EntityComponentSystem;
 		Ludus::Physics::CollisionSystem2D m_CollisionSystem;
 
 		void DrawCursor(Ludus::Graphics::Renderer2D& renderer, float x, float y, Ludus::Graphics::Color color);

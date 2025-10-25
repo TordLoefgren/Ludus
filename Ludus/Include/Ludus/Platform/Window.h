@@ -12,16 +12,13 @@ namespace Ludus::Platform
 	{
 	private:
 		GLFWwindow* m_Handle;
-		Input m_Input;
-		int m_Width, m_Height;
-		std::string m_Title;
-		bool m_Resizable;
+		WindowOptions m_WindowOptions;
+		Input& m_Input;
 
-		void Setup();
+		void Init();
 
 	public:
-		Window(WindowOptions options);
-		Window(int width, int height, std::string title, bool resizeable = true);
+		Window(WindowOptions options, Input& input);
 		~Window();
 
 		void PollEvents();

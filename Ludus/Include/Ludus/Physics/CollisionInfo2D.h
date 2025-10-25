@@ -8,12 +8,12 @@
 
 namespace Ludus::Physics
 {
-	using GameObjectHandle = uint32_t;
+	using EntityHandle = uint32_t;
 
 	struct CollisionInfo2D
 	{
-		GameObjectHandle CollisionAOwnerHandle;
-		GameObjectHandle CollisionBOwnerHandle;
+		EntityHandle CollisionAOwnerHandle;
+		EntityHandle CollisionBOwnerHandle;
 		ContactPoint Point;
 
 		void AddContactPoint(

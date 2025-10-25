@@ -6,9 +6,9 @@ namespace Ludus::Platform
 {
 	struct WindowOptions
 	{
-		int Width;
-		int Height;
-		std::string Title;
-		bool resizeable = true;
+		int Width = 1024;
+		int Height = 768;
+		std::string Title = "Ludus";
+		bool IsResizeable = true;
 	};
 }

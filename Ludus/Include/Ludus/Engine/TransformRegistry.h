@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-#include <Ludus/Engine/GameObject.h>
+#include <Ludus/Engine/Entity.h>
 #include <Ludus/Math/Transform2D.h>
 #include <Ludus/Math/Vector2D.h>
 
@@ -18,7 +18,7 @@ namespace Ludus::Engine
 		std::vector<Ludus::Math::Transform2D> m_Data;								// Object Storage.
 		std::vector<Ludus::Math::TransformHandle> m_Handles;						// Index -> transform handle.
 		std::unordered_map<Ludus::Math::TransformHandle, size_t> m_HandleToIndex;	// Transform handle -> index.
-		std::unordered_map<GameObjectHandle, size_t> m_OwnerHandleToIndex;			// Owner handle -> index.
+		std::unordered_map<EntityHandle, size_t> m_OwnerHandleToIndex;			// Owner handle -> index.
 
 		void RemoveAndReorderIndices(size_t index)
 		{
@@ -30,7 +30,7 @@ namespace Ludus::Engine
 
 				// Fix the indices of the moved element.
 				const Ludus::Math::TransformHandle movedHandle = m_Handles[index];
-				const GameObjectHandle movedOwnerHandle = m_Data[index].OwnerHandle;
+				const EntityHandle movedOwnerHandle = m_Data[index].OwnerHandle;
 
 				m_HandleToIndex[movedHandle] = index;
 				m_OwnerHandleToIndex[movedOwnerHandle] = index;
@@ -48,7 +48,7 @@ namespace Ludus::Engine
 		std::span<Ludus::Math::Transform2D> ViewMutable() { return { m_Data.data(), m_Data.size() }; }
 
 		Ludus::Math::TransformHandle Add(
-			GameObjectHandle owner,
+			EntityHandle owner,
 			Ludus::Math::Vector2D position = { 0.0f, 0.0f },
 			Ludus::Math::Vector2D scale = { 1.0f, 1.0f },
 			float rotation = 0.0f
@@ -92,7 +92,7 @@ namespace Ludus::Engine
 			return false;
 		}
 
-		bool RemoveByOwner(GameObjectHandle ownerHandle)
+		bool RemoveByOwner(EntityHandle ownerHandle)
 		{
 			if (auto it = m_OwnerHandleToIndex.find(ownerHandle); it != m_OwnerHandleToIndex.end())
 			{
@@ -127,7 +127,7 @@ namespace Ludus::Engine
 			return nullptr;
 		}
 
-		const Ludus::Math::Transform2D* TryGetByOwner(GameObjectHandle ownerHandle) const
+		const Ludus::Math::Transform2D* TryGetByOwner(EntityHandle ownerHandle) const
 		{
 			if (auto handleIter = m_OwnerHandleToIndex.find(ownerHandle); handleIter != m_OwnerHandleToIndex.end())
 			{
@@ -137,7 +137,7 @@ namespace Ludus::Engine
 			return nullptr;
 		}
 
-		Ludus::Math::Transform2D* TryGetByOwnerMutable(GameObjectHandle ownerHandle)
+		Ludus::Math::Transform2D* TryGetByOwnerMutable(EntityHandle ownerHandle)
 		{
 			if (auto handleIter = m_OwnerHandleToIndex.find(ownerHandle); handleIter != m_OwnerHandleToIndex.end())
 			{

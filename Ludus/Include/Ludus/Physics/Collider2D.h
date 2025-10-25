@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include <Ludus/Engine/GameObject.h>
+#include <Ludus/Engine/Entity.h>
 #include <Ludus/Engine/LayerMask.h>
 #include <Ludus/Math/AABB.h>
 #include <Ludus/Math/Circle.h>
@@ -20,13 +20,13 @@ namespace Ludus::Physics
 
 	public:
 		ColliderHandle Handle;
-		Ludus::Engine::GameObjectHandle OwnerHandle;
+		Ludus::Engine::EntityHandle OwnerHandle;
 		Index LayerIndex;
 		Ludus::Engine::LayerMask CollidesWith;
 		bool IsStatic;
 
 		Collider2D(
-			Ludus::Engine::GameObjectHandle owner,
+			Ludus::Engine::EntityHandle owner,
 			Index layerIndex,
 			Ludus::Engine::LayerMask collidesWith = Ludus::Engine::LayerMask::GetEmpty(),
 			bool isStatic = false
