@@ -3,11 +3,11 @@
 #include <vector>
 
 #include <Ludus/Engine/Cooldown.h>
-#include <Ludus/Engine/GameObject.h>
+#include <Ludus/Engine/Entity.h>
+#include <Ludus/Engine/EntityComponentSystem.h>
 #include <Ludus/Engine/LayerMask.h>
 #include <Ludus/Engine/Random.h>
-#include <Ludus/Engine/Scene.h>
-#include <Ludus/Engine/TimeStep.h>
+#include <Ludus/Engine/Time.h>
 #include <Ludus/Engine/Utilities.h>
 #include <Ludus/Graphics/Camera2D.h>
 #include <Ludus/Graphics/Color.h>
@@ -37,14 +37,14 @@ namespace Ludus::Lab
 		const int MaxCount = 120;
 		const std::string CursorLayerName = "Cursor";
 		const std::string QuadLayerName = "Quad";
-		Ludus::Engine::GameObjectHandle CursorHandle = 0;
+		Ludus::Engine::EntityHandle CursorHandle = 0;
 		bool IsColliding = false;
 		bool IsCircle = false;
 	};
 
 	struct FallingQuad
 	{
-		Ludus::Engine::GameObjectHandle Handle;
+		Ludus::Engine::EntityHandle Handle;
 		float Speed;
 		Ludus::Graphics::Color Color;
 
@@ -64,9 +64,9 @@ namespace Ludus::Lab
 		Ludus::Graphics::Renderer2D m_Renderer;
 		Ludus::Graphics::Camera2D m_Camera;
 		AABBDemo2Info m_Info;
-		Ludus::Engine::Scene m_Scene;
+		Ludus::Engine::EntityComponentSystem m_EntityComponentSystem;
 		Ludus::Engine::Random m_Random;
-		Ludus::Engine::TimeStep m_TimeStep;
+		Ludus::Engine::Time m_Time;
 		Ludus::Engine::Cooldown m_Cooldown;
 		Ludus::Physics::CollisionSystem2D m_CollisionSystem;
 		std::vector<FallingQuad> m_FallingQuads;

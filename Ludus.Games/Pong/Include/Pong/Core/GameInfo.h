@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Ludus/Engine/EntityComponentSystem.h>
 #include <Ludus/Engine/Random.h>
-#include <Ludus/Engine/Scene.h>
-#include <Ludus/Engine/TimeStep.h>
+#include <Ludus/Engine/Time.h>
 #include <Ludus/Graphics/Camera2D.h>
 #include <Ludus/Graphics/Color.h>
 #include <Ludus/Graphics/Renderer2D.h>
@@ -21,8 +21,8 @@ namespace Pong::Core
 		Ludus::Graphics::Camera2D Camera;
 		Ludus::Graphics::Renderer2D Renderer;
 		Ludus::Physics::CollisionSystem2D CollisionSystem;
-		Ludus::Engine::Scene Scene;
-		Ludus::Engine::TimeStep Timer;
+		Ludus::Engine::EntityComponentSystem EntityComponentSystem;
+		Ludus::Engine::Time Timer;
 		Ludus::Engine::Random Random;
 
 		GameInfo(
@@ -35,7 +35,7 @@ namespace Pong::Core
 			Camera(),
 			Renderer(Shader),
 			CollisionSystem(),
-			Scene(),
+			EntityComponentSystem(),
 			Timer(),
 			Random()
 		{

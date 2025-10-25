@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Ludus/Engine/GameObject.h>
+#include <Ludus/Engine/Entity.h>
 #include <Ludus/Engine/LayerMask.h>
 #include <Ludus/Engine/Random.h>
 #include <Ludus/Graphics/Color.h>
