@@ -1,35 +1,35 @@
 #pragma once
 
 #include <Ludus/Engine/ColliderRegistry.h>
-#include <Ludus/Engine/GameObjectRegistry.h>
+#include <Ludus/Engine/EntityRegistry.h>
 #include <Ludus/Engine/TransformRegistry.h>
 #include <Ludus/Math/Vector2D.h>
 
 namespace Ludus::Engine
 {
-	struct Scene
+	struct EntityComponentSystem
 	{
 	private:
-		Ludus::Engine::GameObjectRegistry m_GameObjects;
+		Ludus::Engine::EntityRegistry m_Entities;
 
 	public:
 		Ludus::Engine::ColliderRegistry Colliders;
 		Ludus::Engine::TransformRegistry Transforms;
 
-		GameObjectHandle AddGameObject()
+		EntityHandle AddEntity()
 		{
-			return m_GameObjects.CreateGameObject();
+			return m_Entities.CreateEntity();
 		}
 
-		bool DestroyGameObject(GameObjectHandle handle)
+		bool DestroyEntity(EntityHandle handle)
 		{
 			Colliders.RemoveByOwner(handle);
 			Transforms.RemoveByOwner(handle);
-			return m_GameObjects.DestroyGameObject(handle);
+			return m_Entities.DestroyEntity(handle);
 		}
 
 		void AttachCollider(
-			GameObjectHandle handle,
+			EntityHandle handle,
 			Ludus::Physics::Index layer,
 			LayerMask collidesWith = LayerMask::GetEmpty(),
 			bool isStatic = false
@@ -39,7 +39,7 @@ namespace Ludus::Engine
 		}
 
 		void AttachTransform(
-			GameObjectHandle handle,
+			EntityHandle handle,
 			Ludus::Math::Vector2D position = { 0.0f, 0.0f },
 			Ludus::Math::Vector2D scale = { 1.0f, 1.0f },
 			float rotation = 0.0f
@@ -48,6 +48,6 @@ namespace Ludus::Engine
 			Transforms.Add(handle, position, scale, rotation);
 		}
 
-		const size_t GetGameObjectCount() { return m_GameObjects.GetCount(); }
+		const size_t GetEntityCount() { return m_Entities.GetCount(); }
 	};
 }

@@ -1,9 +1,9 @@
 ---
-name: Feature
-description: Add or improve functionality.
-title: "[Feature]: "
+name: Test
+description: Creating unit tests.
+title: "[Test]: "
 labels:
-  - "Type: Feature"
+  - "Type: Test"
   - "Status: Planned"
 assignees:
   - TordLoefgren
@@ -13,6 +13,6 @@ body:
     id: description
     attributes:
       label: Description
-      description: What should this feature do and why is it valuable?
+      description: What needs doing and why.
     validations:
       required: true
