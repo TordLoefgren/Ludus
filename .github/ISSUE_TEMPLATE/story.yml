@@ -33,4 +33,4 @@ body:
       label: Related Issues (optional)
       description: Reference related items (even if sub-issues are used).
       value: |
-        - #<id> 
+        - [ ] #<id> 

@@ -1,4 +1,5 @@
 ﻿#include <Ludus/Graphics/GLContext.h>
+#include <Ludus/Platform/Input.h>
 #include <Ludus/Platform/Window.h>
 #include <Ludus/Platform/WindowOptions.h>
 
@@ -21,7 +22,9 @@ int main()
 #pragma region Initialization
 
 	auto windowOptions = Ludus::Platform::WindowOptions(WIDTH, HEIGHT, "Pong (1972)", false);
-	auto window = Ludus::Platform::Window(windowOptions);
+	auto input = Ludus::Platform::Input();
+
+	auto window = Ludus::Platform::Window(windowOptions, input);
 
 	Ludus::Graphics::GLContext::Init();
 	Ludus::Graphics::GLContext::EnableBlending();
@@ -51,6 +54,8 @@ int main()
 
 		// Input Handling.
 		auto& input = window.GetInput();
+
+		window.PollEvents();
 
 		switch (stateAtFrameStart)
 		{
@@ -111,7 +116,6 @@ int main()
 		}
 
 		window.SwapBuffers();
-		window.PollEvents();
 	}
 
 	return 0;

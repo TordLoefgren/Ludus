@@ -6,17 +6,17 @@ namespace Ludus::Lab
 	{
 		m_Camera.SetViewport(m_Width, m_Height);
 
-		m_Info.CursorHandle = m_Scene.AddGameObject();
-		m_Info.BoxHandle = m_Scene.AddGameObject();
+		m_Info.CursorHandle = m_EntityComponentSystem.AddEntity();
+		m_Info.BoxHandle = m_EntityComponentSystem.AddEntity();
 
-		m_Scene.AttachTransform(m_Info.CursorHandle, { m_Width * 0.5f, m_Height * 0.5f }, { m_Width * 0.1f, m_Width * 0.1f });
-		m_Scene.AttachTransform(m_Info.BoxHandle, { m_Width * 0.5f, m_Height * 0.5f }, { m_Width * 0.25f, m_Height * 0.25f });
+		m_EntityComponentSystem.AttachTransform(m_Info.CursorHandle, { m_Width * 0.5f, m_Height * 0.5f }, { m_Width * 0.1f, m_Width * 0.1f });
+		m_EntityComponentSystem.AttachTransform(m_Info.BoxHandle, { m_Width * 0.5f, m_Height * 0.5f }, { m_Width * 0.25f, m_Height * 0.25f });
 
 		Ludus::Engine::LayerMask::AddLayer(m_Info.BoxLayerName, m_Info.BoxLayerIndex);
 		Ludus::Engine::LayerMask::AddLayer(m_Info.CursorLayerName, m_Info.CursorLayerIndex);
 
-		m_Scene.AttachCollider(m_Info.CursorHandle, m_Info.CursorLayerIndex, Ludus::Engine::LayerMask::FromIndex(m_Info.BoxLayerIndex));
-		m_Scene.AttachCollider(m_Info.BoxHandle, m_Info.BoxLayerIndex, Ludus::Engine::LayerMask::FromIndex(m_Info.CursorLayerIndex));
+		m_EntityComponentSystem.AttachCollider(m_Info.CursorHandle, m_Info.CursorLayerIndex, Ludus::Engine::LayerMask::FromIndex(m_Info.BoxLayerIndex));
+		m_EntityComponentSystem.AttachCollider(m_Info.BoxHandle, m_Info.BoxLayerIndex, Ludus::Engine::LayerMask::FromIndex(m_Info.CursorLayerIndex));
 
 		m_Renderer.SetClearColor(Ludus::Graphics::Colors::Gray);
 		m_Renderer.SetLineWidth(2.0f);
@@ -39,8 +39,8 @@ namespace Ludus::Lab
 		auto mousePosition = m_Window.GetInput().GetMousePosition();
 
 		// Movement Integration.
-		auto* cursorTransform = m_Scene.Transforms.TryGetByOwnerMutable(m_Info.CursorHandle);
-		auto* boxTransform = m_Scene.Transforms.TryGetByOwnerMutable(m_Info.BoxHandle);
+		auto* cursorTransform = m_EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Info.CursorHandle);
+		auto* boxTransform = m_EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Info.BoxHandle);
 		if (!boxTransform || !cursorTransform)
 		{
 			return;
@@ -50,7 +50,7 @@ namespace Ludus::Lab
 		cursorTransform->Position.Y = m_Height - mousePosition.Y;
 
 		// Collision Handling.
-		m_CollisionSystem.Step(m_Scene.Colliders, m_Scene.Transforms, true);
+		m_CollisionSystem.Step(m_EntityComponentSystem.Colliders, m_EntityComponentSystem.Transforms, true);
 		m_Info.IsColliding = m_CollisionSystem.GetCollisionInfo().size() > 0;
 
 		for (auto& info : m_CollisionSystem.GetOverlapInfo())
@@ -102,6 +102,6 @@ namespace Ludus::Lab
 	}
 
 	AABBDemo1::AABBDemo1(Ludus::Platform::Window& window, int width, int height)
-		: m_Window(window), m_Width(width), m_Height(height), m_Shader("Resources/Shaders"), m_Renderer(m_Shader), m_Scene(), m_CollisionSystem()
+		: m_Window(window), m_Width(width), m_Height(height), m_Shader("Resources/Shaders"), m_Renderer(m_Shader), m_EntityComponentSystem(), m_CollisionSystem()
 	{ }
 }

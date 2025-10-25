@@ -13,7 +13,7 @@ namespace Pong::States
 		directionX = directionX < 0.0f ? -1.0f : 1.0f;
 		auto directionY = m_GameInfo.Random.NextFloat(-0.5f, 0.5f);
 
-		if (auto ballTransform = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.BallHandle))
+		if (auto ballTransform = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Entities.BallHandle))
 		{
 			ballTransform->Rotation = Ludus::Math::Numeric::RadiansToDegrees(std::atan2(directionY, directionX));
 		}
@@ -24,17 +24,17 @@ namespace Pong::States
 
 	void PlayingState::Clear()
 	{
-		if (auto ballTransform = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.BallHandle))
+		if (auto ballTransform = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Entities.BallHandle))
 		{
 			ballTransform->Position = { m_RenderData.GetHalfWidth(), m_RenderData.GetHalfHeight() };
 		}
 
-		if (auto player1Transform = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.Player1Handle))
+		if (auto player1Transform = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Entities.Player1Handle))
 		{
 			player1Transform->Position = { Pong::Core::Configuration::Defaults::PaddleXOffset, m_RenderData.GetHalfHeight() };
 		}
 
-		if (auto player2Transform = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.Player2Handle))
+		if (auto player2Transform = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Entities.Player2Handle))
 		{
 			player2Transform->Position = { m_RenderData.Width - Pong::Core::Configuration::Defaults::PaddleXOffset, m_RenderData.GetHalfHeight() };
 		}
@@ -107,58 +107,58 @@ namespace Pong::States
 		m_LayerMaskPlayer2 = Ludus::Engine::LayerMask::FromIndex(m_LayerIndexPlayer2);
 
 		// Game objects.
-		m_Entities.BallHandle = m_GameInfo.Scene.AddGameObject();
-		m_Entities.LeftWallHandle = m_GameInfo.Scene.AddGameObject();
-		m_Entities.TopWallHandle = m_GameInfo.Scene.AddGameObject();
-		m_Entities.RightWallHandle = m_GameInfo.Scene.AddGameObject();
-		m_Entities.BottomWallHandle = m_GameInfo.Scene.AddGameObject();
-		m_Entities.Player1Handle = m_GameInfo.Scene.AddGameObject();
-		m_Entities.Player2Handle = m_GameInfo.Scene.AddGameObject();
+		m_Entities.BallHandle = m_GameInfo.EntityComponentSystem.AddEntity();
+		m_Entities.LeftWallHandle = m_GameInfo.EntityComponentSystem.AddEntity();
+		m_Entities.TopWallHandle = m_GameInfo.EntityComponentSystem.AddEntity();
+		m_Entities.RightWallHandle = m_GameInfo.EntityComponentSystem.AddEntity();
+		m_Entities.BottomWallHandle = m_GameInfo.EntityComponentSystem.AddEntity();
+		m_Entities.Player1Handle = m_GameInfo.EntityComponentSystem.AddEntity();
+		m_Entities.Player2Handle = m_GameInfo.EntityComponentSystem.AddEntity();
 
 		// Colliders.
-		m_GameInfo.Scene.AttachCollider(m_Entities.BallHandle, m_LayerIndexBall, (m_LayerMaskVertical | m_LayerMaskHorizontal | m_LayerMaskPlayer1 | m_LayerMaskPlayer2));
-		m_GameInfo.Scene.AttachCollider(m_Entities.TopWallHandle, m_LayerIndexHorizontal, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2), true);
-		m_GameInfo.Scene.AttachCollider(m_Entities.BottomWallHandle, m_LayerIndexHorizontal, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2), true);
-		m_GameInfo.Scene.AttachCollider(m_Entities.LeftWallHandle, m_LayerIndexVertical, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2), true);
-		m_GameInfo.Scene.AttachCollider(m_Entities.RightWallHandle, m_LayerIndexVertical, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2), true);
-		m_GameInfo.Scene.AttachCollider(m_Entities.Player1Handle, m_LayerIndexPlayer1, (m_LayerMaskBall | m_LayerMaskHorizontal));
-		m_GameInfo.Scene.AttachCollider(m_Entities.Player2Handle, m_LayerIndexPlayer2, (m_LayerMaskBall | m_LayerMaskHorizontal));
+		m_GameInfo.EntityComponentSystem.AttachCollider(m_Entities.BallHandle, m_LayerIndexBall, (m_LayerMaskVertical | m_LayerMaskHorizontal | m_LayerMaskPlayer1 | m_LayerMaskPlayer2));
+		m_GameInfo.EntityComponentSystem.AttachCollider(m_Entities.TopWallHandle, m_LayerIndexHorizontal, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2), true);
+		m_GameInfo.EntityComponentSystem.AttachCollider(m_Entities.BottomWallHandle, m_LayerIndexHorizontal, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2), true);
+		m_GameInfo.EntityComponentSystem.AttachCollider(m_Entities.LeftWallHandle, m_LayerIndexVertical, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2), true);
+		m_GameInfo.EntityComponentSystem.AttachCollider(m_Entities.RightWallHandle, m_LayerIndexVertical, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2), true);
+		m_GameInfo.EntityComponentSystem.AttachCollider(m_Entities.Player1Handle, m_LayerIndexPlayer1, (m_LayerMaskBall | m_LayerMaskHorizontal));
+		m_GameInfo.EntityComponentSystem.AttachCollider(m_Entities.Player2Handle, m_LayerIndexPlayer2, (m_LayerMaskBall | m_LayerMaskHorizontal));
 
 		// Transforms.
 		const float wallWidth = Pong::Core::Configuration::Defaults::WallWidthThickness;
 		const float wallHeight = Pong::Core::Configuration::Defaults::WallHeightThickness;
 
-		m_GameInfo.Scene.AttachTransform(
+		m_GameInfo.EntityComponentSystem.AttachTransform(
 			m_Entities.BallHandle,
 			{ m_RenderData.GetHalfWidth(), m_RenderData.GetHalfHeight() },
 			Pong::Core::Configuration::Defaults::BallSize);
 
-		m_GameInfo.Scene.AttachTransform(
+		m_GameInfo.EntityComponentSystem.AttachTransform(
 			m_Entities.TopWallHandle,
 			{ m_RenderData.GetHalfWidth(), (float)m_RenderData.Height - wallHeight * 0.5f },
 			{ (float)m_RenderData.Width, wallHeight });
 
-		m_GameInfo.Scene.AttachTransform(
+		m_GameInfo.EntityComponentSystem.AttachTransform(
 			m_Entities.BottomWallHandle,
 			{ m_RenderData.GetHalfWidth(), wallHeight * 0.5f },
 			{ (float)m_RenderData.Width, wallHeight });
 
-		m_GameInfo.Scene.AttachTransform(
+		m_GameInfo.EntityComponentSystem.AttachTransform(
 			m_Entities.LeftWallHandle,
 			{ wallWidth * 0.5f, m_RenderData.GetHalfHeight() },
 			{ wallWidth, (float)m_RenderData.Height });
 
-		m_GameInfo.Scene.AttachTransform(
+		m_GameInfo.EntityComponentSystem.AttachTransform(
 			m_Entities.RightWallHandle,
 			{ (float)m_RenderData.Width - wallWidth * 0.5f, m_RenderData.GetHalfHeight() },
 			{ wallWidth, (float)m_RenderData.Height });
 
-		m_GameInfo.Scene.AttachTransform(
+		m_GameInfo.EntityComponentSystem.AttachTransform(
 			m_Entities.Player1Handle,
 			{ Pong::Core::Configuration::Defaults::PaddleXOffset, m_RenderData.GetHalfHeight() },
 			{ Pong::Core::Configuration::Defaults::PaddleWidth, Pong::Core::Configuration::Defaults::PaddleHeight });
 
-		m_GameInfo.Scene.AttachTransform(
+		m_GameInfo.EntityComponentSystem.AttachTransform(
 			m_Entities.Player2Handle,
 			{ (float)m_RenderData.Width - Pong::Core::Configuration::Defaults::PaddleXOffset, m_RenderData.GetHalfHeight() },
 			{ Pong::Core::Configuration::Defaults::PaddleWidth, Pong::Core::Configuration::Defaults::PaddleHeight });
@@ -198,9 +198,9 @@ namespace Pong::States
 
 	GameState PlayingState::Update(float deltaTime)
 	{
-		auto* player1Ptr = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.Player1Handle);
-		auto* player2Ptr = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.Player2Handle);
-		auto* ballPtr = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.BallHandle);
+		auto* player1Ptr = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Entities.Player1Handle);
+		auto* player2Ptr = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Entities.Player2Handle);
+		auto* ballPtr = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Entities.BallHandle);
 
 		if (!(player1Ptr && player2Ptr && ballPtr))
 		{
@@ -254,7 +254,7 @@ namespace Pong::States
 			ballTransform.Position += ballVelocity * deltaTime;
 		}
 
-		m_GameInfo.CollisionSystem.Step(m_GameInfo.Scene.Colliders, m_GameInfo.Scene.Transforms);
+		m_GameInfo.CollisionSystem.Step(m_GameInfo.EntityComponentSystem.Colliders, m_GameInfo.EntityComponentSystem.Transforms);
 
 		const auto& collisionInfo = m_GameInfo.CollisionSystem.GetCollisionInfo();
 		for (const auto& info : collisionInfo)
@@ -264,8 +264,8 @@ namespace Pong::States
 
 			const auto& contactPoint = info.Point;
 
-			const auto* colliderAPtr = m_GameInfo.Scene.Colliders.TryGetByOwnerMutable(ownerHandleA);
-			const auto* colliderBPtr = m_GameInfo.Scene.Colliders.TryGetByOwnerMutable(ownerHandleB);
+			const auto* colliderAPtr = m_GameInfo.EntityComponentSystem.Colliders.TryGetByOwnerMutable(ownerHandleA);
+			const auto* colliderBPtr = m_GameInfo.EntityComponentSystem.Colliders.TryGetByOwnerMutable(ownerHandleB);
 
 			if (!(colliderAPtr && colliderBPtr))
 			{
@@ -276,8 +276,8 @@ namespace Pong::States
 			const auto& colliderA = *colliderAPtr;
 			const auto& colliderB = *colliderBPtr;
 
-			auto* transformAPtr = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(ownerHandleA);
-			auto* transformBPtr = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(ownerHandleB);
+			auto* transformAPtr = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwnerMutable(ownerHandleA);
+			auto* transformBPtr = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwnerMutable(ownerHandleB);
 
 			if (!(transformAPtr && transformBPtr))
 			{
@@ -321,7 +321,7 @@ namespace Pong::States
 				{
 					LUDUS_LOG_DEBUG("[Collision Handling] Ball <-> Player 1");
 
-					const auto& player1Transform = m_GameInfo.Scene.Transforms.TryGetByOwner(m_Entities.Player1Handle);
+					const auto& player1Transform = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwner(m_Entities.Player1Handle);
 					if (!player1Transform)
 					{
 						LUDUS_LOG_DEBUG("[Collision Handling] Missing transform(s).");
@@ -346,7 +346,7 @@ namespace Pong::States
 				{
 					LUDUS_LOG_DEBUG("[Collision Handling] Ball <-> Player 2");
 
-					const auto& player2Transform = m_GameInfo.Scene.Transforms.TryGetByOwner(m_Entities.Player2Handle);
+					const auto& player2Transform = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwner(m_Entities.Player2Handle);
 					if (!player2Transform)
 					{
 						LUDUS_LOG_DEBUG("[Collision Handling] Missing transform(s).");
@@ -427,8 +427,8 @@ namespace Pong::States
 		);
 
 		// Render top and bottom boundaries.
-		const auto* boundaryTopTransform = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.TopWallHandle);
-		const auto* boundaryBottomTransform = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.BottomWallHandle);
+		const auto* boundaryTopTransform = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Entities.TopWallHandle);
+		const auto* boundaryBottomTransform = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Entities.BottomWallHandle);
 		if (!(boundaryTopTransform && boundaryBottomTransform))
 		{
 			LUDUS_LOG_DEBUG("[Rendering] Missing transform(s).");
@@ -438,9 +438,9 @@ namespace Pong::States
 		m_GameInfo.Renderer.DrawQuad(*boundaryTopTransform);
 		m_GameInfo.Renderer.DrawQuad(*boundaryBottomTransform);
 
-		const auto* player1Ptr = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.Player1Handle);
-		const auto* player2Ptr = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.Player2Handle);
-		const auto* ballPtr = m_GameInfo.Scene.Transforms.TryGetByOwnerMutable(m_Entities.BallHandle);
+		const auto* player1Ptr = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Entities.Player1Handle);
+		const auto* player2Ptr = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Entities.Player2Handle);
+		const auto* ballPtr = m_GameInfo.EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Entities.BallHandle);
 
 		if (!(player1Ptr && player2Ptr && ballPtr))
 		{

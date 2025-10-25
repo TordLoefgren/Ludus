@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-#include <Ludus/Engine/GameObject.h>
+#include <Ludus/Engine/Entity.h>
 #include <Ludus/Engine/LayerMask.h>
 #include <Ludus/Physics/Collider2D.h>
 
@@ -18,7 +18,7 @@ namespace Ludus::Engine
 		std::vector<Ludus::Physics::Collider2D> m_Data;								// Object Storage.
 		std::vector<Ludus::Physics::ColliderHandle> m_Handles;						// Index -> collider handle.
 		std::unordered_map<Ludus::Physics::ColliderHandle, size_t> m_HandleToIndex;	// Collider handle -> index.
-		std::unordered_map<GameObjectHandle, size_t> m_OwnerHandleToIndex;			// Owner handle -> index.
+		std::unordered_map<EntityHandle, size_t> m_OwnerHandleToIndex;			// Owner handle -> index.
 
 		void RemoveAndReorderIndices(size_t index)
 		{
@@ -30,7 +30,7 @@ namespace Ludus::Engine
 
 				// Fix the indices of the moved element.
 				const Ludus::Physics::ColliderHandle movedHandle = m_Handles[index];
-				const GameObjectHandle movedOwnerHandle = m_Data[index].OwnerHandle;
+				const EntityHandle movedOwnerHandle = m_Data[index].OwnerHandle;
 
 				m_HandleToIndex[movedHandle] = index;
 				m_OwnerHandleToIndex[movedOwnerHandle] = index;
@@ -48,7 +48,7 @@ namespace Ludus::Engine
 		std::span<Ludus::Physics::Collider2D> ViewMutable() { return { m_Data.data(), m_Data.size() }; }
 
 		Ludus::Physics::ColliderHandle Add(
-			GameObjectHandle owner,
+			EntityHandle owner,
 			Ludus::Physics::Index layer,
 			LayerMask collidesWith = LayerMask::GetEmpty(),
 			bool isStatic = false
@@ -92,7 +92,7 @@ namespace Ludus::Engine
 			return false;
 		}
 
-		bool RemoveByOwner(GameObjectHandle ownerHandle)
+		bool RemoveByOwner(EntityHandle ownerHandle)
 		{
 			if (auto it = m_OwnerHandleToIndex.find(ownerHandle); it != m_OwnerHandleToIndex.end())
 			{
@@ -127,7 +127,7 @@ namespace Ludus::Engine
 			return nullptr;
 		}
 
-		const Ludus::Physics::Collider2D* TryGetByOwner(GameObjectHandle ownerHandle) const
+		const Ludus::Physics::Collider2D* TryGetByOwner(EntityHandle ownerHandle) const
 		{
 			if (auto handleIter = m_OwnerHandleToIndex.find(ownerHandle); handleIter != m_OwnerHandleToIndex.end())
 			{
@@ -137,7 +137,7 @@ namespace Ludus::Engine
 			return nullptr;
 		}
 
-		Ludus::Physics::Collider2D* TryGetByOwnerMutable(GameObjectHandle ownerHandle)
+		Ludus::Physics::Collider2D* TryGetByOwnerMutable(EntityHandle ownerHandle)
 		{
 			if (auto handleIter = m_OwnerHandleToIndex.find(ownerHandle); handleIter != m_OwnerHandleToIndex.end())
 			{

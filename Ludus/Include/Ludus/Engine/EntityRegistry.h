@@ -5,16 +5,16 @@
 #include <utility>
 #include <vector>
 
-#include <Ludus/Engine/GameObject.h>
+#include <Ludus/Engine/Entity.h>
 
 namespace Ludus::Engine
 {
-	struct GameObjectRegistry
+	struct EntityRegistry
 	{
 	private:
-		std::vector<GameObject> m_Data;											// Object Storage.
-		std::vector<GameObjectHandle> m_Handles;								// Index -> game object handle.
-		std::unordered_map<GameObjectHandle, size_t> m_HandleToIndex;			// Game object handle -> index.
+		std::vector<Entity> m_Data;											// Entity Storage.
+		std::vector<EntityHandle> m_Handles;								// Index -> entity handle.
+		std::unordered_map<EntityHandle, size_t> m_HandleToIndex;			// Entity handle -> index.
 
 		void RemoveAndReorderIndices(size_t index)
 		{
@@ -25,7 +25,7 @@ namespace Ludus::Engine
 				std::swap(m_Handles[index], m_Handles[lastIndex]);
 
 				// Fix the indices of the moved element.
-				const GameObjectHandle movedHandle = m_Handles[index];
+				const EntityHandle movedHandle = m_Handles[index];
 
 				m_HandleToIndex[movedHandle] = index;
 			}
@@ -38,7 +38,7 @@ namespace Ludus::Engine
 
 	public:
 
-		GameObjectHandle CreateGameObject()
+		EntityHandle CreateEntity()
 		{
 			m_Data.emplace_back();
 
@@ -51,7 +51,7 @@ namespace Ludus::Engine
 			return handle;
 		}
 
-		bool DestroyGameObject(GameObjectHandle handle)
+		bool DestroyEntity(EntityHandle handle)
 		{
 			if (auto it = m_HandleToIndex.find(handle); it != m_HandleToIndex.end())
 			{
@@ -62,7 +62,7 @@ namespace Ludus::Engine
 			return false;
 		}
 
-		GameObject* TryGet(GameObjectHandle handle)
+		Entity* TryGet(EntityHandle handle)
 		{
 			if (auto handleIter = m_HandleToIndex.find(handle); handleIter != m_HandleToIndex.end())
 			{
@@ -72,7 +72,7 @@ namespace Ludus::Engine
 			return nullptr;
 		}
 
-		const GameObject* TryGet(GameObjectHandle handle) const
+		const Entity* TryGet(EntityHandle handle) const
 		{
 			if (auto handleIter = m_HandleToIndex.find(handle); handleIter != m_HandleToIndex.end())
 			{
