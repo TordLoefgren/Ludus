@@ -26,11 +26,15 @@ namespace Ludus::Platform
 
 	void Window::Init()
 	{
+
+#if !defined(NDEBUG)
 		// Subscribe to GLFW errors before initialization.
 		glfwSetErrorCallback([](int code, const char* description)
 			{
 				Ludus::Debug::DebugGLFW::ErrorMessageCallback(code, description);
 			});
+
+#endif
 
 		if (!glfwInit())
 		{
