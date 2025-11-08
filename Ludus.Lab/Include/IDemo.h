@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Ludus/Platform/Input.h>
+
 namespace Ludus::Lab
 {
 	class IDemo
@@ -7,6 +9,6 @@ namespace Ludus::Lab
 	public:
 		virtual ~IDemo() { }
 		virtual void Init() = 0;
-		virtual void Update() = 0;
+		virtual void Update(float deltaTime, Ludus::Platform::Input& input) = 0;
 	};
 }

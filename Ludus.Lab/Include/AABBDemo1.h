@@ -56,6 +56,6 @@ namespace Ludus::Lab
 		virtual ~AABBDemo1() = default;
 
 		virtual void Init();
-		virtual void Update();
+		virtual void Update(float deltaTime, Ludus::Platform::Input& input);
 	};
 }

@@ -23,20 +23,20 @@ namespace Ludus::Lab
 		m_Renderer.SetStrokeThickness(2.0f);
 	}
 
-	void AABBDemo1::Update()
+	void AABBDemo1::Update(float deltaTime, Ludus::Platform::Input& input)
 	{
 		// Input Handling.
-		if (m_Window.GetInput().GetKeyDown(Ludus::Platform::Key::Escape))
+		if (input.GetKeyDown(Ludus::Platform::Key::Escape))
 		{
 			m_Window.SetWindowShouldClose();
 		}
 
-		if (m_Window.GetInput().GetMouseButtonDown(Ludus::Platform::MouseButton::Left))
+		if (input.GetMouseButtonDown(Ludus::Platform::MouseButton::Left))
 		{
 			m_Info.IsCircle = !m_Info.IsCircle;
 		}
 
-		auto mousePosition = m_Window.GetInput().GetMousePosition();
+		auto mousePosition = input.GetMousePosition();
 
 		// Movement Integration.
 		auto* cursorTransform = m_EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Info.CursorHandle);

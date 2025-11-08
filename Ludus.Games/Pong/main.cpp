@@ -1,4 +1,5 @@
-﻿#include <Ludus/Graphics/GLContext.h>
+﻿#include <Ludus/Events/EventBus.h>
+#include <Ludus/Graphics/GLContext.h>
 #include <Ludus/Platform/Input.h>
 #include <Ludus/Platform/Window.h>
 #include <Ludus/Platform/WindowOptions.h>
@@ -22,9 +23,10 @@ int main()
 #pragma region Initialization
 
 	auto windowOptions = Ludus::Platform::WindowOptions(WIDTH, HEIGHT, "Pong (1972)", false);
+	auto eventBus = Ludus::Events::EventBus();
 	auto input = Ludus::Platform::Input();
 
-	auto window = Ludus::Platform::Window(windowOptions, input);
+	auto window = Ludus::Platform::Window(windowOptions, eventBus);
 
 	Ludus::Graphics::GLContext::Init();
 	Ludus::Graphics::GLContext::EnableBlending();
@@ -32,6 +34,13 @@ int main()
 
 	Pong::Core::GameInfo gameInfo(window, windowOptions);
 	Pong::Core::PongInfo pongInfo;
+
+	eventBus.Subscribe(Ludus::Events::EventType::KeyEvent, (Ludus::Events::Eventhandler&)input);
+	eventBus.Subscribe(Ludus::Events::EventType::TextInputEvent, (Ludus::Events::Eventhandler&)input);
+	eventBus.Subscribe(Ludus::Events::EventType::MouseButtonEvent, (Ludus::Events::Eventhandler&)input);
+	eventBus.Subscribe(Ludus::Events::EventType::MouseMoveEvent, (Ludus::Events::Eventhandler&)input);
+	eventBus.Subscribe(Ludus::Events::EventType::MouseScrollEvent, (Ludus::Events::Eventhandler&)input);
+	eventBus.Subscribe(Ludus::Events::EventType::WindowFocusEvent, (Ludus::Events::Eventhandler&)input);
 
 	auto menuState = Pong::States::MainMenuState(gameInfo, pongInfo);
 	auto pauseMenuState = Pong::States::PauseMenuState(gameInfo, pongInfo);
@@ -53,8 +62,7 @@ int main()
 		auto nextState = GameState;
 
 		// Input Handling.
-		auto& input = window.GetInput();
-
+		input.Clear();
 		window.PollEvents();
 
 		switch (stateAtFrameStart)
