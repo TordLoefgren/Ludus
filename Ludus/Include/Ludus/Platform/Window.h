@@ -3,8 +3,11 @@
 #include <GLFW/glfw3.h>
 
 #include <Ludus/Engine/Utilities.h>
-#include <Ludus/Platform/Input.h>
+#include <Ludus/Events/Event.h>
+#include <Ludus/Events/EventBus.h>
+#include <Ludus/Events/EventHandler.h>
 #include <Ludus/Platform/WindowOptions.h>
+#include <Ludus/Platform/WindowUserData.h>
 
 namespace Ludus::Platform
 {
@@ -13,19 +16,20 @@ namespace Ludus::Platform
 	private:
 		GLFWwindow* m_Handle;
 		WindowOptions m_WindowOptions;
-		Input& m_Input;
+		Ludus::Events::EventBus& m_EventBus;
+		WindowUserData m_UserData;
 
 		void Init();
+		void SetEventCallbacks();
 
 	public:
-		Window(WindowOptions options, Input& input);
+		Window(WindowOptions options, Ludus::Events::EventBus& eventBus);
 		~Window();
 
 		void PollEvents();
-		void SetWindowShouldClose();
 		void SwapBuffers();
+		void SetWindowShouldClose();
 		bool WindowShouldClose();
-
-		Input& GetInput();
+		void SetVSync(bool enable);
 	};
 }

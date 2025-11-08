@@ -45,4 +45,11 @@ namespace Ludus::Graphics
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
+
+	bool GLContext::ProcessEvent(const Ludus::Events::Event& event)
+	{
+		// Not yet implemented. 
+
+		return false;
+	}
 }
