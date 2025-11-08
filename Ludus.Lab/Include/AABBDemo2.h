@@ -66,7 +66,6 @@ namespace Ludus::Lab
 		AABBDemo2Info m_Info;
 		Ludus::Engine::EntityComponentSystem m_EntityComponentSystem;
 		Ludus::Engine::Random m_Random;
-		Ludus::Engine::Time m_Time;
 		Ludus::Engine::Cooldown m_Cooldown;
 		Ludus::Physics::CollisionSystem2D m_CollisionSystem;
 		std::vector<FallingQuad> m_FallingQuads;
@@ -76,7 +75,7 @@ namespace Ludus::Lab
 		virtual ~AABBDemo2() = default;
 
 		virtual void Init();
-		virtual void Update();
+		virtual void Update(float deltaTime, Ludus::Platform::Input& input);
 
 		FallingQuad CreateQuad();
 	};

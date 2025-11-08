@@ -3,7 +3,7 @@
 namespace Ludus::Lab
 {
 	AABBDemo2::AABBDemo2(Ludus::Platform::Window& window, int width, int height)
-		: m_Window(window), m_Width(width), m_Height(height), m_Shader("Resources/Shaders"), m_Renderer(m_Shader), m_Random(), m_Time(), m_Cooldown(0.05f), m_EntityComponentSystem(), m_CollisionSystem()
+		: m_Window(window), m_Width(width), m_Height(height), m_Shader("Resources/Shaders"), m_Renderer(m_Shader), m_Random(), m_Cooldown(0.05f), m_EntityComponentSystem(), m_CollisionSystem()
 	{ }
 
 	void AABBDemo2::Init()
@@ -25,18 +25,17 @@ namespace Ludus::Lab
 		}
 	}
 
-	void AABBDemo2::Update()
+	void AABBDemo2::Update(float deltaTime, Ludus::Platform::Input& input)
 	{
-		m_Time.Step();
-		m_Cooldown.Step(m_Time);
+		m_Cooldown.Step(deltaTime);
 
 		// Input Handling.
-		if (m_Window.GetInput().GetKeyDown(Ludus::Platform::Key::Escape))
+		if (input.GetKeyDown(Ludus::Platform::Key::Escape))
 		{
 			m_Window.SetWindowShouldClose();
 		}
 
-		auto mousePosition = m_Window.GetInput().GetMousePosition();
+		auto mousePosition = input.GetMousePosition();
 
 		if (m_Cooldown.IsElapsed() && m_FallingQuads.size() < m_Info.MaxCount)
 		{
@@ -83,7 +82,7 @@ namespace Ludus::Lab
 
 			auto velocity = Ludus::Math::Vector2D(0.0f, 1.0f) * quad.Speed;
 
-			quadTransform.Position -= velocity * m_Time;
+			quadTransform.Position -= velocity * deltaTime;
 			quad.Color = m_Info.NonCollisionColor;
 		}
 

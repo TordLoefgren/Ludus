@@ -29,10 +29,17 @@
     <ClInclude Include="Include\Ludus\Core\SystemContext.h" />
     <ClInclude Include="Include\Ludus\Debug\DebugGLFW.h" />
     <ClInclude Include="Include\Ludus\Engine\SceneSystem2D.h" />
+    <ClInclude Include="Include\Ludus\Events\Event.h" />
+    <ClInclude Include="Include\Ludus\Events\EventBus.h" />
     <ClInclude Include="Include\Ludus\Core\Application.h" />
     <ClInclude Include="Include\Ludus\Core\Phase.h" />
     <ClInclude Include="Include\Ludus\Debug\Debug.h" />
     <ClInclude Include="Include\Ludus\Debug\DebugGL.h" />
+    <ClInclude Include="Include\Ludus\Events\EventType.h" />
+    <ClInclude Include="Include\Ludus\Events\EventHandler.h" />
+    <ClInclude Include="Include\Ludus\Events\KeyboardEvents.h" />
+    <ClInclude Include="Include\Ludus\Events\MouseEvents.h" />
+    <ClInclude Include="Include\Ludus\Events\WindowEvents.h" />
     <ClInclude Include="Include\Ludus\Graphics\HorizontalTextAlignment.h" />
     <ClInclude Include="Include\Ludus\Graphics\RenderingSystem2D.h" />
     <ClInclude Include="Include\Ludus\Math\Circle.h" />
@@ -386,6 +393,7 @@
     <ClCompile Include="Source\Ludus\Engine\SceneSystem2D.cpp" />
     <ClCompile Include="Source\Ludus\Graphics\RenderingSystem2D.cpp" />
     <ClCompile Include="Source\Ludus\Physics\PhysicsSystem2D.cpp" />
+    <ClCompile Include="Source\Ludus\Events\EventBus.cpp" />
     <ClCompile Include="Source\Ludus\Core\Application.cpp" />
     <ClCompile Include="Source\Ludus\Editor\ImguiAPI.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Random.cpp" />
