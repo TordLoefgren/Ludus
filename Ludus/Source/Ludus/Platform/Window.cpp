@@ -1,14 +1,19 @@
 #include <glad/glad.h>
 
 #include <Ludus/Debug/Debug.h>
+#include <Ludus/Debug/DebugGLFW.h>
+#include <Ludus/Events/KeyboardEvents.h>
+#include <Ludus/Events/MouseEvents.h>
+#include <Ludus/Events/WindowEvents.h>
 #include <Ludus/Platform/Window.h>
 
 namespace Ludus::Platform
 {
-	Window::Window(WindowOptions options, Input& input)
+	Window::Window(WindowOptions options, Ludus::Events::EventBus& eventBus)
 		: m_Handle(nullptr),
 		m_WindowOptions(options),
-		m_Input(input)
+		m_EventBus(eventBus),
+		m_UserData(&m_EventBus, m_WindowOptions)
 	{
 		Init();
 	}
@@ -21,6 +26,16 @@ namespace Ludus::Platform
 
 	void Window::Init()
 	{
+
+#if !defined(NDEBUG)
+		// Subscribe to GLFW errors before initialization.
+		glfwSetErrorCallback([](int code, const char* description)
+			{
+				Ludus::Debug::DebugGLFW::ErrorMessageCallback(code, description);
+			});
+
+#endif
+
 		if (!glfwInit())
 		{
 			LUDUS_LOG_CRITICAL("Failed to initialize GLFW.");
@@ -44,7 +59,9 @@ namespace Ludus::Platform
 		glfwMakeContextCurrent(m_Handle);
 		glfwSwapInterval(1);
 
-		m_Input.SetHandle(m_Handle);
+		glfwSetWindowUserPointer(m_Handle, &m_UserData);
+
+		SetEventCallbacks();
 	}
 
 	void Window::PollEvents()
@@ -67,8 +84,118 @@ namespace Ludus::Platform
 		return glfwWindowShouldClose(m_Handle);
 	}
 
-	Input& Window::GetInput()
+	void Window::SetVSync(bool enable)
 	{
-		return m_Input;
+		glfwSwapInterval(enable ? 1 : 0);
+	}
+
+	void Window::SetEventCallbacks()
+	{
+		// Keyboard and Text callbacks.
+
+		glfwSetKeyCallback(m_Handle, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+			{
+				auto& data = *(WindowUserData*)glfwGetWindowUserPointer(window);
+				data.EventBus->PublishEvent(Ludus::Events::KeyboardEvents::KeyEvent(key, scancode, action, mods));
+			});
+
+		glfwSetCharCallback(m_Handle, [](GLFWwindow* window, unsigned int codepoint)
+			{
+				auto& data = *(WindowUserData*)glfwGetWindowUserPointer(window);
+				data.EventBus->PublishEvent(Ludus::Events::KeyboardEvents::TextInputEvent(codepoint));
+			});
+
+		// Mouse callbacks.
+
+		glfwSetMouseButtonCallback(m_Handle, [](GLFWwindow* window, int button, int action, int mods)
+			{
+				auto& data = *(WindowUserData*)glfwGetWindowUserPointer(window);
+				data.EventBus->PublishEvent(Ludus::Events::MouseEvents::MouseButtonEvent(button, action, mods));
+			});
+
+		glfwSetCursorPosCallback(m_Handle, [](GLFWwindow* window, double xPosition, double yPosition)
+			{
+				auto& data = *(WindowUserData*)glfwGetWindowUserPointer(window);
+				data.EventBus->PublishEvent(Ludus::Events::MouseEvents::MouseMoveEvent(xPosition, yPosition));
+			});
+
+		glfwSetScrollCallback(m_Handle, [](GLFWwindow* window, double xOffset, double yOffset)
+			{
+				auto& data = *(WindowUserData*)glfwGetWindowUserPointer(window);
+				data.EventBus->PublishEvent(Ludus::Events::MouseEvents::MouseScrollEvent(xOffset, yOffset));
+			});
+
+		glfwSetCursorEnterCallback(m_Handle, [](GLFWwindow* window, int entered)
+			{
+				auto& data = *(WindowUserData*)glfwGetWindowUserPointer(window);
+				data.EventBus->PublishEvent(Ludus::Events::MouseEvents::MouseEnterEvent(entered == GLFW_TRUE));
+			});
+
+		// Window callbacks.
+
+		glfwSetFramebufferSizeCallback(m_Handle, [](GLFWwindow* window, int width, int height)
+			{
+				auto& data = *(WindowUserData*)glfwGetWindowUserPointer(window);
+				data.EventBus->PublishEvent(Ludus::Events::WindowEvents::FramebufferSizeEvent(width, height));
+			});
+
+		glfwSetWindowCloseCallback(m_Handle, [](GLFWwindow* window)
+			{
+				auto& data = *(WindowUserData*)glfwGetWindowUserPointer(window);
+
+				// Let the actual event close the window.
+				glfwSetWindowShouldClose(window, GLFW_FALSE);
+
+				data.EventBus->PublishEvent(Ludus::Events::WindowEvents::WindowCloseEvent());
+			});
+
+		glfwSetWindowPosCallback(m_Handle, [](GLFWwindow* window, int xPosition, int yPosition)
+			{
+				auto& data = *(WindowUserData*)glfwGetWindowUserPointer(window);
+				data.EventBus->PublishEvent(Ludus::Events::WindowEvents::WindowPositionEvent(xPosition, yPosition));
+			});
+
+		glfwSetWindowSizeCallback(m_Handle, [](GLFWwindow* window, int width, int height)
+			{
+				auto& data = *(WindowUserData*)glfwGetWindowUserPointer(window);
+
+				data.Options.Width = width;
+				data.Options.Height = height;
+
+				data.EventBus->PublishEvent(Ludus::Events::WindowEvents::WindowSizeEvent(width, height));
+			});
+
+		glfwSetWindowFocusCallback(m_Handle, [](GLFWwindow* window, int focused)
+			{
+				auto& data = *(WindowUserData*)glfwGetWindowUserPointer(window);
+
+				data.Options.IsFocused = focused == GLFW_TRUE;
+
+				data.EventBus->PublishEvent(Ludus::Events::WindowEvents::WindowFocusEvent(focused == GLFW_TRUE));
+			});
+
+		glfwSetWindowIconifyCallback(m_Handle, [](GLFWwindow* window, int iconified)
+			{
+				auto& data = *(WindowUserData*)glfwGetWindowUserPointer(window);
+
+				data.Options.IsIconified = iconified == GLFW_TRUE;
+
+				data.EventBus->PublishEvent(Ludus::Events::WindowEvents::WindowIconifyEvent(iconified == GLFW_TRUE));
+			});
+
+		glfwSetWindowMaximizeCallback(m_Handle, [](GLFWwindow* window, int maximized)
+			{
+				auto& data = *(WindowUserData*)glfwGetWindowUserPointer(window);
+
+				data.Options.IsMaximized = maximized == GLFW_TRUE;
+
+				data.EventBus->PublishEvent(Ludus::Events::WindowEvents::WindowMaximizeEvent(maximized == GLFW_TRUE));
+			});
+
+		glfwSetWindowContentScaleCallback(m_Handle, [](GLFWwindow* window, float xScale, float yScale)
+			{
+				auto& data = *(WindowUserData*)glfwGetWindowUserPointer(window);
+				data.EventBus->PublishEvent(Ludus::Events::WindowEvents::WindowContentScaleEvent(xScale, yScale));
+			});
 	}
 }
