@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Ludus/Core/SystemContext.h>
+#include <Ludus/Debug/Debug.h>
 
 namespace Ludus::Core
 {
@@ -9,11 +10,36 @@ namespace Ludus::Core
 	public:
 		virtual ~ISystem() = default;
 
-		virtual void OnAttach(SystemContext& context) { m_SystemContext = &context; }
-		virtual void FixedUpdate(float fixedTime) { };
-		virtual void Update(float deltaTime) { };
+		void OnAttach(SystemContext& context)
+		{
+			m_SystemContext = &context;
+			OnAttachImpl();
+		}
+
+		void OnDetach()
+		{
+			OnDetachImpl();
+			m_SystemContext = nullptr;
+		}
+
+		void OnTransitionEnter() { OnTransitionEnterImpl(); }
+		void OnTransitionExit() { OnTransitionExitImpl(); }
+
+		void FixedUpdate(float fixedTime) { FixedUpdateImpl(fixedTime); }
+		void Update(float deltaTime) { UpdateImpl(deltaTime); }
+		void Render() { RenderImpl(); }
 
 	protected:
+		virtual void OnAttachImpl() { };
+		virtual void OnDetachImpl() { };
+
+		virtual void OnTransitionEnterImpl() { };
+		virtual void OnTransitionExitImpl() { };
+
+		virtual void FixedUpdateImpl(float fixedTime) { };
+		virtual void UpdateImpl(float deltaTime) { };
+		virtual void RenderImpl() { };
+
 		Ludus::Core::SystemContext* m_SystemContext = nullptr;
 	};
 }

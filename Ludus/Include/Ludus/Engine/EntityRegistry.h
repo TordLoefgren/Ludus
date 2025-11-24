@@ -12,9 +12,9 @@ namespace Ludus::Engine
 	struct EntityRegistry
 	{
 	private:
-		std::vector<Entity> m_Data;											// Entity Storage.
-		std::vector<EntityHandle> m_Handles;								// Index -> entity handle.
-		std::unordered_map<EntityHandle, size_t> m_HandleToIndex;			// Entity handle -> index.
+		std::vector<Entity> m_Data;										// Entity Storage.
+		std::vector<EntityHandle> m_Handles;							// Index -> entity handle.
+		std::unordered_map<EntityHandle, size_t> m_HandleToIndex;		// Entity handle -> index.
 
 		void RemoveAndReorderIndices(size_t index)
 		{

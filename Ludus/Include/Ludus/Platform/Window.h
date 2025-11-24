@@ -31,5 +31,7 @@ namespace Ludus::Platform
 		void SetWindowShouldClose();
 		bool WindowShouldClose();
 		void SetVSync(bool enable);
+
+		const WindowOptions GetOptions() { return m_WindowOptions; }
 	};
 }
