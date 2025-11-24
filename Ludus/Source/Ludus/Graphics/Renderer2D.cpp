@@ -28,7 +28,7 @@ namespace Ludus::Graphics
 		m_Textures(maxTextures, nullptr),
 		m_MaxTextures(maxTextures),
 		m_TexturesCount(0),
-		m_Text(Text()),
+		m_Font(Font()),
 		m_WhiteTexture(Texture::White())
 	{
 		m_VertexArray.SetVertexBuffer(m_VertexBuffer);
@@ -152,7 +152,7 @@ namespace Ludus::Graphics
 
 		if (horizontalAlignment != HorizontalTextAlignment::Left)
 		{
-			const auto widthPixels = m_Text.MeasureTextWidth(string) * transform.Scale.X;
+			const auto widthPixels = m_Font.MeasureTextWidth(string) * transform.Scale.X;
 
 			if (horizontalAlignment == HorizontalTextAlignment::Center)
 			{
@@ -166,7 +166,7 @@ namespace Ludus::Graphics
 
 		for (char character : string)
 		{
-			const Glyph* glyph = m_Text.GetGlyph(character);
+			const Glyph* glyph = m_Font.GetGlyph(character);
 			if (!glyph)
 			{
 				continue;

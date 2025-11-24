@@ -13,5 +13,8 @@ namespace Pong::Models
 		Ludus::Engine::EntityHandle TopWallHandle = 0;
 		Ludus::Engine::EntityHandle RightWallHandle = 0;
 		Ludus::Engine::EntityHandle BottomWallHandle = 0;
+		Ludus::Engine::EntityHandle LeftScoreTextHandle = 0;
+		Ludus::Engine::EntityHandle RightScoreTextHandle = 0;
+		std::vector<Ludus::Engine::EntityHandle> CenterLineHandles;
 	};
 }

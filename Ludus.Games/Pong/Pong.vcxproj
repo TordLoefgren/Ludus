@@ -25,14 +25,12 @@
     <Image Include="Assets\textures\WallTextureBrick2Light.png" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Include\Pong\States\GameState.h" />
-    <ClCompile Include="Include\Pong\States\IPongState.h" />
-    <ClCompile Include="Source\Pong\States\ScoreMenuState.cpp" />
-    <ClCompile Include="Source\Pong\States\PauseMenuState.cpp" />
-    <ClCompile Include="Source\Pong\States\PlayingState.cpp" />
-    <ClCompile Include="Source\Pong\States\IPongState.cpp" />
+    <ClCompile Include="Include\Pong\Core\GameState.h" />
+    <ClCompile Include="Source\Pong\Systems\ScoreMenuSystem.cpp" />
+    <ClCompile Include="Source\Pong\Systems\PauseMenuSystem.cpp" />
+    <ClCompile Include="Source\Pong\Systems\MainMenuSystem.cpp" />
+    <ClCompile Include="Source\Pong\Systems\PlayingSystem.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Source\Pong\States\MainMenuState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Ludus\Ludus.vcxproj">
@@ -48,11 +46,11 @@
     <ClInclude Include="Include\Pong\Models\Intents.h" />
     <ClInclude Include="Include\Pong\Models\RenderData.h" />
     <ClInclude Include="Include\Pong\Models\RuntimeData.h" />
-    <ClInclude Include="Include\Pong\States\MainMenuState.h" />
-    <ClInclude Include="Include\Pong\States\PlayingState.h" />
-    <ClInclude Include="Include\Pong\States\PauseMenuState.h" />
     <ClInclude Include="Include\Pong\Core\PongInfo.h" />
-    <ClInclude Include="Include\Pong\States\ScoreMenuState.h" />
+    <ClInclude Include="Include\Pong\Systems\PlayingSystem.h" />
+    <ClInclude Include="Include\Pong\Systems\MainMenuSystem.h" />
+    <ClInclude Include="Include\Pong\Systems\PauseMenuSystem.h" />
+    <ClInclude Include="Include\Pong\Systems\ScoreMenuSystem.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
