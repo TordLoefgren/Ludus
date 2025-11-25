@@ -21,9 +21,9 @@ namespace Ludus::Lab::Core
 			m_Info.CursorHandle,
 			m_Info.CursorLayerIndex,
 			Ludus::Engine::LayerMask::FromIndex(m_Info.QuadLayerIndex),
-			Ludus::Physics::Core::BodyType::Kinematic,
 			true
 		);
+		ecs.AttachRigidBody(m_Info.CursorHandle, { 0.0f });
 		ecs.AttachSprite(m_Info.CursorHandle, Ludus::Graphics::Shape::Rect, m_Info.CursorColor);
 		ecs.AttachTransform(m_Info.CursorHandle, { windowOptions.Width * 0.5f, windowOptions.Height * 0.5f }, windowOptions.Width * 0.1f);
 
@@ -96,12 +96,7 @@ namespace Ludus::Lab::Core
 				continue;
 			}
 
-			auto& quadSprite = *quadSpritePtr;
-
-			auto velocity = Ludus::Math::Vector2D(0.0f, 1.0f) * quad.Speed;
-			quadTransform.Position -= velocity * deltaTime;
-
-			quadSprite.Color = m_SystemContext->PhysicsQueries->IsTriggering(quad.Handle, m_Info.CursorHandle)
+			quadSpritePtr->Color = m_SystemContext->PhysicsQueries->IsTriggering(quad.Handle, m_Info.CursorHandle)
 				? m_Info.CollisionColor
 				: m_Info.NonCollisionColor;
 		}
@@ -115,10 +110,11 @@ namespace Ludus::Lab::Core
 		auto scaleX = m_Random.NextFloat((float)options.Width * 0.01f, (float)options.Width * 0.08f);
 		auto scaleY = m_Random.NextFloat((float)options.Width * 0.01f, (float)options.Width * 0.08f);
 		auto xPosition = m_Random.NextFloat(0.0f, (float)options.Width);
-		auto speed = m_Random.NextFloat(50.0f, 250.0f);
+		auto speed = m_Random.NextFloat(10.0f, 25.0f);
 
 		auto handle = ecs.AddEntity();
 		ecs.AttachCollider(handle, m_Info.QuadLayerIndex, Ludus::Engine::LayerMask::FromIndex(m_Info.CursorLayerIndex));
+		ecs.AttachRigidBody(handle, { 0.0f }, Ludus::Physics::Core::BodyType::Dynamic, speed);
 		ecs.AttachSprite(handle, Ludus::Graphics::Shape::Rect, m_Info.NonCollisionColor);
 		ecs.AttachTransform(handle, { xPosition, (float)options.Height + scaleY * 2.0f }, { scaleX, scaleY });
 

@@ -10,6 +10,7 @@
 #include <Ludus/Physics/Broadphase/IBroadphase2D.h>
 #include <Ludus/Physics/Core/Collider2D.h>
 #include <Ludus/Physics/Core/PhysicsWorld2D.h>
+#include <Ludus/Physics/Integrators/IPhysicsIntegrator.h>
 #include <Ludus/Physics/Narrowphase/ContactPair2D.h>
 #include <Ludus/Physics/Narrowphase/INarrowphase2D.h>
 #include <Ludus/Physics/Queries/IPhysicsQueryCache2D.h>
@@ -17,12 +18,13 @@
 
 namespace Ludus::Physics::Core
 {
-	class PhysicsPipeline2D
+	struct PhysicsPipeline2D
 	{
 	private:
 		Ludus::Physics::Broadphase::IBroadphase2D& m_Broadphase;
 		Ludus::Physics::Narrowphase::INarrowphase2D& m_Narrowphase;
 		Ludus::Physics::Solvers::IContactSolver2D& m_ContactSolver;
+		Ludus::Physics::Integrators::IPhysicsIntegrator& m_Integrator;
 
 		std::vector<Ludus::Physics::Broadphase::BroadphaseAABBEntry2D> m_AABBEntries;
 		std::vector<Ludus::Physics::Broadphase::BroadphasePair2D> m_BroadphasePairs;
@@ -50,10 +52,12 @@ namespace Ludus::Physics::Core
 		PhysicsPipeline2D(
 			Ludus::Physics::Broadphase::IBroadphase2D& broadphase,
 			Ludus::Physics::Narrowphase::INarrowphase2D& narrowphase,
-			Ludus::Physics::Solvers::IContactSolver2D& contactSolver
+			Ludus::Physics::Solvers::IContactSolver2D& contactSolver,
+			Ludus::Physics::Integrators::IPhysicsIntegrator& integrator
 		) : m_Broadphase(broadphase),
 			m_Narrowphase(narrowphase),
-			m_ContactSolver(contactSolver)
+			m_ContactSolver(contactSolver),
+			m_Integrator(integrator)
 		{ }
 
 		~PhysicsPipeline2D() = default;
@@ -68,22 +72,22 @@ namespace Ludus::Physics::Core
 			m_AABBEntries.clear();
 			GetAABBs(world, m_AABBEntries);
 
-			// Compute Broadphase -> Candidate pairs.
+			// Compute Broadphase (AABBs -> Candidate pairs).
 			m_BroadphasePairs.clear();
 			m_Broadphase.ComputePairs(m_AABBEntries, m_BroadphasePairs);
 
-			// Compute Narrowphase -> Contact pairs.
+			// Compute Narrowphase (Candidate pairs -> Contact pairs).
 			m_ContactPairs.clear();
 			m_Narrowphase.ComputeContacts(world, m_BroadphasePairs, m_ContactPairs);
 
 			// Solve constraints.
 			m_ContactSolver.SolveContacts(world, m_ContactPairs);
 
+			// Integrate velocities on rigid bodies and apply to transforms.
+			m_Integrator.Integrate(world, fixedTime);
+
 			// Update query cache.
 			queryCache.UpdateFromContacts(m_ContactPairs);
-
-			// Integrate velocities on rigid bodies.
-			// ...
 		}
 	};
 }

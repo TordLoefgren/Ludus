@@ -24,21 +24,18 @@ namespace Ludus::Physics::Core
 		Ludus::Engine::EntityHandle OwnerHandle;
 		Index LayerIndex;
 		Ludus::Engine::LayerMask CollidesWith;
-		BodyType Type;
 		bool IsTrigger;
 
 		Collider2D(
 			Ludus::Engine::EntityHandle owner,
 			Index layerIndex,
 			Ludus::Engine::LayerMask collidesWith = Ludus::Engine::LayerMask::GetEmpty(),
-			BodyType bodyType = BodyType::Dynamic,
 			bool isTrigger = false
 		) :
 			Handle(s_NextHandle++),
 			OwnerHandle(owner),
 			LayerIndex(layerIndex),
 			CollidesWith(collidesWith),
-			Type(bodyType),
 			IsTrigger(isTrigger)
 		{ }
 
