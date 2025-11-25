@@ -2,5 +2,5 @@
 
 namespace Ludus::Core
 {
-	enum class Phase { FixedUpdate, Update };
+	enum class Phase { FixedUpdate, Update, Render };
 }

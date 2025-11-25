@@ -12,5 +12,3 @@
 #include <Ludus/Events/EventHandler.h>
 #include <Ludus/Math/AABB.h>
 #include <Ludus/Math/Vector2D.h>
-#include <Ludus/Physics/Broadphase.h>
-#include <Ludus/Physics/Narrowphase.h>

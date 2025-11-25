@@ -8,9 +8,9 @@
 #include <Ludus/Graphics/Camera2D.h>
 #include <Ludus/Graphics/Color.h>
 #include <Ludus/Graphics/ElementBufferObject.h>
+#include <Ludus/Graphics/Font.h>
 #include <Ludus/Graphics/HorizontalTextAlignment.h>
 #include <Ludus/Graphics/Shader.h>
-#include <Ludus/Graphics/Text.h>
 #include <Ludus/Graphics/Texture.h>
 #include <Ludus/Graphics/VertexArrayObject.h>
 #include <Ludus/Math/Transform2D.h>
@@ -40,7 +40,7 @@ namespace Ludus::Graphics
 		RendererState m_State;
 		int m_MaxQuads;
 		Texture m_WhiteTexture;
-		Text m_Text;
+		Font m_Font;
 		int m_MaxTextures;
 		int m_TexturesCount;
 		std::vector<const Texture*> m_Textures;

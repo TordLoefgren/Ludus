@@ -3,38 +3,47 @@
 namespace Ludus::Core
 {
 	Application::Application(
-		Ludus::Platform::WindowOptions options
+		Ludus::Platform::WindowOptions windowOptions,
+		Ludus::Graphics::RenderingOptions renderingOptions,
+		Ludus::Physics::Core::PhysicsContext2D physicsContext
 	) : m_EventBus(std::make_unique<Ludus::Events::EventBus>()),
 		m_Input(std::make_unique<Ludus::Platform::Input>()),
-		m_Window(std::make_unique<Ludus::Platform::Window>(options, *m_EventBus)),
-		m_Scheduler(std::make_unique<Ludus::Core::LoopScheduler>()),
-		m_RenderingSystem(std::make_unique<Ludus::Graphics::RenderingSystem2D>()),
+		m_Window(std::make_unique<Ludus::Platform::Window>(windowOptions, *m_EventBus)),
 		m_GLContext(std::make_unique<Ludus::Graphics::GLContext>()),
+		m_PhysicsContext(std::make_unique<Ludus::Physics::Core::PhysicsContext2D>(std::move(physicsContext))),
+		m_Resources(std::make_unique<Ludus::Core::ResourceRegistry>()),
 		m_EntityComponentSystem(std::make_unique<Ludus::Engine::EntityComponentSystem>()),
 		m_Time(std::make_unique<Ludus::Engine::Time>()),
-		m_SystemContext(*m_EntityComponentSystem, *m_EventBus, *m_Input)
+		m_SystemContext(
+			*m_EntityComponentSystem,
+			*m_EventBus,
+			*m_Input,
+			*m_Resources,
+			*m_Window,
+			m_PhysicsContext ? m_PhysicsContext->QueryCache.get() : nullptr
+		),
+		m_Scheduler(std::make_unique<Ludus::Core::Scheduler>(m_SystemContext))
 	{
 		m_GLContext->Init();
 		m_GLContext->EnableBlending();
 		m_GLContext->SetBlendAlpha();
 
+		AddSystem(Phase::FixedUpdate, std::make_unique<Ludus::Physics::Core::PhysicsSystem2D>(*m_PhysicsContext));
+		AddSystem(Phase::Render, std::make_unique<Ludus::Graphics::RenderingSystem2D>(renderingOptions));
+
 		SubscribeToEvents();
 	}
 
-	std::unique_ptr<Application> Application::Create()
+	std::unique_ptr<Application> Application::Create(Ludus::Platform::WindowOptions windowOptions, Ludus::Graphics::RenderingOptions renderingOptions)
 	{
-		auto application = std::make_unique<Application>();
-
-		application->AttachSystem(Phase::FixedUpdate, std::make_unique<Ludus::Physics::PhysicsSystem2D>());
-		application->AttachSystem(Phase::Update, std::make_unique<Ludus::Engine::SceneSystem2D>());
-
+		auto application = std::make_unique<Application>(windowOptions, renderingOptions);
 		return application;
 	}
 
-	void Application::AttachSystem(Phase phase, std::unique_ptr<ISystem> system)
+	void Application::AddSystem(Phase phase, std::unique_ptr<ISystem> system, SystemPredicate predicate)
 	{
 		system->OnAttach(m_SystemContext);
-		m_Scheduler->AttachSystem(phase, std::move(system));
+		m_Scheduler->AttachSystem(phase, std::move(system), predicate);
 	}
 
 	void Application::Run()
@@ -53,9 +62,13 @@ namespace Ludus::Core
 
 			m_EventBus->ProcessQueued();
 
+			m_Scheduler->ApplyResourceTransitions();
+
+			m_Scheduler->UpdateTransitions();
+
 			m_Scheduler->Run(Phase::Update, m_Time->GetSeconds());
 
-			m_RenderingSystem->Run(*m_EntityComponentSystem);
+			m_Scheduler->Run(Phase::Render);
 
 			m_Window->SwapBuffers();
 		}

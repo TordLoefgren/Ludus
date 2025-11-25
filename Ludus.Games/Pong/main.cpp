@@ -1,130 +1,56 @@
-﻿#include <Ludus/Events/EventBus.h>
-#include <Ludus/Graphics/GLContext.h>
-#include <Ludus/Platform/Input.h>
+﻿#include <Ludus/Core/Application.h>
+#include <Ludus/Core/Phase.h>
+#include <Ludus/Core/State.h>
+#include <Ludus/Core/SystemPredicate.h>
+#include <Ludus/Graphics/Color.h>
 #include <Ludus/Platform/Window.h>
 #include <Ludus/Platform/WindowOptions.h>
 
 #include <Pong/Core/GameInfo.h>
+#include <Pong/Core/GameState.h>
 #include <Pong/Core/PongInfo.h>
-#include <Pong/States/GameState.h>
-#include <Pong/States/MainMenuState.h>
-#include <Pong/States/PauseMenuState.h>
-#include <Pong/States/PlayingState.h>
-#include <Pong/States/ScoreMenuState.h>
-
-const int WIDTH = 1024;
-const int HEIGHT = 768;
-
-Pong::States::GameState GameState = Pong::States::GameState::MainMenu;
+#include <Pong/Systems/MainMenuSystem.h>
+#include <Pong/Systems/PauseMenuSystem.h>
+#include <Pong/Systems/PlayingSystem.h>
+#include <Pong/Systems/ScoreMenuSystem.h>
 
 int main()
 {
+	auto windowOptions = Ludus::Platform::WindowOptions(1024, 768, "Pong (1972)", false);
+	auto renderingOptions = Ludus::Graphics::RenderingOptions(Ludus::Graphics::Colors::Black);
+	auto application = Ludus::Core::Application::Create(windowOptions, renderingOptions);
 
-#pragma region Initialization
+	auto gameState = Ludus::Core::State<Pong::Core::GameState>(Pong::Core::GameState::MainMenu);
+	application->AddResource(std::move(gameState));
 
-	auto windowOptions = Ludus::Platform::WindowOptions(WIDTH, HEIGHT, "Pong (1972)", false);
-	auto eventBus = Ludus::Events::EventBus();
-	auto input = Ludus::Platform::Input();
+	auto gameInfo = Pong::Core::GameInfo();
+	auto pongInfo = Pong::Core::PongInfo();
 
-	auto window = Ludus::Platform::Window(windowOptions, eventBus);
+	application->AddSystem(
+		Ludus::Core::Phase::Update,
+		std::make_unique<Pong::Systems::MainMenuSystem>(gameInfo, pongInfo),
+		Ludus::Core::RunIfInState<Pong::Core::GameState>(Pong::Core::GameState::MainMenu)
+	);
 
-	Ludus::Graphics::GLContext::Init();
-	Ludus::Graphics::GLContext::EnableBlending();
-	Ludus::Graphics::GLContext::SetBlendAlpha();
+	application->AddSystem(
+		Ludus::Core::Phase::Update,
+		std::make_unique<Pong::Systems::PauseMenuSystem>(gameInfo, pongInfo),
+		Ludus::Core::RunIfInState<Pong::Core::GameState>(Pong::Core::GameState::PauseMenu)
+	);
 
-	Pong::Core::GameInfo gameInfo(window, windowOptions);
-	Pong::Core::PongInfo pongInfo;
+	application->AddSystem(
+		Ludus::Core::Phase::Update,
+		std::make_unique<Pong::Systems::PlayingSystem>(gameInfo, pongInfo),
+		Ludus::Core::RunIfInState<Pong::Core::GameState>(Pong::Core::GameState::Playing)
+	);
 
-	eventBus.Subscribe(Ludus::Events::EventType::KeyEvent, (Ludus::Events::Eventhandler&)input);
-	eventBus.Subscribe(Ludus::Events::EventType::TextInputEvent, (Ludus::Events::Eventhandler&)input);
-	eventBus.Subscribe(Ludus::Events::EventType::MouseButtonEvent, (Ludus::Events::Eventhandler&)input);
-	eventBus.Subscribe(Ludus::Events::EventType::MouseMoveEvent, (Ludus::Events::Eventhandler&)input);
-	eventBus.Subscribe(Ludus::Events::EventType::MouseScrollEvent, (Ludus::Events::Eventhandler&)input);
-	eventBus.Subscribe(Ludus::Events::EventType::WindowFocusEvent, (Ludus::Events::Eventhandler&)input);
+	application->AddSystem(
+		Ludus::Core::Phase::Update,
+		std::make_unique<Pong::Systems::ScoreMenuSystem>(gameInfo, pongInfo),
+		Ludus::Core::RunIfInState<Pong::Core::GameState>(Pong::Core::GameState::ScoreMenu)
+	);
 
-	auto menuState = Pong::States::MainMenuState(gameInfo, pongInfo);
-	auto pauseMenuState = Pong::States::PauseMenuState(gameInfo, pongInfo);
-	auto playingState = Pong::States::PlayingState(gameInfo, pongInfo);
-	auto scoreMenuState = Pong::States::ScoreMenuState(gameInfo, pongInfo);
-
-	menuState.Init();
-	pauseMenuState.Init();
-	playingState.Init();
-	scoreMenuState.Init();
-
-#pragma endregion
-
-	while (!window.WindowShouldClose())
-	{
-		gameInfo.Timer.Step();
-
-		const auto stateAtFrameStart = GameState;
-		auto nextState = GameState;
-
-		// Input Handling.
-		input.Clear();
-		window.PollEvents();
-
-		switch (stateAtFrameStart)
-		{
-			case Pong::States::GameState::Exit:
-				nextState = Pong::States::GameState::Exit;
-				break;
-			case Pong::States::GameState::MainMenu:
-				nextState = menuState.HandleInput(input, gameInfo.Timer);
-				break;
-			case Pong::States::GameState::Paused:
-				nextState = pauseMenuState.HandleInput(input, gameInfo.Timer);
-				break;
-			case Pong::States::GameState::Playing:
-				nextState = playingState.HandleInput(input, gameInfo.Timer);
-				break;
-			case Pong::States::GameState::Score:
-				nextState = scoreMenuState.HandleInput(input, gameInfo.Timer);
-				break;
-			default:
-				nextState = Pong::States::GameState::Exit;
-				break;
-		}
-
-		// Movement Integration / Collision Handling.
-		if (stateAtFrameStart == Pong::States::GameState::Playing && nextState == stateAtFrameStart)
-		{
-			nextState = playingState.Update(gameInfo.Timer);
-		}
-
-		// Rendering.
-		gameInfo.Renderer.BeginScene(gameInfo.Camera);
-		gameInfo.Renderer.Clear();
-
-		switch (stateAtFrameStart)
-		{
-			case Pong::States::GameState::MainMenu:
-				menuState.Render(gameInfo.Timer);
-				break;
-			case Pong::States::GameState::Paused:
-				pauseMenuState.Render(gameInfo.Timer);
-				break;
-			case Pong::States::GameState::Playing:
-				playingState.Render(gameInfo.Timer);
-				break;
-			case Pong::States::GameState::Score:
-				scoreMenuState.Render(gameInfo.Timer);
-				break;
-			default:
-				break;
-		}
-
-		gameInfo.Renderer.EndScene();
-
-		GameState = nextState;
-		if (GameState == Pong::States::GameState::Exit)
-		{
-			window.SetWindowShouldClose();
-		}
-
-		window.SwapBuffers();
-	}
+	application->Run();
 
 	return 0;
 }
