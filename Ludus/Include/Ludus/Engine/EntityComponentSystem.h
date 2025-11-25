@@ -11,6 +11,7 @@
 #include <Ludus/Math/Vector2D.h>
 #include <Ludus/Physics/Core/BodyType.h>
 #include <Ludus/Physics/Core/Collider2D.h>
+#include <Ludus/Physics/Core/RigidBody2D.h>
 
 namespace Ludus::Engine
 {
@@ -21,6 +22,7 @@ namespace Ludus::Engine
 
 	public:
 		Ludus::Engine::ComponentRegistry <Ludus::Physics::Core::Collider2D> Colliders;
+		Ludus::Engine::ComponentRegistry <Ludus::Physics::Core::RigidBody2D> RigidBodies;
 		Ludus::Engine::ComponentRegistry <Ludus::Graphics::Sprite2D> Sprites;
 		Ludus::Engine::ComponentRegistry <Ludus::Graphics::Text2D> Texts;
 		Ludus::Engine::ComponentRegistry <Ludus::Math::Transform2D> Transforms;
@@ -33,6 +35,7 @@ namespace Ludus::Engine
 		bool DestroyEntity(EntityHandle handle)
 		{
 			Colliders.RemoveByOwner(handle);
+			RigidBodies.RemoveByOwner(handle);
 			Sprites.RemoveByOwner(handle);
 			Texts.RemoveByOwner(handle);
 			Transforms.RemoveByOwner(handle);
@@ -43,11 +46,21 @@ namespace Ludus::Engine
 			EntityHandle handle,
 			Ludus::Physics::Core::Index layer = 0,
 			LayerMask collidesWith = LayerMask::GetEmpty(),
-			Ludus::Physics::Core::BodyType bodyType = Ludus::Physics::Core::BodyType::Dynamic,
 			bool isTrigger = false
 		)
 		{
-			Colliders.Add(handle, layer, collidesWith, bodyType, isTrigger);
+			Colliders.Add(handle, layer, collidesWith, isTrigger);
+		}
+
+		void AttachRigidBody(
+			EntityHandle handle,
+			Ludus::Math::Vector2D velocity,
+			Ludus::Physics::Core::BodyType type = Ludus::Physics::Core::BodyType::Dynamic,
+			float gravityScale = 1.0f,
+			float mass = 1.0f
+		)
+		{
+			RigidBodies.Add(handle, velocity, type, gravityScale, mass);
 		}
 
 		void AttachSprite(

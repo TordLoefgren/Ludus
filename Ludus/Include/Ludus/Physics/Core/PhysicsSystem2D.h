@@ -27,7 +27,8 @@ namespace Ludus::Physics::Core
 			m_PhysicsPipeline(
 				*context.Broadphase,
 				*context.Narrowphase,
-				*context.ContactSolver
+				*context.ContactSolver,
+				*context.Integrator
 			),
 			m_Queries(context.QueryCache.get())
 		{ }
@@ -38,22 +39,30 @@ namespace Ludus::Physics::Core
 
 			m_PhysicsWorld.Clear();
 
-			auto colliders = ecs.Colliders.ViewMutable();
+			auto rigidBodies = ecs.RigidBodies.ViewMutable();
 
-			m_PhysicsWorld.Entities.reserve(colliders.size());
-			m_PhysicsWorld.Colliders.reserve(colliders.size());
-			m_PhysicsWorld.Transforms.reserve(colliders.size());
+			m_PhysicsWorld.Entities.reserve(rigidBodies.size());
+			m_PhysicsWorld.Colliders.reserve(rigidBodies.size());
+			m_PhysicsWorld.RigidBodies.reserve(rigidBodies.size());
+			m_PhysicsWorld.Transforms.reserve(rigidBodies.size());
 
-			for (auto& collider : colliders)
+			for (auto& body : rigidBodies)
 			{
-				auto* transform = ecs.Transforms.TryGetByOwnerMutable(collider.OwnerHandle);
+				auto* transform = ecs.Transforms.TryGetByOwnerMutable(body.OwnerHandle);
 				if (!transform)
 				{
 					continue;
 				}
 
-				m_PhysicsWorld.Entities.push_back(collider.OwnerHandle);
-				m_PhysicsWorld.Colliders.push_back(&collider);
+				auto* collider = ecs.Colliders.TryGetByOwnerMutable(body.OwnerHandle);
+				if (!collider)
+				{
+					continue;
+				}
+
+				m_PhysicsWorld.Entities.push_back(body.OwnerHandle);
+				m_PhysicsWorld.Colliders.push_back(collider);
+				m_PhysicsWorld.RigidBodies.push_back(&body);
 				m_PhysicsWorld.Transforms.push_back(transform);
 			}
 		}

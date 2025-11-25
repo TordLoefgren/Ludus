@@ -9,12 +9,14 @@ namespace Ludus::Physics::Core
 	{
 		std::vector<Ludus::Engine::EntityHandle> Entities;
 		std::vector<Ludus::Physics::Core::Collider2D*> Colliders;
+		std::vector<Ludus::Physics::Core::RigidBody2D*> RigidBodies;
 		std::vector<Ludus::Math::Transform2D*> Transforms;
 
 		void Clear()
 		{
 			Entities.clear();
 			Colliders.clear();
+			RigidBodies.clear();
 			Transforms.clear();
 		}
 
