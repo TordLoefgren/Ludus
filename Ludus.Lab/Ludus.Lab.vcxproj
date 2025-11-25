@@ -148,9 +148,8 @@ xcopy /y /d  "$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\AABBDemo2.cpp" />
-    <ClCompile Include="Source\AABBDemo1.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Source\Lab\Core\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ludus\Ludus.vcxproj">
@@ -158,9 +157,7 @@ xcopy /y /d  "$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\AABBDemo2.h" />
-    <ClInclude Include="Include\AABBDemo1.h" />
-    <ClInclude Include="Include\IDemo.h" />
+    <ClInclude Include="Include\Lab\Core\Scene.h" />
     <ClInclude Include="Vendors\PerlinNoise-3.0.0\PerlinNoise.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
