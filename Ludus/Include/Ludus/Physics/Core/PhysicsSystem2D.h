@@ -17,6 +17,7 @@ namespace Ludus::Physics::Core
 	private:
 		PhysicsWorld2D m_PhysicsWorld;
 		PhysicsPipeline2D m_PhysicsPipeline;
+		int m_SubSteps;
 
 		Ludus::Physics::Queries::IPhysicsQueryCache2D* m_Queries = nullptr;
 
@@ -30,7 +31,8 @@ namespace Ludus::Physics::Core
 				*context.ContactSolver,
 				*context.Integrator
 			),
-			m_Queries(context.QueryCache.get())
+			m_Queries(context.QueryCache.get()),
+			m_SubSteps(context.SubSteps)
 		{ }
 
 		void PullEntityComponents()
@@ -71,7 +73,7 @@ namespace Ludus::Physics::Core
 		{
 			PullEntityComponents();
 
-			m_PhysicsPipeline.Step(m_PhysicsWorld, *m_Queries, fixedTime);
+			m_PhysicsPipeline.Step(m_PhysicsWorld, *m_Queries, fixedTime, m_SubSteps);
 		};
 	};
 }

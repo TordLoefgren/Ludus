@@ -14,7 +14,6 @@ namespace Ludus::Physics::Queries
 	class PhysicsQueryCache2D : public Ludus::Physics::Queries::IPhysicsQueryCache2D
 	{
 	private:
-		std::vector<ContactPair2D> m_Contacts;
 		std::unordered_map<EntityHandle, std::vector<ContactPair2D>> m_ContactsByEntity;
 
 		static bool PairInvolves(const ContactPair2D& pair, EntityHandle a, EntityHandle b)
@@ -26,8 +25,9 @@ namespace Ludus::Physics::Queries
 	public:
 		virtual void UpdateFromContacts(const std::vector <ContactPair2D> contactPairs)
 		{
-			m_ContactsByEntity.clear();
-			m_ContactsByEntity.reserve(contactPairs.size() * 2);
+			m_ContactsByEntity.reserve(
+				m_ContactsByEntity.size() + contactPairs.size() * 2
+			);
 
 			for (const auto& contact : contactPairs)
 			{
@@ -39,7 +39,7 @@ namespace Ludus::Physics::Queries
 			}
 		}
 
-		bool IsColliding(EntityHandle handle) const override
+		virtual bool IsColliding(EntityHandle handle) const override
 		{
 			auto iter = m_ContactsByEntity.find(handle);
 			if (iter == m_ContactsByEntity.end())
@@ -50,7 +50,7 @@ namespace Ludus::Physics::Queries
 			return !iter->second.empty();
 		}
 
-		bool IsColliding(EntityHandle handleA, EntityHandle handleB) const override
+		virtual bool IsColliding(EntityHandle handleA, EntityHandle handleB) const override
 		{
 			auto iter = m_ContactsByEntity.find(handleA);
 			if (iter == m_ContactsByEntity.end())
@@ -69,7 +69,7 @@ namespace Ludus::Physics::Queries
 			);
 		}
 
-		bool IsTriggering(EntityHandle handle) const override
+		virtual bool IsTriggering(EntityHandle handle) const override
 		{
 			auto iter = m_ContactsByEntity.find(handle);
 			if (iter == m_ContactsByEntity.end())
@@ -88,7 +88,7 @@ namespace Ludus::Physics::Queries
 			);
 		}
 
-		bool IsTriggering(EntityHandle handleA, EntityHandle handleB) const override
+		virtual bool IsTriggering(EntityHandle handleA, EntityHandle handleB) const override
 		{
 			auto iter = m_ContactsByEntity.find(handleA);
 			if (iter == m_ContactsByEntity.end())
@@ -108,7 +108,7 @@ namespace Ludus::Physics::Queries
 			);
 		}
 
-		void Clear()
+		virtual void Clear() override
 		{
 			m_ContactsByEntity.clear();
 		}
