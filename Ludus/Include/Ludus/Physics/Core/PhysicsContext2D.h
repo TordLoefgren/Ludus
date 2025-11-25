@@ -20,13 +20,15 @@ namespace Ludus::Physics::Core
 		std::unique_ptr<Ludus::Physics::Queries::IPhysicsQueryCache2D> QueryCache;
 		std::unique_ptr<Ludus::Physics::Solvers::IContactSolver2D> ContactSolver;
 		std::unique_ptr<Ludus::Physics::Integrators::IPhysicsIntegrator> Integrator;
+		int SubSteps;
 
 		PhysicsContext2D()
 			: Broadphase(std::make_unique<Ludus::Physics::Broadphase::NaiveBroadphase2D>()),
 			Narrowphase(std::make_unique<Ludus::Physics::Narrowphase::NaiveNarrowphase2D>()),
 			QueryCache(std::make_unique<Ludus::Physics::Queries::PhysicsQueryCache2D>()),
 			ContactSolver(std::make_unique<Ludus::Physics::Solvers::MTVContactSolver>()),
-			Integrator(std::make_unique<Ludus::Physics::Integrators::SymplecticEulerIntegrator>())
+			Integrator(std::make_unique<Ludus::Physics::Integrators::SymplecticEulerIntegrator>()),
+			SubSteps(8)
 		{ }
 
 		PhysicsContext2D(
@@ -34,12 +36,14 @@ namespace Ludus::Physics::Core
 			std::unique_ptr<Ludus::Physics::Narrowphase::INarrowphase2D> narrowphase,
 			std::unique_ptr<Ludus::Physics::Queries::IPhysicsQueryCache2D> queryCache,
 			std::unique_ptr<Ludus::Physics::Solvers::IContactSolver2D> contactSolver,
-			std::unique_ptr<Ludus::Physics::Integrators::IPhysicsIntegrator> integrator
+			std::unique_ptr<Ludus::Physics::Integrators::IPhysicsIntegrator> integrator,
+			int subSteps = 8
 		) : Broadphase(std::move(broadphase)),
 			Narrowphase(std::move(narrowphase)),
 			QueryCache(std::move(queryCache)),
 			ContactSolver(std::move(contactSolver)),
-			Integrator(std::move(integrator))
+			Integrator(std::move(integrator)),
+			SubSteps(subSteps)
 		{ }
 	};
 }

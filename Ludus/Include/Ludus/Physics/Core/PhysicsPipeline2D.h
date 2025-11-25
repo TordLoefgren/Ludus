@@ -65,6 +65,22 @@ namespace Ludus::Physics::Core
 		void Step(
 			Ludus::Physics::Core::PhysicsWorld2D& world,
 			Ludus::Physics::Queries::IPhysicsQueryCache2D& queryCache,
+			float fixedTime,
+			int subSteps
+		)
+		{
+			queryCache.Clear();
+
+			auto fixedTimeDelta = fixedTime / subSteps;
+			for (int i = 0; i < subSteps; i++)
+			{
+				SubStep(world, queryCache, fixedTimeDelta);
+			}
+		}
+
+		void SubStep(
+			Ludus::Physics::Core::PhysicsWorld2D& world,
+			Ludus::Physics::Queries::IPhysicsQueryCache2D& queryCache,
 			float fixedTime
 		)
 		{
@@ -83,11 +99,11 @@ namespace Ludus::Physics::Core
 			// Solve constraints.
 			m_ContactSolver.SolveContacts(world, m_ContactPairs);
 
+			// Populate query cache with accumulated contacts.
+			queryCache.UpdateFromContacts(m_ContactPairs);
+
 			// Integrate velocities on rigid bodies and apply to transforms.
 			m_Integrator.Integrate(world, fixedTime);
-
-			// Update query cache.
-			queryCache.UpdateFromContacts(m_ContactPairs);
 		}
 	};
 }
