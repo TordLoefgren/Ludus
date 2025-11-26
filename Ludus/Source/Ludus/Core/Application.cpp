@@ -77,17 +77,18 @@ namespace Ludus::Core
 	void Application::SubscribeToEvents()
 	{
 		using EventType = Ludus::Events::EventType;
+		using Eventhandler = Ludus::Events::Eventhandler;
 
-		m_EventBus->Subscribe(Events::EventType::KeyEvent, (Ludus::Events::Eventhandler&)*m_Input);
-		m_EventBus->Subscribe(Events::EventType::TextInputEvent, (Ludus::Events::Eventhandler&)*m_Input);
-		m_EventBus->Subscribe(Events::EventType::MouseButtonEvent, (Ludus::Events::Eventhandler&)*m_Input);
-		m_EventBus->Subscribe(Events::EventType::MouseMoveEvent, (Ludus::Events::Eventhandler&)*m_Input);
-		m_EventBus->Subscribe(Events::EventType::MouseScrollEvent, (Ludus::Events::Eventhandler&)*m_Input);
-		m_EventBus->Subscribe(Events::EventType::WindowFocusEvent, (Ludus::Events::Eventhandler&)*m_Input);
+		m_EventBus->Subscribe(EventType::KeyEvent, (Eventhandler&)*m_Input);
+		m_EventBus->Subscribe(EventType::TextInputEvent, (Eventhandler&)*m_Input);
+		m_EventBus->Subscribe(EventType::MouseButtonEvent, (Eventhandler&)*m_Input);
+		m_EventBus->Subscribe(EventType::MouseMoveEvent, (Eventhandler&)*m_Input);
+		m_EventBus->Subscribe(EventType::MouseScrollEvent, (Eventhandler&)*m_Input);
+		m_EventBus->Subscribe(EventType::WindowFocusEvent, (Eventhandler&)*m_Input);
 
-		m_EventBus->Subscribe(Events::EventType::FramebufferSizeEvent, (Ludus::Events::Eventhandler&)*m_GLContext);
+		m_EventBus->Subscribe(EventType::FramebufferSizeEvent, (Eventhandler&)*m_GLContext);
 
-		m_EventBus->Subscribe(Events::EventType::WindowCloseEvent, *this);
+		m_EventBus->Subscribe(EventType::WindowCloseEvent, *this);
 	}
 
 	bool Application::ProcessEvent(const Ludus::Events::Event& event)

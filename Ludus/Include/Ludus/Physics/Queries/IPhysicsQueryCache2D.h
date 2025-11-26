@@ -19,5 +19,7 @@ namespace Ludus::Physics::Queries
 
 		virtual bool IsTriggering(EntityHandle a) const = 0;
 		virtual bool IsTriggering(EntityHandle a, EntityHandle b) const = 0;
+
+		virtual void Clear() = 0;
 	};
 }
