@@ -143,12 +143,21 @@ namespace Pong::Systems
 
 		// Colliders.
 		ecs.AttachCollider(m_Entities.BallHandle, m_LayerIndexBall, (m_LayerMaskVertical | m_LayerMaskHorizontal | m_LayerMaskPlayer1 | m_LayerMaskPlayer2));
-		ecs.AttachCollider(m_Entities.TopWallHandle, m_LayerIndexHorizontal, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2), Ludus::Physics::Core::BodyType::Static);
-		ecs.AttachCollider(m_Entities.BottomWallHandle, m_LayerIndexHorizontal, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2), Ludus::Physics::Core::BodyType::Static);
-		ecs.AttachCollider(m_Entities.LeftWallHandle, m_LayerIndexVertical, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2), Ludus::Physics::Core::BodyType::Static, true);
-		ecs.AttachCollider(m_Entities.RightWallHandle, m_LayerIndexVertical, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2), Ludus::Physics::Core::BodyType::Static, true);
-		ecs.AttachCollider(m_Entities.Player1Handle, m_LayerIndexPlayer1, (m_LayerMaskBall | m_LayerMaskHorizontal), Ludus::Physics::Core::BodyType::Kinematic);
-		ecs.AttachCollider(m_Entities.Player2Handle, m_LayerIndexPlayer2, (m_LayerMaskBall | m_LayerMaskHorizontal), Ludus::Physics::Core::BodyType::Kinematic);
+		ecs.AttachCollider(m_Entities.TopWallHandle, m_LayerIndexHorizontal, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2));
+		ecs.AttachCollider(m_Entities.BottomWallHandle, m_LayerIndexHorizontal, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2));
+		ecs.AttachCollider(m_Entities.LeftWallHandle, m_LayerIndexVertical, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2), true);
+		ecs.AttachCollider(m_Entities.RightWallHandle, m_LayerIndexVertical, (m_LayerMaskBall | m_LayerMaskPlayer1 | m_LayerMaskPlayer2), true);
+		ecs.AttachCollider(m_Entities.Player1Handle, m_LayerIndexPlayer1, (m_LayerMaskBall | m_LayerMaskHorizontal));
+		ecs.AttachCollider(m_Entities.Player2Handle, m_LayerIndexPlayer2, (m_LayerMaskBall | m_LayerMaskHorizontal));
+
+		// Rigid Bodies.
+		ecs.AttachRigidBody(m_Entities.BallHandle, { 0.0f }, Ludus::Physics::Core::BodyType::Dynamic, 0.0f);
+		ecs.AttachRigidBody(m_Entities.TopWallHandle, { 0.0f }, Ludus::Physics::Core::BodyType::Static);
+		ecs.AttachRigidBody(m_Entities.BottomWallHandle, { 0.0f }, Ludus::Physics::Core::BodyType::Static);
+		ecs.AttachRigidBody(m_Entities.LeftWallHandle, { 0.0f }, Ludus::Physics::Core::BodyType::Static);
+		ecs.AttachRigidBody(m_Entities.RightWallHandle, { 0.0f }, Ludus::Physics::Core::BodyType::Static);
+		ecs.AttachRigidBody(m_Entities.Player1Handle, { 0.0f }, Ludus::Physics::Core::BodyType::Kinematic);
+		ecs.AttachRigidBody(m_Entities.Player2Handle, { 0.0f }, Ludus::Physics::Core::BodyType::Kinematic);
 
 		// Transforms.
 		const float wallWidth = Pong::Core::Configuration::Defaults::WallWidthThickness;

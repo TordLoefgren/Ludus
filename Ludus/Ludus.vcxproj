@@ -87,6 +87,9 @@
     <ClInclude Include="Include\Ludus\Physics\Core\Collider2D.h" />
     <ClInclude Include="Include\Ludus\Physics\Core\PhysicsContext2D.h" />
     <ClInclude Include="Include\Ludus\Graphics\RenderingOptions.h" />
+    <ClInclude Include="Include\Ludus\Physics\Core\RigidBody2D.h" />
+    <ClInclude Include="Include\Ludus\Physics\Integrators\IPhysicsIntegrator.h" />
+    <ClInclude Include="Include\Ludus\Physics\Integrators\SymplecticEulerIntegrator.h" />
     <ClInclude Include="Include\Ludus\Physics\Narrowphase\NaiveNarrowphase2D.h" />
     <ClInclude Include="Include\Ludus\Physics\Core\PhysicsPipeline2D.h" />
     <ClInclude Include="Include\Ludus\Physics\Narrowphase\ContactPair2D.h" />
