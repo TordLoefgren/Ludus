@@ -21,10 +21,10 @@
   <ItemGroup>
     <ClInclude Include="Include\Ludus\UI\Flags.h" />
     <ClInclude Include="Include\Ludus\UI\Layouts.h" />
+    <ClInclude Include="Include\Ludus\UI\UIContext.h" />
     <ClInclude Include="Include\Ludus\UI\Utilities.h" />
     <ClInclude Include="Include\Ludus\UI\Widgets.h" />
     <ClInclude Include="Include\Ludus\UI\Containers.h" />
-    <ClInclude Include="Include\Ludus\UI\UIContext.h" />
     <ClInclude Include="Vendors\imgui\imconfig.h" />
     <ClInclude Include="Vendors\imgui\imgui.h" />
     <ClInclude Include="Vendors\imgui\imgui_impl_glfw.h" />
@@ -37,15 +37,24 @@
     <ClInclude Include="Vendors\imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Ludus\UI\UIContext.cpp"></ClCompile>
-	<ClCompile Include="Vendors\imgui\imgui.cpp"></ClCompile>
-	<ClCompile Include="Vendors\imgui\imgui_demo.cpp"></ClCompile>
-	<ClCompile Include="Vendors\imgui\imgui_draw.cpp"></ClCompile>
-	<ClCompile Include="Vendors\imgui\imgui_impl_glfw.cpp"></ClCompile>
-	<ClCompile Include="Vendors\imgui\imgui_impl_opengl3.cpp"></ClCompile>
-	<ClCompile Include="Vendors\imgui\imgui_stdlib.cpp"></ClCompile>
-	<ClCompile Include="Vendors\imgui\imgui_tables.cpp"></ClCompile>
-    <ClCompile Include="Vendors\imgui\imgui_widgets.cpp"></ClCompile>
+    <ClCompile Include="Source\Ludus\UI\UIContext.cpp">
+    </ClCompile>
+    <ClCompile Include="Vendors\imgui\imgui.cpp">
+    </ClCompile>
+    <ClCompile Include="Vendors\imgui\imgui_demo.cpp">
+    </ClCompile>
+    <ClCompile Include="Vendors\imgui\imgui_draw.cpp">
+    </ClCompile>
+    <ClCompile Include="Vendors\imgui\imgui_impl_glfw.cpp">
+    </ClCompile>
+    <ClCompile Include="Vendors\imgui\imgui_impl_opengl3.cpp">
+    </ClCompile>
+    <ClCompile Include="Vendors\imgui\imgui_stdlib.cpp">
+    </ClCompile>
+    <ClCompile Include="Vendors\imgui\imgui_tables.cpp">
+    </ClCompile>
+    <ClCompile Include="Vendors\imgui\imgui_widgets.cpp">
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendors\imgui\.editorconfig" />
@@ -110,11 +119,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -158,7 +167,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Include;$(ProjectDir)Vendors;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Ludus\Vendors\GLFW\include;$(ProjectDir)Include;$(ProjectDir)Vendors;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -178,7 +187,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)Include;$(ProjectDir)Vendors;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Ludus\Vendors\GLFW\include;$(ProjectDir)Include;$(ProjectDir)Vendors;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
