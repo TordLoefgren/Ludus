@@ -1,13 +1,16 @@
 #pragma once
 
 #include <algorithm>
+#include <initializer_list>
 #include <memory>
 #include <unordered_map>
 #include <vector>
 
 #include <Ludus/Core/ISystem.h>
-#include <Ludus/Core/Phase.h>
 #include <Ludus/Core/ScheduledSystem.h>
+#include <Ludus/Core/SystemPhase.h>
+#include <Ludus/Core/SystemPhaseInfo.h>
+#include <Ludus/Core/SystemPhaseOrder.h>
 #include <Ludus/Core/SystemPredicate.h>
 
 namespace Ludus::Core
@@ -19,13 +22,43 @@ namespace Ludus::Core
 		explicit Scheduler(SystemContext& context) : m_SystemContext(context) { }
 
 	private:
-		std::unordered_map<Phase, std::vector<ScheduledSystem>> m_Systems;
+		std::vector<std::unique_ptr<ISystem>> m_Systems;
+		std::unordered_map<SystemPhase, std::vector<ScheduledSystem>> m_SystemsByPhase;
+
+		void SortPhase(SystemPhase phase)
+		{
+			auto& systems = m_SystemsByPhase[phase];
+			std::sort(
+				systems.begin(),
+				systems.end(),
+				[](const ScheduledSystem& a, const ScheduledSystem& b)
+				{
+					return a.Order < b.Order;
+				}
+			);
+		}
 
 	public:
 
-		void AttachSystem(Phase phase, std::unique_ptr<ISystem> system, SystemPredicate predicate)
+		void AttachSystem(SystemPhaseInfo info, std::unique_ptr<ISystem> system)
 		{
-			m_Systems[phase].push_back({ std::move(system), std::move(predicate) });
+			auto* system_ptr = system.get();
+			m_Systems.push_back(std::move(system));
+
+			m_SystemsByPhase[info.Phase].push_back({ system_ptr, info.Predicate, info.Order });
+			SortPhase(info.Phase);
+		}
+
+		void AttachSystem(std::initializer_list<SystemPhaseInfo> info, std::unique_ptr<ISystem> system)
+		{
+			auto* system_ptr = system.get();
+			m_Systems.push_back(std::move(system));
+
+			for (auto [phase, predicate, order] : info)
+			{
+				m_SystemsByPhase[phase].push_back({ system_ptr, predicate, order });
+				SortPhase(phase);
+			}
 		}
 
 		void ApplyResourceTransitions()
@@ -42,7 +75,7 @@ namespace Ludus::Core
 
 		void UpdateTransitions()
 		{
-			for (auto& [phase, systems] : m_Systems)
+			for (auto& [phase, systems] : m_SystemsByPhase)
 			{
 				for (auto& entry : systems)
 				{
@@ -66,11 +99,11 @@ namespace Ludus::Core
 			}
 		}
 
-		void Run(Phase phase, float time = 0.0f)
+		void Run(SystemPhase phase, float time = 0.0f)
 		{
-			if (m_Systems.contains(phase))
+			if (m_SystemsByPhase.contains(phase))
 			{
-				for (auto& entry : m_Systems[phase])
+				for (auto& entry : m_SystemsByPhase[phase])
 				{
 					if (!entry.IsActive)
 					{
@@ -79,13 +112,13 @@ namespace Ludus::Core
 
 					switch (phase)
 					{
-						case Phase::FixedUpdate:
+						case SystemPhase::FixedUpdate:
 							entry.System->FixedUpdate(time);
 							break;
-						case Phase::Update:
+						case SystemPhase::Update:
 							entry.System->Update(time);
 							break;
-						case Phase::Render:
+						case SystemPhase::Render:
 							entry.System->Render();
 							break;
 						default:

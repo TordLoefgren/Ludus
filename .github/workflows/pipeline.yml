@@ -48,12 +48,12 @@ jobs:
         run: |
           setlocal enabledelayedexpansion
           set "EXE="
-          for /f "delims=" %%F in ('dir /s /b "Ludus.Tests.exe"') do (
+          for /f "delims=" %%F in ('dir /s /b "Tests.exe"') do (
             set "EXE=%%F"
             set "EXEDIR=%%~dpF"
             goto runit
           )
-          echo Ludus.Tests.exe not found
+          echo Tests.exe not found
           exit /b 1
           :runit
           set "RESULTS=!EXEDIR!TestResults"

@@ -7,12 +7,12 @@ namespace Ludus::Graphics
 	{
 		if (FT_Init_FreeType(&m_FT_Library))
 		{
-			std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+			LUDUS_LOG_ERROR("Could not initialize FreeType Library");
 		}
 
 		if (FT_New_Face(m_FT_Library, "Resources/Fonts/ARIAL.TTF", 0, &m_Face))
 		{
-			std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+			LUDUS_LOG_ERROR("Failed to load font");
 		}
 
 		FT_Set_Pixel_Sizes(m_Face, 0, m_PixelSize);
@@ -40,7 +40,7 @@ namespace Ludus::Graphics
 
 		if (FT_Load_Char(m_Face, character, FT_LOAD_RENDER))
 		{
-			std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			LUDUS_LOG_ERROR("Failed to load Glyph");
 			return nullptr;
 		}
 

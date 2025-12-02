@@ -6,6 +6,7 @@
 #include <string_view>
 #include <tuple>
 #include <utility>   
+#include <vector>
 
 
 #pragma region Build-time enable
@@ -60,21 +61,28 @@ namespace Ludus::Debug
 		}
 	}
 
+	struct LogEntry
+	{
+		LogLevel Level;
+		std::string Message;
+		std::string File;
+		unsigned int Line;
+		std::string Tag = "";
+	};
+
+	inline std::vector<LogEntry>& GetLogEntries()
+	{
+		static std::vector<LogEntry> entries;
+		return entries;
+	}
+
 	inline void LogLine(
 		LogLevel level,
 		std::string_view message,
 		std::source_location location = std::source_location::current()
 	)
 	{
-		std::fprintf(
-			stderr,
-			"%s(%u): [%s] %.*s\n",
-			location.file_name(),
-			static_cast<unsigned int>(location.line()),
-			ToString(level),
-			static_cast<int>(message.size()),
-			message.data()
-		);
+		GetLogEntries().push_back({ level, message.data(), location.file_name(), location.line() });
 	}
 
 	inline void LogLineTagged(
@@ -84,17 +92,7 @@ namespace Ludus::Debug
 		std::source_location location = std::source_location::current()
 	)
 	{
-		std::fprintf(
-			stderr,
-			"%s(%u): [%s][%.*s] %.*s\n",
-			location.file_name(),
-			static_cast<unsigned int>(location.line()),
-			ToString(level),
-			static_cast<int>(tag.size()),
-			tag.data(),
-			static_cast<int>(message.size()),
-			message.data()
-		);
+		GetLogEntries().push_back({ level, message.data(), location.file_name(), location.line(), tag.data() });
 	}
 
 	inline void Fail(

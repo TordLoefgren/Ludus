@@ -6,6 +6,7 @@
 #include <Ludus/Events/Event.h>
 #include <Ludus/Events/EventBus.h>
 #include <Ludus/Events/EventHandler.h>
+#include <Ludus/Graphics/FramebufferSize.h>
 #include <Ludus/Platform/WindowOptions.h>
 #include <Ludus/Platform/WindowUserData.h>
 
@@ -29,9 +30,11 @@ namespace Ludus::Platform
 		void PollEvents();
 		void SwapBuffers();
 		void SetWindowShouldClose();
+		Ludus::Graphics::FramebufferSize GetFramebufferSize() const;
 		bool WindowShouldClose();
 		void SetVSync(bool enable);
 
 		const WindowOptions GetOptions() { return m_WindowOptions; }
+		GLFWwindow* GetHandle() const { return m_Handle; }
 	};
 }
