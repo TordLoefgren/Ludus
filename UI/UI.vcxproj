@@ -168,7 +168,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>
-		  $(ProjectDir)..\Ludus\Vendors\GLFW\include;
+		  $(ProjectDir)..\Engine\Vendors\GLFW\include;
 		  $(ProjectDir)Include;$(ProjectDir)Vendors;%(AdditionalIncludeDirectories)
 	  </AdditionalIncludeDirectories>
 	  <LanguageStandard>stdcpp20</LanguageStandard>
@@ -191,7 +191,7 @@
 	  <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
 	  <LanguageStandard>stdcpp20</LanguageStandard>
 	  <AdditionalIncludeDirectories>
-		  $(ProjectDir)..\Ludus\Vendors\GLFW\include;
+		  $(ProjectDir)..\Engine\Vendors\GLFW\include;
 		  $(ProjectDir)Include;$(ProjectDir)Vendors;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
