@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Ludus\Core\ImGuiSystem.h" />
+    <ClInclude Include="Include\Ludus\Debug\Debug.h" />
     <ClInclude Include="Include\Ludus\Graphics\FrameBufferObject.h" />
     <ClInclude Include="Include\Ludus\Core\Enums.h" />
     <ClInclude Include="Include\Ludus\Core\ITransitionableResource.h" />
@@ -43,7 +44,6 @@
     <ClInclude Include="Include\Ludus\Events\EventBus.h" />
     <ClInclude Include="Include\Ludus\Core\Application.h" />
     <ClInclude Include="Include\Ludus\Core\SystemPhase.h" />
-    <ClInclude Include="Include\Ludus\Debug\Debug.h" />
     <ClInclude Include="Include\Ludus\Debug\DebugGL.h" />
     <ClInclude Include="Include\Ludus\Events\EventType.h" />
     <ClInclude Include="Include\Ludus\Events\EventHandler.h" />
