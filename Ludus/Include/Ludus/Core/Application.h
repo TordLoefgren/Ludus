@@ -1,14 +1,16 @@
 #pragma once
 
+#include <initializer_list>
 #include <memory>
 #include <string>
 
+#include <Ludus/Core/ImGuiSystem.h>
 #include <Ludus/Core/ISystem.h>
-#include <Ludus/Core/Phase.h>
 #include <Ludus/Core/ResourceRegistry.h>
 #include <Ludus/Core/Scheduler.h>
 #include <Ludus/Core/SystemContext.h>
-#include <Ludus/Core/SystemPredicate.h>
+#include <Ludus/Core/SystemPhase.h>
+#include <Ludus/Core/SystemPhaseInfo.h>
 #include <Ludus/Engine/EntityComponentSystem.h>
 #include <Ludus/Engine/Time.h>
 #include <Ludus/Events/Event.h>
@@ -17,6 +19,7 @@
 #include <Ludus/Graphics/GLContext.h>
 #include <Ludus/Graphics/RenderingOptions.h>
 #include <Ludus/Graphics/RenderingSystem2D.h>
+#include <Ludus/Graphics/RenderTarget.h>
 #include <Ludus/Physics/Core/PhysicsContext2D.h>
 #include <Ludus/Physics/Core/PhysicsSystem2D.h>
 #include <Ludus/Platform/Input.h>
@@ -38,6 +41,8 @@ namespace Ludus::Core
 		Ludus::Core::SystemContext m_SystemContext;
 		std::unique_ptr<Ludus::Core::Scheduler> m_Scheduler;
 
+		void RegisterDefaults(Ludus::Platform::WindowOptions windowOptions, Ludus::Graphics::RenderingOptions renderingOptions);
+
 	public:
 		Application(
 			Ludus::Platform::WindowOptions windowOptions = Ludus::Platform::WindowOptions(),
@@ -54,7 +59,8 @@ namespace Ludus::Core
 		template<typename T>
 		void AddResource(T resource);
 
-		void AddSystem(Phase phase, std::unique_ptr<ISystem> system, SystemPredicate predicate = nullptr);
+		void AddSystem(SystemPhaseInfo info, std::unique_ptr<ISystem> system);
+		void AddSystem(std::initializer_list<SystemPhaseInfo> info, std::unique_ptr<ISystem> system);
 		void Run();
 
 		void SubscribeToEvents();

@@ -18,7 +18,7 @@ namespace Ludus::Engine::Utilities
 		std::ifstream file(path);
 		if (!file)
 		{
-			throw std::runtime_error("Could not open file");
+			throw std::runtime_error("Could not open file.");
 		}
 
 		return { std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>() };

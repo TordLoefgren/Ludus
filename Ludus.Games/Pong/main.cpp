@@ -1,18 +1,18 @@
 ﻿#include <Ludus/Core/Application.h>
-#include <Ludus/Core/Phase.h>
 #include <Ludus/Core/State.h>
+#include <Ludus/Core/SystemPhase.h>
 #include <Ludus/Core/SystemPredicate.h>
 #include <Ludus/Graphics/Color.h>
 #include <Ludus/Platform/Window.h>
 #include <Ludus/Platform/WindowOptions.h>
 
-#include <Pong/Core/GameInfo.h>
-#include <Pong/Core/GameState.h>
-#include <Pong/Core/PongInfo.h>
-#include <Pong/Systems/MainMenuSystem.h>
-#include <Pong/Systems/PauseMenuSystem.h>
-#include <Pong/Systems/PlayingSystem.h>
-#include <Pong/Systems/ScoreMenuSystem.h>
+#include <Ludus/Pong/Core/GameInfo.h>
+#include <Ludus/Pong/Core/GameState.h>
+#include <Ludus/Pong/Core/PongInfo.h>
+#include <Ludus/Pong/Systems/MainMenuSystem.h>
+#include <Ludus/Pong/Systems/PauseMenuSystem.h>
+#include <Ludus/Pong/Systems/PlayingSystem.h>
+#include <Ludus/Pong/Systems/ScoreMenuSystem.h>
 
 int main()
 {
@@ -20,34 +20,42 @@ int main()
 	auto renderingOptions = Ludus::Graphics::RenderingOptions(Ludus::Graphics::Colors::Black);
 	auto application = Ludus::Core::Application::Create(windowOptions, renderingOptions);
 
-	auto gameState = Ludus::Core::State<Pong::Core::GameState>(Pong::Core::GameState::MainMenu);
+	auto gameState = Ludus::Core::State<Ludus::Pong::Core::GameState>(Ludus::Pong::Core::GameState::MainMenu);
 	application->AddResource(std::move(gameState));
 
-	auto gameInfo = Pong::Core::GameInfo();
-	auto pongInfo = Pong::Core::PongInfo();
+	auto gameInfo = Ludus::Pong::Core::GameInfo();
+	auto pongInfo = Ludus::Pong::Core::PongInfo();
 
 	application->AddSystem(
-		Ludus::Core::Phase::Update,
-		std::make_unique<Pong::Systems::MainMenuSystem>(gameInfo, pongInfo),
-		Ludus::Core::RunIfInState<Pong::Core::GameState>(Pong::Core::GameState::MainMenu)
+		{
+			Ludus::Core::SystemPhase::Update,
+			Ludus::Core::RunIfInState<Ludus::Pong::Core::GameState>(Ludus::Pong::Core::GameState::MainMenu)
+		},
+		std::make_unique<Ludus::Pong::Systems::MainMenuSystem>(gameInfo, pongInfo)
 	);
 
 	application->AddSystem(
-		Ludus::Core::Phase::Update,
-		std::make_unique<Pong::Systems::PauseMenuSystem>(gameInfo, pongInfo),
-		Ludus::Core::RunIfInState<Pong::Core::GameState>(Pong::Core::GameState::PauseMenu)
+		{
+			Ludus::Core::SystemPhase::Update,
+			Ludus::Core::RunIfInState<Ludus::Pong::Core::GameState>(Ludus::Pong::Core::GameState::PauseMenu)
+		},
+		std::make_unique<Ludus::Pong::Systems::PauseMenuSystem>(gameInfo, pongInfo)
 	);
 
 	application->AddSystem(
-		Ludus::Core::Phase::Update,
-		std::make_unique<Pong::Systems::PlayingSystem>(gameInfo, pongInfo),
-		Ludus::Core::RunIfInState<Pong::Core::GameState>(Pong::Core::GameState::Playing)
+		{
+			Ludus::Core::SystemPhase::Update,
+			Ludus::Core::RunIfInState<Ludus::Pong::Core::GameState>(Ludus::Pong::Core::GameState::Playing)
+		},
+		std::make_unique<Ludus::Pong::Systems::PlayingSystem>(gameInfo, pongInfo)
 	);
 
 	application->AddSystem(
-		Ludus::Core::Phase::Update,
-		std::make_unique<Pong::Systems::ScoreMenuSystem>(gameInfo, pongInfo),
-		Ludus::Core::RunIfInState<Pong::Core::GameState>(Pong::Core::GameState::ScoreMenu)
+		{
+			Ludus::Core::SystemPhase::Update,
+			Ludus::Core::RunIfInState<Ludus::Pong::Core::GameState>(Ludus::Pong::Core::GameState::ScoreMenu)
+		},
+		std::make_unique<Ludus::Pong::Systems::ScoreMenuSystem>(gameInfo, pongInfo)
 	);
 
 	application->Run();

@@ -11,11 +11,13 @@
 
 namespace Ludus::Engine
 {
-	inline std::unordered_map<std::string, uint8_t> s_NameToIndex = { {"Default", 0} };
-	inline std::unordered_map<uint8_t, std::string> s_IndexToName = { {0, "Default"} };
-
 	using LayerIndex = uint8_t;
 	using LayerBits = uint32_t;
+
+	inline LayerIndex s_MaxLayers = 32u;
+
+	inline std::unordered_map<std::string, uint8_t> s_NameToIndex = { {"Default", 0} };
+	inline std::unordered_map<uint8_t, std::string> s_IndexToName = { {0, "Default"} };
 
 	struct LayerMask
 	{
@@ -79,9 +81,9 @@ namespace Ludus::Engine
 
 		static LayerMask FromIndex(LayerIndex index)
 		{
-			LUDUS_ASSERT(index < 32u, "Index must be smaller than 32.");
+			LUDUS_ASSERT(index < s_MaxLayers, "Index must be smaller than 32.");
 
-			if (index >= 32u)
+			if (index >= s_MaxLayers)
 			{
 				return GetEmpty();
 			}
@@ -102,7 +104,7 @@ namespace Ludus::Engine
 
 		static void AddLayer(const std::string& layerName, const LayerIndex layerIndex)
 		{
-			LUDUS_ASSERT(layerIndex > 0u && layerIndex < 32u, "Index must be between 1 and 31, inclusive.");
+			LUDUS_ASSERT(layerIndex > 0u && layerIndex < s_MaxLayers, "Index must be between 1 and 31, inclusive.");
 
 			auto iterName = s_NameToIndex.find(layerName);
 			if (iterName != s_NameToIndex.end())
@@ -204,5 +206,7 @@ namespace Ludus::Engine
 
 			return mask;
 		}
+
+		static const size_t GetLayerCount() { return s_NameToIndex.size(); }
 	};
 }

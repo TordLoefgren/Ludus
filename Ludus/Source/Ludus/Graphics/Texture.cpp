@@ -18,17 +18,20 @@ namespace Ludus::Graphics
 		glDeleteTextures(1, &m_Handle);
 	}
 
-	Texture::Texture(Texture&& o) noexcept
-		: m_Handle(o.m_Handle), m_Width(o.m_Width), m_Height(o.m_Height)
+	Texture::Texture(Texture&& other) noexcept
+		: m_Handle(other.m_Handle), m_Width(other.m_Width), m_Height(other.m_Height)
 	{
-		o.m_Handle = 0; o.m_Width = o.m_Height = 0;
+		other.m_Handle = 0; other.m_Width = other.m_Height = 0;
 	}
 
 	Texture& Texture::operator=(Texture&& other) noexcept
 	{
 		if (this != &other)
 		{
-			if (m_Handle) glDeleteTextures(1, &m_Handle);
+			if (m_Handle)
+			{
+				glDeleteTextures(1, &m_Handle);
+			}
 			m_Handle = other.m_Handle;
 			m_Width = other.m_Width;
 			m_Height = other.m_Height;
@@ -38,6 +41,27 @@ namespace Ludus::Graphics
 		}
 
 		return *this;
+	}
+
+	Texture Texture::Empty(int width, int height)
+	{
+		Texture texture(0, width, height);
+		return texture;
+	}
+
+	Texture Texture::FramebufferTexture(int width, int height)
+	{
+		unsigned int handle;
+		glGenTextures(1, &handle);
+		glBindTexture(GL_TEXTURE_2D, handle);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		Texture texture(handle, width, height);
+		return texture;
 	}
 
 	Texture Texture::FromFile(const std::string& path)
@@ -59,7 +83,6 @@ namespace Ludus::Graphics
 		glGenTextures(1, &handle);
 		glBindTexture(GL_TEXTURE_2D, handle);
 
-		// The following parameters are not optional.
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 

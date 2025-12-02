@@ -25,32 +25,35 @@
     <Image Include="Assets\textures\WallTextureBrick2Light.png" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Include\Pong\Core\GameState.h" />
-    <ClCompile Include="Source\Pong\Systems\ScoreMenuSystem.cpp" />
-    <ClCompile Include="Source\Pong\Systems\PauseMenuSystem.cpp" />
-    <ClCompile Include="Source\Pong\Systems\MainMenuSystem.cpp" />
-    <ClCompile Include="Source\Pong\Systems\PlayingSystem.cpp" />
+    <ClCompile Include="Include\Ludus\Pong\Core\GameState.h" />
+    <ClCompile Include="Source\Ludus\Pong\Systems\ScoreMenuSystem.cpp" />
+    <ClCompile Include="Source\Ludus\Pong\Systems\PauseMenuSystem.cpp" />
+    <ClCompile Include="Source\Ludus\Pong\Systems\MainMenuSystem.cpp" />
+    <ClCompile Include="Source\Ludus\Pong\Systems\PlayingSystem.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Ludus.UI\Ludus.UI.vcxproj">
+      <Project>{d7f5c7fb-e1a5-4c5b-9bd2-eaa351ca76a2}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Ludus\Ludus.vcxproj">
       <Project>{e5222f19-54e2-431b-b8a5-67dc31e554e1}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Pong\Core\Configuration.h" />
-    <ClInclude Include="Include\Pong\Core\Layers.h" />
-    <ClInclude Include="Include\Pong\Core\MenuItem.h" />
-    <ClInclude Include="Include\Pong\Models\Entities.h" />
-    <ClInclude Include="Include\Pong\Core\GameInfo.h" />
-    <ClInclude Include="Include\Pong\Models\Intents.h" />
-    <ClInclude Include="Include\Pong\Models\RenderData.h" />
-    <ClInclude Include="Include\Pong\Models\RuntimeData.h" />
-    <ClInclude Include="Include\Pong\Core\PongInfo.h" />
-    <ClInclude Include="Include\Pong\Systems\PlayingSystem.h" />
-    <ClInclude Include="Include\Pong\Systems\MainMenuSystem.h" />
-    <ClInclude Include="Include\Pong\Systems\PauseMenuSystem.h" />
-    <ClInclude Include="Include\Pong\Systems\ScoreMenuSystem.h" />
+    <ClInclude Include="Include\Ludus\Pong\Core\Configuration.h" />
+    <ClInclude Include="Include\Ludus\Pong\Core\Layers.h" />
+    <ClInclude Include="Include\Ludus\Pong\Core\MenuItem.h" />
+    <ClInclude Include="Include\Ludus\Pong\Models\Entities.h" />
+    <ClInclude Include="Include\Ludus\Pong\Core\GameInfo.h" />
+    <ClInclude Include="Include\Ludus\Pong\Models\Intents.h" />
+    <ClInclude Include="Include\Ludus\Pong\Models\RenderData.h" />
+    <ClInclude Include="Include\Ludus\Pong\Models\RuntimeData.h" />
+    <ClInclude Include="Include\Ludus\Pong\Core\PongInfo.h" />
+    <ClInclude Include="Include\Ludus\Pong\Systems\PlayingSystem.h" />
+    <ClInclude Include="Include\Ludus\Pong\Systems\MainMenuSystem.h" />
+    <ClInclude Include="Include\Ludus\Pong\Systems\PauseMenuSystem.h" />
+    <ClInclude Include="Include\Ludus\Pong\Systems\ScoreMenuSystem.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -118,10 +121,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)\Include;$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(SolutionDir)Ludus.UI\Include;$(SolutionDir)Ludus.UI\Vendors</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -132,10 +137,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)\Include;$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(SolutionDir)Ludus.UI\Include;$(SolutionDir)Ludus.UI\Vendors</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -144,14 +151,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)\Include;$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)\Include;$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(SolutionDir)Ludus.UI\Include;$(SolutionDir)Ludus.UI\Vendors</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d  "$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"
@@ -168,13 +176,14 @@ xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)\Include;$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)\Include;$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(SolutionDir)Ludus.UI\Include;$(SolutionDir)Ludus.UI\Vendors</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d  "$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"
