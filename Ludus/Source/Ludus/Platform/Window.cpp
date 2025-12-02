@@ -79,6 +79,14 @@ namespace Ludus::Platform
 		glfwSetWindowShouldClose(m_Handle, GLFW_TRUE);
 	}
 
+	Ludus::Graphics::FramebufferSize Window::GetFramebufferSize() const
+	{
+		int width, height;
+		glfwGetFramebufferSize(m_Handle, &width, &height);
+
+		return { width, height };
+	}
+
 	bool Window::WindowShouldClose()
 	{
 		return glfwWindowShouldClose(m_Handle);

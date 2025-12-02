@@ -7,6 +7,7 @@
 #include FT_FREETYPE_H
 
 #include <Ludus/Graphics/Texture.h>
+#include <Ludus/Debug/Debug.h>
 #include <Ludus/Graphics/Glyph.h>
 
 namespace Ludus::Graphics

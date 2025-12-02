@@ -13,6 +13,11 @@ namespace Ludus::Graphics
 		{
 			return Color { R, G, B, alpha };
 		}
+
+		constexpr float* GetData()
+		{
+			return &R;
+		};
 	};
 
 	namespace Colors

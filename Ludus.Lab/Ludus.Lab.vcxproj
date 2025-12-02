@@ -24,6 +24,7 @@
     <ProjectGuid>{21ee533c-c5b6-4f80-8bcb-92e4756af0d4}</ProjectGuid>
     <RootNamespace>LudusLab</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Lab</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -84,11 +85,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(SolutionDir)Ludus.UI\Include;$(SolutionDir)Ludus.UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -98,11 +104,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(SolutionDir)Ludus.UI\Include;$(SolutionDir)Ludus.UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -110,19 +121,18 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(SolutionDir)Ludus.UI\Include;$(SolutionDir)Ludus.UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"
-xcopy /y /d  "$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"
-</Command>
+      <Command>xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,30 +144,33 @@ xcopy /y /d  "$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(SolutionDir)Ludus.UI\Include;$(SolutionDir)Ludus.UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"
-xcopy /y /d  "$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"</Command>
+      <Command>xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Source\Lab\Core\Scene.cpp" />
+    <ClCompile Include="Source\Ludus\Lab\Core\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Ludus.UI\Ludus.UI.vcxproj">
+      <Project>{d7f5c7fb-e1a5-4c5b-9bd2-eaa351ca76a2}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Ludus\Ludus.vcxproj">
       <Project>{e5222f19-54e2-431b-b8a5-67dc31e554e1}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Lab\Core\Scene.h" />
+    <ClInclude Include="Include\Ludus\Lab\Core\Scene.h" />
     <ClInclude Include="Vendors\PerlinNoise-3.0.0\PerlinNoise.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

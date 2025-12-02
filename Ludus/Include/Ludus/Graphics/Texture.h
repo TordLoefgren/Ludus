@@ -22,6 +22,8 @@ namespace Ludus::Graphics
 		Texture(Texture&&) noexcept;
 		Texture& operator=(Texture&&) noexcept;
 
+		static Texture Empty(int width, int height);
+		static Texture FramebufferTexture(int width, int height);
 		static Texture FromFile(const std::string& path);
 		static Texture FromMemory(int width, int height, const void* data);
 		static Texture White();
