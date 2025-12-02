@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Ludus\Core\ImGuiSystem.h" />
+    <ClInclude Include="Include\Ludus\Debug\Debug.h" />
     <ClInclude Include="Include\Ludus\Graphics\FrameBufferObject.h" />
     <ClInclude Include="Include\Ludus\Core\Enums.h" />
     <ClInclude Include="Include\Ludus\Core\ITransitionableResource.h" />
@@ -43,7 +44,6 @@
     <ClInclude Include="Include\Ludus\Events\EventBus.h" />
     <ClInclude Include="Include\Ludus\Core\Application.h" />
     <ClInclude Include="Include\Ludus\Core\SystemPhase.h" />
-    <ClInclude Include="Include\Ludus\Debug\Debug.h" />
     <ClInclude Include="Include\Ludus\Debug\DebugGL.h" />
     <ClInclude Include="Include\Ludus\Events\EventType.h" />
     <ClInclude Include="Include\Ludus\Events\EventHandler.h" />
@@ -576,7 +576,7 @@
     <None Include="Vendors\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Ludus.UI\Ludus.UI.vcxproj">
+    <ProjectReference Include="..\UI\UI.vcxproj">
       <Project>{d7f5c7fb-e1a5-4c5b-9bd2-eaa351ca76a2}</Project>
     </ProjectReference>
   </ItemGroup>
@@ -650,7 +650,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;$(ProjectDir)..\Ludus.UI\Include;$(ProjectDir)..\Ludus.UI\Vendors;C:\dev\tools\vcpkg\installed\x64-windows\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;$(ProjectDir)..\UI\Include;$(ProjectDir)..\UI\Vendors;C:\dev\tools\vcpkg\installed\x64-windows\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -668,7 +668,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;$(ProjectDir)..\Ludus.UI\Include;$(ProjectDir)..\Ludus.UI\Vendors;C:\dev\tools\vcpkg\installed\x64-windows\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;$(ProjectDir)..\UI\Include;$(ProjectDir)..\UI\Vendors;C:\dev\tools\vcpkg\installed\x64-windows\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -685,7 +685,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;$(ProjectDir)..\Ludus.UI\Include;$(ProjectDir)..\Ludus.UI\Vendors;C:\dev\tools\vcpkg\installed\x64-windows\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;$(ProjectDir)..\UI\Include;$(ProjectDir)..\UI\Vendors;C:\dev\tools\vcpkg\installed\x64-windows\include</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
@@ -709,7 +709,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;$(ProjectDir)..\Ludus.UI\Include;$(ProjectDir)..\Ludus.UI\Vendors;C:\dev\tools\vcpkg\installed\x64-windows\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;$(ProjectDir)..\UI\Include;$(ProjectDir)..\UI\Vendors;C:\dev\tools\vcpkg\installed\x64-windows\include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
