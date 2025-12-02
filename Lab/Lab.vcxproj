@@ -85,7 +85,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(SolutionDir)Ludus.UI\Include;$(SolutionDir)Ludus.UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -93,7 +93,7 @@
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"</Command>
+      <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(SolutionDir)Ludus.UI\Include;$(SolutionDir)Ludus.UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -112,7 +112,7 @@
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"</Command>
+      <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -121,18 +121,18 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(SolutionDir)Ludus.UI\Include;$(SolutionDir)Ludus.UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"</Command>
+      <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -144,17 +144,17 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Ludus\Vendors\GLFW\include;$(SolutionDir)Ludus\Vendors\glad\include;$(SolutionDir)Ludus\Include;$(SolutionDir)Ludus\Vendors;$(SolutionDir)Ludus.UI\Include;$(SolutionDir)Ludus.UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Ludus\Vendors\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /e /i /d  "$(SolutionDir)Ludus\Resources\*"  "$(OutDir)Resources\"</Command>
+      <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -162,10 +162,10 @@
     <ClCompile Include="Source\Ludus\Lab\Core\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Ludus.UI\Ludus.UI.vcxproj">
+    <ProjectReference Include="..\UI\UI.vcxproj">
       <Project>{d7f5c7fb-e1a5-4c5b-9bd2-eaa351ca76a2}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\Ludus\Ludus.vcxproj">
+    <ProjectReference Include="..\Engine\Engine.vcxproj">
       <Project>{e5222f19-54e2-431b-b8a5-67dc31e554e1}</Project>
     </ProjectReference>
   </ItemGroup>
