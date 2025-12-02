@@ -27,11 +27,20 @@ namespace Ludus::Core
 		m_GLContext->Init();
 		m_GLContext->EnableBlending();
 		m_GLContext->SetBlendAlpha();
+		m_GLContext->SetViewport(windowOptions.Width, windowOptions.Height);
 
-		AddSystem(Phase::FixedUpdate, std::make_unique<Ludus::Physics::Core::PhysicsSystem2D>(*m_PhysicsContext));
-		AddSystem(Phase::Render, std::make_unique<Ludus::Graphics::RenderingSystem2D>(renderingOptions));
+		RegisterDefaults(windowOptions, renderingOptions);
 
 		SubscribeToEvents();
+	}
+
+	void Application::RegisterDefaults(Ludus::Platform::WindowOptions windowOptions, Ludus::Graphics::RenderingOptions renderingOptions)
+	{
+		AddSystem({ { SystemPhase::Update, nullptr, SystemPhaseOrder::Before }, { SystemPhase::Render, nullptr, SystemPhaseOrder::After} }, std::make_unique<Ludus::Editor::Core::ImGuiSystem>());
+		AddSystem({ SystemPhase::FixedUpdate, nullptr, SystemPhaseOrder::Before }, std::make_unique<Ludus::Physics::Core::PhysicsSystem2D>(*m_PhysicsContext));
+		AddSystem({ SystemPhase::Render, nullptr, SystemPhaseOrder::Before }, std::make_unique<Ludus::Graphics::RenderingSystem2D>(renderingOptions));
+
+		AddResource<std::shared_ptr<Ludus::Graphics::RenderTarget>>(std::make_shared<Ludus::Graphics::RenderTarget>(windowOptions.Width, windowOptions.Height));
 	}
 
 	std::unique_ptr<Application> Application::Create(Ludus::Platform::WindowOptions windowOptions, Ludus::Graphics::RenderingOptions renderingOptions)
@@ -40,10 +49,16 @@ namespace Ludus::Core
 		return application;
 	}
 
-	void Application::AddSystem(Phase phase, std::unique_ptr<ISystem> system, SystemPredicate predicate)
+	void Application::AddSystem(SystemPhaseInfo info, std::unique_ptr<ISystem> system)
 	{
 		system->OnAttach(m_SystemContext);
-		m_Scheduler->AttachSystem(phase, std::move(system), predicate);
+		m_Scheduler->AttachSystem(info, std::move(system));
+	}
+
+	void Application::AddSystem(std::initializer_list<SystemPhaseInfo> info, std::unique_ptr<ISystem> system)
+	{
+		system->OnAttach(m_SystemContext);
+		m_Scheduler->AttachSystem(info, std::move(system));
 	}
 
 	void Application::Run()
@@ -57,7 +72,7 @@ namespace Ludus::Core
 
 			while (m_Time->ConsumeFixed())
 			{
-				m_Scheduler->Run(Phase::FixedUpdate, m_Time->GetFixed());
+				m_Scheduler->Run(SystemPhase::FixedUpdate, m_Time->GetFixed());
 			}
 
 			m_EventBus->ProcessQueued();
@@ -66,9 +81,9 @@ namespace Ludus::Core
 
 			m_Scheduler->UpdateTransitions();
 
-			m_Scheduler->Run(Phase::Update, m_Time->GetSeconds());
+			m_Scheduler->Run(SystemPhase::Update, m_Time->GetSeconds());
 
-			m_Scheduler->Run(Phase::Render);
+			m_Scheduler->Run(SystemPhase::Render);
 
 			m_Window->SwapBuffers();
 		}

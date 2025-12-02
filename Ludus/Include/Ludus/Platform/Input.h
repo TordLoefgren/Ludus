@@ -43,7 +43,6 @@ namespace Ludus::Platform
 		~Input() = default;
 
 		void Clear();
-		void SetHandle(GLFWwindow* handle);
 
 		void OnKey(int key, int scancode, int action, int mods);
 		void OnText(unsigned int codepoint);

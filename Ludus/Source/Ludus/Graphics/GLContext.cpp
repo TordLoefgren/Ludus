@@ -5,6 +5,7 @@
 
 #include <Ludus/Debug/Debug.h>
 #include <Ludus/Debug/DebugGL.h>
+#include <Ludus/Events/WindowEvents.h>
 #include <Ludus/Graphics/GLContext.h>
 
 namespace Ludus::Graphics
@@ -46,9 +47,26 @@ namespace Ludus::Graphics
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
+	void GLContext::SetViewport(int width, int height)
+	{
+		glViewport(0, 0, width, height);
+	}
+
 	bool GLContext::ProcessEvent(const Ludus::Events::Event& event)
 	{
-		// Not yet implemented. 
+		using EventType = Ludus::Events::EventType;
+
+		switch (event.Type)
+		{
+			case EventType::FramebufferSizeEvent:
+			{
+				const auto& e = static_cast<const Ludus::Events::WindowEvents::FramebufferSizeEvent&>(event);
+				SetViewport(e.Width, e.Height);
+				return true;
+			}
+
+			default: return false;
+		}
 
 		return false;
 	}

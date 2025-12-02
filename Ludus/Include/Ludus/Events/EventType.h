@@ -1,7 +1,6 @@
 #pragma once
 
 #include <format>
-#include <stdexcept>
 #include <string_view>
 
 namespace Ludus::Events
@@ -49,11 +48,14 @@ namespace Ludus::Events
 	}
 }
 
-template <>
-struct std::formatter<Ludus::Events::EventType> : std::formatter<std::string_view>
+namespace std
 {
-	auto format(const Ludus::Events::EventType& type, std::format_context& context) const
+	template <>
+	struct formatter<Ludus::Events::EventType> : formatter<string_view>
 	{
-		return std::formatter<std::string_view>::format(ToString(type), context);
-	}
-};
+		auto format(const Ludus::Events::EventType& type, format_context& context) const
+		{
+			return formatter<string_view>::format(Ludus::Events::ToString(type), context);
+		}
+	};
+}

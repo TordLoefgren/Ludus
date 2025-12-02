@@ -7,6 +7,7 @@
 #include <Ludus/Graphics/Camera2D.h>
 #include <Ludus/Graphics/Color.h>
 #include <Ludus/Graphics/Renderer2D.h>
+#include <Ludus/Graphics/RenderTarget.h>
 #include <Ludus/Graphics/Shader.h>
 #include <Ludus/Graphics/Shape.h>
 
@@ -17,6 +18,9 @@ namespace Ludus::Graphics
 		std::unique_ptr<Camera2D> m_Camera;
 		std::unique_ptr<Renderer2D> m_Renderer;
 		std::unique_ptr<Shader> m_Shader;
+
+		int m_ViewportWidth = 0;
+		int m_ViewportHeight = 0;
 
 		RenderingOptions m_RenderingOptions;
 
@@ -30,12 +34,14 @@ namespace Ludus::Graphics
 		virtual void OnAttachImpl() override
 		{
 			m_Camera = std::make_unique<Camera2D>();
-			auto& windowOptions = m_SystemContext->Window.GetOptions();
-			m_Camera->SetViewport(windowOptions.Width, windowOptions.Height);
+			auto [currentWidth, currentHeight] = m_SystemContext->Window.GetFramebufferSize();
+			m_Camera->SetViewport(currentWidth, currentHeight);
+
+			m_ViewportWidth = currentWidth;
+			m_ViewportHeight = currentHeight;
 
 			m_Shader = std::make_unique<Shader>("Resources/Shaders");
 			m_Renderer = std::make_unique<Renderer2D>(*m_Shader);
-
 			m_Renderer->SetClearColor(m_RenderingOptions.ClearColor);
 		}
 
@@ -46,10 +52,32 @@ namespace Ludus::Graphics
 
 		virtual void RenderImpl() override
 		{
-			auto& ecs = m_SystemContext->EntityComponentSystem;
+			auto* target = m_SystemContext->Resources.Get<std::shared_ptr<Ludus::Graphics::RenderTarget>>().get();
+			if (!target)
+			{
+				LUDUS_LOG_ERROR("Render target was not available.");
+				return;
+			}
+
+			// Resize logic.
+			auto [currentWidth, currentHeight] = m_SystemContext->Window.GetFramebufferSize();
+			if (currentWidth != m_ViewportWidth || currentHeight != m_ViewportHeight)
+			{
+				m_ViewportWidth = currentWidth;
+				m_ViewportHeight = currentHeight;
+
+				m_Camera->SetViewport(currentWidth, currentHeight);
+
+				target->Framebuffer.Resize(currentWidth, currentHeight);
+			}
+
+			// Render pass.
+			target->Framebuffer.Bind();
 
 			m_Renderer->BeginScene(*m_Camera);
 			m_Renderer->Clear();
+
+			auto& ecs = m_SystemContext->EntityComponentSystem;
 
 			for (const auto& sprite : ecs.Sprites.View())
 			{
@@ -80,6 +108,8 @@ namespace Ludus::Graphics
 			}
 
 			m_Renderer->EndScene();
+
+			target->Framebuffer.Unbind();
 		}
 	};
 }

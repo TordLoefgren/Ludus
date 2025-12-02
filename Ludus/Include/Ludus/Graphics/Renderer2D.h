@@ -32,7 +32,6 @@ namespace Ludus::Graphics
 	class Renderer2D
 	{
 	private:
-
 		VertexArrayObject m_VertexArray;
 		VertexBufferObject m_VertexBuffer;
 		ElementBufferObject m_ElementBuffer;
@@ -56,7 +55,6 @@ namespace Ludus::Graphics
 		int GetVertexCount() const;
 
 	public:
-
 		Renderer2D(
 			Shader& shader,
 			int maxTextures = 16,

@@ -9,9 +9,10 @@ namespace Ludus::Graphics
 	class GLContext : Ludus::Events::Eventhandler
 	{
 	public:
-		static void Init();
-		static void EnableBlending();
-		static void SetBlendAlpha();
+		void Init();
+		void EnableBlending();
+		void SetBlendAlpha();
+		void SetViewport(int width, int height);
 
 		virtual bool ProcessEvent(const Ludus::Events::Event& event) override;
 	};
