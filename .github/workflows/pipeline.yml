@@ -41,7 +41,7 @@ jobs:
         run: nuget restore Ludus.sln
       - name: Build tests
         shell: cmd
-        run: msbuild .\Ludus.Tests\Ludus.Tests.vcxproj /m ^
+        run: msbuild .\Tests\Tests.vcxproj /m ^
           /p:Configuration=%Configuration% /p:Platform=%Platform%
       - name: Run GoogleTests
         shell: cmd

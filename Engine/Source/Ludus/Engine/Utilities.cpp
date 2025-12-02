@@ -1,5 +1,5 @@
 #include <Ludus/Engine/Utilities.h>
-
+namespace fs = std::filesystem;
 namespace Ludus::Engine::Utilities
 {
 	std::vector<std::string> GetFileNames(std::string path)
@@ -15,6 +15,7 @@ namespace Ludus::Engine::Utilities
 
 	std::string ReadFile(std::filesystem::path path)
 	{
+		auto current = fs::current_path();
 		std::ifstream file(path);
 		if (!file)
 		{
