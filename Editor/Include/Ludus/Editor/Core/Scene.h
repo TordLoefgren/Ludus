@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Ludus/Core/ISystem.h>
-#include <Ludus/Graphics/Color.h>
-#include <Ludus/Graphics/Shape.h>
-#include <Ludus/Physics/Core/BodyType.h>
+#include <Ludus/Engine/Core/ISystem.h>
+#include <Ludus/Engine/Graphics/Color.h>
+#include <Ludus/Engine/Graphics/Shape.h>
+#include <Ludus/Engine/Physics/Core/BodyType.h>
 
 namespace Ludus::Editor::Core
 {
-	class Scene : public Ludus::Core::ISystem
+	class Scene : public Ludus::Engine::Core::ISystem
 	{
 	public:
 		Scene() = default;

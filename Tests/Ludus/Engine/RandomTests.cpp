@@ -4,7 +4,7 @@
 
 namespace Ludus::Tests::Engine
 {
-	using Ludus::Engine::Random;
+	using Ludus::Engine::Core::Random;
 
 	TEST(Random, NextInt_ReturnsValueBetweenMinMax)
 	{

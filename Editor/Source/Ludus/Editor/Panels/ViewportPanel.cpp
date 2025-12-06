@@ -2,7 +2,7 @@
 
 namespace Ludus::Editor::Panels
 {
-	Ludus::Math::Vector2D ViewportPanel::GetViewportAspectSize()
+	Ludus::Engine::Math::Vector2D ViewportPanel::GetViewportAspectSize()
 	{
 		auto availableSpace = ImGui::GetContentRegionAvail();
 
@@ -21,7 +21,7 @@ namespace Ludus::Editor::Panels
 		return { aspectWidth, aspectHeight };
 	}
 
-	Ludus::Math::Vector2D ViewportPanel::GetViewportAspectOffset(Ludus::Math::Vector2D aspectSize)
+	Ludus::Engine::Math::Vector2D ViewportPanel::GetViewportAspectOffset(Ludus::Engine::Math::Vector2D aspectSize)
 	{
 		const auto availableSpace = ImGui::GetContentRegionAvail();
 		const auto offsetX = (availableSpace.x - aspectSize.X) * 0.5f;
@@ -40,7 +40,7 @@ namespace Ludus::Editor::Panels
 			| ImGuiWindowFlags_NoScrollbar
 			| ImGuiWindowFlags_NoScrollWithMouse;
 
-		auto [r, g, b, a] = Ludus::Graphics::Colors::DarkGray;
+		auto [r, g, b, a] = Ludus::Engine::Graphics::Colors::DarkGray;
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(r, g, b, a));
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
@@ -53,7 +53,7 @@ namespace Ludus::Editor::Panels
 
 			ImGui::SetCursorPos({ cursor.x + aspectOffset.X, cursor.y + aspectOffset.Y });
 
-			auto* targetPtr = m_SystemContext->Resources.Get<std::shared_ptr<Ludus::Graphics::RenderTarget>>().get();
+			auto* targetPtr = m_SystemContext->Resources.Get<std::shared_ptr<Ludus::Engine::Graphics::RenderTarget>>().get();
 			if (targetPtr)
 			{
 				targetPtr->Framebuffer.Resize((int)aspectSize.X, (int)aspectSize.Y);
