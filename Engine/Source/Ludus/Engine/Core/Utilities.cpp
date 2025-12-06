@@ -1,6 +1,6 @@
 #include <Ludus/Engine/Core/Utilities.h>
 
-namespace Ludus::Engine::Utilities
+namespace Ludus::Engine::Core::Utilities
 {
 	std::vector<std::string> GetFileNames(std::string path)
 	{
