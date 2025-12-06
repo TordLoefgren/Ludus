@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <Ludus/Engine/LayerMask.h>
 
 namespace Ludus::Pong::Core::Configuration
 {

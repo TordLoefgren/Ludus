@@ -7,7 +7,7 @@ namespace Ludus::Editor::Panels
 		static bool open = true;
 		if (Ludus::UI::Containers::Window window("Console", &open, Constants::PanelFlags); window)
 		{
-			auto& logEntries = Ludus::Debug::GetLogEntries();
+			auto& logEntries = Ludus::Engine::Debug::GetLogEntries();
 			for (auto& entry : logEntries)
 			{
 				Ludus::UI::Widgets::Text(FormatEntry(entry));
@@ -15,7 +15,7 @@ namespace Ludus::Editor::Panels
 		}
 	}
 
-	std::string ConsolePanel::FormatEntry(Ludus::Debug::LogEntry& entry)
+	std::string ConsolePanel::FormatEntry(Ludus::Engine::Debug::LogEntry& entry)
 	{
 		if (entry.Tag.empty())
 		{
@@ -30,7 +30,7 @@ namespace Ludus::Editor::Panels
 
 		return std::format(
 			"{}({}): [{}][{}] {}",
-			Ludus::Debug::ToString(entry.Level),
+			Ludus::Engine::Debug::ToString(entry.Level),
 			entry.File,
 			entry.Line,
 			entry.Tag,

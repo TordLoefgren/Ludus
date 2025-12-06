@@ -4,10 +4,10 @@
 
 namespace Ludus::Tests::Events
 {
-	using Ludus::Events::EventBus;
-	using Ludus::Events::Eventhandler;
-	using Ludus::Events::Event;
-	using Ludus::Events::EventType;
+	using Ludus::Engine::Events::EventBus;
+	using Ludus::Engine::Events::Eventhandler;
+	using Ludus::Engine::Events::Event;
+	using Ludus::Engine::Events::EventType;
 
 	struct ConcreteEventA final : Event
 	{

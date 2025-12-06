@@ -12,9 +12,9 @@ namespace Ludus::Pong::Systems
 		auto halfWidth = options.Width * 0.5f;
 		auto halfHeight = options.Height * 0.5f;
 
-		m_MenuItems.emplace_back(-1, "Pong", Ludus::Math::Transform2D(0, { halfWidth, options.Height - 150.0f }, 3.0f), m_GameInfo.ActiveColor);
-		m_MenuItems.emplace_back(-1, "Continue", Ludus::Math::Transform2D(0, { halfWidth, halfHeight }), m_GameInfo.InactiveColor);
-		m_MenuItems.emplace_back(-1, "Exit", Ludus::Math::Transform2D(0, { halfWidth, halfHeight - 100.0f }), m_GameInfo.InactiveColor);
+		m_MenuItems.emplace_back(-1, "Pong", Ludus::Engine::Math::Transform2D(0, { halfWidth, options.Height - 150.0f }, 3.0f), m_GameInfo.ActiveColor);
+		m_MenuItems.emplace_back(-1, "Continue", Ludus::Engine::Math::Transform2D(0, { halfWidth, halfHeight }), m_GameInfo.InactiveColor);
+		m_MenuItems.emplace_back(-1, "Exit", Ludus::Engine::Math::Transform2D(0, { halfWidth, halfHeight - 100.0f }), m_GameInfo.InactiveColor);
 	}
 
 	void PauseMenuSystem::OnDetachImpl()
@@ -51,16 +51,16 @@ namespace Ludus::Pong::Systems
 	{
 		auto& input = m_SystemContext->Input;
 
-		if (input.GetKeyDown(Ludus::Platform::Key::Up) || input.GetKeyDown(Ludus::Platform::Key::Down))
+		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Up) || input.GetKeyDown(Ludus::Engine::Platform::Key::Down))
 		{
 			m_MenuIndex = m_MenuIndex == 1 ? 2 : 1;
 		}
 
-		if (input.GetKeyDown(Ludus::Platform::Key::Enter) || input.GetKeyDown(Ludus::Platform::Key::Space))
+		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Enter) || input.GetKeyDown(Ludus::Engine::Platform::Key::Space))
 		{
 			if (m_MenuIndex == 1)
 			{
-				auto& gameState = m_SystemContext->Resources.Get<Ludus::Core::State<Ludus::Pong::Core::GameState>>();
+				auto& gameState = m_SystemContext->Resources.Get<Ludus::Engine::Core::State<Ludus::Pong::Core::GameState>>();
 				gameState.TransitionTo(Ludus::Pong::Core::GameState::Playing);
 			}
 			else

@@ -3,14 +3,14 @@
 #include <format>
 #include <string>
 
-#include <Ludus/Core/Enums.h>
+#include <Ludus/Engine/Core/Enums.h>
 
 namespace Ludus::Editor::Core::Utilities
 {
 	template<typename TEnum>
 	inline bool ComboEnum(const char* label, TEnum& currentItem)
 	{
-		const auto& values = Ludus::Core::Enums::GetValues<TEnum>::Values;
+		const auto& values = Ludus::Engine::Core::Enums::GetValues<TEnum>::Values;
 
 		auto currentIndex = 0;
 		for (int i = 0; i < values.size(); i++)
