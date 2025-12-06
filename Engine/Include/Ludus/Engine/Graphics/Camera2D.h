@@ -9,24 +9,21 @@ namespace Ludus::Engine::Graphics
 	{
 	private:
 		glm::vec2 m_Position;
-		glm::vec2 m_ViewportSize;
 		glm::mat4 m_Projection;
+		glm::vec2 m_ScreenCenter;
+		float m_Zoom;
 		float m_Rotation;
-		float m_OrthographicSize;
 
 	public:
 		Camera2D();
 		~Camera2D();
 
 		void SetPosition(glm::vec2 position);
-		void SetViewport(int width, int height);
-		void SetOrthographicSize(float zoom);
 		void SetRotation(float rotation);
+		void SetZoom(float zoom);
+		void SetViewport(int width, int height);
 
 		glm::mat4 GetView() const;
 		glm::mat4 GetViewProjection() const;
-		float GetOrthographicSize() const;
-
-		void RecalculateProjection();
 	};
 }

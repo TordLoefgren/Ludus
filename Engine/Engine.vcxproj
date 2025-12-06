@@ -61,7 +61,6 @@
     <ClInclude Include="Include\Ludus\Engine\Events\WindowEvents.h" />
     <ClInclude Include="Include\Ludus\Engine\Geometries\Queries.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\Camera2D.h" />
-    <ClInclude Include="Include\Ludus\Engine\Graphics\Camera2DComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\Color.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\ElementBufferObject.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\Font.h" />
@@ -70,13 +69,10 @@
     <ClInclude Include="Include\Ludus\Engine\Graphics\GLContext.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\Glyph.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\HorizontalTextAlignment.h" />
-    <ClInclude Include="Include\Ludus\Engine\Graphics\IRenderViewProvider.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\Renderer2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderingOptions.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderingSystem2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderTarget.h" />
-    <ClInclude Include="Include\Ludus\Engine\Graphics\RenderView2D.h" />
-    <ClInclude Include="Include\Ludus\Engine\Graphics\RuntimeRenderViewProvider.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\Shader.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\Shape.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\Sprite2D.h" />
@@ -88,7 +84,6 @@
     <ClInclude Include="Include\Ludus\Engine\Math\AABB.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Circle.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Constants.h" />
-    <ClInclude Include="Include\Ludus\Engine\Math\CoordinateSpace.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Numeric.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Transform2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Vector2D.h" />
