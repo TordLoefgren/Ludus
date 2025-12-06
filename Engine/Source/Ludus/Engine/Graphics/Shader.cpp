@@ -2,8 +2,8 @@
 
 #include <glad/glad.h>
 
-#include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Core/Utilities.h>
+#include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Graphics/Shader.h>
 
 namespace Ludus::Engine::Graphics
@@ -120,8 +120,8 @@ namespace Ludus::Engine::Graphics
 
 	unsigned int Shader::LoadShaders(std::filesystem::path path)
 	{
-		auto vertexSource = Ludus::Engine::Utilities::ReadFile((path / "shader.vert").string().data());
-		auto fragmentSource = Ludus::Engine::Utilities::ReadFile((path / "shader.frag").string().data());
+		auto vertexSource = Ludus::Engine::Core::Utilities::ReadFile((path / "shader.vert").string().data());
+		auto fragmentSource = Ludus::Engine::Core::Utilities::ReadFile((path / "shader.frag").string().data());
 
 		auto shaders = std::vector<std::tuple<unsigned int, std::string>>();
 		shaders.push_back({ GL_VERTEX_SHADER, std::string(vertexSource) });
