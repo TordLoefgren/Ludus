@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Ludus/Core/ISystem.h>
+#include <Ludus/Engine/Core/ISystem.h>
 
 namespace Ludus::Editor::Core
 {
-	class PanelSystem : public Ludus::Core::ISystem
+	class PanelSystem : public Ludus::Engine::Core::ISystem
 	{
 	protected:
 		virtual void UpdateImpl(float deltaTime) override { DrawPanel(); }

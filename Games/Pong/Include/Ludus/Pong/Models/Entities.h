@@ -1,20 +1,20 @@
 #pragma once
 
-#include <Ludus/Engine/Entity.h>
+#include <Ludus/Engine/Core/Entity.h>
 
 namespace Ludus::Pong::Models
 {
 	struct Entities
 	{
-		Ludus::Engine::EntityHandle Player1Handle = 0;
-		Ludus::Engine::EntityHandle Player2Handle = 0;
-		Ludus::Engine::EntityHandle BallHandle = 0;
-		Ludus::Engine::EntityHandle LeftWallHandle = 0;
-		Ludus::Engine::EntityHandle TopWallHandle = 0;
-		Ludus::Engine::EntityHandle RightWallHandle = 0;
-		Ludus::Engine::EntityHandle BottomWallHandle = 0;
-		Ludus::Engine::EntityHandle LeftScoreTextHandle = 0;
-		Ludus::Engine::EntityHandle RightScoreTextHandle = 0;
-		std::vector<Ludus::Engine::EntityHandle> CenterLineHandles;
+		Ludus::Engine::Core::EntityHandle Player1Handle = 0;
+		Ludus::Engine::Core::EntityHandle Player2Handle = 0;
+		Ludus::Engine::Core::EntityHandle BallHandle = 0;
+		Ludus::Engine::Core::EntityHandle LeftWallHandle = 0;
+		Ludus::Engine::Core::EntityHandle TopWallHandle = 0;
+		Ludus::Engine::Core::EntityHandle RightWallHandle = 0;
+		Ludus::Engine::Core::EntityHandle BottomWallHandle = 0;
+		Ludus::Engine::Core::EntityHandle LeftScoreTextHandle = 0;
+		Ludus::Engine::Core::EntityHandle RightScoreTextHandle = 0;
+		std::vector<Ludus::Engine::Core::EntityHandle> CenterLineHandles;
 	};
 }

@@ -2,20 +2,20 @@
 
 #include <string>
 
-#include <Ludus/Engine/Entity.h>
-#include <Ludus/Graphics/Color.h>
-#include <Ludus/Graphics/HorizontalTextAlignment.h>
-#include <Ludus/Graphics/Shape.h>
-#include <Ludus/Math/Transform2D.h>
+#include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Graphics/Color.h>
+#include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
+#include <Ludus/Engine/Graphics/Shape.h>
+#include <Ludus/Engine/Math/Transform2D.h>
 
 namespace Ludus::Pong::Core
 {
 	struct MenuItem
 	{
-		Ludus::Engine::EntityHandle Handle;
+		Ludus::Engine::Core::EntityHandle Handle;
 		std::string MenuText;
-		Ludus::Math::Transform2D Transform;
-		Ludus::Graphics::Color Color = Ludus::Graphics::Colors::LightGray;
-		Ludus::Graphics::HorizontalTextAlignment HorizontalTextAlignment = Ludus::Graphics::HorizontalTextAlignment::Center;
+		Ludus::Engine::Math::Transform2D Transform;
+		Ludus::Engine::Graphics::Color Color = Ludus::Engine::Graphics::Colors::LightGray;
+		Ludus::Engine::Graphics::HorizontalTextAlignment HorizontalTextAlignment = Ludus::Engine::Graphics::HorizontalTextAlignment::Center;
 	};
 }

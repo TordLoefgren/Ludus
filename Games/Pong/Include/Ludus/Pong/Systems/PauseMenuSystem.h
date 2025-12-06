@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Ludus/Core/ISystem.h>
+#include <Ludus/Engine/Core/ISystem.h>
 
 #include <Ludus/Pong/Core/GameInfo.h>
 #include <Ludus/Pong/Core/GameState.h>
@@ -10,7 +10,7 @@
 namespace Ludus::Pong::Systems
 {
 
-	class PauseMenuSystem final : public Ludus::Core::ISystem
+	class PauseMenuSystem final : public Ludus::Engine::Core::ISystem
 	{
 		Ludus::Pong::Core::GameInfo& m_GameInfo;
 		Ludus::Pong::Core::PongInfo& m_PongInfo;

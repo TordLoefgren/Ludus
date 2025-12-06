@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string_view>
 
-#include <Ludus/Engine/LayerMask.h>
+#include <Ludus/Engine/Physics/Core/LayerMask.h>
 
 namespace Ludus::Pong::Core::Layers
 {
@@ -20,21 +20,21 @@ namespace Ludus::Pong::Core::Layers
 	struct LayerInfo
 	{
 		Layer Layer;
-		Ludus::Engine::LayerIndex Index;
+		Ludus::Engine::Physics::Core::LayerIndex Index;
 		std::string_view Name;
 	};
 
 	inline constexpr std::array<LayerInfo, 5> LayerLookupTable {
 		{
-			{ Layer::Ball,               static_cast<Ludus::Engine::LayerIndex>(1), "Ball" },
-			{ Layer::BoundaryHorizontal, static_cast<Ludus::Engine::LayerIndex>(2), "BoundaryHorizontal" },
-			{ Layer::BoundaryVertical,   static_cast<Ludus::Engine::LayerIndex>(3), "BoundaryVertical" },
-			{ Layer::Player1,            static_cast<Ludus::Engine::LayerIndex>(4), "Player1" },
-			{ Layer::Player2,            static_cast<Ludus::Engine::LayerIndex>(5), "Player2" },
+			{ Layer::Ball,               static_cast<Ludus::Engine::Physics::Core::LayerIndex>(1), "Ball" },
+			{ Layer::BoundaryHorizontal, static_cast<Ludus::Engine::Physics::Core::LayerIndex>(2), "BoundaryHorizontal" },
+			{ Layer::BoundaryVertical,   static_cast<Ludus::Engine::Physics::Core::LayerIndex>(3), "BoundaryVertical" },
+			{ Layer::Player1,            static_cast<Ludus::Engine::Physics::Core::LayerIndex>(4), "Player1" },
+			{ Layer::Player2,            static_cast<Ludus::Engine::Physics::Core::LayerIndex>(5), "Player2" },
 		}
 	};
 
-	inline constexpr Ludus::Engine::LayerIndex ToIndex(Layer layer)
+	inline constexpr Ludus::Engine::Physics::Core::LayerIndex ToIndex(Layer layer)
 	{
 		for (auto&& info : LayerLookupTable)
 		{
@@ -60,7 +60,7 @@ namespace Ludus::Pong::Core::Layers
 		return "";
 	}
 
-	inline constexpr Layer FromIndex(Ludus::Engine::LayerIndex index)
+	inline constexpr Layer FromIndex(Ludus::Engine::Physics::Core::LayerIndex index)
 	{
 		for (auto&& info : LayerLookupTable)
 		{
@@ -90,7 +90,7 @@ namespace Ludus::Pong::Core::Layers
 	{
 		for (auto&& info : LayerLookupTable)
 		{
-			Ludus::Engine::LayerMask::AddLayer(std::string { info.Name }, info.Index);
+			Ludus::Engine::Physics::Core::LayerMask::AddLayer(std::string { info.Name }, info.Index);
 		}
 	}
 }

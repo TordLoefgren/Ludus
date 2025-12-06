@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Ludus/Core/ISystem.h>
-#include <Ludus/Physics/Core/BodyType.h>
-#include <Ludus/Physics/Core/Constants.h>
+#include <Ludus/Engine/Core/ISystem.h>
+#include <Ludus/Engine/Physics/Core/BodyType.h>
+#include <Ludus/Engine/Physics/Core/Constants.h>
 
 #include <Ludus/Pong/Core/GameInfo.h>
 #include <Ludus/Pong/Core/GameState.h>
@@ -16,7 +16,7 @@
 namespace Ludus::Pong::Systems
 {
 
-	class PlayingSystem final : public Ludus::Core::ISystem
+	class PlayingSystem final : public Ludus::Engine::Core::ISystem
 	{
 		Ludus::Pong::Core::GameInfo& m_GameInfo;
 		Ludus::Pong::Core::PongInfo& m_PongInfo;
@@ -26,8 +26,8 @@ namespace Ludus::Pong::Systems
 		Ludus::Pong::Models::RenderData m_RenderData;
 		Ludus::Pong::Models::RuntimeData m_RuntimeData;
 
-		Ludus::Engine::LayerIndex m_LayerIndexBall, m_LayerIndexHorizontal, m_LayerIndexVertical, m_LayerIndexPlayer1, m_LayerIndexPlayer2;
-		Ludus::Engine::LayerMask  m_LayerMaskBall, m_LayerMaskHorizontal, m_LayerMaskVertical, m_LayerMaskPlayer1, m_LayerMaskPlayer2;
+		Ludus::Engine::Physics::Core::LayerIndex m_LayerIndexBall, m_LayerIndexHorizontal, m_LayerIndexVertical, m_LayerIndexPlayer1, m_LayerIndexPlayer2;
+		Ludus::Engine::Physics::Core::LayerMask  m_LayerMaskBall, m_LayerMaskHorizontal, m_LayerMaskVertical, m_LayerMaskPlayer1, m_LayerMaskPlayer2;
 
 		void Start();
 		void Clear();
