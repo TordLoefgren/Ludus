@@ -7,24 +7,24 @@
 #include <Ludus/UI/Layouts.h>
 #include <Ludus/UI/Widgets.h>
 
-#include <Ludus/Core/Enums.h>
-#include <Ludus/Core/ISystem.h>
 #include <Ludus/Editor/Core/PanelSystem.h>
 #include <Ludus/Editor/Core/Utilities.h>
-#include <Ludus/Engine/Entity.h>
-#include <Ludus/Engine/LayerMask.h>
-#include <Ludus/Graphics/Color.h>
-#include <Ludus/Graphics/HorizontalTextAlignment.h>
-#include <Ludus/Graphics/Shape.h>
-#include <Ludus/Graphics/Sprite2D.h>
-#include <Ludus/Graphics/Text2D.h>
-#include <Ludus/Math/Transform2D.h>
-#include <Ludus/Physics/Core/Collider2D.h>
-#include <Ludus/Physics/Core/RigidBody2D.h>
+#include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Enums.h>
+#include <Ludus/Engine/Core/ISystem.h>
+#include <Ludus/Engine/Graphics/Color.h>
+#include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
+#include <Ludus/Engine/Graphics/Shape.h>
+#include <Ludus/Engine/Graphics/Sprite2D.h>
+#include <Ludus/Engine/Graphics/Text2D.h>
+#include <Ludus/Engine/Math/Transform2D.h>
+#include <Ludus/Engine/Physics/Core/Collider2D.h>
+#include <Ludus/Engine/Physics/Core/LayerMask.h>
+#include <Ludus/Engine/Physics/Core/RigidBody2D.h>
 
 namespace Ludus::Editor::Core
 {
-	inline void EntityPanel(Ludus::Engine::EntityHandle handle)
+	inline void EntityPanel(Ludus::Engine::Core::EntityHandle handle)
 	{
 		if (Ludus::UI::Containers::TreeNode treeNode("Entity"); treeNode)
 		{
@@ -38,7 +38,7 @@ namespace Ludus::Editor::Core
 		}
 	}
 
-	inline void Transform2DPanel(Ludus::Math::Transform2D& transform)
+	inline void Transform2DPanel(Ludus::Engine::Math::Transform2D& transform)
 	{
 		if (Ludus::UI::Containers::TreeNode treeNode("Transform 2D"); treeNode)
 		{
@@ -66,7 +66,7 @@ namespace Ludus::Editor::Core
 		}
 	}
 
-	inline void Collider2DPanel(Ludus::Physics::Core::Collider2D& collider)
+	inline void Collider2DPanel(Ludus::Engine::Physics::Core::Collider2D& collider)
 	{
 		if (Ludus::UI::Containers::TreeNode treeNode("Collider 2D"); treeNode)
 		{
@@ -77,13 +77,13 @@ namespace Ludus::Editor::Core
 				Ludus::UI::Containers::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::InputUInt8("##Collider2D_Panel_LayerIndex", &collider.LayerIndex);
 				Ludus::UI::Containers::TableSetColumnIndex(2);
-				Ludus::UI::Widgets::Text(Ludus::Engine::LayerMask::LayerIndexToName(collider.LayerIndex));
+				Ludus::UI::Widgets::Text(Ludus::Engine::Physics::Core::LayerMask::LayerIndexToName(collider.LayerIndex));
 
 				Ludus::UI::Containers::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::Text("Collides With");
 				Ludus::UI::Containers::TableSetColumnIndex(1);
 
-				const auto count = Ludus::Engine::LayerMask::GetLayerCount();
+				const auto count = Ludus::Engine::Physics::Core::LayerMask::GetLayerCount();
 				if (Ludus::UI::Widgets::CollapsingHeader("##Collider2D_Panel_CollidesWith"))
 				{
 					auto newMask = collider.CollidesWith;
@@ -91,8 +91,8 @@ namespace Ludus::Editor::Core
 
 					for (size_t i = 0; i < count; i++)
 					{
-						auto layer = Ludus::Engine::LayerMask::FromIndex((uint8_t)i);
-						auto label = Ludus::Engine::LayerMask::LayerIndexToName((uint8_t)i);
+						auto layer = Ludus::Engine::Physics::Core::LayerMask::FromIndex((uint8_t)i);
+						auto label = Ludus::Engine::Physics::Core::LayerMask::LayerIndexToName((uint8_t)i);
 						auto isChecked = collider.CollidesWith.Contains(layer);
 
 						auto item = Ludus::UI::Widgets::CheckboxItem(std::format("{} {}", i, label), isChecked);
@@ -118,7 +118,7 @@ namespace Ludus::Editor::Core
 		}
 	}
 
-	inline void RigidBody2DPanel(Ludus::Physics::Core::RigidBody2D& rigidBody)
+	inline void RigidBody2DPanel(Ludus::Engine::Physics::Core::RigidBody2D& rigidBody)
 	{
 		if (Ludus::UI::Containers::TreeNode treeNode("Rigid Body 2D"); treeNode)
 		{
@@ -155,7 +155,7 @@ namespace Ludus::Editor::Core
 		}
 	}
 
-	inline void Sprite2DPanel(Ludus::Graphics::Sprite2D& sprite)
+	inline void Sprite2DPanel(Ludus::Engine::Graphics::Sprite2D& sprite)
 	{
 		if (Ludus::UI::Containers::TreeNode treeNode("Sprite 2D"); treeNode)
 		{
@@ -186,7 +186,7 @@ namespace Ludus::Editor::Core
 		}
 	}
 
-	inline void Text2DPanel(Ludus::Graphics::Text2D& text)
+	inline void Text2DPanel(Ludus::Engine::Graphics::Text2D& text)
 	{
 		if (Ludus::UI::Containers::TreeNode treeNode("Text 2D"); treeNode)
 		{

@@ -2,9 +2,9 @@
 
 namespace Ludus::Tests::Math
 {
-	using Ludus::Math::Vector2D;
+	using Ludus::Engine::Math::Vector2D;
 
-	namespace Constants = Ludus::Math::Constants;
+	namespace Constants = Ludus::Engine::Math::Constants;
 
 	TEST(Vector2D, Dot_ReturnsZero_When_VectorsAreOrthogonal)
 	{

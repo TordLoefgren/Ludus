@@ -14,10 +14,10 @@ namespace Ludus::Pong::Systems
 
 		m_MenuIndex = 1;
 
-		m_MenuItems.emplace_back(-1, "Pong", Ludus::Math::Transform2D(0, { halfWidth, options.Height - 150.0f }, 3.0f), m_GameInfo.ActiveColor);
-		m_MenuItems.emplace_back(-1, "Single Player", Ludus::Math::Transform2D(0, { halfWidth, halfHeight }), m_GameInfo.InactiveColor);
-		m_MenuItems.emplace_back(-1, "Multiplayer", Ludus::Math::Transform2D(0, { halfWidth, halfHeight - 100.0f }), m_GameInfo.InactiveColor);
-		m_MenuItems.emplace_back(-1, "Exit", Ludus::Math::Transform2D(0, { halfWidth, halfHeight - 200.0f }), m_GameInfo.InactiveColor);
+		m_MenuItems.emplace_back(-1, "Pong", Ludus::Engine::Math::Transform2D(0, { halfWidth, options.Height - 150.0f }, 3.0f), m_GameInfo.ActiveColor);
+		m_MenuItems.emplace_back(-1, "Single Player", Ludus::Engine::Math::Transform2D(0, { halfWidth, halfHeight }), m_GameInfo.InactiveColor);
+		m_MenuItems.emplace_back(-1, "Multiplayer", Ludus::Engine::Math::Transform2D(0, { halfWidth, halfHeight - 100.0f }), m_GameInfo.InactiveColor);
+		m_MenuItems.emplace_back(-1, "Exit", Ludus::Engine::Math::Transform2D(0, { halfWidth, halfHeight - 200.0f }), m_GameInfo.InactiveColor);
 	}
 
 	void MainMenuSystem::OnDetachImpl()
@@ -54,17 +54,17 @@ namespace Ludus::Pong::Systems
 	{
 		auto& input = m_SystemContext->Input;
 
-		if (input.GetKeyDown(Ludus::Platform::Key::Up))
+		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Up))
 		{
 			m_MenuIndex = m_MenuIndex == 1 ? 3 : m_MenuIndex - 1;
 		}
 
-		if (input.GetKeyDown(Ludus::Platform::Key::Down))
+		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Down))
 		{
 			m_MenuIndex = m_MenuIndex == 3 ? 1 : m_MenuIndex + 1;
 		}
 
-		if (input.GetKeyDown(Ludus::Platform::Key::Enter) || input.GetKeyDown(Ludus::Platform::Key::Space))
+		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Enter) || input.GetKeyDown(Ludus::Engine::Platform::Key::Space))
 		{
 			switch (m_MenuIndex)
 			{
@@ -79,7 +79,7 @@ namespace Ludus::Pong::Systems
 					break;
 			}
 
-			auto& gameState = m_SystemContext->Resources.Get<Ludus::Core::State<Ludus::Pong::Core::GameState>>();
+			auto& gameState = m_SystemContext->Resources.Get<Ludus::Engine::Core::State<Ludus::Pong::Core::GameState>>();
 			gameState.TransitionTo(Ludus::Pong::Core::GameState::Playing);
 		}
 

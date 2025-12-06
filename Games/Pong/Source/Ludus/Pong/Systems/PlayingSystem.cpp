@@ -10,11 +10,11 @@ namespace Ludus::Pong::Systems
 		m_LayerIndexVertical(-1),
 		m_LayerIndexPlayer1(-1),
 		m_LayerIndexPlayer2(-1),
-		m_LayerMaskBall(Ludus::Engine::LayerMask::GetEmpty()),
-		m_LayerMaskHorizontal(Ludus::Engine::LayerMask::GetEmpty()),
-		m_LayerMaskVertical(Ludus::Engine::LayerMask::GetEmpty()),
-		m_LayerMaskPlayer1(Ludus::Engine::LayerMask::GetEmpty()),
-		m_LayerMaskPlayer2(Ludus::Engine::LayerMask::GetEmpty())
+		m_LayerMaskBall(Ludus::Engine::Physics::Core::LayerMask::GetEmpty()),
+		m_LayerMaskHorizontal(Ludus::Engine::Physics::Core::LayerMask::GetEmpty()),
+		m_LayerMaskVertical(Ludus::Engine::Physics::Core::LayerMask::GetEmpty()),
+		m_LayerMaskPlayer1(Ludus::Engine::Physics::Core::LayerMask::GetEmpty()),
+		m_LayerMaskPlayer2(Ludus::Engine::Physics::Core::LayerMask::GetEmpty())
 	{ }
 
 	void PlayingSystem::Start()
@@ -25,7 +25,7 @@ namespace Ludus::Pong::Systems
 
 		if (auto ballTransform = m_SystemContext->EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Entities.BallHandle))
 		{
-			ballTransform->Rotation = Ludus::Math::Numeric::RadiansToDegrees(std::atan2(directionY, directionX));
+			ballTransform->Rotation = Ludus::Engine::Math::Numeric::RadiansToDegrees(std::atan2(directionY, directionX));
 		}
 
 		m_RuntimeData.IsBallServed = false;
@@ -56,26 +56,26 @@ namespace Ludus::Pong::Systems
 	}
 
 	static float GetReflectionAngle(
-		const Ludus::Math::Transform2D& ballTransform,
-		const Ludus::Math::Transform2D& playerTransform,
-		Ludus::Math::Vector2D normal,
+		const Ludus::Engine::Math::Transform2D& ballTransform,
+		const Ludus::Engine::Math::Transform2D& playerTransform,
+		Ludus::Engine::Math::Vector2D normal,
 		float minCenterDegrees,
 		float maxDeflectDegrees
 	)
 	{
 		// Compute a signed offset in [-1,1] from the vertical paddle impact position.
 		auto offset = (ballTransform.Position.Y - playerTransform.Position.Y) / (playerTransform.Scale.Y * 0.5f);
-		offset = Ludus::Math::Numeric::Clamp(offset, -1.0f, 1.0f);
+		offset = Ludus::Engine::Math::Numeric::Clamp(offset, -1.0f, 1.0f);
 
 		// Reflect the direction off the surface normal.
 		const auto direction = ballTransform.Forward();
-		const auto reflection = Ludus::Math::Vector2D::Reflect(direction, normal);
+		const auto reflection = Ludus::Engine::Math::Vector2D::Reflect(direction, normal);
 
 		const float theta = std::copysign(
 			std::max(minCenterDegrees, std::fabs(offset) * maxDeflectDegrees),
 			(offset != 0.0f) ? offset : (direction.Y >= 0.0f ? 1.0f : -1.0f)
 		);
-		auto deflection = Ludus::Math::Vector2D::Rotate(reflection, theta);
+		auto deflection = Ludus::Engine::Math::Vector2D::Rotate(reflection, theta);
 
 		// Make sure that the ball will not deflect completely vertical.
 		if (std::fabs(deflection.X) < 0.1f)
@@ -83,7 +83,7 @@ namespace Ludus::Pong::Systems
 			deflection.X = deflection.X < 0.0f ? -0.1f : 0.1f;
 		}
 
-		return Ludus::Math::Numeric::RotationDegreesFromDirection(deflection.X, deflection.Y);
+		return Ludus::Engine::Math::Numeric::RotationDegreesFromDirection(deflection.X, deflection.Y);
 	}
 
 	void PlayingSystem::OnAttachImpl()
@@ -114,11 +114,11 @@ namespace Ludus::Pong::Systems
 		m_LayerIndexPlayer1 = ToIndex(Layer::Player1);
 		m_LayerIndexPlayer2 = ToIndex(Layer::Player2);
 
-		m_LayerMaskBall = Ludus::Engine::LayerMask::FromIndex(m_LayerIndexBall);
-		m_LayerMaskHorizontal = Ludus::Engine::LayerMask::FromIndex(m_LayerIndexHorizontal);
-		m_LayerMaskVertical = Ludus::Engine::LayerMask::FromIndex(m_LayerIndexVertical);
-		m_LayerMaskPlayer1 = Ludus::Engine::LayerMask::FromIndex(m_LayerIndexPlayer1);
-		m_LayerMaskPlayer2 = Ludus::Engine::LayerMask::FromIndex(m_LayerIndexPlayer2);
+		m_LayerMaskBall = Ludus::Engine::Physics::Core::LayerMask::FromIndex(m_LayerIndexBall);
+		m_LayerMaskHorizontal = Ludus::Engine::Physics::Core::LayerMask::FromIndex(m_LayerIndexHorizontal);
+		m_LayerMaskVertical = Ludus::Engine::Physics::Core::LayerMask::FromIndex(m_LayerIndexVertical);
+		m_LayerMaskPlayer1 = Ludus::Engine::Physics::Core::LayerMask::FromIndex(m_LayerIndexPlayer1);
+		m_LayerMaskPlayer2 = Ludus::Engine::Physics::Core::LayerMask::FromIndex(m_LayerIndexPlayer2);
 	}
 
 	void PlayingSystem::OnDetachImpl()
@@ -151,13 +151,13 @@ namespace Ludus::Pong::Systems
 		ecs.AttachCollider(m_Entities.Player2Handle, m_LayerIndexPlayer2, (m_LayerMaskBall | m_LayerMaskHorizontal));
 
 		// Rigid Bodies.
-		ecs.AttachRigidBody(m_Entities.BallHandle, { 0.0f }, Ludus::Physics::Core::BodyType::Dynamic, 0.0f);
-		ecs.AttachRigidBody(m_Entities.TopWallHandle, { 0.0f }, Ludus::Physics::Core::BodyType::Static);
-		ecs.AttachRigidBody(m_Entities.BottomWallHandle, { 0.0f }, Ludus::Physics::Core::BodyType::Static);
-		ecs.AttachRigidBody(m_Entities.LeftWallHandle, { 0.0f }, Ludus::Physics::Core::BodyType::Static);
-		ecs.AttachRigidBody(m_Entities.RightWallHandle, { 0.0f }, Ludus::Physics::Core::BodyType::Static);
-		ecs.AttachRigidBody(m_Entities.Player1Handle, { 0.0f }, Ludus::Physics::Core::BodyType::Kinematic);
-		ecs.AttachRigidBody(m_Entities.Player2Handle, { 0.0f }, Ludus::Physics::Core::BodyType::Kinematic);
+		ecs.AttachRigidBody(m_Entities.BallHandle, { 0.0f }, Ludus::Engine::Physics::Core::BodyType::Dynamic, 0.0f);
+		ecs.AttachRigidBody(m_Entities.TopWallHandle, { 0.0f }, Ludus::Engine::Physics::Core::BodyType::Static);
+		ecs.AttachRigidBody(m_Entities.BottomWallHandle, { 0.0f }, Ludus::Engine::Physics::Core::BodyType::Static);
+		ecs.AttachRigidBody(m_Entities.LeftWallHandle, { 0.0f }, Ludus::Engine::Physics::Core::BodyType::Static);
+		ecs.AttachRigidBody(m_Entities.RightWallHandle, { 0.0f }, Ludus::Engine::Physics::Core::BodyType::Static);
+		ecs.AttachRigidBody(m_Entities.Player1Handle, { 0.0f }, Ludus::Engine::Physics::Core::BodyType::Kinematic);
+		ecs.AttachRigidBody(m_Entities.Player2Handle, { 0.0f }, Ludus::Engine::Physics::Core::BodyType::Kinematic);
 
 		// Transforms.
 		const float wallWidth = Ludus::Pong::Core::Configuration::Defaults::WallWidthThickness;
@@ -199,7 +199,7 @@ namespace Ludus::Pong::Systems
 			{ Ludus::Pong::Core::Configuration::Defaults::PaddleWidth, Ludus::Pong::Core::Configuration::Defaults::PaddleHeight });
 
 		// Transforms.
-		ecs.AttachSprite(m_Entities.BallHandle, Ludus::Graphics::Shape::Circle);
+		ecs.AttachSprite(m_Entities.BallHandle, Ludus::Engine::Graphics::Shape::Circle);
 		ecs.AttachSprite(m_Entities.TopWallHandle);
 		ecs.AttachSprite(m_Entities.BottomWallHandle);
 		ecs.AttachSprite(m_Entities.Player1Handle);
@@ -215,8 +215,8 @@ namespace Ludus::Pong::Systems
 		}
 
 		// Render score text.
-		auto color = Ludus::Graphics::Colors::White;
-		auto horizontalAlignment = Ludus::Graphics::HorizontalTextAlignment::Center;
+		auto color = Ludus::Engine::Graphics::Colors::White;
+		auto horizontalAlignment = Ludus::Engine::Graphics::HorizontalTextAlignment::Center;
 
 		m_Entities.LeftScoreTextHandle = ecs.AddEntity();
 		ecs.AttachTransform(m_Entities.LeftScoreTextHandle, { m_RenderData.GetHalfWidth() - Ludus::Pong::Core::Configuration::Defaults::ScoreTextOffset, m_RenderData.Height - Ludus::Pong::Core::Configuration::Defaults::ScoreTextOffset });
@@ -271,28 +271,28 @@ namespace Ludus::Pong::Systems
 			state = Ludus::Pong::Core::GameState::ScoreMenu;
 		}
 
-		if (!m_RuntimeData.IsRunning && (input.GetKeyDown(Ludus::Platform::Key::Enter) || input.GetKeyDown(Ludus::Platform::Key::Space)))
+		if (!m_RuntimeData.IsRunning && (input.GetKeyDown(Ludus::Engine::Platform::Key::Enter) || input.GetKeyDown(Ludus::Engine::Platform::Key::Space)))
 		{
 			Start();
 		}
 
-		if (input.GetKeyDown(Ludus::Platform::Key::Escape))
+		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Escape))
 		{
 			state = Ludus::Pong::Core::GameState::PauseMenu;
 		}
 
 		// Player 1.
-		m_Intents.Player1MoveY = (input.GetKey(Ludus::Platform::Key::W) ? 1.0f : 0.0f) + (input.GetKey(Ludus::Platform::Key::S) ? -1.0f : 0.0f);
+		m_Intents.Player1MoveY = (input.GetKey(Ludus::Engine::Platform::Key::W) ? 1.0f : 0.0f) + (input.GetKey(Ludus::Engine::Platform::Key::S) ? -1.0f : 0.0f);
 
 		// Player 2.
 		if (m_PongInfo.IsMultiplayer)
 		{
-			m_Intents.Player2MoveY = (input.GetKey(Ludus::Platform::Key::Up) ? 1.0f : 0.0f) + (input.GetKey(Ludus::Platform::Key::Down) ? -1.0f : 0.0f);
+			m_Intents.Player2MoveY = (input.GetKey(Ludus::Engine::Platform::Key::Up) ? 1.0f : 0.0f) + (input.GetKey(Ludus::Engine::Platform::Key::Down) ? -1.0f : 0.0f);
 		}
 
 		if (state != Ludus::Pong::Core::GameState::Playing)
 		{
-			auto& gameState = m_SystemContext->Resources.Get<Ludus::Core::State<Ludus::Pong::Core::GameState>>();
+			auto& gameState = m_SystemContext->Resources.Get<Ludus::Engine::Core::State<Ludus::Pong::Core::GameState>>();
 			gameState.TransitionTo(state);
 		}
 
@@ -361,12 +361,12 @@ namespace Ludus::Pong::Systems
 		{
 			LUDUS_LOG_DEBUG("Ball <-> Boundary (horizontal)");
 
-			const Ludus::Math::Vector2D normal = (ballTransform.Position.Y > m_RenderData.GetHalfHeight() ? Ludus::Math::Vector2D(0.0f, -1.0f) : Ludus::Math::Vector2D(0.0f, 1.0f));
-			if (Ludus::Math::Vector2D::Dot(ballTransform.Forward(), normal) < 0.0f)
+			const Ludus::Engine::Math::Vector2D normal = (ballTransform.Position.Y > m_RenderData.GetHalfHeight() ? Ludus::Engine::Math::Vector2D(0.0f, -1.0f) : Ludus::Engine::Math::Vector2D(0.0f, 1.0f));
+			if (Ludus::Engine::Math::Vector2D::Dot(ballTransform.Forward(), normal) < 0.0f)
 			{
-				const auto reflectionVector = Ludus::Math::Vector2D::Reflect(ballTransform.Forward(), normal);
+				const auto reflectionVector = Ludus::Engine::Math::Vector2D::Reflect(ballTransform.Forward(), normal);
 				ballTransform.Rotate(reflectionVector);
-				ballTransform.Position += normal * Ludus::Physics::Core::Constants::SEPARATION_NUDGE_FACTOR;
+				ballTransform.Position += normal * Ludus::Engine::Physics::Core::Constants::SEPARATION_NUDGE_FACTOR;
 			}
 
 			m_RuntimeData.IsBallServed = true;
@@ -375,8 +375,8 @@ namespace Ludus::Pong::Systems
 		{
 			LUDUS_LOG_DEBUG("Ball <-> Player 1");
 
-			const Ludus::Math::Vector2D normal = { 1.0f, 0.0f };
-			if (Ludus::Math::Vector2D::Dot(ballTransform.Forward(), normal) < 0.0f)
+			const Ludus::Engine::Math::Vector2D normal = { 1.0f, 0.0f };
+			if (Ludus::Engine::Math::Vector2D::Dot(ballTransform.Forward(), normal) < 0.0f)
 			{
 				const auto reflectionAngle = GetReflectionAngle(
 					ballTransform,
@@ -386,7 +386,7 @@ namespace Ludus::Pong::Systems
 					Ludus::Pong::Core::Configuration::Defaults::MaxDeflectDegrees
 				);
 				ballTransform.Rotation = reflectionAngle;
-				ballTransform.Position += normal * Ludus::Physics::Core::Constants::SEPARATION_NUDGE_FACTOR;
+				ballTransform.Position += normal * Ludus::Engine::Physics::Core::Constants::SEPARATION_NUDGE_FACTOR;
 			}
 
 			m_RuntimeData.IsBallServed = true;
@@ -395,8 +395,8 @@ namespace Ludus::Pong::Systems
 		{
 			LUDUS_LOG_DEBUG("Ball <-> Player 2");
 
-			const Ludus::Math::Vector2D normal = { -1.0f, 0.0f };
-			if (Ludus::Math::Vector2D::Dot(ballTransform.Forward(), normal) < 0.0f)
+			const Ludus::Engine::Math::Vector2D normal = { -1.0f, 0.0f };
+			if (Ludus::Engine::Math::Vector2D::Dot(ballTransform.Forward(), normal) < 0.0f)
 			{
 				const auto reflectionAngle = GetReflectionAngle(
 					ballTransform,
@@ -406,7 +406,7 @@ namespace Ludus::Pong::Systems
 					Ludus::Pong::Core::Configuration::Defaults::MaxDeflectDegrees
 				);
 				ballTransform.Rotation = reflectionAngle;
-				ballTransform.Position += normal * Ludus::Physics::Core::Constants::SEPARATION_NUDGE_FACTOR;
+				ballTransform.Position += normal * Ludus::Engine::Physics::Core::Constants::SEPARATION_NUDGE_FACTOR;
 			}
 
 			m_RuntimeData.IsBallServed = true;
@@ -446,7 +446,7 @@ namespace Ludus::Pong::Systems
 		const auto minY = Ludus::Pong::Core::Configuration::Defaults::WallHeightThickness + halfPaddleHeight;
 		const auto maxY = m_RenderData.Height - Ludus::Pong::Core::Configuration::Defaults::WallHeightThickness - halfPaddleHeight;
 
-		player1Transform.Position.Y = Ludus::Math::Numeric::Clamp(player1Transform.Position.Y, minY, maxY);
-		player2Transform.Position.Y = Ludus::Math::Numeric::Clamp(player2Transform.Position.Y, minY, maxY);
+		player1Transform.Position.Y = Ludus::Engine::Math::Numeric::Clamp(player1Transform.Position.Y, minY, maxY);
+		player2Transform.Position.Y = Ludus::Engine::Math::Numeric::Clamp(player2Transform.Position.Y, minY, maxY);
 	}
 }

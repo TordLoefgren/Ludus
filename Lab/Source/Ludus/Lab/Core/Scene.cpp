@@ -14,18 +14,18 @@ namespace Ludus::Lab::Core
 		const auto& windowOptions = m_SystemContext->Window.GetOptions();
 		auto [currentWidth, currentHeight] = m_SystemContext->Window.GetFramebufferSize();
 
-		Ludus::Engine::LayerMask::AddLayer(m_Info.QuadLayerName, m_Info.QuadLayerIndex);
-		Ludus::Engine::LayerMask::AddLayer(m_Info.CursorLayerName, m_Info.CursorLayerIndex);
+		Ludus::Engine::Physics::Core::LayerMask::AddLayer(m_Info.QuadLayerName, m_Info.QuadLayerIndex);
+		Ludus::Engine::Physics::Core::LayerMask::AddLayer(m_Info.CursorLayerName, m_Info.CursorLayerIndex);
 
 		m_Info.CursorHandle = ecs.AddEntity();
 		ecs.AttachCollider(
 			m_Info.CursorHandle,
 			m_Info.CursorLayerIndex,
-			Ludus::Engine::LayerMask::FromIndex(m_Info.QuadLayerIndex),
+			Ludus::Engine::Physics::Core::LayerMask::FromIndex(m_Info.QuadLayerIndex),
 			true
 		);
 		ecs.AttachRigidBody(m_Info.CursorHandle, { 0.0f });
-		ecs.AttachSprite(m_Info.CursorHandle, Ludus::Graphics::Shape::Rect, m_Info.CursorColor);
+		ecs.AttachSprite(m_Info.CursorHandle, Ludus::Engine::Graphics::Shape::Rect, m_Info.CursorColor);
 		ecs.AttachTransform(m_Info.CursorHandle, { currentWidth * 0.5f, currentHeight * 0.5f }, currentWidth * 0.1f);
 
 		for (int i = 0; i < 10; i++)
@@ -41,12 +41,12 @@ namespace Ludus::Lab::Core
 		m_Cooldown.Step(deltaTime);
 
 		// Input Handling.
-		if (input.GetKeyDown(Ludus::Platform::Key::Escape))
+		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Escape))
 		{
 			m_SystemContext->Window.SetWindowShouldClose();
 		}
 
-		if (input.GetMouseButtonDown(Ludus::Platform::MouseButton::Left))
+		if (input.GetMouseButtonDown(Ludus::Engine::Platform::MouseButton::Left))
 		{
 			LUDUS_LOG_INFO("Mouse clicked in Scene.");
 		}
@@ -113,9 +113,9 @@ namespace Ludus::Lab::Core
 		auto speed = m_Random.NextFloat(10.0f, 25.0f);
 
 		auto handle = ecs.AddEntity();
-		ecs.AttachCollider(handle, m_Info.QuadLayerIndex, Ludus::Engine::LayerMask::FromIndex(m_Info.CursorLayerIndex));
-		ecs.AttachRigidBody(handle, { 0.0f }, Ludus::Physics::Core::BodyType::Dynamic, speed);
-		ecs.AttachSprite(handle, Ludus::Graphics::Shape::Rect, m_Info.NonCollisionColor);
+		ecs.AttachCollider(handle, m_Info.QuadLayerIndex, Ludus::Engine::Physics::Core::LayerMask::FromIndex(m_Info.CursorLayerIndex));
+		ecs.AttachRigidBody(handle, { 0.0f }, Ludus::Engine::Physics::Core::BodyType::Dynamic, speed);
+		ecs.AttachSprite(handle, Ludus::Engine::Graphics::Shape::Rect, m_Info.NonCollisionColor);
 		ecs.AttachTransform(handle, { xPosition, (float)options.Height + scaleY * 2.0f }, { scaleX, scaleY });
 
 		return FallingQuad { handle, speed };

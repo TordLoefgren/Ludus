@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Ludus/Math/Vector2D.h>
+#include <Ludus/Engine/Math/Vector2D.h>
 
 #include <Ludus/Pong/Core/Configuration.h>
 
@@ -11,9 +11,9 @@ namespace Ludus::Pong::Models
 		int Width = 0;
 		int Height = 0;
 
-		Ludus::Math::Vector2D DefaultBallPosition;
-		Ludus::Math::Vector2D DefaultPlayer1Position;
-		Ludus::Math::Vector2D DefaultPlayer2Position;
+		Ludus::Engine::Math::Vector2D DefaultBallPosition;
+		Ludus::Engine::Math::Vector2D DefaultPlayer1Position;
+		Ludus::Engine::Math::Vector2D DefaultPlayer2Position;
 
 		float GetHalfWidth() const { return Width * 0.5f; }
 		float GetHalfHeight() const { return Height * 0.5f; }

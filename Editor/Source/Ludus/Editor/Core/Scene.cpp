@@ -7,8 +7,8 @@ namespace Ludus::Editor::Core
 		// Inspector panel test.
 		auto [currentWidth, currentHeight] = m_SystemContext->Window.GetFramebufferSize();
 
-		Ludus::Engine::LayerMask::AddLayer("First Layer", 1);
-		Ludus::Engine::LayerMask::AddLayer("Second Layer", 2);
+		Ludus::Engine::Physics::Core::LayerMask::AddLayer("First Layer", 1);
+		Ludus::Engine::Physics::Core::LayerMask::AddLayer("Second Layer", 2);
 
 		auto& ecs = m_SystemContext->EntityComponentSystem;
 
@@ -16,11 +16,11 @@ namespace Ludus::Editor::Core
 		ecs.AttachCollider(
 			handle,
 			1,
-			Ludus::Engine::LayerMask::FromIndex(2),
+			Ludus::Engine::Physics::Core::LayerMask::FromIndex(2),
 			true
 		);
-		ecs.AttachRigidBody(handle, { 0.0f }, Ludus::Physics::Core::BodyType::Static);
-		ecs.AttachSprite(handle, Ludus::Graphics::Shape::Rect, Ludus::Graphics::Colors::Orange);
+		ecs.AttachRigidBody(handle, { 0.0f }, Ludus::Engine::Physics::Core::BodyType::Static);
+		ecs.AttachSprite(handle, Ludus::Engine::Graphics::Shape::Rect, Ludus::Engine::Graphics::Colors::Orange);
 		ecs.AttachTransform(handle, { currentWidth * 0.5f, currentHeight * 0.5f }, 300.0f);
 		ecs.AttachText(handle, "");
 	}
