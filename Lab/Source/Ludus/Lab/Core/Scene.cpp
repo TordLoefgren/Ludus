@@ -6,13 +6,41 @@ namespace Ludus::Lab::Core
 		: m_Random(), m_Cooldown(0.05f)
 	{ }
 
+	void Scene::UpdateWorld()
+	{
+		auto& ecs = m_SystemContext->EntityComponentSystem;
+
+		auto* cameraComponentPtr = ecs.Cameras.TryGetByOwnerMutable(m_Info.CameraHandle);
+		auto* cameraTransformPtr = ecs.Transforms.TryGetByOwnerMutable(m_Info.CameraHandle);
+
+		if (!cameraComponentPtr || !cameraTransformPtr)
+		{
+			return;
+		}
+
+		auto [framebufferWidth, framebufferHeight] = m_SystemContext->Window.GetFramebufferSize();
+		cameraComponentPtr->SetWorldFromViewport((float)framebufferWidth, (float)framebufferHeight);
+
+		m_World.HalfWidth = cameraComponentPtr->HalfWorldWidth();
+		m_World.HalfHeight = cameraComponentPtr->HalfWorldHeight();
+		m_World.Width = m_World.HalfWidth * 2.0f;
+		m_World.Height = m_World.HalfHeight * 2.0f;
+
+		cameraTransformPtr->Position = { m_World.HalfWidth, m_World.HalfHeight };
+	}
+
 	void Scene::OnAttachImpl()
 	{
 		auto& ecs = m_SystemContext->EntityComponentSystem;
-		auto handle = ecs.AddEntity();
 
-		const auto& windowOptions = m_SystemContext->Window.GetOptions();
-		auto [currentWidth, currentHeight] = m_SystemContext->Window.GetFramebufferSize();
+		// Setup camera.
+		m_World.OrthographicSize = 8.0f;
+
+		m_Info.CameraHandle = ecs.AddEntity();
+		ecs.AttachCamera(m_Info.CameraHandle, m_World.OrthographicSize);
+		ecs.AttachTransform(m_Info.CameraHandle, { m_World.HalfWidth, m_World.HalfHeight });
+
+		UpdateWorld();
 
 		Ludus::Engine::Physics::Core::LayerMask::AddLayer(m_Info.QuadLayerName, m_Info.QuadLayerIndex);
 		Ludus::Engine::Physics::Core::LayerMask::AddLayer(m_Info.CursorLayerName, m_Info.CursorLayerIndex);
@@ -25,8 +53,14 @@ namespace Ludus::Lab::Core
 			true
 		);
 		ecs.AttachRigidBody(m_Info.CursorHandle, { 0.0f });
+
 		ecs.AttachSprite(m_Info.CursorHandle, Ludus::Engine::Graphics::Shape::Rect, m_Info.CursorColor);
-		ecs.AttachTransform(m_Info.CursorHandle, { currentWidth * 0.5f, currentHeight * 0.5f }, currentWidth * 0.1f);
+		ecs.AttachTransform(m_Info.CursorHandle, { 0.0f }, m_World.Height * 0.1f);
+
+		if (m_World.Width <= 0.0f || m_World.Height <= 0.0f)
+		{
+			return;
+		}
 
 		for (int i = 0; i < 10; i++)
 		{
@@ -40,20 +74,46 @@ namespace Ludus::Lab::Core
 		auto& ecs = m_SystemContext->EntityComponentSystem;
 		m_Cooldown.Step(deltaTime);
 
+		UpdateWorld();
+
 		// Input Handling.
 		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Escape))
 		{
 			m_SystemContext->Window.SetWindowShouldClose();
 		}
 
-		if (input.GetMouseButtonDown(Ludus::Engine::Platform::MouseButton::Left))
+		// Movement Integration.
+		auto cursorTransform = ecs.Transforms.TryGetByOwnerMutable(m_Info.CursorHandle);
+		if (!cursorTransform)
 		{
-			LUDUS_LOG_INFO("Mouse clicked in Scene.");
+			return;
 		}
 
 		auto mousePosition = input.GetMousePosition();
 
-		if (m_Cooldown.IsElapsed() && m_FallingQuads.size() < m_Info.MaxCount)
+		auto [windowWidth, windowHeight] = m_SystemContext->Window.GetWindowSize();
+		auto xNormalized = mousePosition.X / windowWidth;
+		auto yNormalized = mousePosition.Y / windowHeight;
+
+		auto x = xNormalized * m_World.Width;
+		auto y = yNormalized * m_World.Height;
+
+		cursorTransform->Position = { x, m_World.Height - y };
+
+		for (auto& quad : m_FallingQuads)
+		{
+			auto* quadSpritePtr = ecs.Sprites.TryGetByOwnerMutable(quad.Handle);
+			if (!quadSpritePtr)
+			{
+				continue;
+			}
+
+			quadSpritePtr->Color = m_SystemContext->PhysicsQueries->IsTriggering(quad.Handle, m_Info.CursorHandle)
+				? m_Info.CollisionColor
+				: m_Info.NonCollisionColor;
+		}
+
+		if (m_Cooldown.IsElapsed() && m_FallingQuads.size() < m_Info.MaxCount && m_World.Width > 0.0f && m_World.Height > 0.0f)
 		{
 			m_FallingQuads.push_back(CreateQuad());
 			m_Cooldown.Reset();
@@ -77,47 +137,39 @@ namespace Ludus::Lab::Core
 			}
 		}
 
-		// Movement Integration.
-		auto [currentWidth, currentHeight] = m_SystemContext->Window.GetFramebufferSize();
-
-		auto cursorTransform = ecs.Transforms.TryGetByOwnerMutable(m_Info.CursorHandle);
-		if (!cursorTransform)
+		const auto* cameraComponentPtr = ecs.Cameras.TryGetByOwner(m_Info.CameraHandle);
+		const auto* cameraTransformPtr = ecs.Transforms.TryGetByOwner(m_Info.CameraHandle);
+		if (!cameraComponentPtr || !cameraTransformPtr)
 		{
 			return;
 		}
 
-		cursorTransform->Position = { mousePosition.X, currentHeight - mousePosition.Y };
+		auto [framebufferWidth, framebufferHeight] = m_SystemContext->Window.GetFramebufferSize();
 
-		for (auto& quad : m_FallingQuads)
-		{
-			auto* quadSpritePtr = ecs.Sprites.TryGetByOwnerMutable(quad.Handle);
-			if (!quadSpritePtr)
-			{
-				continue;
-			}
+		Ludus::Engine::Graphics::Camera2D camera;
+		camera.SetViewport(framebufferWidth, framebufferHeight);
+		camera.SetPosition({ cameraTransformPtr->Position.X, cameraTransformPtr->Position.Y });
+		camera.SetRotation(cameraTransformPtr->Rotation);
+		camera.SetOrthographicSize(cameraComponentPtr->OrthographicSize);
 
-			quadSpritePtr->Color = m_SystemContext->PhysicsQueries->IsTriggering(quad.Handle, m_Info.CursorHandle)
-				? m_Info.CollisionColor
-				: m_Info.NonCollisionColor;
-		}
+		m_SystemContext->RenderViews.RegisterFullscreen(camera, m_SystemContext->WindowRenderTarget);
 	}
 
 	FallingQuad Scene::CreateQuad()
 	{
-		auto& ecs = m_SystemContext->EntityComponentSystem;
-		auto& options = m_SystemContext->Window.GetOptions();
+		auto scaleX = m_Random.NextFloat(m_World.Width * 0.01f, m_World.Width * 0.08f);
+		auto scaleY = m_Random.NextFloat(m_World.Height * 0.01f, m_World.Height * 0.08f);
+		auto xPosition = m_Random.NextFloat(0.0f, m_World.Width);
+		auto gravityScale = m_Random.NextFloat(0.1f, 2.0f);
 
-		auto scaleX = m_Random.NextFloat((float)options.Width * 0.01f, (float)options.Width * 0.08f);
-		auto scaleY = m_Random.NextFloat((float)options.Width * 0.01f, (float)options.Width * 0.08f);
-		auto xPosition = m_Random.NextFloat(0.0f, (float)options.Width);
-		auto speed = m_Random.NextFloat(10.0f, 25.0f);
+		auto& ecs = m_SystemContext->EntityComponentSystem;
 
 		auto handle = ecs.AddEntity();
 		ecs.AttachCollider(handle, m_Info.QuadLayerIndex, Ludus::Engine::Physics::Core::LayerMask::FromIndex(m_Info.CursorLayerIndex));
-		ecs.AttachRigidBody(handle, { 0.0f }, Ludus::Engine::Physics::Core::BodyType::Dynamic, speed);
+		ecs.AttachRigidBody(handle, { 0.0f }, Ludus::Engine::Physics::Core::BodyType::Dynamic, gravityScale);
 		ecs.AttachSprite(handle, Ludus::Engine::Graphics::Shape::Rect, m_Info.NonCollisionColor);
-		ecs.AttachTransform(handle, { xPosition, (float)options.Height + scaleY * 2.0f }, { scaleX, scaleY });
+		ecs.AttachTransform(handle, { xPosition, m_World.Height + scaleY }, { scaleX, scaleY });
 
-		return FallingQuad { handle, speed };
+		return FallingQuad { handle };
 	}
 }

@@ -22,4 +22,9 @@ namespace Ludus::UI::Layouts
 	{
 		ImGui::TableSetupColumn(label, flags, initWidthOrWeight);
 	}
+
+	inline void SameLine()
+	{
+		ImGui::SameLine();
+	}
 }

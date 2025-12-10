@@ -69,6 +69,11 @@ namespace Ludus::Engine::Graphics
 
 	void FramebufferObject::Resize(int width, int height)
 	{
+		if (m_Width == width && m_Height == height)
+		{
+			return;
+		}
+
 		if (m_IsDefault)
 		{
 			m_Width = width;

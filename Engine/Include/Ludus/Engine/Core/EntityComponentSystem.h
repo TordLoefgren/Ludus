@@ -2,6 +2,7 @@
 
 #include <Ludus/Engine/Core/ComponentRegistry.h>
 #include <Ludus/Engine/Core/EntityRegistry.h>
+#include <Ludus/Engine/Graphics/Camera2DComponent.h>
 #include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
 #include <Ludus/Engine/Graphics/Shape.h>
 #include <Ludus/Engine/Graphics/Sprite2D.h>
@@ -21,6 +22,7 @@ namespace Ludus::Engine::Core
 		Ludus::Engine::Core::EntityRegistry m_Entities;
 
 	public:
+		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Graphics::Camera2DComponent> Cameras;
 		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Physics::Core::Collider2D> Colliders;
 		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Physics::Core::RigidBody2D> RigidBodies;
 		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Graphics::Sprite2D> Sprites;
@@ -34,12 +36,21 @@ namespace Ludus::Engine::Core
 
 		bool DestroyEntity(EntityHandle handle)
 		{
+			Cameras.RemoveByOwner(handle);
 			Colliders.RemoveByOwner(handle);
 			RigidBodies.RemoveByOwner(handle);
 			Sprites.RemoveByOwner(handle);
 			Texts.RemoveByOwner(handle);
 			Transforms.RemoveByOwner(handle);
 			return m_Entities.DestroyEntity(handle);
+		}
+
+		void AttachCamera(
+			EntityHandle handle,
+			float orthographicSize = 10.0f
+		)
+		{
+			Cameras.Add(handle, orthographicSize);
 		}
 
 		void AttachCollider(

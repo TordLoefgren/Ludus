@@ -5,7 +5,10 @@
 #include <Ludus/Engine/Core/Random.h>
 #include <Ludus/Engine/Core/State.h>
 #include <Ludus/Engine/Core/SystemPredicate.h>
+#include <Ludus/Engine/Graphics/Camera2D.h>
 #include <Ludus/Engine/Graphics/Color.h>
+#include <Ludus/Engine/Graphics/RenderTarget.h>
+#include <Ludus/Engine/Graphics/RenderView2D.h>
 #include <Ludus/Engine/Graphics/Shape.h>
 
 namespace Ludus::Lab::Core
@@ -21,13 +24,22 @@ namespace Ludus::Lab::Core
 		const std::string CursorLayerName = "Cursor";
 		const std::string QuadLayerName = "Quad";
 		Ludus::Engine::Core::EntityHandle CursorHandle = 0;
+		Ludus::Engine::Core::EntityHandle CameraHandle = 0;
 		bool IsColliding = false;
+	};
+
+	struct WorldRect
+	{
+		float OrthographicSize = 0.0f;
+		float Width = 0.0f;
+		float Height = 0.0f;
+		float HalfWidth = 0.0f;
+		float HalfHeight = 0.0f;
 	};
 
 	struct FallingQuad
 	{
 		Ludus::Engine::Core::EntityHandle Handle;
-		float Speed;
 
 		bool operator==(const FallingQuad& other) const { return Handle == other.Handle; }
 	};
@@ -35,11 +47,13 @@ namespace Ludus::Lab::Core
 	class Scene : public Ludus::Engine::Core::ISystem
 	{
 		AABBDemo2Info m_Info;
+		WorldRect m_World;
 		Ludus::Engine::Core::Random m_Random;
 		Ludus::Engine::Core::Cooldown m_Cooldown;
 		std::vector<FallingQuad> m_FallingQuads;
 
 		FallingQuad CreateQuad();
+		void UpdateWorld();
 
 	public:
 		Scene();

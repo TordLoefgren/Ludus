@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Ludus\UI\Flags.h" />
+    <ClInclude Include="Include\Ludus\UI\ImGuiSystem.h" />
     <ClInclude Include="Include\Ludus\UI\Layouts.h" />
     <ClInclude Include="Include\Ludus\UI\UIContext.h" />
     <ClInclude Include="Include\Ludus\UI\Utilities.h" />
@@ -37,6 +38,7 @@
     <ClInclude Include="Vendors\imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Ludus\UI\ImGuiSystem.cpp" />
     <ClCompile Include="Source\Ludus\UI\UIContext.cpp">
     </ClCompile>
     <ClCompile Include="Vendors\imgui\imgui.cpp">
@@ -63,6 +65,11 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Vendors\imgui\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Engine\Engine.vcxproj">
+      <Project>{e5222f19-54e2-431b-b8a5-67dc31e554e1}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -167,32 +174,27 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>
-		  $(ProjectDir)..\Engine\Vendors\GLFW\include;
-		  $(ProjectDir)Include;$(ProjectDir)Vendors;%(AdditionalIncludeDirectories)
-	  </AdditionalIncludeDirectories>
-	  <LanguageStandard>stdcpp20</LanguageStandard>
-  </ClCompile>
-  <Link>
-	  <SubSystem>
-	  </SubSystem>
-	  <GenerateDebugInformation>true</GenerateDebugInformation>
-  </Link>
-</ItemDefinitionGroup>
-<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-  <ClCompile>
-	  <WarningLevel>Level3</WarningLevel>
-	  <FunctionLevelLinking>true</FunctionLevelLinking>
-	  <IntrinsicFunctions>true</IntrinsicFunctions>
-	  <SDLCheck>true</SDLCheck>
-	  <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-	  <ConformanceMode>true</ConformanceMode>
-	  <PrecompiledHeader>NotUsing</PrecompiledHeader>
-	  <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-	  <LanguageStandard>stdcpp20</LanguageStandard>
-	  <AdditionalIncludeDirectories>
-		  $(ProjectDir)..\Engine\Vendors\GLFW\include;
-		  $(ProjectDir)Include;$(ProjectDir)Vendors;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Engine\Vendors\GLFW\include;$(ProjectDir)..\Engine\Vendors;$(ProjectDir)..\Engine\Include;$(ProjectDir)Include;$(ProjectDir)Vendors;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Engine\Vendors\GLFW\include;$(ProjectDir)..\Engine\Vendors;$(ProjectDir)..\Engine\Include;$(ProjectDir)Include;$(ProjectDir)Vendors;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
