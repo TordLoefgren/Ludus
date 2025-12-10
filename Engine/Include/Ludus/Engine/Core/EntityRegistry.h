@@ -56,6 +56,7 @@ namespace Ludus::Engine::Core
 			if (auto it = m_HandleToIndex.find(handle); it != m_HandleToIndex.end())
 			{
 				RemoveAndReorderIndices(it->second);
+
 				return true;
 			}
 

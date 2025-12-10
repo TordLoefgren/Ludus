@@ -16,8 +16,8 @@ namespace Ludus::Engine::Physics::Core
 
 	inline LayerIndex s_MaxLayers = 32u;
 
-	inline std::unordered_map<std::string, uint8_t> s_NameToIndex = { {"Default", 0} };
-	inline std::unordered_map<uint8_t, std::string> s_IndexToName = { {0, "Default"} };
+	inline std::unordered_map<std::string, uint8_t> s_NameToIndex = { { "Default", 0 } };
+	inline std::unordered_map<uint8_t, std::string> s_IndexToName = { { 0, "Default" } };
 
 	struct LayerMask
 	{

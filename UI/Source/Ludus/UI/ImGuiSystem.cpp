@@ -1,6 +1,6 @@
-#include "Ludus/Engine/Core/ImGuiSystem.h"
+#include "Ludus/UI/ImGuiSystem.h"
 
-namespace Ludus::Engine::Core
+namespace Ludus::UI
 {
 	void ImGuiSystem::OnAttachImpl()
 	{

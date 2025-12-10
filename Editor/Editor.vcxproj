@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Ludus\Editor\Core\EditorApplicationBuilder.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\Scene.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\DockPanel.cpp" />
     <ClCompile Include="main.cpp" />
@@ -37,6 +38,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorApplicationBuilder.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\Constants.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\Scene.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\DockPanel.h" />

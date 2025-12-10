@@ -2,6 +2,7 @@
 
 #include <Ludus/Engine/Core/Utilities.h>
 #include <Ludus/Engine/Graphics/Vertex.h>
+#include <Ludus/Engine/Math/Size.h>
 
 namespace Ludus::Engine::Graphics
 {
@@ -26,5 +27,10 @@ namespace Ludus::Engine::Graphics
 		void Unbind() const;
 
 		void Resize(int width, int height);
+
+		int GetWidth() { return m_Width; }
+		int GetHeight() { return m_Height; }
+
+		Ludus::Engine::Math::Size<int> GetSize() { return { m_Width, m_Height }; }
 	};
 }

@@ -1,6 +1,9 @@
 #pragma once
 
+#include <memory>
+
 #include <Ludus/Engine/Core/ISystem.h>
+#include <Ludus/Engine/Core/State.h>
 #include <Ludus/Engine/Physics/Core/BodyType.h>
 #include <Ludus/Engine/Physics/Core/Constants.h>
 
@@ -15,11 +18,10 @@
 
 namespace Ludus::Pong::Systems
 {
-
 	class PlayingSystem final : public Ludus::Engine::Core::ISystem
 	{
-		Ludus::Pong::Core::GameInfo& m_GameInfo;
-		Ludus::Pong::Core::PongInfo& m_PongInfo;
+		std::shared_ptr<Ludus::Pong::Core::GameInfo> m_GameInfo;
+		std::shared_ptr<Ludus::Pong::Core::PongInfo> m_PongInfo;
 
 		Ludus::Pong::Models::Entities m_Entities;
 		Ludus::Pong::Models::Intents m_Intents;
@@ -33,7 +35,7 @@ namespace Ludus::Pong::Systems
 		void Clear();
 
 	public:
-		PlayingSystem(Ludus::Pong::Core::GameInfo& gameInfo, Ludus::Pong::Core::PongInfo& pongInfo);
+		PlayingSystem(std::shared_ptr<Ludus::Pong::Core::GameInfo> gameInfo, std::shared_ptr<Ludus::Pong::Core::PongInfo> pongInfo);
 
 		virtual void OnAttachImpl() override;
 		virtual void OnDetachImpl() override;
