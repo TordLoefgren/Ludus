@@ -14,7 +14,7 @@ namespace Ludus::Engine::Physics::Solvers
 		{
 			for (auto& contact : contacts)
 			{
-				// Triggers does not require a solver.
+				// Triggers do not require a solver.
 				if (contact.IsTriggerPair)
 				{
 					continue;
@@ -35,14 +35,14 @@ namespace Ludus::Engine::Physics::Solvers
 				const float weightSum = weightA + weightB;
 				if (weightSum == 0.0f)
 				{
-					// No movement. Skip MTV.
+					// No movement. Skip MTV (Minimum Translation Vector).
 					continue;
 				}
 
 				const float ratioA = weightA / weightSum;
 				const float ratioB = weightB / weightSum;
 
-				// Resolve MTV (Minimum Translation Vector).
+				// Resolve MTV.
 				const auto correction = contact.Point.Normal * contact.Point.Penetration;
 
 				// Move transforms in opposite directions.

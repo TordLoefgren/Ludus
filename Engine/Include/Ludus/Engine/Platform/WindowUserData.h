@@ -9,6 +9,6 @@ namespace Ludus::Engine::Platform
 	struct WindowUserData
 	{
 		Ludus::Engine::Events::EventBus* EventBus;
-		WindowOptions Options;
+		WindowOptions& Options;
 	};
 }

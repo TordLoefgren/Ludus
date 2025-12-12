@@ -54,7 +54,7 @@ namespace Ludus::Engine::Graphics
 
 #pragma region Scene Commands
 
-	void Renderer2D::BeginScene(Camera2D& camera)
+	void Renderer2D::BeginScene(const Camera2D& camera)
 	{
 		m_State.m_LineVertexCursor = 0;
 		m_State.m_QuadVertexCursor = 0;

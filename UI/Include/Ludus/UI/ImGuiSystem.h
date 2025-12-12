@@ -4,7 +4,7 @@
 
 #include <Ludus/Engine/Core/ISystem.h>
 
-namespace Ludus::Engine::Core
+namespace Ludus::UI
 {
 	class ImGuiSystem final : public Ludus::Engine::Core::ISystem
 	{

@@ -29,11 +29,17 @@ jobs:
     env:
       Configuration: ${{ matrix.Configuration }}
       Platform: ${{ matrix.Platform }}
+      VCPKG_ROOT: C:\dev\tools\vcpkg
+      VCPKG_DEFAULT_TRIPLET: x64-windows
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
+      - name: Setup vcpkg MSBuild integration
+        shell: cmd
+        run: |
+          "%VCPKG_ROOT%\vcpkg.exe" integrate install
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1
       - name: Restore NuGet packages
