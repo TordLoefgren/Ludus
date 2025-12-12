@@ -38,6 +38,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\Editor\Core\CameraControllerSystem.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorApplicationBuilder.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\Constants.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\Scene.h" />

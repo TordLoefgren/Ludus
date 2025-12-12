@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 
 #include <Ludus/Editor/Core/PanelSystem.h>
@@ -18,14 +19,14 @@ namespace Ludus::Editor::Panels
 	{
 	private:
 		std::string m_Title;
-		Ludus::Engine::Graphics::Camera2D m_Camera;
+		std::shared_ptr<Ludus::Engine::Graphics::Camera2D> m_Camera;
 		std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> m_Target;
 
 		Ludus::Engine::Math::Vector2D GetViewportAspectSize();
 		Ludus::Engine::Math::Vector2D GetViewportAspectOffset(Ludus::Engine::Math::Vector2D aspectSize);
 
 	public:
-		ViewportPanel(std::string title = "Viewport", Ludus::Engine::Graphics::Camera2D camera = Ludus::Engine::Graphics::Camera2D());
+		ViewportPanel(std::string title = "Viewport", std::shared_ptr<Ludus::Engine::Graphics::Camera2D> camera = nullptr);
 
 		virtual void DrawPanel() override;
 		virtual void OnAttachImpl() override;

@@ -9,7 +9,7 @@ namespace Ludus::Engine::Graphics
 	Camera2D::~Camera2D()
 	{ }
 
-	void Camera2D::SetPosition(glm::vec2 position) { m_Position = position; }
+	void Camera2D::SetPosition(Ludus::Engine::Math::Vector2D position) { m_Position = { position.X, position.Y }; }
 
 	void Camera2D::SetViewport(int width, int height)
 	{
@@ -42,7 +42,7 @@ namespace Ludus::Engine::Graphics
 		return m_Projection * GetView();
 	}
 
-	float Camera2D::GetOrthographicSize() const { return m_OrthographicSize; }
+	Ludus::Engine::Math::Vector2D Camera2D::GetPosition() const { return { m_Position.x, m_Position.y }; }
 
 	Ludus::Engine::Math::Rect Camera2D::GetWorldRect() const
 	{
@@ -55,6 +55,8 @@ namespace Ludus::Engine::Graphics
 
 		return { { m_Position.x, m_Position.y }, { width, height } };
 	}
+
+	float Camera2D::GetOrthographicSize() const { return m_OrthographicSize; }
 
 	void Camera2D::RecalculateProjection()
 	{

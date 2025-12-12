@@ -30,8 +30,8 @@ namespace Ludus::Editor::Panels
 		return { offsetX, offsetY };
 	}
 
-	ViewportPanel::ViewportPanel(std::string title, Ludus::Engine::Graphics::Camera2D camera)
-		: m_Title(title), m_Camera(camera), m_Target(nullptr)
+	ViewportPanel::ViewportPanel(std::string title, std::shared_ptr<Ludus::Engine::Graphics::Camera2D> camera)
+		: m_Title(title), m_Camera(camera ? std::move(camera) : std::make_shared<Ludus::Engine::Graphics::Camera2D>()), m_Target(nullptr)
 	{ }
 
 	void ViewportPanel::OnAttachImpl()
@@ -60,7 +60,7 @@ namespace Ludus::Editor::Panels
 			ImGui::SetCursorPos({ cursor.x + aspectOffset.X, cursor.y + aspectOffset.Y });
 
 			m_Target->Framebuffer.Resize((int)aspectSize.X, (int)aspectSize.Y);
-			m_Camera.SetViewport((int)aspectSize.X, (int)aspectSize.Y);
+			m_Camera->SetViewport((int)aspectSize.X, (int)aspectSize.Y);
 
 			ImGui::Image(
 				(ImTextureID)(intptr_t)m_Target->ColorTexture.Handle(),
@@ -71,7 +71,7 @@ namespace Ludus::Editor::Panels
 
 			// Register the render view with the render view registry, which is used by the rendering system every frame.
 			Ludus::Engine::Graphics::RenderView2D renderView {
-				.Camera = m_Camera,
+				.Camera = *m_Camera.get(),
 				.Target = m_Target,
 				.ViewportRect = Ludus::Engine::Math::Rect
 				{

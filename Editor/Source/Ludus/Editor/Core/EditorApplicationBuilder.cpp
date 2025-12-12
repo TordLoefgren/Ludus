@@ -43,12 +43,12 @@ namespace Ludus::Editor::Core
 		return *this;
 	}
 
-	EditorApplicationBuilder& EditorApplicationBuilder::AddEditorViewport(std::string title, Ludus::Engine::Graphics::Camera2D camera)
+	EditorApplicationBuilder& EditorApplicationBuilder::AddEditorViewport(std::string title, std::shared_ptr<Ludus::Engine::Graphics::Camera2D> camera)
 	{
 		m_ApplicationBuilder.Configure(
 			[title = title, camera = camera](Ludus::Engine::Core::Application& application)
 			{
-				auto viewportPanel = std::make_unique<Ludus::Editor::Panels::ViewportPanel>(title, camera);
+				auto viewportPanel = std::make_unique<Ludus::Editor::Panels::ViewportPanel>(title, std::move(camera));
 				application.AddSystem({ Ludus::Engine::Core::SystemPhase::Update }, std::move(viewportPanel));
 			}
 		);
