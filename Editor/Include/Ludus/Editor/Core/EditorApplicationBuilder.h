@@ -23,7 +23,6 @@ namespace Ludus::Editor::Core
 	{
 	private:
 		Ludus::Engine::Core::ApplicationBuilder m_ApplicationBuilder;
-		std::vector<Ludus::Engine::Core::BuilderCommand> m_BuilderCommands;
 
 		Ludus::Engine::Platform::WindowOptions m_WindowOptions;
 		Ludus::Engine::Graphics::RenderingOptions m_RenderingOptions;
@@ -36,6 +35,6 @@ namespace Ludus::Editor::Core
 
 		EditorApplicationBuilder& AddDefaultEngine();
 		EditorApplicationBuilder& AddEditorPanels();
-		EditorApplicationBuilder& AddEditorViewport(std::string title = "Viewport", Ludus::Engine::Graphics::Camera2D camera = Ludus::Engine::Graphics::Camera2D());
+		EditorApplicationBuilder& AddEditorViewport(std::string title = "Viewport", std::shared_ptr<Ludus::Engine::Graphics::Camera2D> camera = nullptr);
 	};
 }
