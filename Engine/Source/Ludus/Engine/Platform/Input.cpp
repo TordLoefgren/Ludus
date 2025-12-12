@@ -1,6 +1,7 @@
-#include <Ludus/Engine/Platform/Input.h>
+#include "pch.h"
 
 #include <Ludus/Engine/Debug/Debug.h>
+#include <Ludus/Engine/Platform/Input.h>
 
 namespace Ludus::Engine::Platform
 {

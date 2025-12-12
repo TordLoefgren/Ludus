@@ -1,4 +1,6 @@
-#include "Ludus/Editor/Panels/ImGuiDemoPanel.h"
+#include "pch.h"
+
+#include <Ludus/Editor/Panels/ImGuiDemoPanel.h>
 
 namespace Ludus::Editor::Panels
 {

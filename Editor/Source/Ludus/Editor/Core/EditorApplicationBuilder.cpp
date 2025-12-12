@@ -1,4 +1,6 @@
-#include "Ludus/Editor/Core/EditorApplicationBuilder.h"
+#include "pch.h"
+
+#include <Ludus/Editor/Core/EditorApplicationBuilder.h>
 
 namespace Ludus::Editor::Core
 {
