@@ -1,3 +1,9 @@
+#include "pch.h"
+
+#include <algorithm>
+
+#include <glm/glm.hpp>
+
 #include <Ludus/Engine/Graphics/Camera2D.h>
 
 namespace Ludus::Engine::Graphics

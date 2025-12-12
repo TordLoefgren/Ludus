@@ -1,4 +1,6 @@
-#include "Ludus/Editor/Panels/SceneHierarchyPanel.h"
+#include "pch.h"
+
+#include <Ludus/Editor/Panels/SceneHierarchyPanel.h>
 
 namespace Ludus::Editor::Panels
 {

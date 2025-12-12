@@ -1,6 +1,8 @@
-#include <Ludus/Engine/Core/Random.h>
+#include "pch.h"
 
 #include <stdexcept>
+
+#include <Ludus/Engine/Core/Random.h>
 
 namespace Ludus::Engine::Core
 {

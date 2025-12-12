@@ -1,4 +1,9 @@
-#include "Ludus/Editor/Panels/ViewportPanel.h"
+#include <pch.h>
+
+#include <imgui/imgui.h>
+
+#include <Ludus/Editor/Panels/ViewportPanel.h>
+#include <Ludus/Engine/Math/Vector2D.h>
 
 namespace Ludus::Editor::Panels
 {

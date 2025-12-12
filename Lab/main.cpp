@@ -1,3 +1,5 @@
+#include <pch.h>
+
 #include <Ludus/Engine/Core/Application.h>
 #include <Ludus/Engine/Core/ApplicationBuilder.h>
 #include <Ludus/Engine/Graphics/Color.h>

@@ -1,4 +1,8 @@
-#include "Ludus/Editor/Panels/DockPanel.h"
+#include "pch.h"
+
+#include <imgui/imgui.h>
+
+#include <Ludus/Editor/Panels/DockPanel.h>
 
 namespace Ludus::Editor::Panels
 {

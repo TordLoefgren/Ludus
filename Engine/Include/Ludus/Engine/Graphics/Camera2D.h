@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm>
-#include <glm/gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
 
 #include <Ludus/Engine/Math/Rect.h>
 #include <Ludus/Engine/Math/Vector2D.h>

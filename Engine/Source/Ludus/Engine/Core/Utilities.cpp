@@ -1,3 +1,10 @@
+#include "pch.h"
+
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <string>
+
 #include <Ludus/Engine/Core/Utilities.h>
 
 namespace Ludus::Engine::Core::Utilities
