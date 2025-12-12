@@ -1,3 +1,6 @@
+#include "pch.h"
+
+#include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Graphics/Font.h>
 
 namespace Ludus::Engine::Graphics

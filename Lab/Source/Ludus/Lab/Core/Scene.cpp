@@ -1,4 +1,6 @@
-#include "Ludus/Lab/Core/Scene.h"
+#include "pch.h"
+
+#include <Ludus/Lab/Core/Scene.h>
 
 namespace Ludus::Lab::Core
 {

@@ -1,4 +1,6 @@
-#include "Ludus/Editor/Panels/ConsolePanel.h"
+#include "pch.h"
+
+#include <Ludus/Editor/Panels/ConsolePanel.h>
 
 namespace Ludus::Editor::Panels
 {

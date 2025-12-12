@@ -1,8 +1,6 @@
 #pragma once
 
-#include <iostream>
 #include <string>
-#include <tuple>
 #include <vector>
 
 #include <Ludus/Engine/Graphics/Camera2D.h>
