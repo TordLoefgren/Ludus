@@ -121,6 +121,7 @@
     <ClInclude Include="Include\Ludus\Engine\Core\ISystem.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Scheduler.h" />
     <ClInclude Include="Include\Ludus\Engine\Platform\WindowUserData.h" />
+    <ClInclude Include="Source\Ludus\Engine\pch.h" />
     <ClInclude Include="Vendors\glad\include\glad\glad.h" />
     <ClInclude Include="Vendors\glad\include\KHR\khrplatform.h" />
     <ClInclude Include="Vendors\GLFW\include\GLFW\glfw3.h" />
@@ -416,6 +417,10 @@
     <ClInclude Include="Vendors\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Ludus\Engine\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Source\Ludus\Engine\Core\ApplicationBuilder.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\FrameBufferObject.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Events\EventBus.cpp" />
@@ -434,9 +439,18 @@
     <ClCompile Include="Source\Ludus\Engine\Math\Vector2D.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Platform\Input.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Platform\Window.cpp" />
-    <ClCompile Include="Vendors\glad\src\glad.c" />
-    <ClCompile Include="Vendors\glm\detail\glm.cpp" />
-    <ClCompile Include="Vendors\stb_image\stb_image.cpp" />
+    <ClCompile Include="Vendors\glad\src\glad.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Vendors\glm\detail\glm.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Vendors\stb_image\stb_image.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\shader.frag" />
@@ -682,10 +696,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;IMGUI_IMPL_OPENGL_LOADER_GLAD;GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Source\Ludus\Engine;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
@@ -706,10 +720,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_LIB;IMGUI_IMPL_OPENGL_LOADER_GLAD;GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Source\Ludus\Engine;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>

@@ -1,10 +1,12 @@
+#include "pch.h"
+
 #include <format>
 
 #include <glad/glad.h>
 #include <stb_image/stb_image.h>
 
-#include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Core/Utilities.h>
+#include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Graphics/Texture.h>
 
 namespace Ludus::Engine::Graphics

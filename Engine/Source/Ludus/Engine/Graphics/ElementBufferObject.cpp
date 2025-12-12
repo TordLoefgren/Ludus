@@ -1,3 +1,5 @@
+#include "pch.h"
+
 #include <glad/glad.h>
 
 #include <Ludus/Engine/Debug/Debug.h>

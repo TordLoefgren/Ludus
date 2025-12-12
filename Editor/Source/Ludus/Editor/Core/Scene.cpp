@@ -1,4 +1,6 @@
-#include "Ludus/Editor/Core/Scene.h"
+#include "pch.h"
+
+#include <Ludus/Editor/Core/Scene.h>
 
 namespace Ludus::Editor::Core
 {

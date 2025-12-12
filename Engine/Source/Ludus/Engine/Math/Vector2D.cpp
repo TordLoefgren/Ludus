@@ -1,3 +1,5 @@
+#include "pch.h"
+
 #include <Ludus/Engine/Math/Vector2D.h>
 
 #include <cmath>

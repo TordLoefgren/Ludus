@@ -1,4 +1,9 @@
-#include "Ludus/Engine/Core/Application.h"
+#include "pch.h"
+
+#include <initializer_list>
+#include <memory>
+
+#include <Ludus/Engine/Core/Application.h>
 
 namespace Ludus::Engine::Core
 {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <assert.h>
 
 namespace Ludus::Engine::Core::Enums
