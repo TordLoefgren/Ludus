@@ -62,7 +62,7 @@ namespace Ludus::Engine::Graphics
 		);
 		~Renderer2D();
 
-		void BeginScene(Camera2D& camera);
+		void BeginScene(const Camera2D& camera);
 		void EndScene();
 
 		void DrawQuad(const Ludus::Engine::Math::Transform2D& transform, Color color = Colors::White, Texture* texture = nullptr, bool fill = true);

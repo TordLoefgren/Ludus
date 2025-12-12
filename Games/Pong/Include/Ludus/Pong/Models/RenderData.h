@@ -8,8 +8,8 @@ namespace Ludus::Pong::Models
 {
 	struct RenderData
 	{
-		int Width = 0;
-		int Height = 0;
+		float Width = 0;
+		float Height = 0;
 
 		Ludus::Engine::Math::Vector2D DefaultBallPosition;
 		Ludus::Engine::Math::Vector2D DefaultPlayer1Position;
@@ -18,7 +18,7 @@ namespace Ludus::Pong::Models
 		float GetHalfWidth() const { return Width * 0.5f; }
 		float GetHalfHeight() const { return Height * 0.5f; }
 		float GetLineWidth() const { return Width * 0.005f; }
-		int GetLineHeight() const { return Height / Pong::Core::Configuration::Defaults::NumMidLines; }
+		float GetLineHeight() const { return Height / Pong::Core::Configuration::Defaults::NumMidLines; }
 		float GetHalfLineHeight() const { return GetLineHeight() * 0.5f; }
 		float GetHalfPaddleHeight() const { return Pong::Core::Configuration::Defaults::PaddleHeight * 0.5f; }
 	};

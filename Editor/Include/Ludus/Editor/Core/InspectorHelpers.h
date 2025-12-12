@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <format>
 #include <vector>
@@ -12,6 +12,7 @@
 #include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Enums.h>
 #include <Ludus/Engine/Core/ISystem.h>
+#include <Ludus/Engine/Graphics/Camera2DComponent.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
 #include <Ludus/Engine/Graphics/Shape.h>
@@ -47,21 +48,33 @@ namespace Ludus::Editor::Core
 				Ludus::UI::Containers::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::Text("Position");
 				Ludus::UI::Containers::TableSetColumnIndex(1);
-				Ludus::UI::Widgets::InputFloat("X##Transform2D_Panel_Position_X", &transform.Position.X);
+				Ludus::UI::Widgets::DragFloatLabelButton("X##Transform2D_Panel_Position_X", &transform.Position.X);
+				Ludus::UI::Layouts::SameLine();
+				Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Position_X", &transform.Position.X);
+
 				Ludus::UI::Containers::TableSetColumnIndex(2);
-				Ludus::UI::Widgets::InputFloat("Y##Transform2D_Panel_Position_Y", &transform.Position.Y);
+				Ludus::UI::Widgets::DragFloatLabelButton("Y##Transform2D_Panel_Position_Y", &transform.Position.Y);
+				Ludus::UI::Layouts::SameLine();
+				Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Position_Y", &transform.Position.Y);
 
 				Ludus::UI::Containers::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::Text("Scale");
 				Ludus::UI::Containers::TableSetColumnIndex(1);
-				Ludus::UI::Widgets::InputFloat("X##Transform2D_Panel_Scale_X", &transform.Scale.X);
+				Ludus::UI::Widgets::DragFloatLabelButton("X##Transform2D_Panel_Scale_X", &transform.Scale.X);
+				Ludus::UI::Layouts::SameLine();
+				Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Scale_X", &transform.Scale.X);
+
 				Ludus::UI::Containers::TableSetColumnIndex(2);
-				Ludus::UI::Widgets::InputFloat("Y##Transform2D_Panel_Scale_Y", &transform.Scale.Y);
+				Ludus::UI::Widgets::DragFloatLabelButton("Y##Transform2D_Panel_Scale_Y", &transform.Scale.Y);
+				Ludus::UI::Layouts::SameLine();
+				Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Scale_Y", &transform.Scale.Y);
 
 				Ludus::UI::Containers::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::Text("Rotation");
 				Ludus::UI::Containers::TableSetColumnIndex(1);
-				Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Rotation", &transform.Rotation);
+				Ludus::UI::Widgets::DragFloatLabelButton("Z##Transform2D_Panel_DragFloat_Rotation", &transform.Rotation);
+				Ludus::UI::Layouts::SameLine();
+				Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_InputFloat_Rotation_Z", &transform.Rotation);
 			}
 		}
 	}
@@ -127,9 +140,14 @@ namespace Ludus::Editor::Core
 				Ludus::UI::Containers::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::Text("Velocity");
 				Ludus::UI::Containers::TableSetColumnIndex(1);
-				Ludus::UI::Widgets::InputFloat("X##RigidBody2D_Panel_Velocity_X", &rigidBody.Velocity.X);
+				Ludus::UI::Widgets::DragFloatLabelButton("X##RigidBody2D_Panel_Velocity_X", &rigidBody.Velocity.X);
+				Ludus::UI::Layouts::SameLine();
+				Ludus::UI::Widgets::InputFloat("##RigidBody2D_Panel_Input_Velocity_X", &rigidBody.Velocity.X);
+
 				Ludus::UI::Containers::TableSetColumnIndex(2);
-				Ludus::UI::Widgets::InputFloat("Y##RigidBody2D_Panel_Velocity_Y", &rigidBody.Velocity.Y);
+				Ludus::UI::Widgets::DragFloatLabelButton("Y##RigidBody2D_Panel_Velocity_Y", &rigidBody.Velocity.Y);
+				Ludus::UI::Layouts::SameLine();
+				Ludus::UI::Widgets::InputFloat("##RigidBody2D_Panel_Input_Velocity_Y", &rigidBody.Velocity.Y);
 
 				Ludus::UI::Containers::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::Text("Body Type");
@@ -146,11 +164,6 @@ namespace Ludus::Editor::Core
 				Ludus::UI::Widgets::Text("Mass");
 				Ludus::UI::Containers::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::InputFloat("##RigidBody2D_Panel_Mass", &rigidBody.Mass);
-
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Inverse Mass");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
-				Ludus::UI::Widgets::InputFloat("##RigidBody2D_Panel_InverseMass", &rigidBody.InverseMass);
 			}
 		}
 	}
@@ -207,6 +220,20 @@ namespace Ludus::Editor::Core
 				Ludus::UI::Containers::TableSetColumnIndex(1);
 
 				auto _ = Ludus::Editor::Core::Utilities::ComboEnum("##Text2D_Panel_Combo", text.HorizontalAlignment);
+			}
+		}
+	}
+
+	inline void Camera2DPanel(Ludus::Engine::Graphics::Camera2DComponent& component)
+	{
+		if (Ludus::UI::Containers::TreeNode treeNode("Camera 2D"); treeNode)
+		{
+			if (Ludus::UI::Containers::Table table("Camera2D_Panel", 2); table)
+			{
+				Ludus::UI::Containers::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::Text("Orthographic Size");
+				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Widgets::DragFloat("##Camera2D_OrthographicSize", &component.OrthographicSize);
 			}
 		}
 	}

@@ -2,9 +2,9 @@
 
 namespace Ludus::Pong::Systems
 {
-	PlayingSystem::PlayingSystem(Ludus::Pong::Core::GameInfo& gameInfo, Ludus::Pong::Core::PongInfo& pongInfo)
-		: m_GameInfo(gameInfo),
-		m_PongInfo(pongInfo),
+	PlayingSystem::PlayingSystem(std::shared_ptr<Ludus::Pong::Core::GameInfo> gameInfo, std::shared_ptr<Ludus::Pong::Core::PongInfo> pongInfo)
+		: m_GameInfo(std::move(gameInfo)),
+		m_PongInfo(std::move(pongInfo)),
 		m_LayerIndexBall(-1),
 		m_LayerIndexHorizontal(-1),
 		m_LayerIndexVertical(-1),
@@ -19,9 +19,9 @@ namespace Ludus::Pong::Systems
 
 	void PlayingSystem::Start()
 	{
-		auto directionX = m_GameInfo.Random.NextFloat(-1.0f, 1.0f);
+		auto directionX = m_GameInfo->Random.NextFloat(-1.0f, 1.0f);
 		directionX = directionX < 0.0f ? -1.0f : 1.0f;
-		auto directionY = m_GameInfo.Random.NextFloat(-0.5f, 0.5f);
+		auto directionY = m_GameInfo->Random.NextFloat(-0.5f, 0.5f);
 
 		if (auto ballTransform = m_SystemContext->EntityComponentSystem.Transforms.TryGetByOwnerMutable(m_Entities.BallHandle))
 		{
@@ -89,9 +89,10 @@ namespace Ludus::Pong::Systems
 	void PlayingSystem::OnAttachImpl()
 	{
 		// Defaults.
-		auto& options = m_SystemContext->Window.GetOptions();
-		m_RenderData.Width = options.Width;
-		m_RenderData.Height = options.Height;
+		auto rect = m_GameInfo->Camera.GetWorldRect();
+
+		m_RenderData.Width = rect.Size.X;
+		m_RenderData.Height = rect.Size.Y;
 
 		m_RenderData.DefaultBallPosition = { m_RenderData.GetHalfWidth(), m_RenderData.GetHalfHeight() };
 		m_RenderData.DefaultPlayer1Position = { Ludus::Pong::Core::Configuration::Defaults::PaddleXOffset, m_RenderData.GetHalfHeight() };
@@ -129,6 +130,9 @@ namespace Ludus::Pong::Systems
 	void PlayingSystem::OnTransitionEnterImpl()
 	{
 		LUDUS_LOG_DEBUG("ENTERING PLAYING STATE");
+
+		auto rect = m_GameInfo->Camera.GetWorldRect();
+		m_GameInfo->Camera.SetPosition({ rect.Size.X * 0.5f, rect.Size.Y * 0.5f });
 
 		auto& ecs = m_SystemContext->EntityComponentSystem;
 
@@ -170,23 +174,23 @@ namespace Ludus::Pong::Systems
 
 		ecs.AttachTransform(
 			m_Entities.TopWallHandle,
-			{ m_RenderData.GetHalfWidth(), (float)m_RenderData.Height - wallHeight * 0.5f },
-			{ (float)m_RenderData.Width, wallHeight });
+			{ m_RenderData.GetHalfWidth(), m_RenderData.Height - wallHeight * 0.5f },
+			{ m_RenderData.Width, wallHeight });
 
 		ecs.AttachTransform(
 			m_Entities.BottomWallHandle,
 			{ m_RenderData.GetHalfWidth(), wallHeight * 0.5f },
-			{ (float)m_RenderData.Width, wallHeight });
+			{ m_RenderData.Width, wallHeight });
 
 		ecs.AttachTransform(
 			m_Entities.LeftWallHandle,
 			{ wallWidth * 0.5f, m_RenderData.GetHalfHeight() },
-			{ wallWidth, (float)m_RenderData.Height });
+			{ wallWidth, m_RenderData.Height });
 
 		ecs.AttachTransform(
 			m_Entities.RightWallHandle,
-			{ (float)m_RenderData.Width - wallWidth * 0.5f, m_RenderData.GetHalfHeight() },
-			{ wallWidth, (float)m_RenderData.Height });
+			{ m_RenderData.Width - wallWidth * 0.5f, m_RenderData.GetHalfHeight() },
+			{ wallWidth, m_RenderData.Height });
 
 		ecs.AttachTransform(
 			m_Entities.Player1Handle,
@@ -219,12 +223,12 @@ namespace Ludus::Pong::Systems
 		auto horizontalAlignment = Ludus::Engine::Graphics::HorizontalTextAlignment::Center;
 
 		m_Entities.LeftScoreTextHandle = ecs.AddEntity();
-		ecs.AttachTransform(m_Entities.LeftScoreTextHandle, { m_RenderData.GetHalfWidth() - Ludus::Pong::Core::Configuration::Defaults::ScoreTextOffset, m_RenderData.Height - Ludus::Pong::Core::Configuration::Defaults::ScoreTextOffset });
-		ecs.AttachText(m_Entities.LeftScoreTextHandle, std::to_string(m_PongInfo.Player1Score), color, horizontalAlignment);
+		ecs.AttachTransform(m_Entities.LeftScoreTextHandle, { m_RenderData.GetHalfWidth() - Ludus::Pong::Core::Configuration::Defaults::ScoreTextOffset, m_RenderData.Height - Ludus::Pong::Core::Configuration::Defaults::ScoreTextOffset }, 0.025f);
+		ecs.AttachText(m_Entities.LeftScoreTextHandle, std::to_string(m_PongInfo->Player1Score), color, horizontalAlignment);
 
 		m_Entities.RightScoreTextHandle = ecs.AddEntity();
-		ecs.AttachTransform(m_Entities.RightScoreTextHandle, { m_RenderData.GetHalfWidth() + Ludus::Pong::Core::Configuration::Defaults::ScoreTextOffset, m_RenderData.Height - Ludus::Pong::Core::Configuration::Defaults::ScoreTextOffset });
-		ecs.AttachText(m_Entities.RightScoreTextHandle, std::to_string(m_PongInfo.Player2Score), color, horizontalAlignment);
+		ecs.AttachTransform(m_Entities.RightScoreTextHandle, { m_RenderData.GetHalfWidth() + Ludus::Pong::Core::Configuration::Defaults::ScoreTextOffset, m_RenderData.Height - Ludus::Pong::Core::Configuration::Defaults::ScoreTextOffset }, 0.025f);
+		ecs.AttachText(m_Entities.RightScoreTextHandle, std::to_string(m_PongInfo->Player2Score), color, horizontalAlignment);
 	}
 
 	void PlayingSystem::OnTransitionExitImpl()
@@ -266,7 +270,7 @@ namespace Ludus::Pong::Systems
 		auto& input = m_SystemContext->Input;
 
 		auto state = Ludus::Pong::Core::GameState::Playing;
-		if (m_PongInfo.Player1Score == m_PongInfo.MaxScore || m_PongInfo.Player2Score == m_PongInfo.MaxScore)
+		if (m_PongInfo->Player1Score == m_PongInfo->MaxScore || m_PongInfo->Player2Score == m_PongInfo->MaxScore)
 		{
 			state = Ludus::Pong::Core::GameState::ScoreMenu;
 		}
@@ -285,7 +289,7 @@ namespace Ludus::Pong::Systems
 		m_Intents.Player1MoveY = (input.GetKey(Ludus::Engine::Platform::Key::W) ? 1.0f : 0.0f) + (input.GetKey(Ludus::Engine::Platform::Key::S) ? -1.0f : 0.0f);
 
 		// Player 2.
-		if (m_PongInfo.IsMultiplayer)
+		if (m_PongInfo->IsMultiplayer)
 		{
 			m_Intents.Player2MoveY = (input.GetKey(Ludus::Engine::Platform::Key::Up) ? 1.0f : 0.0f) + (input.GetKey(Ludus::Engine::Platform::Key::Down) ? -1.0f : 0.0f);
 		}
@@ -316,7 +320,7 @@ namespace Ludus::Pong::Systems
 		player1Transform.Position.Y += m_Intents.Player1MoveY * Ludus::Pong::Core::Configuration::Defaults::Player1Speed * deltaTime;
 
 		// Player 2.
-		if (m_RuntimeData.IsRunning && !m_PongInfo.IsMultiplayer)
+		if (m_RuntimeData.IsRunning && !m_PongInfo->IsMultiplayer)
 		{
 			// Player 2 AI.
 			const float centerX = m_RenderData.GetHalfWidth();
@@ -417,24 +421,24 @@ namespace Ludus::Pong::Systems
 
 			if (ballTransform.Position.X <= Ludus::Pong::Core::Configuration::Defaults::WallWidthThickness)
 			{
-				m_PongInfo.Player2Score++;
+				m_PongInfo->Player2Score++;
 
 				auto* rightScoreText = ecs.Texts.TryGetByOwnerMutable(m_Entities.RightScoreTextHandle);
 				if (rightScoreText)
 				{
-					rightScoreText->Text = std::to_string(m_PongInfo.Player2Score);
+					rightScoreText->Text = std::to_string(m_PongInfo->Player2Score);
 				}
 
 				Clear();
 			}
 			else if (ballTransform.Position.X >= m_RenderData.Width - Ludus::Pong::Core::Configuration::Defaults::WallWidthThickness)
 			{
-				m_PongInfo.Player1Score++;
+				m_PongInfo->Player1Score++;
 
 				auto* leftScoreText = ecs.Texts.TryGetByOwnerMutable(m_Entities.LeftScoreTextHandle);
 				if (leftScoreText)
 				{
-					leftScoreText->Text = std::to_string(m_PongInfo.Player1Score);
+					leftScoreText->Text = std::to_string(m_PongInfo->Player1Score);
 				}
 
 				Clear();
@@ -448,5 +452,7 @@ namespace Ludus::Pong::Systems
 
 		player1Transform.Position.Y = Ludus::Engine::Math::Numeric::Clamp(player1Transform.Position.Y, minY, maxY);
 		player2Transform.Position.Y = Ludus::Engine::Math::Numeric::Clamp(player2Transform.Position.Y, minY, maxY);
+
+		m_SystemContext->RenderViews.RegisterFullscreen(m_GameInfo->Camera, m_SystemContext->WindowRenderTarget);
 	}
 }

@@ -12,6 +12,7 @@ namespace Ludus::Engine::Core
 		m_GLContext(std::make_unique<Ludus::Engine::Graphics::GLContext>()),
 		m_PhysicsContext(std::make_unique<Ludus::Engine::Physics::Core::PhysicsContext2D>(std::move(physicsContext))),
 		m_Resources(std::make_unique<Ludus::Engine::Core::ResourceRegistry>()),
+		m_RenderViewRegistry(std::make_unique<Ludus::Engine::Core::RenderViewRegistry>()),
 		m_EntityComponentSystem(std::make_unique<Ludus::Engine::Core::EntityComponentSystem>()),
 		m_Time(std::make_unique<Ludus::Engine::Core::Time>()),
 		m_SystemContext(
@@ -19,7 +20,9 @@ namespace Ludus::Engine::Core
 			*m_EventBus,
 			*m_Input,
 			*m_Resources,
+			*m_RenderViewRegistry,
 			*m_Window,
+			std::make_shared<Ludus::Engine::Graphics::RenderTarget>(windowOptions.Width, windowOptions.Height),
 			m_PhysicsContext ? m_PhysicsContext->QueryCache.get() : nullptr
 		),
 		m_Scheduler(std::make_unique<Ludus::Engine::Core::Scheduler>(m_SystemContext))
@@ -29,23 +32,12 @@ namespace Ludus::Engine::Core
 		m_GLContext->SetBlendAlpha();
 		m_GLContext->SetViewport(windowOptions.Width, windowOptions.Height);
 
-		RegisterDefaults(windowOptions, renderingOptions);
-
 		SubscribeToEvents();
 	}
 
-	void Application::RegisterDefaults(Ludus::Engine::Platform::WindowOptions windowOptions, Ludus::Engine::Graphics::RenderingOptions renderingOptions)
+	std::unique_ptr<Application> Application::Create(Ludus::Engine::Platform::WindowOptions windowOptions, Ludus::Engine::Graphics::RenderingOptions renderingOptions, Ludus::Engine::Physics::Core::PhysicsContext2D physicsContext)
 	{
-		AddSystem({ { SystemPhase::Update, nullptr, SystemPhaseOrder::Before }, { SystemPhase::Render, nullptr, SystemPhaseOrder::After} }, std::make_unique<Ludus::Engine::Core::ImGuiSystem>());
-		AddSystem({ SystemPhase::FixedUpdate, nullptr, SystemPhaseOrder::Before }, std::make_unique<Ludus::Engine::Physics::Core::PhysicsSystem2D>(*m_PhysicsContext));
-		AddSystem({ SystemPhase::Render, nullptr, SystemPhaseOrder::Before }, std::make_unique<Ludus::Engine::Graphics::RenderingSystem2D>(renderingOptions));
-
-		AddResource<std::shared_ptr<Ludus::Engine::Graphics::RenderTarget>>(std::make_shared<Ludus::Engine::Graphics::RenderTarget>(windowOptions.Width, windowOptions.Height));
-	}
-
-	std::unique_ptr<Application> Application::Create(Ludus::Engine::Platform::WindowOptions windowOptions, Ludus::Engine::Graphics::RenderingOptions renderingOptions)
-	{
-		auto application = std::make_unique<Application>(windowOptions, renderingOptions);
+		auto application = std::make_unique<Application>(windowOptions, renderingOptions, std::move(physicsContext));
 		return application;
 	}
 
@@ -67,6 +59,7 @@ namespace Ludus::Engine::Core
 		{
 			m_Time->Step();
 			m_Input->Clear();
+			m_RenderViewRegistry->Clear();
 
 			m_Window->PollEvents();
 
@@ -100,9 +93,8 @@ namespace Ludus::Engine::Core
 		m_EventBus->Subscribe(EventType::MouseMoveEvent, (Eventhandler&)*m_Input);
 		m_EventBus->Subscribe(EventType::MouseScrollEvent, (Eventhandler&)*m_Input);
 		m_EventBus->Subscribe(EventType::WindowFocusEvent, (Eventhandler&)*m_Input);
-
+		m_EventBus->Subscribe(EventType::FramebufferSizeEvent, *this);
 		m_EventBus->Subscribe(EventType::FramebufferSizeEvent, (Eventhandler&)*m_GLContext);
-
 		m_EventBus->Subscribe(EventType::WindowCloseEvent, *this);
 	}
 
@@ -115,11 +107,18 @@ namespace Ludus::Engine::Core
 			case EventType::WindowCloseEvent:
 			{
 				m_Window->SetWindowShouldClose();
+
 				return true;
 			}
-			case EventType::WindowIconifyEvent:
+			case EventType::FramebufferSizeEvent:
 			{
-				// Not implemented.
+				const auto& e = static_cast<const Ludus::Engine::Events::WindowEvents::FramebufferSizeEvent&>(event);
+				if (m_SystemContext.WindowRenderTarget)
+				{
+					m_SystemContext.WindowRenderTarget->Framebuffer.Resize(e.Width, e.Height);
+				}
+
+				// Allow GLContext to update as well.
 				return false;
 			}
 

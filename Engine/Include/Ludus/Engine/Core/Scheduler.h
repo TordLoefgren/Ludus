@@ -10,7 +10,6 @@
 #include <Ludus/Engine/Core/ScheduledSystem.h>
 #include <Ludus/Engine/Core/SystemPhase.h>
 #include <Ludus/Engine/Core/SystemPhaseInfo.h>
-#include <Ludus/Engine/Core/SystemPhaseOrder.h>
 #include <Ludus/Engine/Core/SystemPredicate.h>
 
 namespace Ludus::Engine::Core

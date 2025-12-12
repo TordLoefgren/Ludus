@@ -28,7 +28,27 @@ namespace Ludus::UI::Widgets
 
 	inline bool DragFloat(const std::string& label, float* value, float speed = 1.0f)
 	{
-		return ImGui::DragFloat(label.c_str(), value, speed);
+		return ImGui::DragFloat(label.c_str(), value, speed, 0.0f, 0.0f, "%.2f");
+	}
+
+	inline bool DragFloatLabelButton(const char* label, float* value, float speed = 0.1f)
+	{
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
+
+		const auto _ = ImGui::Button(label);
+		const auto active = ImGui::IsItemActive();
+
+		ImGui::PopStyleColor(3);
+
+		if (active && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+		{
+			*value += ImGui::GetIO().MouseDelta.x * speed;
+			return true;
+		}
+
+		return false;
 	}
 
 	inline bool InputInt(const std::string& label, int* value, int step = 0, int step_fast = 0, ImGuiInputTextFlags flags = 0)

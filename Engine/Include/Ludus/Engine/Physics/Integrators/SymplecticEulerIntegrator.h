@@ -22,7 +22,7 @@ namespace Ludus::Engine::Physics::Integrators
 				{
 					// Gravity will should be eventually be applied alongisde other forces. 
 					const Ludus::Engine::Math::Vector2D gravity = { 0.0f, -10.0f };
-					rigidBody->Velocity += gravity * rigidBody->GravityScale * fixedTime;
+					rigidBody->Velocity += gravity * rigidBody->Mass * rigidBody->GravityScale * fixedTime;
 				}
 
 				transform->Position += rigidBody->Velocity * fixedTime;
