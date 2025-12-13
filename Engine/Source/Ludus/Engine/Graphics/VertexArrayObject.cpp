@@ -35,21 +35,24 @@ namespace Ludus::Engine::Graphics
 		const GLsizei stride = sizeof(Vertex);
 
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, Position));
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, WorldPosition));
 
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, Color));
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, LocalPosition));
 
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, TexCoords));
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, Color));
 
 		glEnableVertexAttribArray(3);
-		glVertexAttribIPointer(3, 1, GL_INT, stride, (void*)offsetof(Vertex, Shape));
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, TexCoords));
 
 		glEnableVertexAttribArray(4);
-		glVertexAttribIPointer(4, 1, GL_INT, stride, (void*)offsetof(Vertex, Fill));
+		glVertexAttribIPointer(4, 1, GL_INT, stride, (void*)offsetof(Vertex, Shape));
 
 		glEnableVertexAttribArray(5);
-		glVertexAttribIPointer(5, 1, GL_INT, stride, (void*)offsetof(Vertex, TexSlot));
+		glVertexAttribIPointer(5, 1, GL_INT, stride, (void*)offsetof(Vertex, Fill));
+
+		glEnableVertexAttribArray(6);
+		glVertexAttribIPointer(6, 1, GL_INT, stride, (void*)offsetof(Vertex, TexSlot));
 	}
 }

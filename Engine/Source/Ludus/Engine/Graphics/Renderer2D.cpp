@@ -87,10 +87,12 @@ namespace Ludus::Engine::Graphics
 		matrix = glm::rotate(matrix, glm::radians(transform.Rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 		matrix = glm::scale(matrix, glm::vec3(transform.Scale.X, transform.Scale.Y, 1.0f));
 
-		glm::vec4 points[4];
+		glm::vec4 world[4];
+		glm::vec2 local[4];
 		for (int i = 0; i < 4; i++)
 		{
-			points[i] = matrix * UnitQuad[i];
+			world[i] = matrix * UnitQuad[i];
+			local[i] = glm::vec2(UnitQuad[i].x, UnitQuad[i].y);
 		}
 
 		glm::vec2 uv[4] = { {0,0}, {1,0}, {1,1}, {0,1} };
@@ -110,10 +112,10 @@ namespace Ludus::Engine::Graphics
 			}
 		}
 
-		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 0] = { { points[0].x, points[0].y }, { r, g, b, a }, uv[0].x, uv[0].y, shape, fill, textureSlot };
-		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 1] = { { points[1].x, points[1].y }, { r, g, b, a }, uv[1].x, uv[1].y, shape, fill, textureSlot };
-		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 2] = { { points[2].x, points[2].y }, { r, g, b, a }, uv[2].x, uv[2].y, shape, fill, textureSlot };
-		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 3] = { { points[3].x, points[3].y }, { r, g, b, a }, uv[3].x, uv[3].y, shape, fill, textureSlot };
+		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 0] = { { world[0].x, world[0].y }, { local[0].x, local[0].y }, { r, g, b, a }, uv[0].x, uv[0].y, shape, fill, textureSlot };
+		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 1] = { { world[1].x, world[1].y }, { local[1].x, local[1].y }, { r, g, b, a }, uv[1].x, uv[1].y, shape, fill, textureSlot };
+		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 2] = { { world[2].x, world[2].y }, { local[2].x, local[2].y }, { r, g, b, a }, uv[2].x, uv[2].y, shape, fill, textureSlot };
+		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 3] = { { world[3].x, world[3].y }, { local[3].x, local[3].y }, { r, g, b, a }, uv[3].x, uv[3].y, shape, fill, textureSlot };
 
 		auto offset = m_State.m_QuadVertexCursor;
 
@@ -211,8 +213,8 @@ namespace Ludus::Engine::Graphics
 		auto [r, g, b, a] = color;
 		auto textureSlot = 0;
 
-		m_State.m_LineVertices[m_State.m_LineVertexCursor + 0] = { { x1, y1 }, { r, g, b, a }, { 0.0f, 0.0f }, 0, textureSlot };
-		m_State.m_LineVertices[m_State.m_LineVertexCursor + 1] = { { x2, y2 }, { r, g, b, a }, { 1.0f, 0.0f }, 0,  textureSlot };
+		m_State.m_LineVertices[m_State.m_LineVertexCursor + 0] = { { x1, y1 }, { 0.0f, 0.0f }, { r, g, b, a }, { 0.0f, 0.0f }, 0, textureSlot };
+		m_State.m_LineVertices[m_State.m_LineVertexCursor + 1] = { { x2, y2 }, { 0.0f, 0.0f }, { r, g, b, a }, { 1.0f, 0.0f }, 0, textureSlot };
 
 		m_State.m_LineVertexCursor += 2;
 	}

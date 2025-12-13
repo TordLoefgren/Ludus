@@ -10,7 +10,6 @@ namespace Ludus::Engine::Graphics
 	{
 	private:
 		unsigned int m_Handle = 0;
-		unsigned int m_RenderBufferHandle = 0;
 		unsigned int m_ColorTextureHandle = 0;
 		int m_Width = 0;
 		int m_Height = 0;
