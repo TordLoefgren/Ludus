@@ -2,6 +2,7 @@
 
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Graphics/Font.h>
+#include <Ludus/Engine/Graphics/Texture.h>
 
 namespace Ludus::Engine::Graphics
 {
@@ -55,11 +56,11 @@ namespace Ludus::Engine::Graphics
 		Glyph glyph
 		{
 			std::move(texture),
-			(int)bitmap.width,
-			(int)bitmap.rows,
-			(int)slot->bitmap_left,
-			(int)slot->bitmap_top,
-			(int)slot->advance.x,
+			static_cast<int>(bitmap.width),
+			static_cast<int>(bitmap.rows),
+			static_cast<int>(slot->bitmap_left),
+			static_cast<int>(slot->bitmap_top),
+			static_cast<int>(slot->advance.x),
 		};
 
 		auto [it, _] = m_GlyphMap.emplace(character, std::move(glyph));

@@ -21,7 +21,7 @@ namespace Ludus::Lab::Core
 		}
 
 		auto [framebufferWidth, framebufferHeight] = m_SystemContext->Window.GetFramebufferSize();
-		cameraComponentPtr->SetWorldFromViewport((float)framebufferWidth, (float)framebufferHeight);
+		cameraComponentPtr->SetWorldFromViewport(static_cast<float>(framebufferWidth), static_cast<float>(framebufferHeight));
 
 		m_World.HalfWidth = cameraComponentPtr->HalfWorldWidth();
 		m_World.HalfHeight = cameraComponentPtr->HalfWorldHeight();

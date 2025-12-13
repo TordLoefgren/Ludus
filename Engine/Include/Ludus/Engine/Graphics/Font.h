@@ -1,13 +1,10 @@
 #pragma once
 
 #include <ft2build.h>
-#include <iostream>
 #include <string_view>
 #include <unordered_map>
 #include FT_FREETYPE_H
 
-#include <Ludus/Engine/Graphics/Texture.h>
-#include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Graphics/Glyph.h>
 
 namespace Ludus::Engine::Graphics

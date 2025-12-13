@@ -273,8 +273,8 @@ namespace Ludus::Engine::Graphics
 
 	bool Renderer2D::WouldOverflow(int vertexCount, int indexCount) const
 	{
-		return (m_State.m_QuadVertexCursor + vertexCount > (int)m_State.m_QuadVertices.size()) ||
-			(m_State.m_QuadIndexCursor + indexCount > (int)m_State.m_QuadIndices.size());
+		return (m_State.m_QuadVertexCursor + vertexCount > static_cast<int>(m_State.m_QuadVertices.size())) ||
+			(m_State.m_QuadIndexCursor + indexCount > static_cast<int>(m_State.m_QuadIndices.size()));
 	}
 
 	bool Renderer2D::WouldExceedTextureSlots() const
