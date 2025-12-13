@@ -2,13 +2,6 @@
 
 #include <memory>
 
-#include <Ludus/Editor/Core/Scene.h>
-#include <Ludus/Editor/Panels/ConsolePanel.h>
-#include <Ludus/Editor/Panels/DockPanel.h>
-#include <Ludus/Editor/Panels/ImGuiDemoPanel.h>
-#include <Ludus/Editor/Panels/InspectorPanel.h>
-#include <Ludus/Editor/Panels/SceneHierarchyPanel.h>
-#include <Ludus/Editor/Panels/ViewportPanel.h>
 #include <Ludus/Engine/Core/Application.h>
 #include <Ludus/Engine/Core/ApplicationBuilder.h>
 #include <Ludus/Engine/Graphics/Camera2D.h>

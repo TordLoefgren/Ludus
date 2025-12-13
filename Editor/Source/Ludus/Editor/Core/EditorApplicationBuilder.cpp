@@ -1,6 +1,13 @@
 #include "pch.h"
 
 #include <Ludus/Editor/Core/EditorApplicationBuilder.h>
+#include <Ludus/Editor/Core/Scene.h>
+#include <Ludus/Editor/Panels/ConsolePanel.h>
+#include <Ludus/Editor/Panels/DockPanel.h>
+#include <Ludus/Editor/Panels/ImGuiDemoPanel.h>
+#include <Ludus/Editor/Panels/InspectorPanel.h>
+#include <Ludus/Editor/Panels/SceneHierarchyPanel.h>
+#include <Ludus/Editor/Panels/ViewportPanel.h>
 
 namespace Ludus::Editor::Core
 {
@@ -37,9 +44,9 @@ namespace Ludus::Editor::Core
 		m_ApplicationBuilder
 			.AddUpdateSystem<Ludus::Editor::Panels::DockPanel>()
 			.AddUpdateSystem<Ludus::Editor::Panels::ConsolePanel>()
-			.AddUpdateSystem<Ludus::Editor::Panels::ImGuiDemoPanel>()
 			.AddUpdateSystem<Ludus::Editor::Panels::InspectorPanel>()
 			.AddUpdateSystem<Ludus::Editor::Panels::SceneHierarchyPanel>()
+			.AddUpdateSystem<Ludus::Editor::Panels::ImGuiDemoPanel>()
 			.AddUpdateSystem<Ludus::Editor::Core::Scene>();
 
 		return *this;

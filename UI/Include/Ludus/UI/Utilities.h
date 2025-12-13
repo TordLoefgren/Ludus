@@ -42,4 +42,15 @@ namespace Ludus::UI::Utilities
 	inline void ShowDemoWindow() { ImGui::ShowDemoWindow(); }
 
 	inline ImGuiIO& GetIO() { return ImGui::GetIO(); }
+
+	inline void ScrollToNewest()
+	{
+		const float scrollY = ImGui::GetScrollY();
+		const float scrollMaxY = ImGui::GetScrollMaxY();
+
+		if (scrollY >= scrollMaxY - 1.0f)
+		{
+			ImGui::SetScrollHereY(1.0f);
+		}
+	}
 }

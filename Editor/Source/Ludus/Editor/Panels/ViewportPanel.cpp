@@ -55,7 +55,7 @@ namespace Ludus::Editor::Panels
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(r, g, b, a));
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-		static bool open = true;
+		static auto open = true;
 		if (Ludus::UI::Containers::Window window(m_Title.c_str(), &open, flags); window)
 		{
 			const auto aspectSize = GetViewportAspectSize();
