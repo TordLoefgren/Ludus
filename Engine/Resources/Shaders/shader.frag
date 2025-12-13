@@ -6,7 +6,7 @@ layout (location = 0) out vec4 o_Color;
 
 in vec4 v_Color;
 in vec2 v_TexCoord;
-in vec2 v_Position;
+in vec2 v_LocalPosition;
 flat in int v_Shape;
 flat in int v_Fill;
 flat in int v_TexSlot;
@@ -20,7 +20,7 @@ void main()
     {
         // Quad.
 
-        vec2 localPosition = abs(v_Position) - 0.5;
+        vec2 localPosition = abs(v_LocalPosition) - 0.5;
 
         float distance = length(max(localPosition, 0.0)) + min(max(localPosition.x, localPosition.y), 0.0);
         float distancePerPixel = fwidth(distance);
@@ -45,7 +45,7 @@ void main()
         // Circle.
         
         // Rescale local coordinates to be in [-1, 1] to get a radius of 1.
-        vec2 localPosition = v_Position * 2.0;
+        vec2 localPosition = v_LocalPosition * 2.0;
 
         float distance = 1.0 - length(localPosition);        
         float distancePerPixel = fwidth(distance);
