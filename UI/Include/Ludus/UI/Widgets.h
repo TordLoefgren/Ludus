@@ -95,7 +95,7 @@ namespace Ludus::UI::Widgets
 
 	inline bool Combo(const std::string& label, int* currentItem, std::vector<const char*> items)
 	{
-		return ImGui::Combo(label.c_str(), currentItem, items.data(), (int)items.size());
+		return ImGui::Combo(label.c_str(), currentItem, items.data(), static_cast<int>(items.size()));
 	}
 
 	inline bool CollapsingHeader(const std::string& label, ImGuiTreeNodeFlags flags = 0)

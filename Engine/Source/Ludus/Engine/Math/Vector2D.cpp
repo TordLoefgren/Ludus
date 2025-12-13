@@ -137,7 +137,7 @@ namespace Ludus::Engine::Math
 
 	float Vector2D::Magnitude(const Vector2D& v)
 	{
-		return (float)sqrt(v.X * v.X + v.Y * v.Y);
+		return static_cast<float>(sqrt(v.X * v.X + v.Y * v.Y));
 	}
 
 	Direction Vector2D::GetDirection(const Vector2D& v, float threshold)
@@ -220,7 +220,7 @@ namespace Ludus::Engine::Math
 		auto x = v.X * cos(angleRadians) - v.Y * sin(angleRadians);
 		auto y = v.X * sin(angleRadians) + v.Y * cos(angleRadians);
 
-		return Vector2D((float)x, (float)y);
+		return Vector2D(static_cast<float>(x), static_cast<float>(y));
 	}
 
 	Vector2D& Vector2D::Rotate(float angle)
@@ -229,8 +229,8 @@ namespace Ludus::Engine::Math
 		auto x = X * cos(angleRadians) - Y * sin(angleRadians);
 		auto y = X * sin(angleRadians) + Y * cos(angleRadians);
 
-		X = (float)x;
-		Y = (float)y;
+		X = static_cast<float>(x);
+		Y = static_cast<float>(y);
 
 		return *this;
 	}

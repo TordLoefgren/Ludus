@@ -12,7 +12,7 @@ namespace Ludus::Editor::Panels
 		auto availableSpace = ImGui::GetContentRegionAvail();
 
 		const auto [width, height] = m_SystemContext->Window.GetFramebufferSize();
-		const auto targetAspectRatio = (float)width / height;
+		const auto targetAspectRatio = static_cast<float>(width) / static_cast<float>(height);
 
 		auto aspectWidth = availableSpace.x;
 		auto aspectHeight = aspectWidth / targetAspectRatio;
@@ -64,8 +64,8 @@ namespace Ludus::Editor::Panels
 
 			ImGui::SetCursorPos({ cursor.x + aspectOffset.X, cursor.y + aspectOffset.Y });
 
-			m_Target->Framebuffer.Resize((int)aspectSize.X, (int)aspectSize.Y);
-			m_Camera->SetViewport((int)aspectSize.X, (int)aspectSize.Y);
+			m_Target->Framebuffer.Resize(static_cast<int>(aspectSize.X), static_cast<int>(aspectSize.Y));
+			m_Camera->SetViewport(static_cast<int>(aspectSize.X), static_cast<int>(aspectSize.Y));
 
 			ImGui::Image(
 				(ImTextureID)(intptr_t)m_Target->ColorTexture.Handle(),
