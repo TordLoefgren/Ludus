@@ -96,7 +96,7 @@ namespace Ludus::Pong::Systems
 
 		m_RenderData.DefaultBallPosition = { m_RenderData.GetHalfWidth(), m_RenderData.GetHalfHeight() };
 		m_RenderData.DefaultPlayer1Position = { Ludus::Pong::Core::Configuration::Defaults::PaddleXOffset, m_RenderData.GetHalfHeight() };
-		m_RenderData.DefaultPlayer2Position = { (float)m_RenderData.Width - Ludus::Pong::Core::Configuration::Defaults::PaddleXOffset, m_RenderData.GetHalfHeight() };
+		m_RenderData.DefaultPlayer2Position = { static_cast<float>(m_RenderData.Width) - Ludus::Pong::Core::Configuration::Defaults::PaddleXOffset, m_RenderData.GetHalfHeight() };
 
 		m_RuntimeData.BallPosition = m_RenderData.DefaultBallPosition;
 		m_RuntimeData.Player1Position = m_RenderData.DefaultPlayer1Position;
