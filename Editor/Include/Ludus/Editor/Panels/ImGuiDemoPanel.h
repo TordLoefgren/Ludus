@@ -1,8 +1,6 @@
 #pragma once
 
 #include <Ludus/Editor/Core/PanelSystem.h>
-#include <Ludus/Editor/Panels/Constants.h>
-#include <Ludus/UI/Utilities.h>
 
 namespace Ludus::Editor::Panels
 {

@@ -6,7 +6,7 @@ namespace Ludus::Editor::Panels
 {
 	void InspectorPanel::DrawPanel()
 	{
-		static bool open = true;
+		static auto open = true;
 		if (Ludus::UI::Containers::Window window("Inspector", &open, Constants::PanelFlags); window)
 		{
 			// Inspector panel test.

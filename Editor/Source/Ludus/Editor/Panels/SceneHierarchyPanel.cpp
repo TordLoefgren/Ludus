@@ -6,7 +6,7 @@ namespace Ludus::Editor::Panels
 {
 	void SceneHierarchyPanel::DrawPanel()
 	{
-		static bool open = true;
+		static auto open = true;
 		if (Ludus::UI::Containers::Window window("Scene Hierarchy", &open, Constants::PanelFlags); window)
 		{
 

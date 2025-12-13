@@ -8,8 +8,10 @@ namespace Ludus::Editor::Panels
 {
 	void ConsolePanel::DrawPanel()
 	{
-		static bool open = true;
-		if (Ludus::UI::Containers::Window window("Console", &open, Constants::PanelFlags); window)
+		auto open = true;
+		const auto flags = Constants::PanelFlags | ImGuiWindowFlags_HorizontalScrollbar;
+
+		if (Ludus::UI::Containers::Window window("Console", &open, flags); window)
 		{
 			auto& logEntries = Ludus::Engine::Debug::GetLogEntries();
 
@@ -41,6 +43,8 @@ namespace Ludus::Editor::Panels
 					Ludus::UI::Widgets::Text(std::format("{} ({})", text.Text, text.Count));
 				}
 			}
+
+			Ludus::UI::Utilities::ScrollToNewest();
 
 			logEntries.clear();
 		}
