@@ -36,7 +36,7 @@ namespace Ludus::Engine::Core
 				.ViewportRect = Ludus::Engine::Math::Rect
 				{
 					{ 0.0f, 0.0f },
-					{ (float)width, (float)height }
+					{ static_cast<float>(width), static_cast<float>(height) }
 				}
 			};
 
