@@ -15,11 +15,6 @@ namespace Ludus::Engine::Graphics
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorTextureHandle, 0);
 
-		glGenRenderbuffers(1, &m_RenderBufferHandle);
-		glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBufferHandle);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_RenderBufferHandle);
-
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
 			LUDUS_LOG_ERROR("Frame buffer is not complete.");
@@ -34,11 +29,6 @@ namespace Ludus::Engine::Graphics
 
 	FramebufferObject::~FramebufferObject()
 	{
-		if (m_RenderBufferHandle)
-		{
-			glDeleteRenderbuffers(1, &m_RenderBufferHandle);
-		}
-
 		if (m_Handle)
 		{
 			glDeleteFramebuffers(1, &m_Handle);
@@ -93,10 +83,6 @@ namespace Ludus::Engine::Graphics
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorTextureHandle, 0);
-
-		glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBufferHandle);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_RenderBufferHandle);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
