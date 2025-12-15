@@ -1,0 +1,36 @@
+#include "pch.h"
+
+#include <memory>
+
+#include <Ludus/Editor/Core/EditorSystem.h>
+#include <Ludus/Editor/Core/Scene.h>
+
+namespace Ludus::Editor::Core
+{
+	EditorSystem::EditorSystem(Ludus::Editor::Core::EditorConfiguration editorOptions)
+		: m_EditorContext(), m_EditorConfiguration(editorOptions), m_PanelRegistry()
+	{ }
+
+	void Ludus::Editor::Core::EditorSystem::OnAttachImpl()
+	{
+		for (auto& factoryMethod : m_EditorConfiguration.PanelFactories)
+		{
+			m_PanelRegistry.Register(factoryMethod());
+		}
+	}
+
+	void Ludus::Editor::Core::EditorSystem::OnDetachImpl()
+	{
+		m_PanelRegistry.Clear();
+	}
+
+	void Ludus::Editor::Core::EditorSystem::UpdateImpl(float deltaTime)
+	{
+		Ludus::Editor::Panels::PanelContext context { *m_SystemContext, m_EditorContext, deltaTime };
+
+		for (auto& panel : m_PanelRegistry.View())
+		{
+			panel->Update(context);
+		}
+	}
+}

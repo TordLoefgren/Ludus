@@ -19,11 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Ludus\Editor\Core\EditorSystem.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\EditorApplicationBuilder.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\Scene.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\DockPanel.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Source\Ludus\Editor\Panels\SceneHierarchyPanel.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Panels\HierarchyPanel.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\ConsolePanel.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\ImGuiDemoPanel.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\InspectorPanel.cpp" />
@@ -42,19 +43,25 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorContext.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorConfiguration.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorState.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorSystem.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\CameraControllerSystem.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorApplicationBuilder.h" />
-    <ClInclude Include="Include\Ludus\Editor\Panels\Constants.h" />
+    <ClInclude Include="Include\Ludus\Editor\Panels\PanelContext.h" />
+    <ClInclude Include="Include\Ludus\Editor\Panels\PanelRegistry.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\Constants.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\Scene.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\DockPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\InspectorHelpers.h" />
-    <ClInclude Include="Include\Ludus\Editor\Core\PanelSystem.h" />
+    <ClInclude Include="Include\Ludus\Editor\Panels\IPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\Utilities.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\ConsolePanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\ImGuiDemoPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\InspectorPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\ViewportPanel.h" />
-    <ClInclude Include="Include\Ludus\Editor\Panels\SceneHierarchyPanel.h" />
+    <ClInclude Include="Include\Ludus\Editor\Panels\HierarchyPanel.h" />
     <ClInclude Include="Source\Ludus\Editor\pch.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

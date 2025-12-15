@@ -2,13 +2,12 @@
 
 #include <memory>
 
+#include <Ludus/Editor/Core/EditorConfiguration.h>
 #include <Ludus/Engine/Core/Application.h>
 #include <Ludus/Engine/Core/ApplicationBuilder.h>
-#include <Ludus/Engine/Graphics/Camera2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
 #include <Ludus/Engine/Physics/Core/PhysicsContext2D.h>
 #include <Ludus/Engine/Platform/WindowOptions.h>
-#include <Ludus/UI/Utilities.h>
 
 namespace Ludus::Editor::Core
 {
@@ -21,13 +20,16 @@ namespace Ludus::Editor::Core
 		Ludus::Engine::Graphics::RenderingOptions m_RenderingOptions;
 		Ludus::Engine::Physics::Core::PhysicsContext2D m_PhysicsContext;
 
+		Ludus::Editor::Core::EditorConfiguration m_EditorConfiguration = Ludus::Editor::Core::EditorConfiguration::Default();
+
 	public:
 		static EditorApplicationBuilder Create();
 
 		std::unique_ptr<Ludus::Engine::Core::Application> Build();
 
+		EditorApplicationBuilder& WithEditorConfiguration(Ludus::Editor::Core::EditorConfiguration editorConfiguration);
+
 		EditorApplicationBuilder& AddDefaultEngine();
-		EditorApplicationBuilder& AddEditorPanels();
-		EditorApplicationBuilder& AddEditorViewport(std::string title = "Viewport", std::shared_ptr<Ludus::Engine::Graphics::Camera2D> camera = nullptr);
+		EditorApplicationBuilder& AddEditorSystem();
 	};
 }
