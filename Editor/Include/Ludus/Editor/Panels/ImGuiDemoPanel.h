@@ -1,12 +1,13 @@
 #pragma once
 
-#include <Ludus/Editor/Core/PanelSystem.h>
+#include <Ludus/Editor/Panels/IPanel.h>
+#include <Ludus/Editor/Panels/PanelContext.h>
 
 namespace Ludus::Editor::Panels
 {
-	class ImGuiDemoPanel final : public Ludus::Editor::Core::PanelSystem
+	class ImGuiDemoPanel final : public Ludus::Editor::Panels::IPanel
 	{
 	public:
-		virtual void DrawPanel() override;
+		virtual void UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
 	};
 }
