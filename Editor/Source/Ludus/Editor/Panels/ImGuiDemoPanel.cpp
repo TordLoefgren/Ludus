@@ -5,7 +5,7 @@
 
 namespace Ludus::Editor::Panels
 {
-	void ImGuiDemoPanel::DrawPanel()
+	void ImGuiDemoPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
 	{
 		Ludus::UI::Utilities::ShowDemoWindow();
 	}

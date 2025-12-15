@@ -2,7 +2,7 @@
 
 #include <imgui/imgui.h>
 
-namespace Ludus::Editor::Panels::Constants
+namespace Ludus::Editor::Core::Constants
 {
 	inline ImGuiWindowFlags PanelFlags = ImGuiBackendFlags_None;
 	inline ImGuiWindowFlags DockPanelWindowFlags = ImGuiWindowFlags_NoDocking

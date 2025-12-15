@@ -7,8 +7,8 @@
 #include <Ludus/UI/Layouts.h>
 #include <Ludus/UI/Widgets.h>
 
-#include <Ludus/Editor/Core/PanelSystem.h>
 #include <Ludus/Editor/Core/Utilities.h>
+#include <Ludus/Editor/Panels/IPanel.h>
 #include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Enums.h>
 #include <Ludus/Engine/Core/ISystem.h>

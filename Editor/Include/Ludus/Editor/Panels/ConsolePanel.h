@@ -4,15 +4,13 @@
 #include <unordered_map>
 #include <vector>
 
-#include <Ludus/Editor/Core/PanelSystem.h>
-#include <Ludus/Editor/Panels/Constants.h>
+#include <Ludus/Editor/Panels/IPanel.h>
+#include <Ludus/Editor/Panels/PanelContext.h>
 #include <Ludus/Engine/Debug/Debug.h>
-#include <Ludus/UI/Containers.h>
-#include <Ludus/UI/Widgets.h>
 
 namespace Ludus::Editor::Panels
 {
-	class ConsolePanel final : public Ludus::Editor::Core::PanelSystem
+	class ConsolePanel final : public Ludus::Editor::Panels::IPanel
 	{
 	private:
 		struct AggregateText
@@ -28,6 +26,6 @@ namespace Ludus::Editor::Panels
 		std::vector<AggregateText> m_AggregateText;
 		std::unordered_map<std::string, size_t> m_TextToIndex;
 
-		virtual void DrawPanel() override;
+		virtual void UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
 	};
 }
