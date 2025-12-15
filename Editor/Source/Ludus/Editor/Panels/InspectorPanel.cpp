@@ -1,16 +1,18 @@
 #include "pch.h"
 
+#include <Ludus/Editor/Core/InspectorHelpers.h>
 #include <Ludus/Editor/Panels/InspectorPanel.h>
+#include <Ludus/UI/Containers.h>
 
 namespace Ludus::Editor::Panels
 {
-	void InspectorPanel::DrawPanel()
+	void InspectorPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
 	{
-		static auto open = true;
-		if (Ludus::UI::Containers::Window window("Inspector", &open, Constants::PanelFlags); window)
+		auto windowTitle = CreateWindowTitle("Inspector");
+		if (Ludus::UI::Containers::Window window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
 		{
 			// Inspector panel test.
-			auto& ecs = m_SystemContext->EntityComponentSystem;
+			auto& ecs = context.SystemContext.EntityComponentSystem;
 
 			auto handle = 1;
 

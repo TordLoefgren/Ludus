@@ -2,16 +2,21 @@
 
 #include <imgui/imgui.h>
 
+#include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Panels/ViewportPanel.h>
+#include <Ludus/Engine/Graphics/Color.h>
+#include <Ludus/Engine/Graphics/RenderView2D.h>
+#include <Ludus/Engine/Math/Size.h>
 #include <Ludus/Engine/Math/Vector2D.h>
+#include <Ludus/UI/Containers.h>
 
 namespace Ludus::Editor::Panels
 {
-	Ludus::Engine::Math::Vector2D ViewportPanel::GetViewportAspectSize()
+	Ludus::Engine::Math::Vector2D ViewportPanel::GetViewportAspectSize(Ludus::Engine::Math::Size<int> framebufferSize)
 	{
 		auto availableSpace = ImGui::GetContentRegionAvail();
 
-		const auto [width, height] = m_SystemContext->Window.GetFramebufferSize();
+		const auto [width, height] = framebufferSize;
 		const auto targetAspectRatio = static_cast<float>(width) / static_cast<float>(height);
 
 		auto aspectWidth = availableSpace.x;
@@ -36,36 +41,54 @@ namespace Ludus::Editor::Panels
 	}
 
 	ViewportPanel::ViewportPanel(std::string title, std::shared_ptr<Ludus::Engine::Graphics::Camera2D> camera)
-		: m_Title(title), m_Camera(camera ? std::move(camera) : std::make_shared<Ludus::Engine::Graphics::Camera2D>()), m_Target(nullptr)
+		: m_Title(title), m_Camera(camera ? std::move(camera) : std::make_shared<Ludus::Engine::Graphics::Camera2D>()), m_Target(nullptr), m_PreviousTargetSize()
 	{ }
 
-	void ViewportPanel::OnAttachImpl()
+	void ViewportPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
 	{
-		auto [width, height] = m_SystemContext->Window.GetFramebufferSize();
-		m_Target = std::make_shared<Ludus::Engine::Graphics::RenderTarget>(m_Title, width, height);
-	}
-
-	void ViewportPanel::DrawPanel()
-	{
-		ImGuiWindowFlags flags = Constants::PanelFlags
+		ImGuiWindowFlags flags = Ludus::Editor::Core::Constants::PanelFlags
 			| ImGuiWindowFlags_NoScrollbar
 			| ImGuiWindowFlags_NoScrollWithMouse;
 
-		auto [r, g, b, a] = Ludus::Engine::Graphics::Colors::DarkGray;
+		auto [r, g, b, a] = Ludus::Engine::Graphics::Colors::Black;
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(r, g, b, a));
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-		static auto open = true;
-		if (Ludus::UI::Containers::Window window(m_Title.c_str(), &open, flags); window)
+		auto windowTitle = CreateUniqueWindowTitle(m_Title);
+		if (Ludus::UI::Containers::Window window(windowTitle.c_str(), &m_Open, flags); window)
 		{
-			const auto aspectSize = GetViewportAspectSize();
+			const auto framebufferSize = context.SystemContext.Window.GetFramebufferSize();
+			const auto aspectSize = GetViewportAspectSize(framebufferSize);
+
+			const auto desiredSize = Ludus::Engine::Math::Size<int>(
+				static_cast<int>(aspectSize.X),
+				static_cast<int>(aspectSize.Y)
+			);
+
+			if (desiredSize.Width <= 0 || desiredSize.Height <= 0)
+			{
+				ImGui::PopStyleColor();
+				ImGui::PopStyleVar();
+
+				return;
+			}
+
+			if (!m_Target)
+			{
+				m_Target = std::make_shared<Ludus::Engine::Graphics::RenderTarget>(m_Title, desiredSize.Width, desiredSize.Height);
+				m_PreviousTargetSize = desiredSize;
+			}
+
 			const auto aspectOffset = GetViewportAspectOffset(aspectSize);
 			const auto cursor = ImGui::GetCursorPos();
 
 			ImGui::SetCursorPos({ cursor.x + aspectOffset.X, cursor.y + aspectOffset.Y });
 
-			m_Target->Framebuffer.Resize(static_cast<int>(aspectSize.X), static_cast<int>(aspectSize.Y));
-			m_Camera->SetViewport(static_cast<int>(aspectSize.X), static_cast<int>(aspectSize.Y));
+			if (desiredSize.Width != m_PreviousTargetSize.Width || desiredSize.Height != m_PreviousTargetSize.Height)
+			{
+				m_Target->Framebuffer.Resize(desiredSize.Width, desiredSize.Height);
+				m_PreviousTargetSize = desiredSize;
+			}
 
 			ImGui::Image(
 				(ImTextureID)(intptr_t)m_Target->ColorTexture.Handle(),
@@ -73,6 +96,8 @@ namespace Ludus::Editor::Panels
 				{ 0.0f, 1.0f },
 				{ 1.0f, 0.0f }
 			);
+
+			m_Camera->SetViewport(desiredSize.Width, desiredSize.Height);
 
 			// Register the render view with the render view registry, which is used by the rendering system every frame.
 			Ludus::Engine::Graphics::RenderView2D renderView {
@@ -85,7 +110,7 @@ namespace Ludus::Editor::Panels
 				}
 			};
 
-			m_SystemContext->RenderViews.Register(renderView);
+			context.SystemContext.RenderViews.Register(renderView);
 		}
 
 		ImGui::PopStyleColor();

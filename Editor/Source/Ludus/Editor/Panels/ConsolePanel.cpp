@@ -2,16 +2,19 @@
 
 #include <format>
 
+#include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Panels/ConsolePanel.h>
+#include <Ludus/UI/Containers.h>
+#include <Ludus/UI/Widgets.h>
 
 namespace Ludus::Editor::Panels
 {
-	void ConsolePanel::DrawPanel()
+	void ConsolePanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
 	{
-		auto open = true;
-		const auto flags = Constants::PanelFlags | ImGuiWindowFlags_HorizontalScrollbar;
+		const auto flags = Ludus::Editor::Core::Constants::PanelFlags | ImGuiWindowFlags_HorizontalScrollbar;
+		auto windowTitle = CreateWindowTitle("Console");
 
-		if (Ludus::UI::Containers::Window window("Console", &open, flags); window)
+		if (Ludus::UI::Containers::Window window(windowTitle.c_str(), &m_Open, flags); window)
 		{
 			auto& logEntries = Ludus::Engine::Debug::GetLogEntries();
 
