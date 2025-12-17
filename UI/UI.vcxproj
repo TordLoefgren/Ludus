@@ -19,14 +19,36 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\UI\Context\ImageContext.h" />
+    <ClInclude Include="Include\Ludus\UI\Labels.h" />
+    <ClInclude Include="Include\Ludus\UI\Systems\ImGuiModule.h" />
+    <ClInclude Include="Include\Ludus\UI\Widgets\Demo.h" />
+    <ClInclude Include="Include\Ludus\UI\Widgets\Headers.h" />
+    <ClInclude Include="Include\Ludus\UI\Widgets\Color.h" />
+    <ClInclude Include="Include\Ludus\UI\Context\DockingContext.h" />
+    <ClInclude Include="Include\Ludus\UI\Scope\PopupScope.h" />
+    <ClInclude Include="Include\Ludus\UI\Widgets\Buttons.h" />
+    <ClInclude Include="Include\Ludus\UI\Widgets\Selection.h" />
+    <ClInclude Include="Include\Ludus\UI\Widgets\Input.h" />
+    <ClInclude Include="Include\Ludus\UI\Scope\MenuScope.h" />
+    <ClInclude Include="Include\Ludus\UI\Scope\ListBoxScope.h" />
+    <ClInclude Include="Include\Ludus\UI\Scope\PopupContextItem.h" />
+    <ClInclude Include="Include\Ludus\UI\Scope\PopupContextWindow.h" />
+    <ClInclude Include="Include\Ludus\UI\Widgets\Menu.h" />
+    <ClInclude Include="Include\Ludus\UI\Context\InputContext.h" />
+    <ClInclude Include="Include\Ludus\UI\Context\ScrollContext.h" />
+    <ClInclude Include="Include\Ludus\UI\Context\LayoutContext.h" />
     <ClInclude Include="Source\Ludus\UI\pch.h" />
-    <ClInclude Include="Include\Ludus\UI\Flags.h" />
-    <ClInclude Include="Include\Ludus\UI\ImGuiSystem.h" />
-    <ClInclude Include="Include\Ludus\UI\Layouts.h" />
-    <ClInclude Include="Include\Ludus\UI\UIContext.h" />
-    <ClInclude Include="Include\Ludus\UI\Utilities.h" />
-    <ClInclude Include="Include\Ludus\UI\Widgets.h" />
-    <ClInclude Include="Include\Ludus\UI\Containers.h" />
+    <ClInclude Include="Include\Ludus\UI\Flags\Flags.h" />
+    <ClInclude Include="Include\Ludus\UI\Systems\ImGuiSystem.h" />
+    <ClInclude Include="Include\Ludus\UI\Layout\Layout.h" />
+    <ClInclude Include="Include\Ludus\UI\Backend\ImGuiBackend.h" />
+    <ClInclude Include="Include\Ludus\UI\Widgets\Text.h" />
+    <ClInclude Include="Include\Ludus\UI\Scope\TableScope.h" />
+    <ClInclude Include="Include\Ludus\UI\Scope\TreeNodeScope.h" />
+    <ClInclude Include="Include\Ludus\UI\Context\TableContext.h" />
+    <ClInclude Include="Include\Ludus\UI\Widgets\Toggle.h" />
+    <ClInclude Include="Include\Ludus\UI\Scope\StyleScope.h" />
     <ClInclude Include="Vendors\imgui\imconfig.h" />
     <ClInclude Include="Vendors\imgui\imgui.h" />
     <ClInclude Include="Vendors\imgui\imgui_impl_glfw.h" />
@@ -37,17 +59,43 @@
     <ClInclude Include="Vendors\imgui\imstb_rectpack.h" />
     <ClInclude Include="Vendors\imgui\imstb_textedit.h" />
     <ClInclude Include="Vendors\imgui\imstb_truetype.h" />
+    <ClInclude Include="Include\Ludus\UI\Scope\WindowScope.h" />
+    <ClInclude Include="Include\Ludus\UI\Types\Viewport.h" />
+    <ClInclude Include="Include\Ludus\UI\Context\WindowContext.h" />
+    <ClInclude Include="Include\Ludus\UI\Context\ViewportContext.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Ludus\UI\Context\LayoutContext.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Context\DockingContext.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Context\ImageContext.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Context\ScrollContext.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Context\InputContext.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Layout\Layout.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Scope\StyleScope.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Widgets\Demo.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Widgets\Headers.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Widgets\Color.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Widgets\Menu.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Scope\PopupScope.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Scope\ListBoxScope.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Scope\MenuScope.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Widgets\Buttons.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Widgets\Input.cpp" />
     <ClCompile Include="Source\Ludus\UI\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="Source\Ludus\UI\ImGuiSystem.cpp" />
-    <ClCompile Include="Source\Ludus\UI\UIContext.cpp">
+    <ClCompile Include="Source\Ludus\UI\Systems\ImGuiSystem.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Backend\ImGuiBackend.cpp">
     </ClCompile>
+    <ClCompile Include="Source\Ludus\UI\Widgets\Selection.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Widgets\Text.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Scope\TableScope.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Scope\TreeNodeScope.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Context\TableContext.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Widgets\Toggle.cpp" />
     <ClCompile Include="Vendors\imgui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -80,6 +128,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Source\Ludus\UI\Scope\WindowScope.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Context\WindowContext.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Context\ViewportContext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendors\imgui\.editorconfig" />

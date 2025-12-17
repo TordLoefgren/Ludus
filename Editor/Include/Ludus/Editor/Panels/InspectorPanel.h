@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Panels/IPanel.h>
 #include <Ludus/Editor/Panels/PanelContext.h>
 

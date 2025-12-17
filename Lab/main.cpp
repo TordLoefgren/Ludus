@@ -6,7 +6,7 @@
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
 #include <Ludus/Engine/Platform/WindowOptions.h>
 #include <Ludus/Lab/Core/Scene.h>
-#include <Ludus/UI/Utilities.h>
+#include <Ludus/UI/Systems/ImGuiModule.h>
 
 int main()
 {
@@ -16,7 +16,7 @@ int main()
 
 	auto applicationBuilder = Ludus::Engine::Core::ApplicationBuilder::Create();
 
-	Ludus::UI::Utilities::UseImGui(applicationBuilder);
+	Ludus::UI::Systems::RegisterImGui(applicationBuilder);
 
 	auto application = applicationBuilder
 		.WithWindowOptions(windowOptions)

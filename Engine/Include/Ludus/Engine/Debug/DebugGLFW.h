@@ -33,7 +33,7 @@ namespace Ludus::Engine::Debug::DebugGLFW
 	{
 		switch (code)
 		{
-			case GLFW_NO_ERROR:             return LogLevel::Info;;
+			case GLFW_NO_ERROR:             return LogLevel::Info;
 			case GLFW_NO_CURRENT_CONTEXT:   return LogLevel::Critical;
 			case GLFW_INVALID_ENUM:			return LogLevel::Error;
 			case GLFW_INVALID_VALUE:		return LogLevel::Error;
@@ -43,7 +43,7 @@ namespace Ludus::Engine::Debug::DebugGLFW
 			case GLFW_PLATFORM_ERROR:       return LogLevel::Error;
 			case GLFW_FORMAT_UNAVAILABLE:   return LogLevel::Error;
 			case GLFW_NO_WINDOW_CONTEXT:    return LogLevel::Critical;
-			default:                        return LogLevel::Info;;
+			default:                        return LogLevel::Info;
 		}
 	}
 

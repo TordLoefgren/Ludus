@@ -20,7 +20,7 @@ namespace Ludus::Engine::Core
 			m_RenderViews.push_back(renderView);
 		}
 
-		void RegisterFullscreen(Ludus::Engine::Graphics::Camera2D& camera, std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> target)
+		void RegisterFullscreen(Ludus::Engine::Graphics::Camera2D camera, std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> target)
 		{
 			if (!target)
 			{
