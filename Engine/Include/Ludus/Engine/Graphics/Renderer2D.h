@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include <Ludus/Engine/Components/Transform2DComponent.h>
 #include <Ludus/Engine/Graphics/Camera2D.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/ElementBufferObject.h>
@@ -11,7 +12,6 @@
 #include <Ludus/Engine/Graphics/Shader.h>
 #include <Ludus/Engine/Graphics/Texture.h>
 #include <Ludus/Engine/Graphics/VertexArrayObject.h>
-#include <Ludus/Engine/Math/Transform2D.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 
 namespace Ludus::Engine::Graphics
@@ -42,7 +42,7 @@ namespace Ludus::Engine::Graphics
 		int m_TexturesCount;
 		std::vector<const Texture*> m_Textures;
 
-		void DrawQuadInternal(const Ludus::Engine::Math::Transform2D& transform, Color color, Texture* texture, int shape, int fill, bool flipU = false, bool flipV = false);
+		void DrawQuadInternal(const Ludus::Engine::Components::Transform2DComponent& transform, Color color, Texture* texture, int shape, int fill, bool flipU = false, bool flipV = false);
 
 		bool WouldOverflow(int vertexCount, int indexCount) const;
 		bool WouldExceedTextureSlots() const;
@@ -63,10 +63,10 @@ namespace Ludus::Engine::Graphics
 		void BeginScene(const Camera2D& camera);
 		void EndScene();
 
-		void DrawQuad(const Ludus::Engine::Math::Transform2D& transform, Color color = Colors::White, Texture* texture = nullptr, bool fill = true);
+		void DrawQuad(const Ludus::Engine::Components::Transform2DComponent& transform, Color color = Colors::White, Texture* texture = nullptr, bool fill = true);
 		void DrawLine(float x1, float y1, float x2, float y2, Color color = Colors::White);
-		void DrawCircle(const Ludus::Engine::Math::Transform2D& transform, Color color = Colors::White, bool fill = true);
-		void DrawText(const Ludus::Engine::Math::Transform2D& transform, std::string_view text, Color color = Colors::White, HorizontalTextAlignment horizontalAlignment = HorizontalTextAlignment::Left);
+		void DrawCircle(const Ludus::Engine::Components::Transform2DComponent& transform, Color color = Colors::White, bool fill = true);
+		void DrawText(const Ludus::Engine::Components::Transform2DComponent& transform, std::string_view text, Color color = Colors::White, HorizontalTextAlignment horizontalAlignment = HorizontalTextAlignment::Left);
 
 		void Clear() const;
 		void Flush();

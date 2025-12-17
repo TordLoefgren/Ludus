@@ -76,7 +76,7 @@ namespace Ludus::Engine::Graphics
 		Flush();
 	}
 
-	void Renderer2D::DrawQuadInternal(const Ludus::Engine::Math::Transform2D& transform, Color color, Texture* texture, int shape, int fill, bool flipU, bool flipV)
+	void Renderer2D::DrawQuadInternal(const Ludus::Engine::Components::Transform2DComponent& transform, Color color, Texture* texture, int shape, int fill, bool flipU, bool flipV)
 	{
 		auto [r, g, b, a] = color;
 		auto textureSlot = GetTextureSlot(texture);
@@ -130,7 +130,7 @@ namespace Ludus::Engine::Graphics
 		m_State.m_QuadIndexCursor += 6;
 	}
 
-	void Renderer2D::DrawQuad(const Ludus::Engine::Math::Transform2D& transform, Color color, Texture* texture, bool fill)
+	void Renderer2D::DrawQuad(const Ludus::Engine::Components::Transform2DComponent& transform, Color color, Texture* texture, bool fill)
 	{
 		if (WouldOverflow(4, 6))
 		{
@@ -140,7 +140,7 @@ namespace Ludus::Engine::Graphics
 		DrawQuadInternal(transform, color, texture, 0, fill ? 0 : 1);
 	}
 
-	void Renderer2D::DrawCircle(const Ludus::Engine::Math::Transform2D& transform, Color color, bool fill)
+	void Renderer2D::DrawCircle(const Ludus::Engine::Components::Transform2DComponent& transform, Color color, bool fill)
 	{
 		if (WouldOverflow(4, 6))
 		{
@@ -150,7 +150,7 @@ namespace Ludus::Engine::Graphics
 		DrawQuadInternal(transform, color, nullptr, 1, fill ? 0 : 1);
 	}
 
-	void Renderer2D::DrawText(const Ludus::Engine::Math::Transform2D& transform, std::string_view string, Color color, HorizontalTextAlignment horizontalAlignment)
+	void Renderer2D::DrawText(const Ludus::Engine::Components::Transform2DComponent& transform, std::string_view string, Color color, HorizontalTextAlignment horizontalAlignment)
 	{
 		auto position = transform.Position;
 
@@ -190,7 +190,7 @@ namespace Ludus::Engine::Graphics
 			const Ludus::Engine::Math::Vector2D quadScale { width, height };
 
 			DrawQuadInternal(
-				Ludus::Engine::Math::Transform2D(transform.OwnerHandle, quadCenter, quadScale, transform.Rotation),
+				Ludus::Engine::Components::Transform2DComponent(transform.OwnerHandle, quadCenter, quadScale, transform.Rotation),
 				color,
 				&const_cast<Glyph*>(glyph)->Texture,
 				0,

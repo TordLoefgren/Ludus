@@ -2,13 +2,13 @@
 
 #include <vector>
 
+#include <Ludus/Engine/Components/Collider2DComponent.h>
+#include <Ludus/Engine/Components/Transform2DComponent.h>
 #include <Ludus/Engine/Core/ComponentRegistry.h>
 #include <Ludus/Engine/Math/AABB.h>
-#include <Ludus/Engine/Math/Transform2D.h>
 #include <Ludus/Engine/Physics/Broadphase/BroadphaseAABBEntry2D.h>
 #include <Ludus/Engine/Physics/Broadphase/BroadphasePair2D.h>
 #include <Ludus/Engine/Physics/Broadphase/IBroadphase2D.h>
-#include <Ludus/Engine/Physics/Core/Collider2D.h>
 #include <Ludus/Engine/Physics/Core/PhysicsWorld2D.h>
 #include <Ludus/Engine/Physics/Integrators/IPhysicsIntegrator.h>
 #include <Ludus/Engine/Physics/Narrowphase/ContactPair2D.h>

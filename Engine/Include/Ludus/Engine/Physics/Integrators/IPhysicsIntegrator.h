@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Ludus/Engine/Math/Transform2D.h>
+#include <Ludus/Engine/Components/Transform2DComponent.h>
 #include <Ludus/Engine/Physics/Core/PhysicsWorld2D.h>
 
 namespace Ludus::Engine::Physics::Integrators
