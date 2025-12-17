@@ -1,45 +1,36 @@
 #include "pch.h"
 
-#include <imgui/imgui.h>
+#include <Ludus/UI/Backend/ImGuiBackend.h>
 
-#include <Ludus/UI/UIContext.h>
-
-namespace Ludus::UI
+namespace Ludus::UI::Backend
 {
-	void UIContext::Initialize(GLFWwindow* window)
+	void ImGuiBackend::Initialize(GLFWwindow* window)
 	{
-		m_Window = window;
-
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		auto& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-		if (!s_IsBackendInitialized)
-		{
-			ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
-			ImGui_ImplOpenGL3_Init();
-
-			s_IsBackendInitialized = true;
-		}
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init();
 	}
 
-	void UIContext::Shutdown()
+	void ImGuiBackend::Shutdown()
 	{
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
 
-	void UIContext::Begin()
+	void ImGuiBackend::Begin()
 	{
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
 
-	void UIContext::End()
+	void ImGuiBackend::End()
 	{
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

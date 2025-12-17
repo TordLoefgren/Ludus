@@ -143,11 +143,4 @@ namespace Ludus::Engine::Platform
 
 		Last = GLFW_KEY_LAST
 	};
-
-	enum class MouseButton
-	{
-		Left,
-		Right,
-		Middle
-	};
 }
