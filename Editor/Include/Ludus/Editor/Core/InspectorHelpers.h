@@ -5,19 +5,19 @@
 
 #include <Ludus/Editor/Core/Utilities.h>
 #include <Ludus/Editor/Panels/IPanel.h>
+#include <Ludus/Engine/Components/Camera2DComponent.h>
+#include <Ludus/Engine/Components/Collider2DComponent.h>
+#include <Ludus/Engine/Components/RigidBody2DComponent.h>
+#include <Ludus/Engine/Components/Sprite2DComponent.h>
+#include <Ludus/Engine/Components/Text2DComponent.h>
+#include <Ludus/Engine/Components/Transform2DComponent.h>
 #include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Enums.h>
 #include <Ludus/Engine/Core/ISystem.h>
-#include <Ludus/Engine/Graphics/Camera2DComponent.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
 #include <Ludus/Engine/Graphics/Shape.h>
-#include <Ludus/Engine/Graphics/Sprite2D.h>
-#include <Ludus/Engine/Graphics/Text2D.h>
-#include <Ludus/Engine/Math/Transform2D.h>
-#include <Ludus/Engine/Physics/Core/Collider2D.h>
 #include <Ludus/Engine/Physics/Core/LayerMask.h>
-#include <Ludus/Engine/Physics/Core/RigidBody2D.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/TableContext.h>
 #include <Ludus/UI/Context/WindowContext.h>
@@ -46,7 +46,7 @@ namespace Ludus::Editor::Core
 		}
 	}
 
-	inline void Transform2DPanel(Ludus::Engine::Math::Transform2D& transform)
+	inline void Transform2DPanel(Ludus::Engine::Components::Transform2DComponent& transform)
 	{
 		if (Ludus::UI::Scope::TreeNodeScope treeNode("Transform 2D"); treeNode)
 		{
@@ -86,7 +86,7 @@ namespace Ludus::Editor::Core
 		}
 	}
 
-	inline void Collider2DPanel(Ludus::Engine::Physics::Core::Collider2D& collider)
+	inline void Collider2DPanel(Ludus::Engine::Components::Collider2DComponent& collider)
 	{
 		if (Ludus::UI::Scope::TreeNodeScope treeNode("Collider 2D"); treeNode)
 		{
@@ -138,7 +138,7 @@ namespace Ludus::Editor::Core
 		}
 	}
 
-	inline void RigidBody2DPanel(Ludus::Engine::Physics::Core::RigidBody2D& rigidBody)
+	inline void RigidBody2DPanel(Ludus::Engine::Components::RigidBody2DComponent& rigidBody)
 	{
 		if (Ludus::UI::Scope::TreeNodeScope treeNode("Rigid Body 2D"); treeNode)
 		{
@@ -175,7 +175,7 @@ namespace Ludus::Editor::Core
 		}
 	}
 
-	inline void Sprite2DPanel(Ludus::Engine::Graphics::Sprite2D& sprite)
+	inline void Sprite2DPanel(Ludus::Engine::Components::Sprite2DComponent& sprite)
 	{
 		if (Ludus::UI::Scope::TreeNodeScope treeNode("Sprite 2D"); treeNode)
 		{
@@ -206,7 +206,7 @@ namespace Ludus::Editor::Core
 		}
 	}
 
-	inline void Text2DPanel(Ludus::Engine::Graphics::Text2D& text)
+	inline void Text2DPanel(Ludus::Engine::Components::Text2DComponent& text)
 	{
 		if (Ludus::UI::Scope::TreeNodeScope treeNode("Text 2D"); treeNode)
 		{
@@ -231,7 +231,7 @@ namespace Ludus::Editor::Core
 		}
 	}
 
-	inline void Camera2DPanel(Ludus::Engine::Graphics::Camera2DComponent& component)
+	inline void Camera2DPanel(Ludus::Engine::Components::Camera2DComponent& component)
 	{
 		if (Ludus::UI::Scope::TreeNodeScope treeNode("Camera 2D"); treeNode)
 		{

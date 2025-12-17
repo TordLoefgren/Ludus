@@ -1,18 +1,18 @@
 #pragma once
 
+#include <Ludus/Engine/Components/Camera2DComponent.h>
+#include <Ludus/Engine/Components/Collider2DComponent.h>
+#include <Ludus/Engine/Components/RigidBody2DComponent.h>
+#include <Ludus/Engine/Components/Sprite2DComponent.h>
+#include <Ludus/Engine/Components/Text2DComponent.h>
+#include <Ludus/Engine/Components/Transform2DComponent.h>
 #include <Ludus/Engine/Core/ComponentRegistry.h>
 #include <Ludus/Engine/Core/EntityRegistry.h>
-#include <Ludus/Engine/Graphics/Camera2DComponent.h>
 #include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
 #include <Ludus/Engine/Graphics/Shape.h>
-#include <Ludus/Engine/Graphics/Sprite2D.h>
-#include <Ludus/Engine/Graphics/Text2D.h>
 #include <Ludus/Engine/Graphics/Texture.h>
-#include <Ludus/Engine/Math/Transform2D.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/Engine/Physics/Core/BodyType.h>
-#include <Ludus/Engine/Physics/Core/Collider2D.h>
-#include <Ludus/Engine/Physics/Core/RigidBody2D.h>
 
 namespace Ludus::Engine::Core
 {
@@ -22,12 +22,12 @@ namespace Ludus::Engine::Core
 		Ludus::Engine::Core::EntityRegistry m_Entities;
 
 	public:
-		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Graphics::Camera2DComponent> Cameras;
-		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Physics::Core::Collider2D> Colliders;
-		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Physics::Core::RigidBody2D> RigidBodies;
-		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Graphics::Sprite2D> Sprites;
-		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Graphics::Text2D> Texts;
-		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Math::Transform2D> Transforms;
+		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Camera2DComponent> Cameras;
+		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Collider2DComponent> Colliders;
+		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::RigidBody2DComponent> RigidBodies;
+		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Sprite2DComponent> Sprites;
+		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Text2DComponent> Texts;
+		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Transform2DComponent> Transforms;
 
 		EntityHandle AddEntity()
 		{
@@ -42,6 +42,7 @@ namespace Ludus::Engine::Core
 			Sprites.RemoveByOwner(handle);
 			Texts.RemoveByOwner(handle);
 			Transforms.RemoveByOwner(handle);
+
 			return m_Entities.DestroyEntity(handle);
 		}
 
@@ -55,7 +56,7 @@ namespace Ludus::Engine::Core
 
 		void AttachCollider(
 			EntityHandle handle,
-			Ludus::Engine::Physics::Core::Index layer = 0,
+			Ludus::Engine::Physics::Core::LayerIndex layer = 0,
 			Ludus::Engine::Physics::Core::LayerMask collidesWith = Ludus::Engine::Physics::Core::LayerMask::GetEmpty(),
 			bool isTrigger = false
 		)
