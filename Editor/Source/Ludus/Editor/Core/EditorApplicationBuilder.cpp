@@ -4,7 +4,7 @@
 #include <Ludus/Editor/Core/EditorConfiguration.h>
 #include <Ludus/Editor/Core/EditorSystem.h>
 #include <Ludus/Editor/Core/Scene.h>
-#include <Ludus/UI/Utilities.h>
+#include <Ludus/UI/Systems/ImGuiModule.h>
 
 namespace Ludus::Editor::Core
 {
@@ -31,7 +31,7 @@ namespace Ludus::Editor::Core
 		m_RenderingOptions = Ludus::Engine::Graphics::RenderingOptions(Ludus::Engine::Graphics::Colors::DarkGray);
 		m_PhysicsContext = Ludus::Engine::Physics::Core::PhysicsContext2D();
 
-		Ludus::UI::Utilities::UseImGui(m_ApplicationBuilder);
+		Ludus::UI::Systems::RegisterImGui(m_ApplicationBuilder);
 
 		m_ApplicationBuilder
 			.WithWindowOptions(m_WindowOptions)

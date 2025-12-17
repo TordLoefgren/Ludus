@@ -3,10 +3,6 @@
 #include <format>
 #include <vector>
 
-#include <Ludus/UI/Containers.h>
-#include <Ludus/UI/Layouts.h>
-#include <Ludus/UI/Widgets.h>
-
 #include <Ludus/Editor/Core/Utilities.h>
 #include <Ludus/Editor/Panels/IPanel.h>
 #include <Ludus/Engine/Core/Entity.h>
@@ -22,58 +18,69 @@
 #include <Ludus/Engine/Physics/Core/Collider2D.h>
 #include <Ludus/Engine/Physics/Core/LayerMask.h>
 #include <Ludus/Engine/Physics/Core/RigidBody2D.h>
+#include <Ludus/UI/Context/LayoutContext.h>
+#include <Ludus/UI/Context/TableContext.h>
+#include <Ludus/UI/Context/WindowContext.h>
+#include <Ludus/UI/Scope/TableScope.h>
+#include <Ludus/UI/Scope/TreeNodeScope.h>
+#include <Ludus/UI/Scope/WindowScope.h>
+#include <Ludus/UI/Widgets/Color.h>
+#include <Ludus/UI/Widgets/Headers.h>
+#include <Ludus/UI/Widgets/Input.h>
+#include <Ludus/UI/Widgets/Text.h>
+#include <Ludus/UI/Widgets/Toggle.h>
 
 namespace Ludus::Editor::Core
 {
 	inline void EntityPanel(Ludus::Engine::Core::EntityHandle handle)
 	{
-		if (Ludus::UI::Containers::TreeNode treeNode("Entity"); treeNode)
+		if (Ludus::UI::Scope::TreeNodeScope treeNode("Id"); treeNode)
 		{
-			if (Ludus::UI::Containers::Table table("Entity_Panel", 2); table)
+			if (Ludus::UI::Scope::TableScope table("Id_Panel", 2); table)
 			{
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Id");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
-				Ludus::UI::Widgets::Text(std::to_string(handle));
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Value");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
+				Ludus::UI::Widgets::TextUnformatted(std::to_string(handle));
 			}
 		}
 	}
 
 	inline void Transform2DPanel(Ludus::Engine::Math::Transform2D& transform)
 	{
-		if (Ludus::UI::Containers::TreeNode treeNode("Transform 2D"); treeNode)
+		if (Ludus::UI::Scope::TreeNodeScope treeNode("Transform 2D"); treeNode)
 		{
-			if (Ludus::UI::Containers::Table table("Transform2D_Panel", 3); table)
+			if (Ludus::UI::Scope::TableScope table("Transform2D_Panel", 3); table)
 			{
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Position");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Position");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::DragFloatLabelButton("X##Transform2D_Panel_Position_X", &transform.Position.X);
-				Ludus::UI::Layouts::SameLine();
+				Ludus::UI::Context::LayoutContext::SameLine();
 				Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Position_X", &transform.Position.X);
 
-				Ludus::UI::Containers::TableSetColumnIndex(2);
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(2);
 				Ludus::UI::Widgets::DragFloatLabelButton("Y##Transform2D_Panel_Position_Y", &transform.Position.Y);
-				Ludus::UI::Layouts::SameLine();
+				Ludus::UI::Context::LayoutContext::SameLine();
 				Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Position_Y", &transform.Position.Y);
 
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Scale");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Scale");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::DragFloatLabelButton("X##Transform2D_Panel_Scale_X", &transform.Scale.X);
-				Ludus::UI::Layouts::SameLine();
+				Ludus::UI::Context::LayoutContext::SameLine();
 				Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Scale_X", &transform.Scale.X);
 
-				Ludus::UI::Containers::TableSetColumnIndex(2);
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(2);
 				Ludus::UI::Widgets::DragFloatLabelButton("Y##Transform2D_Panel_Scale_Y", &transform.Scale.Y);
-				Ludus::UI::Layouts::SameLine();
+				Ludus::UI::Context::LayoutContext::SameLine();
 				Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Scale_Y", &transform.Scale.Y);
 
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Rotation");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Rotation");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::DragFloatLabelButton("Z##Transform2D_Panel_DragFloat_Rotation", &transform.Rotation);
-				Ludus::UI::Layouts::SameLine();
+				Ludus::UI::Context::LayoutContext::SameLine();
 				Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_InputFloat_Rotation_Z", &transform.Rotation);
 			}
 		}
@@ -81,20 +88,20 @@ namespace Ludus::Editor::Core
 
 	inline void Collider2DPanel(Ludus::Engine::Physics::Core::Collider2D& collider)
 	{
-		if (Ludus::UI::Containers::TreeNode treeNode("Collider 2D"); treeNode)
+		if (Ludus::UI::Scope::TreeNodeScope treeNode("Collider 2D"); treeNode)
 		{
-			if (Ludus::UI::Containers::Table table("##Collider2D_Panel", 3); table)
+			if (Ludus::UI::Scope::TableScope table("##Collider2D_Panel", 3); table)
 			{
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Layer Index");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Layer Index");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::InputUInt8("##Collider2D_Panel_LayerIndex", &collider.LayerIndex);
-				Ludus::UI::Containers::TableSetColumnIndex(2);
-				Ludus::UI::Widgets::Text(Ludus::Engine::Physics::Core::LayerMask::LayerIndexToName(collider.LayerIndex));
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(2);
+				Ludus::UI::Widgets::TextUnformatted(Ludus::Engine::Physics::Core::LayerMask::LayerIndexToName(collider.LayerIndex));
 
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Collides With");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Collides With");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 
 				const auto count = Ludus::Engine::Physics::Core::LayerMask::GetLayerCount();
 				if (Ludus::UI::Widgets::CollapsingHeader("##Collider2D_Panel_CollidesWith"))
@@ -122,47 +129,47 @@ namespace Ludus::Editor::Core
 					}
 				}
 
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Is Trigger");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Is Trigger");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::Checkbox("##IsTrigger", &collider.IsTrigger);
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 			}
 		}
 	}
 
 	inline void RigidBody2DPanel(Ludus::Engine::Physics::Core::RigidBody2D& rigidBody)
 	{
-		if (Ludus::UI::Containers::TreeNode treeNode("Rigid Body 2D"); treeNode)
+		if (Ludus::UI::Scope::TreeNodeScope treeNode("Rigid Body 2D"); treeNode)
 		{
-			if (Ludus::UI::Containers::Table table("RigidBody2D_Panel", 3); table)
+			if (Ludus::UI::Scope::TableScope table("RigidBody2D_Panel", 3); table)
 			{
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Velocity");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Velocity");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::DragFloatLabelButton("X##RigidBody2D_Panel_Velocity_X", &rigidBody.Velocity.X);
-				Ludus::UI::Layouts::SameLine();
+				Ludus::UI::Context::LayoutContext::SameLine();
 				Ludus::UI::Widgets::InputFloat("##RigidBody2D_Panel_Input_Velocity_X", &rigidBody.Velocity.X);
 
-				Ludus::UI::Containers::TableSetColumnIndex(2);
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(2);
 				Ludus::UI::Widgets::DragFloatLabelButton("Y##RigidBody2D_Panel_Velocity_Y", &rigidBody.Velocity.Y);
-				Ludus::UI::Layouts::SameLine();
+				Ludus::UI::Context::LayoutContext::SameLine();
 				Ludus::UI::Widgets::InputFloat("##RigidBody2D_Panel_Input_Velocity_Y", &rigidBody.Velocity.Y);
 
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Body Type");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Body Type");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 
 				auto _ = Ludus::Editor::Core::Utilities::ComboEnum("##RigidBody2D_Combo", rigidBody.Type);
 
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Gravity Scale");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Gravity Scale");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::InputFloat("##RigidBody2D_Panel_GravityScale", &rigidBody.GravityScale);
 
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Mass");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Mass");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::InputFloat("##RigidBody2D_Panel_Mass", &rigidBody.Mass);
 			}
 		}
@@ -170,54 +177,54 @@ namespace Ludus::Editor::Core
 
 	inline void Sprite2DPanel(Ludus::Engine::Graphics::Sprite2D& sprite)
 	{
-		if (Ludus::UI::Containers::TreeNode treeNode("Sprite 2D"); treeNode)
+		if (Ludus::UI::Scope::TreeNodeScope treeNode("Sprite 2D"); treeNode)
 		{
-			if (Ludus::UI::Containers::Table table("Sprite2D_Panel", 3); table)
+			if (Ludus::UI::Scope::TableScope table("Sprite2D_Panel", 3); table)
 			{
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Shape");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Shape");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 
 				auto _ = Ludus::Editor::Core::Utilities::ComboEnum("##Sprite2D_Panel_Combo", sprite.Shape);
 
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Color");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Color");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::ColorEdit4("##Sprite2D_Panel_Color", sprite.Color.GetData());
 
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Texture");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
-				Ludus::UI::Widgets::Text("N/A");
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Texture");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
+				Ludus::UI::Widgets::TextUnformatted("N/A");
 
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Fill");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Fill");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::Checkbox("##Fill", &sprite.Fill);
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 			}
 		}
 	}
 
 	inline void Text2DPanel(Ludus::Engine::Graphics::Text2D& text)
 	{
-		if (Ludus::UI::Containers::TreeNode treeNode("Text 2D"); treeNode)
+		if (Ludus::UI::Scope::TreeNodeScope treeNode("Text 2D"); treeNode)
 		{
-			if (Ludus::UI::Containers::Table table("Text2D_Panel", 3); table)
+			if (Ludus::UI::Scope::TableScope table("Text2D_Panel", 3); table)
 			{
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Text");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Text");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::InputText("##Text2D_Panel_Text", text.Text);
 
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Color");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Color");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::ColorEdit4("##Text2D_Panel_Color", text.Color.GetData());
 
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Horizontal Alignment");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Horizontal Alignment");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 
 				auto _ = Ludus::Editor::Core::Utilities::ComboEnum("##Text2D_Panel_Combo", text.HorizontalAlignment);
 			}
@@ -226,13 +233,13 @@ namespace Ludus::Editor::Core
 
 	inline void Camera2DPanel(Ludus::Engine::Graphics::Camera2DComponent& component)
 	{
-		if (Ludus::UI::Containers::TreeNode treeNode("Camera 2D"); treeNode)
+		if (Ludus::UI::Scope::TreeNodeScope treeNode("Camera 2D"); treeNode)
 		{
-			if (Ludus::UI::Containers::Table table("Camera2D_Panel", 2); table)
+			if (Ludus::UI::Scope::TableScope table("Camera2D_Panel", 2); table)
 			{
-				Ludus::UI::Containers::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::Text("Orthographic Size");
-				Ludus::UI::Containers::TableSetColumnIndex(1);
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Orthographic Size");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				Ludus::UI::Widgets::DragFloat("##Camera2D_OrthographicSize", &component.OrthographicSize);
 			}
 		}

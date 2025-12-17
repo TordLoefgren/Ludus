@@ -3,7 +3,6 @@
 #include <Ludus/Editor/Panels/DockPanel.h>
 #include <Ludus/Editor/Panels/IPanel.h>
 #include <Ludus/Editor/Panels/PanelContext.h>
-#include <Ludus/UI/Containers.h>				
 
 namespace Ludus::Editor::Panels
 {

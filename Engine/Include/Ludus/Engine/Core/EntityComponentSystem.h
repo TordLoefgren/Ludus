@@ -65,7 +65,7 @@ namespace Ludus::Engine::Core
 
 		void AttachRigidBody(
 			EntityHandle handle,
-			Ludus::Engine::Math::Vector2D velocity,
+			Ludus::Engine::Math::Vector2D velocity = { 0.0f, 0.0f },
 			Ludus::Engine::Physics::Core::BodyType type = Ludus::Engine::Physics::Core::BodyType::Dynamic,
 			float gravityScale = 1.0f,
 			float mass = 1.0f
@@ -106,5 +106,9 @@ namespace Ludus::Engine::Core
 		}
 
 		const size_t GetEntityCount() { return m_Entities.GetCount(); }
+
+		size_t IndexOf(EntityHandle handle) { return m_Entities.IndexOf(handle); }
+
+		std::span<const Entity> View() const { return m_Entities.View(); }
 	};
 }

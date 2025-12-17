@@ -1,16 +1,16 @@
 #pragma once
 
-#include <imgui/imgui.h>
+#include <Ludus/UI/Flags/Flags.h>
 
 namespace Ludus::Editor::Core::Constants
 {
-	inline ImGuiWindowFlags PanelFlags = ImGuiBackendFlags_None;
-	inline ImGuiWindowFlags DockPanelWindowFlags = ImGuiWindowFlags_NoDocking
-		| ImGuiWindowFlags_MenuBar
-		| ImGuiWindowFlags_NoTitleBar
-		| ImGuiWindowFlags_NoCollapse
-		| ImGuiWindowFlags_NoResize
-		| ImGuiWindowFlags_NoMove
-		| ImGuiWindowFlags_NoBringToFrontOnFocus
-		| ImGuiWindowFlags_NoNavFocus;
+	inline Ludus::UI::Flags::Window PanelFlags = Ludus::UI::Flags::Window::None;
+	inline Ludus::UI::Flags::Window DockPanelWindowFlags = Ludus::UI::Flags::Window::NoDocking
+		| Ludus::UI::Flags::Window::MenuBar
+		| Ludus::UI::Flags::Window::NoTitleBar
+		| Ludus::UI::Flags::Window::NoCollapse
+		| Ludus::UI::Flags::Window::NoResize
+		| Ludus::UI::Flags::Window::NoMove
+		| Ludus::UI::Flags::Window::NoBringToFrontOnFocus
+		| Ludus::UI::Flags::Window::NoNavFocus;
 }

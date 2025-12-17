@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Ludus\Engine\Core\ApplicationBuilder.h" />
+    <ClInclude Include="Include\Ludus\Engine\Components\DisplayNameComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\RenderViewRegistry.h" />
     <ClInclude Include="Include\Ludus\Engine\Debug\Debug.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\Camera2DComponent.h" />
@@ -115,6 +116,7 @@
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderingOptions.h" />
     <ClInclude Include="Include\Ludus\Engine\Platform\Input.h" />
     <ClInclude Include="Include\Ludus\Engine\Platform\Key.h" />
+    <ClInclude Include="Include\Ludus\Engine\Platform\MouseButton.h" />
     <ClInclude Include="Include\Ludus\Engine\Platform\Window.h" />
     <ClInclude Include="Include\Ludus\Engine\Platform\WindowOptions.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\EntityComponentSystem.h" />

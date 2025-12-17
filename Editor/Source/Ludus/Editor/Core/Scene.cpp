@@ -23,7 +23,6 @@ namespace Ludus::Editor::Core
 		ecs.AttachRigidBody(handle, { 0.0f }, Ludus::Engine::Physics::Core::BodyType::Static);
 		ecs.AttachSprite(handle, Ludus::Engine::Graphics::Shape::Rect, Ludus::Engine::Graphics::Colors::White);
 		ecs.AttachTransform(handle, { 0.0f, 5.f }, 1.0f);
-		ecs.AttachText(handle, "");
 
 		auto handle2 = ecs.AddEntity();
 		ecs.AttachCollider(
@@ -35,7 +34,6 @@ namespace Ludus::Editor::Core
 		ecs.AttachRigidBody(handle2, { 0.0f }, Ludus::Engine::Physics::Core::BodyType::Static);
 		ecs.AttachSprite(handle2, Ludus::Engine::Graphics::Shape::Rect, Ludus::Engine::Graphics::Colors::White);
 		ecs.AttachTransform(handle2, { 0.0f, -5.0f }, { 6.0f, 1.0f });
-		ecs.AttachText(handle2, "");
 	}
 
 	void Scene::UpdateImpl(float deltaTime)

@@ -1,26 +1,26 @@
 #pragma once
 
-#include <imgui/imgui.h>
+#include <memory>
 
 #include <Ludus/Engine/Core/Application.h>
 #include <Ludus/Engine/Core/ApplicationBuilder.h>
 #include <Ludus/Engine/Core/SystemPhase.h>
 #include <Ludus/Engine/Core/SystemPhaseOrder.h>
 #include <Ludus/Engine/Debug/Debug.h>
-#include <Ludus/UI/ImGuiSystem.h>
+#include <Ludus/UI/Systems/ImGuiSystem.h>
 
-namespace Ludus::UI::Utilities
+namespace Ludus::UI::Systems
 {
-	inline bool s_IsImGuiEnabled = false;
+	static bool s_IsImGuiEnabled = false;
 
-	inline void UseImGui(Ludus::Engine::Core::ApplicationBuilder& builder)
+	inline void RegisterImGui(Ludus::Engine::Core::ApplicationBuilder& builder)
 	{
 		if (!s_IsImGuiEnabled)
 		{
 			builder.Configure(
 				[](Ludus::Engine::Core::Application& application)
 				{
-					auto imGuiSystem = std::make_unique<Ludus::UI::ImGuiSystem>();
+					auto imGuiSystem = std::make_unique<Ludus::UI::Systems::ImGuiSystem>();
 
 					application.AddSystem(
 						{
@@ -36,21 +36,6 @@ namespace Ludus::UI::Utilities
 		else
 		{
 			LUDUS_LOG_WARN("Invalid operation: Cannot add ImGui system more than once.");
-		}
-	}
-
-	inline void ShowDemoWindow() { ImGui::ShowDemoWindow(); }
-
-	inline ImGuiIO& GetIO() { return ImGui::GetIO(); }
-
-	inline void ScrollToNewest()
-	{
-		const float scrollY = ImGui::GetScrollY();
-		const float scrollMaxY = ImGui::GetScrollMaxY();
-
-		if (scrollY >= scrollMaxY - 1.0f)
-		{
-			ImGui::SetScrollHereY(1.0f);
 		}
 	}
 }

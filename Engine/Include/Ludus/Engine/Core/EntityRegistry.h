@@ -83,6 +83,18 @@ namespace Ludus::Engine::Core
 			return nullptr;
 		}
 
+		std::span<const Entity> View() const { return { m_Data.data(), m_Data.size() }; }
+
+		size_t IndexOf(EntityHandle handle)
+		{
+			if (m_HandleToIndex.contains(handle))
+			{
+				return m_HandleToIndex[handle];
+			}
+
+			return -1;
+		}
+
 		const size_t GetCount() { return m_Data.size(); }
 	};
 }

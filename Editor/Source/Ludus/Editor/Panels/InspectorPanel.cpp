@@ -1,20 +1,26 @@
 #include "pch.h"
 
+#include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Core/InspectorHelpers.h>
 #include <Ludus/Editor/Panels/InspectorPanel.h>
-#include <Ludus/UI/Containers.h>
+#include <Ludus/UI/Scope/MenuScope.h>
+#include <Ludus/UI/Scope/WindowScope.h>
+#include <Ludus/UI/Widgets/Menu.h>
 
 namespace Ludus::Editor::Panels
 {
 	void InspectorPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
 	{
 		auto windowTitle = CreateWindowTitle("Inspector");
-		if (Ludus::UI::Containers::Window window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
+		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
 		{
-			// Inspector panel test.
 			auto& ecs = context.SystemContext.EntityComponentSystem;
+			auto handle = context.EditorContext.State.SelectedEntity;
 
-			auto handle = 1;
+			if (handle == -1)
+			{
+				return;
+			}
 
 			auto* transformPtr = ecs.Transforms.TryGetByOwnerMutable(handle);
 			auto* colliderPtr = ecs.Colliders.TryGetByOwnerMutable(handle);

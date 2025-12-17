@@ -4,6 +4,7 @@
 #include <string>
 
 #include <Ludus/Engine/Core/Enums.h>
+#include <Ludus/UI/Widgets/Selection.h>
 
 namespace Ludus::Editor::Core::Utilities
 {

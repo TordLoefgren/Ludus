@@ -1,15 +1,14 @@
 #pragma once
 
-#include <Ludus/UI/UIContext.h>
-
 #include <Ludus/Engine/Core/ISystem.h>
+#include <Ludus/UI/Backend/ImGuiBackend.h>
 
-namespace Ludus::UI
+namespace Ludus::UI::Systems
 {
 	class ImGuiSystem final : public Ludus::Engine::Core::ISystem
 	{
 	private:
-		Ludus::UI::UIContext m_Context { };
+		Ludus::UI::Backend::ImGuiBackend m_Backend { };
 
 	public:
 		virtual void OnAttachImpl() override;
