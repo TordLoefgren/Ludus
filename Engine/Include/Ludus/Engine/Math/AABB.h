@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 
-#include <Ludus/Engine/Math/Transform2D.h>
+#include <Ludus/Engine/Components/Transform2DComponent.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 
 namespace Ludus::Engine::Math
@@ -13,7 +13,7 @@ namespace Ludus::Engine::Math
 		Vector2D Center;
 		Vector2D Extents;
 
-		static AABB FromTransform(const Transform2D& transform)
+		static AABB FromTransform(const Ludus::Engine::Components::Transform2DComponent& transform)
 		{
 			return AABB(transform.Position, transform.Scale / 2.0f);
 		}

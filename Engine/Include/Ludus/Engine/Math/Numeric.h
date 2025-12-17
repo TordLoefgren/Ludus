@@ -1,9 +1,9 @@
 #pragma once
 
 #include <algorithm>
-#include <tuple>
-
+#include <cmath>
 #include <Ludus/Engine/Math/Constants.h>
+#include <tuple>
 
 namespace Ludus::Engine::Math::Numeric
 {
@@ -34,12 +34,12 @@ namespace Ludus::Engine::Math::Numeric
 
 	inline float RotationDegreesFromDirection(float x, float y) noexcept
 	{
-		return atan2(y, x) * Constants::RADIANS_TO_DEGREES;
+		return std::atan2(y, x) * Constants::RADIANS_TO_DEGREES;
 	}
 
 	inline std::tuple<float, float> DirectionFromRotationDegrees(float rotation) noexcept
 	{
 		const float r = Numeric::DegreesToRadians(rotation);
-		return std::make_tuple(cos(r), sin(r));
+		return std::make_tuple(std::cos(r), std::sin(r));
 	}
 }

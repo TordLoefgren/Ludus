@@ -27,10 +27,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Ludus\Engine\Core\ApplicationBuilder.h" />
-    <ClInclude Include="Include\Ludus\Engine\Components\DisplayNameComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\RenderViewRegistry.h" />
     <ClInclude Include="Include\Ludus\Engine\Debug\Debug.h" />
-    <ClInclude Include="Include\Ludus\Engine\Graphics\Camera2DComponent.h" />
+    <ClInclude Include="Include\Ludus\Engine\Components\Camera2DComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\FrameBufferObject.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Enums.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\ITransitionableResource.h" />
@@ -59,8 +58,8 @@
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderTarget.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderView2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\Shape.h" />
-    <ClInclude Include="Include\Ludus\Engine\Graphics\Sprite2D.h" />
-    <ClInclude Include="Include\Ludus\Engine\Graphics\Text2D.h" />
+    <ClInclude Include="Include\Ludus\Engine\Components\Sprite2DComponent.h" />
+    <ClInclude Include="Include\Ludus\Engine\Components\Text2DComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Rect.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Circle.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\EntityRegistry.h" />
@@ -88,7 +87,7 @@
     <ClInclude Include="Include\Ludus\Engine\Math\AABB.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\CoordinateSpace.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Numeric.h" />
-    <ClInclude Include="Include\Ludus\Engine\Math\Transform2D.h" />
+    <ClInclude Include="Include\Ludus\Engine\Components\Transform2DComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Vector2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Broadphase\BroadphaseAABBEntry2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Broadphase\BroadphaseDebugInfo2D.h" />
@@ -96,13 +95,13 @@
     <ClInclude Include="Include\Ludus\Engine\Physics\Broadphase\IBroadphase2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Broadphase\NaiveBroadphase2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Core\BodyType.h" />
-    <ClInclude Include="Include\Ludus\Engine\Physics\Core\Collider2D.h" />
+    <ClInclude Include="Include\Ludus\Engine\Components\Collider2DComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Core\Constants.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Core\PhysicsContext2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Core\PhysicsPipeline2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Core\PhysicsSystem2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Core\PhysicsWorld2D.h" />
-    <ClInclude Include="Include\Ludus\Engine\Physics\Core\RigidBody2D.h" />
+    <ClInclude Include="Include\Ludus\Engine\Components\RigidBody2DComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Integrators\IPhysicsIntegrator.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Integrators\SymplecticEulerIntegrator.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Narrowphase\ContactPair2D.h" />

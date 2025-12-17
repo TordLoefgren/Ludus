@@ -17,10 +17,10 @@ namespace Ludus::Pong::Systems
 
 		m_MenuIndex = 1;
 
-		m_MenuItems.emplace_back(-1, "Pong", Ludus::Engine::Math::Transform2D(-1, { 0.0f, 6.0f }, 0.08f), m_GameInfo->ActiveColor);
-		m_MenuItems.emplace_back(-1, "Single Player", Ludus::Engine::Math::Transform2D(-1, { 0.0f, 2.0f }, 0.04f), m_GameInfo->InactiveColor);
-		m_MenuItems.emplace_back(-1, "Multiplayer", Ludus::Engine::Math::Transform2D(-1, { 0.0f, -1.0f }, 0.04f), m_GameInfo->InactiveColor);
-		m_MenuItems.emplace_back(-1, "Exit", Ludus::Engine::Math::Transform2D(-1, { 0.0f, -4.0f }, 0.04f), m_GameInfo->InactiveColor);
+		m_MenuItems.emplace_back(-1, "Pong", Ludus::Engine::Components::Transform2DComponent(-1, { 0.0f, 6.0f }, 0.08f), m_GameInfo->ActiveColor);
+		m_MenuItems.emplace_back(-1, "Single Player", Ludus::Engine::Components::Transform2DComponent(-1, { 0.0f, 2.0f }, 0.04f), m_GameInfo->InactiveColor);
+		m_MenuItems.emplace_back(-1, "Multiplayer", Ludus::Engine::Components::Transform2DComponent(-1, { 0.0f, -1.0f }, 0.04f), m_GameInfo->InactiveColor);
+		m_MenuItems.emplace_back(-1, "Exit", Ludus::Engine::Components::Transform2DComponent(-1, { 0.0f, -4.0f }, 0.04f), m_GameInfo->InactiveColor);
 	}
 
 	void MainMenuSystem::OnDetachImpl()

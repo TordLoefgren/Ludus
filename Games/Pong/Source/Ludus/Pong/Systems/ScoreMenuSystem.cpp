@@ -8,9 +8,9 @@ namespace Ludus::Pong::Systems
 
 	void ScoreMenuSystem::OnAttachImpl()
 	{
-		m_MenuItems.emplace_back(-1, "", Ludus::Engine::Math::Transform2D(-1, { 0.0f, 6.0f }, 0.06f), m_GameInfo->ActiveColor);
-		m_MenuItems.emplace_back(-1, "New Game", Ludus::Engine::Math::Transform2D(-1, { 0.0f, 0.0f }, 0.04f), m_GameInfo->InactiveColor);
-		m_MenuItems.emplace_back(-1, "Exit", Ludus::Engine::Math::Transform2D(-1, { 0.0f, -2.0f }, 0.04f), m_GameInfo->InactiveColor);
+		m_MenuItems.emplace_back(-1, "", Ludus::Engine::Components::Transform2DComponent(-1, { 0.0f, 6.0f }, 0.06f), m_GameInfo->ActiveColor);
+		m_MenuItems.emplace_back(-1, "New Game", Ludus::Engine::Components::Transform2DComponent(-1, { 0.0f, 0.0f }, 0.04f), m_GameInfo->InactiveColor);
+		m_MenuItems.emplace_back(-1, "Exit", Ludus::Engine::Components::Transform2DComponent(-1, { 0.0f, -2.0f }, 0.04f), m_GameInfo->InactiveColor);
 	}
 
 	void ScoreMenuSystem::OnDetachImpl()

@@ -56,8 +56,8 @@ namespace Ludus::Pong::Systems
 	}
 
 	static float GetReflectionAngle(
-		const Ludus::Engine::Math::Transform2D& ballTransform,
-		const Ludus::Engine::Math::Transform2D& playerTransform,
+		const Ludus::Engine::Components::Transform2DComponent& ballTransform,
+		const Ludus::Engine::Components::Transform2DComponent& playerTransform,
 		Ludus::Engine::Math::Vector2D normal,
 		float minCenterDegrees,
 		float maxDeflectDegrees
