@@ -1,25 +1,18 @@
 #pragma once
 
-#include <cstdint>
-
 #include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Math/Numeric.h>
 #include <Ludus/Engine/Math/Rect.h>
 
-namespace Ludus::Engine::Graphics
+namespace Ludus::Engine::Components
 {
-	using Camera2DComponentHandle = uint32_t;
-
 	struct Camera2DComponent
 	{
 	private:
-		inline static Camera2DComponentHandle s_NextHandle = 1;
-
 		float WorldWidth = 0.0f;
 		float WorldHeight = 0.0f;
 
 	public:
-		Camera2DComponentHandle Handle;
 		Ludus::Engine::Core::EntityHandle OwnerHandle;
 		float OrthographicSize;
 
@@ -28,10 +21,13 @@ namespace Ludus::Engine::Graphics
 			Ludus::Engine::Core::EntityHandle owner,
 			float OrthographicSize = 10.0f
 		) :
-			Handle(s_NextHandle++),
 			OwnerHandle(owner),
 			OrthographicSize(OrthographicSize)
 		{ }
+
+		~Camera2DComponent() = default;
+
+		bool operator==(const Camera2DComponent& other) const { return OwnerHandle == other.OwnerHandle; }
 
 		float HalfWorldWidth()  const { return WorldWidth * 0.5f; }
 		float HalfWorldHeight() const { return WorldHeight * 0.5f; }
@@ -50,13 +46,5 @@ namespace Ludus::Engine::Graphics
 			WorldWidth = worldWidth;
 			WorldHeight = worldHeight;
 		}
-
-		Camera2DComponent(const Camera2DComponent&) = delete;
-		Camera2DComponent& operator=(const Camera2DComponent&) = delete;
-		Camera2DComponent(Camera2DComponent&&) noexcept = default;
-		Camera2DComponent& operator=(Camera2DComponent&&) noexcept = default;
-		~Camera2DComponent() = default;
-
-		bool operator==(const Camera2DComponent& other) const { return Handle == other.Handle; }
 	};
 }

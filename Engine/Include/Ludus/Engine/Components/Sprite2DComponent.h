@@ -1,37 +1,28 @@
 #pragma once
 
-#include <cstdint>
-
 #include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/Shape.h>
 #include <Ludus/Engine/Graphics/Texture.h>
 
-namespace Ludus::Engine::Graphics
+namespace Ludus::Engine::Components
 {
-	using SpriteHandle = uint32_t;
-
-	struct Sprite2D
+	struct Sprite2DComponent
 	{
-	private:
-		inline static SpriteHandle s_NextHandle = 1;
-
 	public:
-		SpriteHandle Handle;
 		Ludus::Engine::Core::EntityHandle OwnerHandle;
 		Ludus::Engine::Graphics::Shape Shape;
 		Ludus::Engine::Graphics::Color Color;
 		Ludus::Engine::Graphics::Texture* Texture = nullptr;
 		bool Fill = true;
 
-		Sprite2D(
+		Sprite2DComponent(
 			Ludus::Engine::Core::EntityHandle owner,
 			Ludus::Engine::Graphics::Shape shape,
 			Ludus::Engine::Graphics::Color color = Ludus::Engine::Graphics::Colors::White,
 			Ludus::Engine::Graphics::Texture* texture = nullptr,
 			bool fill = true
 		) :
-			Handle(s_NextHandle++),
 			OwnerHandle(owner),
 			Shape(shape),
 			Color(color),
@@ -39,13 +30,9 @@ namespace Ludus::Engine::Graphics
 			Fill(fill)
 		{ }
 
-		Sprite2D(const Sprite2D&) = delete;
-		Sprite2D& operator=(const Sprite2D&) = delete;
-		Sprite2D(Sprite2D&&) noexcept = default;
-		Sprite2D& operator=(Sprite2D&&) noexcept = default;
-		~Sprite2D() = default;
+		~Sprite2DComponent() = default;
 
-		bool operator==(const Sprite2D& other) const { return Handle == other.Handle; }
+		bool operator==(const Sprite2DComponent& other) const { return OwnerHandle == other.OwnerHandle; }
 	};
 }
 

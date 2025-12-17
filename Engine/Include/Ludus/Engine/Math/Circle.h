@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 
-#include <Ludus/Engine/Math/Transform2D.h>
+#include <Ludus/Engine/Components/Transform2DComponent.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 
 namespace Ludus::Engine::Math
@@ -13,7 +13,7 @@ namespace Ludus::Engine::Math
 		Vector2D Center;
 		float Radius;
 
-		static Circle FromTransform(const Transform2D& transform)
+		static Circle FromTransform(const Ludus::Engine::Components::Transform2DComponent& transform)
 		{
 			auto radius = std::min(transform.Scale.X, transform.Scale.Y) * 0.5f;
 			return Circle(transform.Position, radius);
