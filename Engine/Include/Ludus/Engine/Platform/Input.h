@@ -11,6 +11,7 @@
 #include <Ludus/Engine/Events/MouseEvents.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/Engine/Platform/Key.h>
+#include <Ludus/Engine/Platform/MouseButton.h>
 
 namespace Ludus::Engine::Platform
 {

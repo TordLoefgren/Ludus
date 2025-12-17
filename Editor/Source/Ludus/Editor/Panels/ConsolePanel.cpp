@@ -4,17 +4,18 @@
 
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Panels/ConsolePanel.h>
-#include <Ludus/UI/Containers.h>
-#include <Ludus/UI/Widgets.h>
+#include <Ludus/UI/Context/ScrollContext.h>
+#include <Ludus/UI/Scope/WindowScope.h>
+#include <Ludus/UI/Widgets/Text.h>
 
 namespace Ludus::Editor::Panels
 {
 	void ConsolePanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
 	{
-		const auto flags = Ludus::Editor::Core::Constants::PanelFlags | ImGuiWindowFlags_HorizontalScrollbar;
+		const auto flags = Ludus::Editor::Core::Constants::PanelFlags | Ludus::UI::Flags::Window::HorizontalScrollbar;
 		auto windowTitle = CreateWindowTitle("Console");
 
-		if (Ludus::UI::Containers::Window window(windowTitle.c_str(), &m_Open, flags); window)
+		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, flags); window)
 		{
 			auto& logEntries = Ludus::Engine::Debug::GetLogEntries();
 
@@ -25,7 +26,7 @@ namespace Ludus::Editor::Panels
 				auto iter = m_TextToIndex.find(formattetText);
 				if (iter == m_TextToIndex.end())
 				{
-					auto size = m_AggregateText.size();;
+					auto size = m_AggregateText.size();
 					m_AggregateText.push_back({ std::move(formattetText), 1 });
 					m_TextToIndex[m_AggregateText.back().Text] = size;
 				}
@@ -39,15 +40,15 @@ namespace Ludus::Editor::Panels
 			{
 				if (text.Count == 1)
 				{
-					Ludus::UI::Widgets::Text(text.Text);
+					Ludus::UI::Widgets::TextUnformatted(text.Text);
 				}
 				else
 				{
-					Ludus::UI::Widgets::Text(std::format("{} ({})", text.Text, text.Count));
+					Ludus::UI::Widgets::TextUnformatted(std::format("{} ({})", text.Text, text.Count));
 				}
 			}
 
-			Ludus::UI::Utilities::ScrollToNewest();
+			Ludus::UI::Context::ScrollContext::ScrollToNewest();
 
 			logEntries.clear();
 		}

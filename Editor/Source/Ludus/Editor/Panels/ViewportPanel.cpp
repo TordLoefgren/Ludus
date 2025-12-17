@@ -1,30 +1,31 @@
 #include <pch.h>
 
-#include <imgui/imgui.h>
-
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Panels/ViewportPanel.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/RenderView2D.h>
 #include <Ludus/Engine/Math/Size.h>
 #include <Ludus/Engine/Math/Vector2D.h>
-#include <Ludus/UI/Containers.h>
+#include <Ludus/UI/Context/ImageContext.h>
+#include <Ludus/UI/Context/WindowContext.h>
+#include <Ludus/UI/Scope/StyleScope.h>
+#include <Ludus/UI/Scope/WindowScope.h>
 
 namespace Ludus::Editor::Panels
 {
 	Ludus::Engine::Math::Vector2D ViewportPanel::GetViewportAspectSize(Ludus::Engine::Math::Size<int> framebufferSize)
 	{
-		auto availableSpace = ImGui::GetContentRegionAvail();
+		auto availableSpace = Ludus::UI::Context::WindowContext::GetContentRegionAvailable();
 
 		const auto [width, height] = framebufferSize;
 		const auto targetAspectRatio = static_cast<float>(width) / static_cast<float>(height);
 
-		auto aspectWidth = availableSpace.x;
+		auto aspectWidth = availableSpace.X;
 		auto aspectHeight = aspectWidth / targetAspectRatio;
 
-		if (aspectHeight > availableSpace.y)
+		if (aspectHeight > availableSpace.Y)
 		{
-			aspectHeight = availableSpace.y;
+			aspectHeight = availableSpace.Y;
 			aspectWidth = aspectHeight * targetAspectRatio;
 		}
 
@@ -33,11 +34,10 @@ namespace Ludus::Editor::Panels
 
 	Ludus::Engine::Math::Vector2D ViewportPanel::GetViewportAspectOffset(Ludus::Engine::Math::Vector2D aspectSize)
 	{
-		const auto availableSpace = ImGui::GetContentRegionAvail();
-		const auto offsetX = (availableSpace.x - aspectSize.X) * 0.5f;
-		const auto offsetY = (availableSpace.y - aspectSize.Y) * 0.5f;
+		const auto availableSpace = Ludus::UI::Context::WindowContext::GetContentRegionAvailable();
+		const auto offset = (availableSpace - aspectSize) * 0.5f;
 
-		return { offsetX, offsetY };
+		return offset;
 	}
 
 	ViewportPanel::ViewportPanel(std::string title, std::shared_ptr<Ludus::Engine::Graphics::Camera2D> camera)
@@ -46,16 +46,15 @@ namespace Ludus::Editor::Panels
 
 	void ViewportPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
 	{
-		ImGuiWindowFlags flags = Ludus::Editor::Core::Constants::PanelFlags
-			| ImGuiWindowFlags_NoScrollbar
-			| ImGuiWindowFlags_NoScrollWithMouse;
+		const auto flags = Ludus::Editor::Core::Constants::PanelFlags
+			| Ludus::UI::Flags::Window::NoScrollbar
+			| Ludus::UI::Flags::Window::NoScrollWithMouse;
 
-		auto [r, g, b, a] = Ludus::Engine::Graphics::Colors::Black;
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(r, g, b, a));
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		Ludus::UI::Scope::StyleColorScope styleColor({ Ludus::UI::Scope::StyleColor(Ludus::UI::Scope::Color::ImGuiCol_WindowBg, Ludus::Engine::Graphics::Colors::Black) });
+		Ludus::UI::Scope::StyleVarScope styleVar({ Ludus::UI::Scope::StyleVar::Vector(Ludus::UI::Scope::Variable::WindowPadding, {0.0f, 0.0f }) });
 
 		auto windowTitle = CreateUniqueWindowTitle(m_Title);
-		if (Ludus::UI::Containers::Window window(windowTitle.c_str(), &m_Open, flags); window)
+		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, flags); window)
 		{
 			const auto framebufferSize = context.SystemContext.Window.GetFramebufferSize();
 			const auto aspectSize = GetViewportAspectSize(framebufferSize);
@@ -67,9 +66,6 @@ namespace Ludus::Editor::Panels
 
 			if (desiredSize.Width <= 0 || desiredSize.Height <= 0)
 			{
-				ImGui::PopStyleColor();
-				ImGui::PopStyleVar();
-
 				return;
 			}
 
@@ -80,9 +76,10 @@ namespace Ludus::Editor::Panels
 			}
 
 			const auto aspectOffset = GetViewportAspectOffset(aspectSize);
-			const auto cursor = ImGui::GetCursorPos();
+			const auto cursor = Ludus::UI::Context::WindowContext::GetCursorPosition();
+			const auto viewportSize = Ludus::Engine::Math::Vector2D(cursor.X + aspectOffset.X, cursor.Y + aspectOffset.Y);
 
-			ImGui::SetCursorPos({ cursor.x + aspectOffset.X, cursor.y + aspectOffset.Y });
+			Ludus::UI::Context::WindowContext::SetCursorPosition(viewportSize);
 
 			if (desiredSize.Width != m_PreviousTargetSize.Width || desiredSize.Height != m_PreviousTargetSize.Height)
 			{
@@ -90,12 +87,7 @@ namespace Ludus::Editor::Panels
 				m_PreviousTargetSize = desiredSize;
 			}
 
-			ImGui::Image(
-				(ImTextureID)(intptr_t)m_Target->ColorTexture.Handle(),
-				{ aspectSize.X, aspectSize.Y },
-				{ 0.0f, 1.0f },
-				{ 1.0f, 0.0f }
-			);
+			Ludus::UI::Context::ImageContext::CreateImage(m_Target->ColorTexture.Handle(), aspectSize);
 
 			m_Camera->SetViewport(desiredSize.Width, desiredSize.Height);
 
@@ -105,15 +97,16 @@ namespace Ludus::Editor::Panels
 				.Target = m_Target,
 				.ViewportRect = Ludus::Engine::Math::Rect
 				{
-					{ cursor.x + aspectOffset.X, cursor.y + aspectOffset.Y },
-					{ aspectSize.X, aspectSize.Y }
+					viewportSize,
+					aspectSize
 				}
 			};
 
 			context.SystemContext.RenderViews.Register(renderView);
 		}
-
-		ImGui::PopStyleColor();
-		ImGui::PopStyleVar();
+		else
+		{
+			LUDUS_LOG_INFO("Viewport window body NOT executing");
+		}
 	}
 }

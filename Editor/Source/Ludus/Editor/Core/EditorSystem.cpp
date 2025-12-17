@@ -3,7 +3,6 @@
 #include <memory>
 
 #include <Ludus/Editor/Core/EditorSystem.h>
-#include <Ludus/Editor/Core/Scene.h>
 
 namespace Ludus::Editor::Core
 {

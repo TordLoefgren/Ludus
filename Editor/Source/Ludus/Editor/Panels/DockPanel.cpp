@@ -1,33 +1,36 @@
 #include "pch.h"
 
-#include <imgui/imgui.h>
-
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Panels/DockPanel.h>
+#include <Ludus/UI/Context/DockingContext.h>
+#include <Ludus/UI/Context/ViewportContext.h>
+#include <Ludus/UI/Context/WindowContext.h>
+#include <Ludus/UI/Scope/StyleScope.h>
+#include <Ludus/UI/Scope/WindowScope.h>
 
 namespace Ludus::Editor::Panels
 {
 	void DockPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
 	{
-		const auto* viewport = ImGui::GetMainViewport();
+		const auto viewport = Ludus::UI::Context::ViewportContext::GetMainViewport();
+		Ludus::UI::Context::WindowContext::SetNextWindowPosition(viewport.WorkPosition);
+		Ludus::UI::Context::WindowContext::SetNextWindowSize(viewport.WorkSize);
+		Ludus::UI::Context::WindowContext::SetNextWindowViewport(viewport.Id);
 
-		ImGui::SetNextWindowPos(viewport->WorkPos);
-		ImGui::SetNextWindowSize(viewport->WorkSize);
-		ImGui::SetNextWindowViewport(viewport->ID);
-
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		Ludus::UI::Scope::StyleVarScope styleVar(
+			{
+				Ludus::UI::Scope::StyleVar::Float(Ludus::UI::Scope::Variable::WindowRounding, 0.0f),
+				Ludus::UI::Scope::StyleVar::Float(Ludus::UI::Scope::Variable::WindowBorderSize, 0.0f)
+			}
+		);
 
 		// The dock panel should never close, as it enables docking for all other panels.
-		const auto flags = Ludus::Editor::Core::Constants::PanelFlags | ImGuiWindowFlags_HorizontalScrollbar;
+		const auto flags = Ludus::Editor::Core::Constants::PanelFlags;
 		auto windowTitle = CreateWindowTitle("DockPanel");
 
-		if (Ludus::UI::Containers::Window window(windowTitle.c_str(), nullptr, Ludus::Editor::Core::Constants::DockPanelWindowFlags); window)
+		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), nullptr, Ludus::Editor::Core::Constants::DockPanelWindowFlags); window)
 		{
-			auto dockspaceId = ImGui::GetID(windowTitle.c_str());
-			ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+			Ludus::UI::Context::DockingContext::CreateDockSpace(windowTitle.c_str());
 		}
-
-		ImGui::PopStyleVar(2);
 	}
 }
