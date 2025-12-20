@@ -49,6 +49,7 @@
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSystem.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\CameraControllerSystem.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorApplicationBuilder.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorGridRenderPass.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelContext.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelRegistry.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\Constants.h" />
