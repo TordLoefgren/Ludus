@@ -4,7 +4,6 @@ description: Creating unit tests.
 title: "[Test]: "
 labels:
   - "Type: Test"
-  - "Status: Planned"
 assignees:
   - TordLoefgren
 
