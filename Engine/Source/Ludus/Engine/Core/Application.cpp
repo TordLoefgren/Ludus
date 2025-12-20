@@ -4,21 +4,24 @@
 #include <memory>
 
 #include <Ludus/Engine/Core/Application.h>
+#include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 
 namespace Ludus::Engine::Core
 {
 	Application::Application(
 		Ludus::Engine::Platform::WindowOptions windowOptions,
 		Ludus::Engine::Graphics::RenderingOptions renderingOptions,
-		Ludus::Engine::Physics::Core::PhysicsContext2D physicsContext
-	) : m_EventBus(std::make_unique<Ludus::Engine::Events::EventBus>()),
+		Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration,
+		Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration
+	) : m_EntityComponentSystem(std::make_unique<Ludus::Engine::Core::EntityComponentSystem>()),
+		m_EventBus(std::make_unique<Ludus::Engine::Events::EventBus>()),
 		m_Input(std::make_unique<Ludus::Engine::Platform::Input>()),
 		m_Window(std::make_unique<Ludus::Engine::Platform::Window>(windowOptions, *m_EventBus)),
 		m_GLContext(std::make_unique<Ludus::Engine::Graphics::GLContext>()),
-		m_PhysicsContext(std::make_unique<Ludus::Engine::Physics::Core::PhysicsContext2D>(std::move(physicsContext))),
+		m_RenderingConfiguration(std::make_unique<Ludus::Engine::Graphics::RenderingConfiguration2D>(std::move(renderingConfiguration))),
+		m_PhysicsConfiguration(std::make_unique<Ludus::Engine::Physics::Core::PhysicsConfiguration2D>(std::move(physicsConfiguration))),
 		m_Resources(std::make_unique<Ludus::Engine::Core::ResourceRegistry>()),
 		m_RenderViewRegistry(std::make_unique<Ludus::Engine::Core::RenderViewRegistry>()),
-		m_EntityComponentSystem(std::make_unique<Ludus::Engine::Core::EntityComponentSystem>()),
 		m_Time(std::make_unique<Ludus::Engine::Core::Time>()),
 		m_SystemContext(
 			*m_EntityComponentSystem,
@@ -28,7 +31,7 @@ namespace Ludus::Engine::Core
 			*m_RenderViewRegistry,
 			*m_Window,
 			std::make_shared<Ludus::Engine::Graphics::RenderTarget>(windowOptions.Width, windowOptions.Height),
-			m_PhysicsContext ? m_PhysicsContext->QueryCache.get() : nullptr
+			m_PhysicsConfiguration ? m_PhysicsConfiguration->QueryCache.get() : nullptr
 		),
 		m_Scheduler(std::make_unique<Ludus::Engine::Core::Scheduler>(m_SystemContext))
 	{
@@ -40,9 +43,14 @@ namespace Ludus::Engine::Core
 		SubscribeToEvents();
 	}
 
-	std::unique_ptr<Application> Application::Create(Ludus::Engine::Platform::WindowOptions windowOptions, Ludus::Engine::Graphics::RenderingOptions renderingOptions, Ludus::Engine::Physics::Core::PhysicsContext2D physicsContext)
+	std::unique_ptr<Application> Application::Create(
+		Ludus::Engine::Platform::WindowOptions windowOptions,
+		Ludus::Engine::Graphics::RenderingOptions renderingOptions,
+		Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration,
+		Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration
+	)
 	{
-		auto application = std::make_unique<Application>(windowOptions, renderingOptions, std::move(physicsContext));
+		auto application = std::make_unique<Application>(windowOptions, renderingOptions, std::move(renderingConfiguration), std::move(physicsConfiguration));
 		return application;
 	}
 

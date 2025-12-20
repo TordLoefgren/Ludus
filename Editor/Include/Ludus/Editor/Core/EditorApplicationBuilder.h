@@ -5,8 +5,9 @@
 #include <Ludus/Editor/Core/EditorConfiguration.h>
 #include <Ludus/Engine/Core/Application.h>
 #include <Ludus/Engine/Core/ApplicationBuilder.h>
+#include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
-#include <Ludus/Engine/Physics/Core/PhysicsContext2D.h>
+#include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
 #include <Ludus/Engine/Platform/WindowOptions.h>
 
 namespace Ludus::Editor::Core
@@ -18,7 +19,8 @@ namespace Ludus::Editor::Core
 
 		Ludus::Engine::Platform::WindowOptions m_WindowOptions;
 		Ludus::Engine::Graphics::RenderingOptions m_RenderingOptions;
-		Ludus::Engine::Physics::Core::PhysicsContext2D m_PhysicsContext;
+		Ludus::Engine::Physics::Core::PhysicsConfiguration2D m_PhysicsConfiguration;
+		Ludus::Engine::Graphics::RenderingConfiguration2D m_RenderingConfiguration;
 
 		Ludus::Editor::Core::EditorConfiguration m_EditorConfiguration = Ludus::Editor::Core::EditorConfiguration::Default();
 

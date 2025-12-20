@@ -7,9 +7,10 @@
 #include <Ludus/Engine/Core/Application.h>
 #include <Ludus/Engine/Core/SystemPhase.h>
 #include <Ludus/Engine/Core/SystemPhaseInfo.h>
+#include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
 #include <Ludus/Engine/Graphics/RenderingSystem2D.h>
-#include <Ludus/Engine/Physics/Core/PhysicsContext2D.h>
+#include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
 #include <Ludus/Engine/Physics/Core/PhysicsSystem2D.h>
 #include <Ludus/Engine/Platform/WindowOptions.h>
 
@@ -22,7 +23,8 @@ namespace Ludus::Engine::Core
 	private:
 		Ludus::Engine::Platform::WindowOptions m_WindowOptions;
 		Ludus::Engine::Graphics::RenderingOptions m_RenderingOptions;
-		Ludus::Engine::Physics::Core::PhysicsContext2D m_PhysicsContext;
+		Ludus::Engine::Graphics::RenderingConfiguration2D m_RenderingConfiguration;
+		Ludus::Engine::Physics::Core::PhysicsConfiguration2D m_PhysicsConfiguration;
 
 		std::vector<BuilderCommand> m_BuilderCommands;
 
@@ -36,7 +38,8 @@ namespace Ludus::Engine::Core
 
 		ApplicationBuilder& WithWindowOptions(Ludus::Engine::Platform::WindowOptions windowOptions);
 		ApplicationBuilder& WithRenderingOptions(Ludus::Engine::Graphics::RenderingOptions renderingOptions);
-		ApplicationBuilder& WithPhysicsContext(Ludus::Engine::Physics::Core::PhysicsContext2D physicsContext);
+		ApplicationBuilder& WithRenderingConfiguration(Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration);
+		ApplicationBuilder& WithPhysicsConfiguration(Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration);
 
 		ApplicationBuilder& UseDefaultRendering2D();
 		ApplicationBuilder& UseDefaultPhysics2D();

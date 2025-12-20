@@ -4,7 +4,10 @@
 
 #include <Ludus/Engine/Core/EntityComponentSystem.h>
 #include <Ludus/Engine/Core/SystemContext.h>
+#include <Ludus/Engine/Graphics/RenderContext2D.h>
 #include <Ludus/Engine/Graphics/Renderer2D.h>
+#include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
+#include <Ludus/Engine/Graphics/RenderingPipeline2D.h>
 #include <Ludus/Engine/Graphics/RenderTarget.h>
 #include <Ludus/Engine/Graphics/RenderView2D.h>
 #include <Ludus/Engine/Graphics/Shader.h>
@@ -14,13 +17,15 @@ namespace Ludus::Engine::Graphics
 {
 	class RenderingSystem2D final : public Ludus::Engine::Core::ISystem
 	{
+		std::unique_ptr<RenderingPipeline2D> m_RenderingPipeline;
 		std::unique_ptr<Renderer2D> m_Renderer;
 		std::unique_ptr<Shader> m_Shader;
 		RenderingOptions m_RenderingOptions;
+		RenderingConfiguration2D& m_RenderingConfiguration;
 
 	public:
-		RenderingSystem2D(RenderingOptions renderingOptions)
-			: m_Renderer(nullptr), m_RenderingOptions(renderingOptions)
+		RenderingSystem2D(RenderingOptions renderingOptions, RenderingConfiguration2D& renderingConfiguration)
+			: m_RenderingPipeline(nullptr), m_Renderer(nullptr), m_RenderingOptions(renderingOptions), m_RenderingConfiguration(renderingConfiguration)
 		{ }
 		~RenderingSystem2D() = default;
 
@@ -30,6 +35,7 @@ namespace Ludus::Engine::Graphics
 			m_Shader = std::make_unique<Shader>();
 			m_Renderer = std::make_unique<Renderer2D>(*m_Shader);
 			m_Renderer->SetClearColor(m_RenderingOptions.ClearColor);
+			m_RenderingPipeline = std::make_unique<RenderingPipeline2D>(m_RenderingConfiguration.GetRenderPasses());
 		}
 
 		virtual void RenderImpl() override
@@ -43,41 +49,13 @@ namespace Ludus::Engine::Graphics
 					return;
 				}
 
-				// Render pass.
+				// Execute render passes.
 				targetPtr->Framebuffer.Bind();
 
 				m_Renderer->BeginScene(renderView.Camera);
 				m_Renderer->Clear();
 
-				auto& ecs = m_SystemContext->EntityComponentSystem;
-
-				for (const auto& sprite : ecs.Sprites.View())
-				{
-					const auto* transform = ecs.Transforms.TryGetByOwner(sprite.OwnerHandle);
-					if (!transform)
-					{
-						continue;
-					}
-
-					switch (sprite.Shape)
-					{
-						case Ludus::Engine::Graphics::Shape::Rect:
-							m_Renderer->DrawQuad(*transform, sprite.Color, sprite.Texture, sprite.Fill);
-							break;
-						case Ludus::Engine::Graphics::Shape::Circle:
-							m_Renderer->DrawCircle(*transform, sprite.Color, sprite.Fill);
-							break;
-					}
-				}
-
-				for (const auto& text : ecs.Texts.View())
-				{
-					const auto* transform = ecs.Transforms.TryGetByOwner(text.OwnerHandle);
-					if (transform)
-					{
-						m_Renderer->DrawText(*transform, text.Text, text.Color, text.HorizontalAlignment);
-					}
-				}
+				m_RenderingPipeline->Execute({ m_SystemContext, renderView }, *m_Renderer);
 
 				m_Renderer->EndScene();
 

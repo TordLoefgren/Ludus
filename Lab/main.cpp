@@ -12,7 +12,7 @@ int main()
 {
 	auto windowOptions = Ludus::Engine::Platform::WindowOptions(1920, 1080, "Ludus Lab", true);
 	auto renderingOptions = Ludus::Engine::Graphics::RenderingOptions(Ludus::Engine::Graphics::Colors::White);
-	auto physicsContext = Ludus::Engine::Physics::Core::PhysicsContext2D();
+	auto physicsContext = Ludus::Engine::Physics::Core::PhysicsConfiguration2D();
 
 	auto applicationBuilder = Ludus::Engine::Core::ApplicationBuilder::Create();
 
@@ -21,7 +21,7 @@ int main()
 	auto application = applicationBuilder
 		.WithWindowOptions(windowOptions)
 		.WithRenderingOptions(renderingOptions)
-		.WithPhysicsContext(std::move(physicsContext))
+		.WithPhysicsConfiguration(std::move(physicsContext))
 		.UseDefaultPhysics2D()
 		.UseDefaultRendering2D()
 		.AddUpdateSystem<Ludus::Lab::Core::Scene>()
