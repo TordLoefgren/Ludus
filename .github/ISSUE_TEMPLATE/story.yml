@@ -4,7 +4,6 @@ description: Broad goal made up of multiple issues.
 title: "[Story]: "
 labels:
   - "Type: Story"
-  - "Status: Planned"
 assignees:
   - TordLoefgren
 
@@ -16,16 +15,6 @@ body:
       description: One-paragraph overview of the goal and scope.
     validations:
       required: true
-
-  - type: textarea
-    id: acceptance
-    attributes:
-      label: Acceptance Criteria
-      description: Definition of done.
-      value: |
-        - [ ] All linked issues closed
-        - [ ] Code compiles and runs
-        - [ ] Minimal docs updated
 
   - type: textarea
     id: links
