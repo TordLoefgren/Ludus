@@ -2,6 +2,7 @@
 
 #include <Ludus/Editor/Core/EditorApplicationBuilder.h>
 #include <Ludus/Editor/Core/EditorConfiguration.h>
+#include <Ludus/Editor/Core/EditorGridRenderPass.h>
 #include <Ludus/Editor/Core/EditorSystem.h>
 #include <Ludus/Editor/Core/Scene.h>
 #include <Ludus/Engine/Core/Application.h>
@@ -35,8 +36,9 @@ namespace Ludus::Editor::Core
 	{
 		m_WindowOptions = Ludus::Engine::Platform::WindowOptions(1920, 1080, "Ludus Editor", true);
 		m_RenderingOptions = Ludus::Engine::Graphics::RenderingOptions(Ludus::Engine::Graphics::Colors::DarkGray);
-		m_PhysicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D();
 		m_RenderingConfiguration = Ludus::Engine::Graphics::RenderingConfiguration2D();
+		m_RenderingConfiguration.AddPass(std::make_unique<EditorGridRenderPass>());
+		m_PhysicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D();
 
 		Ludus::UI::Systems::RegisterImGui(m_ApplicationBuilder);
 
