@@ -4,7 +4,7 @@
 #include <Ludus/Engine/Core/State.h>
 #include <Ludus/Engine/Core/SystemPhase.h>
 #include <Ludus/Engine/Graphics/Color.h>
-#include <Ludus/Engine/Physics/Core/PhysicsContext2D.h>
+#include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
 #include <Ludus/Engine/Platform/Window.h>
 #include <Ludus/Engine/Platform/WindowOptions.h>
 
@@ -20,7 +20,7 @@ int main()
 {
 	auto windowOptions = Ludus::Engine::Platform::WindowOptions(1024, 768, "Pong (1972)", false);
 	auto renderingOptions = Ludus::Engine::Graphics::RenderingOptions(Ludus::Engine::Graphics::Colors::Black);
-	auto physicsContext = Ludus::Engine::Physics::Core::PhysicsContext2D();
+	auto physicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D();
 
 	auto gameInfo = std::make_shared<Ludus::Pong::Core::GameInfo>();
 	auto pongInfo = std::make_shared<Ludus::Pong::Core::PongInfo>();
@@ -29,7 +29,7 @@ int main()
 	auto application = Ludus::Engine::Core::ApplicationBuilder::Create()
 		.WithWindowOptions(windowOptions)
 		.WithRenderingOptions(renderingOptions)
-		.WithPhysicsContext(std::move(physicsContext))
+		.WithPhysicsConfiguration(std::move(physicsConfiguration))
 		.UseDefaultPhysics2D()
 		.UseDefaultRendering2D()
 		.AddSystem<Ludus::Pong::Systems::MainMenuSystem>(
