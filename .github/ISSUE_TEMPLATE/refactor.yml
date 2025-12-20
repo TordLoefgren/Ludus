@@ -4,7 +4,6 @@ description: Improve structure/clarity without changing behavior.
 title: "[Refactor]: "
 labels:
   - "Type: Refactor"
-  - "Status: Planned"
 assignees:
   - TordLoefgren
 

@@ -4,7 +4,6 @@ description: Something isn't working as expected.
 title: "[Fix]: "
 labels:
   - "Type: Fix"
-  - "Status: Planned"
 assignees:
   - TordLoefgren
 
@@ -22,8 +21,3 @@ body:
     attributes:
       label: Reproduction Steps
       description: Step-by-step with expected vs. actual result.
-      value: |
-        1. …
-        2. …
-        **Expected:** …
-        **Actual:** …
