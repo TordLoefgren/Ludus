@@ -13,7 +13,7 @@
 
 namespace Ludus::Engine::Physics::Core
 {
-	struct PhysicsContext2D
+	struct PhysicsConfiguration2D
 	{
 		std::unique_ptr<Ludus::Engine::Physics::Broadphase::IBroadphase2D> Broadphase;
 		std::unique_ptr<Ludus::Engine::Physics::Narrowphase::INarrowphase2D> Narrowphase;
@@ -22,7 +22,7 @@ namespace Ludus::Engine::Physics::Core
 		std::unique_ptr<Ludus::Engine::Physics::Integrators::IPhysicsIntegrator> Integrator;
 		int SubSteps;
 
-		PhysicsContext2D()
+		PhysicsConfiguration2D()
 			: Broadphase(std::make_unique<Ludus::Engine::Physics::Broadphase::NaiveBroadphase2D>()),
 			Narrowphase(std::make_unique<Ludus::Engine::Physics::Narrowphase::NaiveNarrowphase2D>()),
 			QueryCache(std::make_unique<Ludus::Engine::Physics::Queries::PhysicsQueryCache2D>()),
@@ -31,7 +31,7 @@ namespace Ludus::Engine::Physics::Core
 			SubSteps(8)
 		{ }
 
-		PhysicsContext2D(
+		PhysicsConfiguration2D(
 			std::unique_ptr<Ludus::Engine::Physics::Broadphase::IBroadphase2D> broadphase,
 			std::unique_ptr<Ludus::Engine::Physics::Narrowphase::INarrowphase2D> narrowphase,
 			std::unique_ptr<Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D> queryCache,

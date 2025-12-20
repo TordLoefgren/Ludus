@@ -4,6 +4,12 @@
 #include <Ludus/Editor/Core/EditorConfiguration.h>
 #include <Ludus/Editor/Core/EditorSystem.h>
 #include <Ludus/Editor/Core/Scene.h>
+#include <Ludus/Engine/Core/Application.h>
+#include <Ludus/Engine/Core/ApplicationBuilder.h>
+#include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
+#include <Ludus/Engine/Graphics/RenderingOptions.h>
+#include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
+#include <Ludus/Engine/Platform/WindowOptions.h>
 #include <Ludus/UI/Systems/ImGuiModule.h>
 
 namespace Ludus::Editor::Core
@@ -29,14 +35,16 @@ namespace Ludus::Editor::Core
 	{
 		m_WindowOptions = Ludus::Engine::Platform::WindowOptions(1920, 1080, "Ludus Editor", true);
 		m_RenderingOptions = Ludus::Engine::Graphics::RenderingOptions(Ludus::Engine::Graphics::Colors::DarkGray);
-		m_PhysicsContext = Ludus::Engine::Physics::Core::PhysicsContext2D();
+		m_PhysicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D();
+		m_RenderingConfiguration = Ludus::Engine::Graphics::RenderingConfiguration2D();
 
 		Ludus::UI::Systems::RegisterImGui(m_ApplicationBuilder);
 
 		m_ApplicationBuilder
 			.WithWindowOptions(m_WindowOptions)
 			.WithRenderingOptions(m_RenderingOptions)
-			.WithPhysicsContext(std::move(m_PhysicsContext))
+			.WithPhysicsConfiguration(std::move(m_PhysicsConfiguration))
+			.WithRenderingConfiguration(std::move(m_RenderingConfiguration))
 			.UseDefaultPhysics2D()
 			.UseDefaultRendering2D();
 

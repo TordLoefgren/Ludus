@@ -3,7 +3,7 @@
 #include <Ludus/Engine/Core/ISystem.h>
 #include <Ludus/Engine/Physics/Broadphase/IBroadphase2D.h>
 #include <Ludus/Engine/Physics/Broadphase/NaiveBroadphase2D.h>
-#include <Ludus/Engine/Physics/Core/PhysicsContext2D.h>
+#include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
 #include <Ludus/Engine/Physics/Core/PhysicsPipeline2D.h>
 #include <Ludus/Engine/Physics/Core/PhysicsWorld2D.h>
 #include <Ludus/Engine/Physics/Narrowphase/INarrowphase2D.h>
@@ -22,16 +22,16 @@ namespace Ludus::Engine::Physics::Core
 		Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* m_Queries = nullptr;
 
 	public:
-		PhysicsSystem2D(PhysicsContext2D& context)
+		PhysicsSystem2D(PhysicsConfiguration2D& physicsConfiguration)
 			: m_PhysicsWorld(),
 			m_PhysicsPipeline(
-				*context.Broadphase,
-				*context.Narrowphase,
-				*context.ContactSolver,
-				*context.Integrator
+				*physicsConfiguration.Broadphase,
+				*physicsConfiguration.Narrowphase,
+				*physicsConfiguration.ContactSolver,
+				*physicsConfiguration.Integrator
 			),
-			m_Queries(context.QueryCache.get()),
-			m_SubSteps(context.SubSteps)
+			m_Queries(physicsConfiguration.QueryCache.get()),
+			m_SubSteps(physicsConfiguration.SubSteps)
 		{ }
 
 		void PullEntityComponents()

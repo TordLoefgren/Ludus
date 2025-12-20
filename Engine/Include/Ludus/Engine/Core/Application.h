@@ -17,8 +17,9 @@
 #include <Ludus/Engine/Events/EventHandler.h>
 #include <Ludus/Engine/Events/WindowEvents.h>
 #include <Ludus/Engine/Graphics/GLContext.h>
+#include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
-#include <Ludus/Engine/Physics/Core/PhysicsContext2D.h>
+#include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
 #include <Ludus/Engine/Platform/Input.h>
 #include <Ludus/Engine/Platform/Window.h>
 
@@ -27,14 +28,15 @@ namespace Ludus::Engine::Core
 	class Application : public Ludus::Engine::Events::Eventhandler
 	{
 	private:
+		std::unique_ptr<Ludus::Engine::Core::EntityComponentSystem> m_EntityComponentSystem;
 		std::unique_ptr<Ludus::Engine::Events::EventBus> m_EventBus;
 		std::unique_ptr<Ludus::Engine::Platform::Input> m_Input;
 		std::unique_ptr<Ludus::Engine::Platform::Window> m_Window;
 		std::unique_ptr<Ludus::Engine::Graphics::GLContext> m_GLContext;
-		std::unique_ptr<Ludus::Engine::Physics::Core::PhysicsContext2D> m_PhysicsContext;
+		std::unique_ptr<Ludus::Engine::Graphics::RenderingConfiguration2D> m_RenderingConfiguration;
+		std::unique_ptr<Ludus::Engine::Physics::Core::PhysicsConfiguration2D> m_PhysicsConfiguration;
 		std::unique_ptr<Ludus::Engine::Core::ResourceRegistry> m_Resources;
 		std::unique_ptr<Ludus::Engine::Core::RenderViewRegistry> m_RenderViewRegistry;
-		std::unique_ptr<Ludus::Engine::Core::EntityComponentSystem> m_EntityComponentSystem;
 		std::unique_ptr<Ludus::Engine::Core::Time> m_Time;
 		Ludus::Engine::Core::SystemContext m_SystemContext;
 		std::unique_ptr<Ludus::Engine::Core::Scheduler> m_Scheduler;
@@ -43,14 +45,16 @@ namespace Ludus::Engine::Core
 		Application(
 			Ludus::Engine::Platform::WindowOptions windowOptions = Ludus::Engine::Platform::WindowOptions(),
 			Ludus::Engine::Graphics::RenderingOptions renderingOptions = Ludus::Engine::Graphics::RenderingOptions(),
-			Ludus::Engine::Physics::Core::PhysicsContext2D physicsContext = Ludus::Engine::Physics::Core::PhysicsContext2D()
+			Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration = Ludus::Engine::Graphics::RenderingConfiguration2D(),
+			Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D()
 		);
 		~Application() = default;
 
 		static std::unique_ptr<Application> Create(
 			Ludus::Engine::Platform::WindowOptions windowOptions = Ludus::Engine::Platform::WindowOptions(),
 			Ludus::Engine::Graphics::RenderingOptions renderingOptions = Ludus::Engine::Graphics::RenderingOptions(),
-			Ludus::Engine::Physics::Core::PhysicsContext2D physicsContext = Ludus::Engine::Physics::Core::PhysicsContext2D()
+			Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration = Ludus::Engine::Graphics::RenderingConfiguration2D(),
+			Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D()
 		);
 
 		void AddSystem(SystemPhaseInfo info, std::unique_ptr<ISystem> system);
@@ -61,8 +65,11 @@ namespace Ludus::Engine::Core
 		SystemContext& GetSystemContext() { return m_SystemContext; }
 		const SystemContext& GetSystemContext() const { return m_SystemContext; }
 
-		Ludus::Engine::Physics::Core::PhysicsContext2D& GetPhysicsContext() { return *m_PhysicsContext; }
-		const Ludus::Engine::Physics::Core::PhysicsContext2D& GetPhysicsContext() const { return *m_PhysicsContext; }
+		Ludus::Engine::Physics::Core::PhysicsConfiguration2D& GetPhysicsConfiguration() { return *m_PhysicsConfiguration; }
+		const Ludus::Engine::Physics::Core::PhysicsConfiguration2D& GetPhysicsConfiguration() const { return *m_PhysicsConfiguration; }
+
+		Ludus::Engine::Graphics::RenderingConfiguration2D& GetRenderingConfiguration() { return *m_RenderingConfiguration; }
+		const Ludus::Engine::Graphics::RenderingConfiguration2D& GetRenderingConfiguration() const { return *m_RenderingConfiguration; }
 
 		void SubscribeToEvents();
 		virtual bool ProcessEvent(const Ludus::Engine::Events::Event& event) override;

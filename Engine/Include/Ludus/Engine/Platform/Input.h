@@ -61,6 +61,7 @@ namespace Ludus::Engine::Platform
 		bool GetMouseButtonUp(MouseButton mouseButton) { return m_JustReleasedMouseButtons.contains(mouseButton); }
 
 		const Ludus::Engine::Math::Vector2D GetMousePosition() { return { m_MouseXPosition, m_MouseYPosition }; }
+		const Ludus::Engine::Math::Vector2D GetMouseScrollOffset() { return { m_MouseScrollXOffset, m_MouseScrollYOffset }; }
 
 		virtual bool ProcessEvent(const Ludus::Engine::Events::Event& event) override;
 	};
