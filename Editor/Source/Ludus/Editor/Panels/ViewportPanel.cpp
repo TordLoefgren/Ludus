@@ -104,9 +104,5 @@ namespace Ludus::Editor::Panels
 
 			context.SystemContext.RenderViews.Register(renderView);
 		}
-		else
-		{
-			LUDUS_LOG_INFO("Viewport window body NOT executing");
-		}
 	}
 }

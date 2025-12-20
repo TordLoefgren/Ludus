@@ -54,9 +54,14 @@
     <ClInclude Include="Include\Ludus\Engine\Events\WindowEvents.h" />
     <ClInclude Include="Include\Ludus\Engine\Geometries\Queries.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\HorizontalTextAlignment.h" />
+    <ClInclude Include="Include\Ludus\Engine\Graphics\IRenderPass.h" />
+    <ClInclude Include="Include\Ludus\Engine\Graphics\RenderingConfiguration2D.h" />
+    <ClInclude Include="Include\Ludus\Engine\Graphics\RenderContext2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderingSystem2D.h" />
+    <ClInclude Include="Include\Ludus\Engine\Graphics\RenderPhaseOrder.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderTarget.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderView2D.h" />
+    <ClInclude Include="Include\Ludus\Engine\Graphics\SceneRenderPass.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\Shape.h" />
     <ClInclude Include="Include\Ludus\Engine\Components\Sprite2DComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Components\Text2DComponent.h" />
@@ -97,7 +102,7 @@
     <ClInclude Include="Include\Ludus\Engine\Physics\Core\BodyType.h" />
     <ClInclude Include="Include\Ludus\Engine\Components\Collider2DComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Core\Constants.h" />
-    <ClInclude Include="Include\Ludus\Engine\Physics\Core\PhysicsContext2D.h" />
+    <ClInclude Include="Include\Ludus\Engine\Physics\Core\PhysicsConfiguration2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Core\PhysicsPipeline2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Core\PhysicsSystem2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Core\PhysicsWorld2D.h" />
@@ -122,6 +127,7 @@
     <ClInclude Include="Include\Ludus\Engine\Core\ISystem.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Scheduler.h" />
     <ClInclude Include="Include\Ludus\Engine\Platform\WindowUserData.h" />
+    <ClInclude Include="Include\Ludus\Engine\Graphics\RenderingPipeline2D.h" />
     <ClInclude Include="Source\Ludus\Engine\pch.h" />
     <ClInclude Include="Vendors\glad\include\glad\glad.h" />
     <ClInclude Include="Vendors\glad\include\KHR\khrplatform.h" />
