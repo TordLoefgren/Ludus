@@ -4,7 +4,6 @@ description: Maintenance, cleanup, or non-functional changes.
 title: "[Chore]: "
 labels:
   - "Type: Chore"
-  - "Status: Planned"
 assignees:
   - TordLoefgren
 

@@ -4,7 +4,6 @@ description: Documentation-only change.
 title: "[Docs]: "
 labels:
   - "Type: Docs"
-  - "Status: Planned"
 assignees:
   - TordLoefgren
 
