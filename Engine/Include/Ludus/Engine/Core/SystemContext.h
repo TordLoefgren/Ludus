@@ -3,6 +3,7 @@
 #include <Ludus/Engine/Core/EntityComponentSystem.h>
 #include <Ludus/Engine/Core/RenderViewRegistry.h>             
 #include <Ludus/Engine/Core/ResourceRegistry.h>             
+#include <Ludus/Engine/Core/SceneManager.h>             
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Events/EventBus.h>
 #include <Ludus/Engine/Graphics/RenderTarget.h>             
@@ -19,6 +20,7 @@ namespace Ludus::Engine::Core
 		Ludus::Engine::Platform::Input& Input;
 		Ludus::Engine::Core::ResourceRegistry& Resources;
 		Ludus::Engine::Core::RenderViewRegistry& RenderViews;
+		Ludus::Engine::Core::SceneManager& SceneManager;
 		Ludus::Engine::Platform::Window& Window;
 
 		std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> WindowRenderTarget = nullptr;
@@ -30,10 +32,19 @@ namespace Ludus::Engine::Core
 			Ludus::Engine::Platform::Input& input,
 			Ludus::Engine::Core::ResourceRegistry& resources,
 			Ludus::Engine::Core::RenderViewRegistry& renderViews,
+			Ludus::Engine::Core::SceneManager& SceneManager,
 			Ludus::Engine::Platform::Window& window,
 			std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> windowRenderTarget = nullptr,
 			Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* queries = nullptr
-		) : EntityComponentSystem(ecs), EventBus(events), Input(input), Window(window), Resources(resources), RenderViews(renderViews), PhysicsQueries(queries), WindowRenderTarget(windowRenderTarget)
+		) : EntityComponentSystem(ecs),
+			EventBus(events),
+			Input(input),
+			Window(window),
+			Resources(resources),
+			RenderViews(renderViews),
+			SceneManager(SceneManager),
+			PhysicsQueries(queries),
+			WindowRenderTarget(windowRenderTarget)
 		{ }
 
 		bool HasPhysics() const

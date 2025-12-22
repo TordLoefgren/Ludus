@@ -7,6 +7,7 @@
 #include <Ludus/Engine/Core/ISystem.h>
 #include <Ludus/Engine/Core/RenderViewRegistry.h>
 #include <Ludus/Engine/Core/ResourceRegistry.h>
+#include <Ludus/Engine/Core/SceneManager.h>
 #include <Ludus/Engine/Core/Scheduler.h>
 #include <Ludus/Engine/Core/SystemContext.h>
 #include <Ludus/Engine/Core/SystemPhase.h>
@@ -37,6 +38,7 @@ namespace Ludus::Engine::Core
 		std::unique_ptr<Ludus::Engine::Physics::Core::PhysicsConfiguration2D> m_PhysicsConfiguration;
 		std::unique_ptr<Ludus::Engine::Core::ResourceRegistry> m_Resources;
 		std::unique_ptr<Ludus::Engine::Core::RenderViewRegistry> m_RenderViewRegistry;
+		std::unique_ptr<Ludus::Engine::Core::SceneManager> m_SceneManager;
 		std::unique_ptr<Ludus::Engine::Core::Time> m_Time;
 		Ludus::Engine::Core::SystemContext m_SystemContext;
 		std::unique_ptr<Ludus::Engine::Core::Scheduler> m_Scheduler;
