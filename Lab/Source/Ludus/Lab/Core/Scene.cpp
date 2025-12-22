@@ -20,7 +20,7 @@ namespace Ludus::Lab::Core
 			return;
 		}
 
-		auto [framebufferWidth, framebufferHeight] = m_SystemContext->Window.GetFramebufferSize();
+		const auto [framebufferWidth, framebufferHeight] = m_SystemContext->Window.GetFramebufferSize();
 		cameraComponentPtr->SetWorldFromViewport(static_cast<float>(framebufferWidth), static_cast<float>(framebufferHeight));
 
 		m_World.HalfWidth = cameraComponentPtr->HalfWorldWidth();
@@ -146,7 +146,7 @@ namespace Ludus::Lab::Core
 			return;
 		}
 
-		auto [framebufferWidth, framebufferHeight] = m_SystemContext->Window.GetFramebufferSize();
+		const auto [framebufferWidth, framebufferHeight] = m_SystemContext->Window.GetFramebufferSize();
 
 		Ludus::Engine::Graphics::Camera2D camera;
 		camera.SetViewport(framebufferWidth, framebufferHeight);
