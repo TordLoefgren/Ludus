@@ -15,14 +15,16 @@ namespace Ludus::Engine::Components
 	public:
 		Ludus::Engine::Core::EntityHandle OwnerHandle;
 		float OrthographicSize;
-
+		int Priority;
 
 		Camera2DComponent(
 			Ludus::Engine::Core::EntityHandle owner,
-			float OrthographicSize = 10.0f
+			float OrthographicSize = 10.0f,
+			int priority = -1
 		) :
 			OwnerHandle(owner),
-			OrthographicSize(OrthographicSize)
+			OrthographicSize(OrthographicSize),
+			Priority(priority)
 		{ }
 
 		~Camera2DComponent() = default;
