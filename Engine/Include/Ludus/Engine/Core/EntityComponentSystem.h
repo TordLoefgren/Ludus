@@ -48,10 +48,11 @@ namespace Ludus::Engine::Core
 
 		void AttachCamera(
 			EntityHandle handle,
-			float orthographicSize = 10.0f
+			float orthographicSize = 10.0f,
+			int priority = -1
 		)
 		{
-			Cameras.Add(handle, orthographicSize);
+			Cameras.Add(handle, orthographicSize, priority);
 		}
 
 		void AttachCollider(

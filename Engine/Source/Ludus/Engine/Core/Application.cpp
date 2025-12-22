@@ -4,7 +4,26 @@
 #include <memory>
 
 #include <Ludus/Engine/Core/Application.h>
+#include <Ludus/Engine/Core/EntityComponentSystem.h>
+#include <Ludus/Engine/Core/ISystem.h>
+#include <Ludus/Engine/Core/RenderViewRegistry.h>
+#include <Ludus/Engine/Core/ResourceRegistry.h>
+#include <Ludus/Engine/Core/SceneManager.h>
+#include <Ludus/Engine/Core/Scheduler.h>
+#include <Ludus/Engine/Core/SystemContext.h>
+#include <Ludus/Engine/Core/SystemPhase.h>
+#include <Ludus/Engine/Core/SystemPhaseInfo.h>
+#include <Ludus/Engine/Core/Time.h>
+#include <Ludus/Engine/Events/Event.h>
+#include <Ludus/Engine/Events/EventBus.h>
+#include <Ludus/Engine/Events/EventHandler.h>
+#include <Ludus/Engine/Events/WindowEvents.h>
+#include <Ludus/Engine/Graphics/GLContext.h>
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
+#include <Ludus/Engine/Graphics/RenderingOptions.h>
+#include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
+#include <Ludus/Engine/Platform/Input.h>
+#include <Ludus/Engine/Platform/Window.h>
 
 namespace Ludus::Engine::Core
 {
@@ -22,6 +41,7 @@ namespace Ludus::Engine::Core
 		m_PhysicsConfiguration(std::make_unique<Ludus::Engine::Physics::Core::PhysicsConfiguration2D>(std::move(physicsConfiguration))),
 		m_Resources(std::make_unique<Ludus::Engine::Core::ResourceRegistry>()),
 		m_RenderViewRegistry(std::make_unique<Ludus::Engine::Core::RenderViewRegistry>()),
+		m_SceneManager(std::make_unique<Ludus::Engine::Core::SceneManager>()),
 		m_Time(std::make_unique<Ludus::Engine::Core::Time>()),
 		m_SystemContext(
 			*m_EntityComponentSystem,
@@ -29,6 +49,7 @@ namespace Ludus::Engine::Core
 			*m_Input,
 			*m_Resources,
 			*m_RenderViewRegistry,
+			*m_SceneManager,
 			*m_Window,
 			std::make_shared<Ludus::Engine::Graphics::RenderTarget>(windowOptions.Width, windowOptions.Height),
 			m_PhysicsConfiguration ? m_PhysicsConfiguration->QueryCache.get() : nullptr
