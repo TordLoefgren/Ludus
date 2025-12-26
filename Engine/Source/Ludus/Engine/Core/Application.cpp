@@ -101,15 +101,16 @@ namespace Ludus::Engine::Core
 	{
 		while (!m_Window->WindowShouldClose())
 		{
-			m_Time->Step();
-			m_Input->Clear();
+			const auto simulationEnabled = m_SystemContext.ExecutionFlags.HasAny(Ludus::Engine::Core::ExecutionFlags::SimulationEnabled);
+			m_Time->Step(simulationEnabled);
 
+			m_Input->Clear();
 			m_RenderViewRequestRegistry->Clear();
 			m_RenderViewRegistry->Clear();
 
 			m_Window->PollEvents();
 
-			while (m_Time->ConsumeFixed())
+			while (simulationEnabled && m_Time->ConsumeFixed())
 			{
 				m_Scheduler->Run(SystemPhase::FixedUpdate, m_Time->GetFixed());
 			}

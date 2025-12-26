@@ -10,4 +10,9 @@ namespace Ludus::UI::Context::LayoutContext
 	{
 		ImGui::SameLine(offsetFromStart, spacing);
 	}
+
+	void SetNextItemWidth(float width)
+	{
+		ImGui::SetNextItemWidth(width);
+	}
 }

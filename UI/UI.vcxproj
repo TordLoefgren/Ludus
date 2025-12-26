@@ -19,8 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\UI\Backend\Fonts.h" />
     <ClInclude Include="Include\Ludus\UI\Context\ImageContext.h" />
     <ClInclude Include="Include\Ludus\UI\Context\SelectionContext.h" />
+    <ClInclude Include="Include\Ludus\UI\Icons\FontAwesome.h" />
     <ClInclude Include="Include\Ludus\UI\Labels.h" />
     <ClInclude Include="Include\Ludus\UI\Scope\ComboScope.h" />
     <ClInclude Include="Include\Ludus\UI\Systems\ImGuiModule.h" />
@@ -68,6 +70,7 @@
     <ClInclude Include="Include\Ludus\UI\Context\ViewportContext.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Ludus\UI\Backend\Fonts.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\MenuBarScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Context\LayoutContext.cpp" />
     <ClCompile Include="Source\Ludus\UI\Context\DockingContext.cpp" />
@@ -139,6 +142,10 @@
     <ClCompile Include="Source\Ludus\UI\Context\ViewportContext.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Include\Ludus\UI\Icons\font-awesome-style.css">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </None>
     <None Include="Vendors\imgui\.editorconfig" />
     <None Include="Vendors\imgui\.gitattributes" />
     <None Include="Vendors\imgui\.gitignore" />
@@ -150,6 +157,10 @@
     <ProjectReference Include="..\Engine\Engine.vcxproj">
       <Project>{e5222f19-54e2-431b-b8a5-67dc31e554e1}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Resources\Fonts\ARIAL.TTF" />
+    <Font Include="Resources\Fonts\FONT_AWESOME.TFF" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
