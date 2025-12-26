@@ -2,7 +2,9 @@
 
 #include <Ludus/Engine/Core/ApplicationBuilder.h>
 #include <Ludus/Engine/Core/State.h>
+#include <Ludus/Engine/Core/SystemConstraints.h>
 #include <Ludus/Engine/Core/SystemPhase.h>
+#include <Ludus/Engine/Core/SystemPhaseOrder.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
 #include <Ludus/Engine/Platform/Window.h>
@@ -35,6 +37,8 @@ int main()
 		.AddSystem<Ludus::Pong::Systems::MainMenuSystem>(
 			{
 				Ludus::Engine::Core::SystemPhase::Update,
+				Ludus::Engine::Core::SystemPhaseOrder::Normal,
+				Ludus::Engine::Core::SystemConstraints::Create(),
 				Ludus::Engine::Core::RunIfInState<Ludus::Pong::Core::GameState>(Ludus::Pong::Core::GameState::MainMenu)
 			},
 			gameInfo, pongInfo
@@ -42,6 +46,8 @@ int main()
 		.AddSystem<Ludus::Pong::Systems::PauseMenuSystem>(
 			{
 				Ludus::Engine::Core::SystemPhase::Update,
+				Ludus::Engine::Core::SystemPhaseOrder::Normal,
+				Ludus::Engine::Core::SystemConstraints::Create(),
 				Ludus::Engine::Core::RunIfInState<Ludus::Pong::Core::GameState>(Ludus::Pong::Core::GameState::PauseMenu)
 			},
 			gameInfo, pongInfo
@@ -49,6 +55,8 @@ int main()
 		.AddSystem<Ludus::Pong::Systems::PlayingSystem>(
 			{
 				Ludus::Engine::Core::SystemPhase::Update,
+				Ludus::Engine::Core::SystemPhaseOrder::Normal,
+				Ludus::Engine::Core::SystemConstraints::Create(),
 				Ludus::Engine::Core::RunIfInState<Ludus::Pong::Core::GameState>(Ludus::Pong::Core::GameState::Playing)
 			},
 			gameInfo, pongInfo
@@ -56,6 +64,8 @@ int main()
 		.AddSystem<Ludus::Pong::Systems::ScoreMenuSystem>(
 			{
 				Ludus::Engine::Core::SystemPhase::Update,
+				Ludus::Engine::Core::SystemPhaseOrder::Normal,
+				Ludus::Engine::Core::SystemConstraints::Create(),
 				Ludus::Engine::Core::RunIfInState<Ludus::Pong::Core::GameState>(Ludus::Pong::Core::GameState::ScoreMenu)
 			},
 			gameInfo, pongInfo
