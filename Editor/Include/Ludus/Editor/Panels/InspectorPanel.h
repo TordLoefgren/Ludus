@@ -8,6 +8,8 @@ namespace Ludus::Editor::Panels
 	class InspectorPanel final : public Ludus::Editor::Panels::IPanel
 	{
 	public:
-		virtual void UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
+		virtual bool* GetOpenFlag(Ludus::Editor::Panels::PanelContext& context) override { return &context.ActivePanelState.ShowInspectorPanel; }
+
+		virtual bool UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
 	};
 }

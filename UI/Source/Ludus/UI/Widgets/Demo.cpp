@@ -4,5 +4,5 @@
 
 namespace Ludus::UI::Widgets
 {
-	void ShowDemoWindow() { ImGui::ShowDemoWindow(); }
+	void ShowDemoWindow(bool* open) { ImGui::ShowDemoWindow(open); }
 }

@@ -26,6 +26,8 @@ namespace Ludus::Editor::Panels
 		std::vector<AggregateText> m_AggregateText;
 		std::unordered_map<std::string, size_t> m_TextToIndex;
 
-		virtual void UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
+		virtual bool* GetOpenFlag(Ludus::Editor::Panels::PanelContext& context) override { return &context.ActivePanelState.ShowConsolePanel; }
+
+		virtual bool UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
 	};
 }
