@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Ludus/Engine/Core/EntityComponentSystem.h>
+#include <Ludus/Engine/Core/FlagSet.h>             
 #include <Ludus/Engine/Core/RenderViewRegistry.h>             
 #include <Ludus/Engine/Core/ResourceRegistry.h>             
 #include <Ludus/Engine/Core/SceneManager.h>             
@@ -17,6 +18,7 @@ namespace Ludus::Engine::Core
 	{
 		Ludus::Engine::Core::EntityComponentSystem& EntityComponentSystem;
 		Ludus::Engine::Events::EventBus& EventBus;
+		Ludus::Engine::Core::FlagSet& ExecutionFlags;
 		Ludus::Engine::Platform::Input& Input;
 		Ludus::Engine::Core::ResourceRegistry& Resources;
 		Ludus::Engine::Core::RenderViewRegistry& RenderViews;
@@ -29,6 +31,7 @@ namespace Ludus::Engine::Core
 		SystemContext(
 			Ludus::Engine::Core::EntityComponentSystem& ecs,
 			Ludus::Engine::Events::EventBus& events,
+			Ludus::Engine::Core::FlagSet& executionFlags,
 			Ludus::Engine::Platform::Input& input,
 			Ludus::Engine::Core::ResourceRegistry& resources,
 			Ludus::Engine::Core::RenderViewRegistry& renderViews,
@@ -38,6 +41,7 @@ namespace Ludus::Engine::Core
 			Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* queries = nullptr
 		) : EntityComponentSystem(ecs),
 			EventBus(events),
+			ExecutionFlags(executionFlags),
 			Input(input),
 			Window(window),
 			Resources(resources),

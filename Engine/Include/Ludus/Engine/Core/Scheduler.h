@@ -8,8 +8,8 @@
 
 #include <Ludus/Engine/Core/ISystem.h>
 #include <Ludus/Engine/Core/ScheduledSystem.h>
+#include <Ludus/Engine/Core/SystemDescriptor.h>
 #include <Ludus/Engine/Core/SystemPhase.h>
-#include <Ludus/Engine/Core/SystemPhaseInfo.h>
 #include <Ludus/Engine/Core/SystemPredicate.h>
 
 namespace Ludus::Engine::Core
@@ -18,7 +18,7 @@ namespace Ludus::Engine::Core
 	{
 		SystemContext& m_SystemContext;
 
-		explicit Scheduler(SystemContext& context) : m_SystemContext(context) { }
+		explicit Scheduler(SystemContext& context) : m_SystemContext(context) {}
 
 	private:
 		std::vector<std::unique_ptr<ISystem>> m_Systems;
@@ -39,23 +39,23 @@ namespace Ludus::Engine::Core
 
 	public:
 
-		void AttachSystem(SystemPhaseInfo info, std::unique_ptr<ISystem> system)
+		void AttachSystem(SystemDescriptor descriptor, std::unique_ptr<ISystem> system)
 		{
 			auto* system_ptr = system.get();
 			m_Systems.push_back(std::move(system));
 
-			m_SystemsByPhase[info.Phase].push_back({ system_ptr, info.Predicate, info.Order });
-			SortPhase(info.Phase);
+			m_SystemsByPhase[descriptor.Phase].push_back({ system_ptr, descriptor.Order, descriptor.Constraints, descriptor.Predicate });
+			SortPhase(descriptor.Phase);
 		}
 
-		void AttachSystem(std::initializer_list<SystemPhaseInfo> info, std::unique_ptr<ISystem> system)
+		void AttachSystem(std::initializer_list<SystemDescriptor> descriptors, std::unique_ptr<ISystem> system)
 		{
 			auto* system_ptr = system.get();
 			m_Systems.push_back(std::move(system));
 
-			for (auto [phase, predicate, order] : info)
+			for (auto [phase, order, constraints, predicate] : descriptors)
 			{
-				m_SystemsByPhase[phase].push_back({ system_ptr, predicate, order });
+				m_SystemsByPhase[phase].push_back({ system_ptr, order, constraints, predicate });
 				SortPhase(phase);
 			}
 		}
@@ -109,19 +109,37 @@ namespace Ludus::Engine::Core
 						continue;
 					}
 
+					const auto& executionFlags = m_SystemContext.ExecutionFlags;
+					const auto& constraints = entry.Constraints;
+
+					if (executionFlags.HasAny(constraints.ForbidAny))
+					{
+						continue;
+					}
+
+					if (!executionFlags.HasAll(constraints.RequireAll))
+					{
+						continue;
+					}
+
+					if (constraints.RequireAny != 0 && !executionFlags.HasAny(constraints.RequireAny))
+					{
+						continue;
+					}
+
 					switch (phase)
 					{
-						case SystemPhase::FixedUpdate:
-							entry.System->FixedUpdate(time);
-							break;
-						case SystemPhase::Update:
-							entry.System->Update(time);
-							break;
-						case SystemPhase::Render:
-							entry.System->Render();
-							break;
-						default:
-							break;
+					case SystemPhase::FixedUpdate:
+						entry.System->FixedUpdate(time);
+						break;
+					case SystemPhase::Update:
+						entry.System->Update(time);
+						break;
+					case SystemPhase::Render:
+						entry.System->Render();
+						break;
+					default:
+						break;
 					}
 				}
 			}

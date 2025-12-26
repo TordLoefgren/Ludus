@@ -1,14 +1,16 @@
 #pragma once
 
+#include <Ludus/Engine/Core/SystemConstraints.h>
 #include <Ludus/Engine/Core/SystemPhase.h>
 #include <Ludus/Engine/Core/SystemPhaseOrder.h>
 
 namespace Ludus::Engine::Core
 {
-	struct SystemPhaseInfo
+	struct SystemDescriptor
 	{
 		SystemPhase Phase;
-		SystemPredicate Predicate = nullptr;
 		SystemPhaseOrder Order = SystemPhaseOrder::Normal;
+		SystemConstraints Constraints{ };
+		SystemPredicate Predicate = nullptr;
 	};
 }

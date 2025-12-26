@@ -5,8 +5,9 @@
 #include <vector>
 
 #include <Ludus/Engine/Core/Application.h>
+#include <Ludus/Engine/Core/ApplicationOptions.h>
+#include <Ludus/Engine/Core/SystemDescriptor.h>
 #include <Ludus/Engine/Core/SystemPhase.h>
-#include <Ludus/Engine/Core/SystemPhaseInfo.h>
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
 #include <Ludus/Engine/Graphics/RenderingSystem2D.h>
@@ -21,10 +22,11 @@ namespace Ludus::Engine::Core
 	class ApplicationBuilder
 	{
 	private:
-		Ludus::Engine::Platform::WindowOptions m_WindowOptions;
+		Ludus::Engine::Core::ApplicationOptions m_ApplicationOptions;
 		Ludus::Engine::Graphics::RenderingOptions m_RenderingOptions;
 		Ludus::Engine::Graphics::RenderingConfiguration2D m_RenderingConfiguration;
 		Ludus::Engine::Physics::Core::PhysicsConfiguration2D m_PhysicsConfiguration;
+		Ludus::Engine::Platform::WindowOptions m_WindowOptions;
 
 		std::vector<BuilderCommand> m_BuilderCommands;
 
@@ -36,10 +38,11 @@ namespace Ludus::Engine::Core
 
 		std::unique_ptr<Ludus::Engine::Core::Application> Build();
 
-		ApplicationBuilder& WithWindowOptions(Ludus::Engine::Platform::WindowOptions windowOptions);
-		ApplicationBuilder& WithRenderingOptions(Ludus::Engine::Graphics::RenderingOptions renderingOptions);
+		ApplicationBuilder& WithApplicationOptions(Ludus::Engine::Core::ApplicationOptions applicationOptions);
 		ApplicationBuilder& WithRenderingConfiguration(Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration);
+		ApplicationBuilder& WithRenderingOptions(Ludus::Engine::Graphics::RenderingOptions renderingOptions);
 		ApplicationBuilder& WithPhysicsConfiguration(Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration);
+		ApplicationBuilder& WithWindowOptions(Ludus::Engine::Platform::WindowOptions windowOptions);
 
 		ApplicationBuilder& UseDefaultRendering2D();
 		ApplicationBuilder& UseDefaultPhysics2D();
@@ -49,12 +52,12 @@ namespace Ludus::Engine::Core
 #pragma region Templates
 
 		template<typename TSystem, typename... TArgs>
-		ApplicationBuilder& AddSystem(Ludus::Engine::Core::SystemPhaseInfo info, TArgs... args)
+		ApplicationBuilder& AddSystem(Ludus::Engine::Core::SystemDescriptor descriptor, TArgs... args)
 		{
 			m_BuilderCommands.emplace_back(
 				[=](Ludus::Engine::Core::Application& application)
 				{
-					application.AddSystem<TSystem>(info, args...);
+					application.AddSystem<TSystem>(descriptor, args...);
 				}
 			);
 

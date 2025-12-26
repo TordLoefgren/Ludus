@@ -27,7 +27,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Ludus\Engine\Core\ApplicationBuilder.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\ApplicationOptions.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\ExecutionFlags.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\FlagSet.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\Mask.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\RenderViewRegistry.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\Scene.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\SceneManager.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\SystemConstraints.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\SystemDescriptor.h" />
     <ClInclude Include="Include\Ludus\Engine\Debug\Debug.h" />
     <ClInclude Include="Include\Ludus\Engine\Components\Camera2DComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\FrameBufferObject.h" />
