@@ -10,6 +10,7 @@
 #include <Ludus/UI/Labels.h>
 #include <Ludus/UI/Scope/MenuScope.h>
 #include <Ludus/UI/Scope/PopupScope.h>
+#include <Ludus/UI/Scope/TreeNodeScope.h>
 #include <Ludus/UI/Scope/WindowScope.h>
 #include <Ludus/UI/Widgets/Menu.h>
 #include <Ludus/UI/Widgets/Selection.h>
@@ -21,88 +22,157 @@ namespace Ludus::Editor::Panels
 		auto windowTitle = CreateWindowTitle("Hierarchy");
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
 		{
-			auto& ecs = context.SystemContext.EntityComponentSystem;
-			const auto entities = ecs.View();
+			auto& selection = context.EditorContext.State.Selection;
 
-			static auto selectedIndex = -1;
-			for (int i = 0; i < static_cast<int>(entities.size()); i++)
+			for (auto& scene : context.SystemContext.SceneManager.ViewMutable())
 			{
-				const auto handle = entities[i].Handle;
+				const auto sceneHandle = scene.Handle;
+				const auto sceneLabel = Ludus::UI::CreateLabel(std::format("Scene {}", sceneHandle), sceneHandle);
 
-				const auto label = Ludus::UI::CreateLabel(std::format("Entity {}", handle), handle);
-
-				if (Ludus::UI::Widgets::Selectable(label.c_str(), selectedIndex == i))
+				if (Ludus::UI::Scope::TreeNodeScope treeNode(sceneLabel.c_str()); treeNode)
 				{
-					selectedIndex = i;
-				}
+					auto& ecs = scene.EntityComponentSystem;
+					const auto& entities = ecs.View();
 
-				if (Ludus::UI::Scope::PopupContextItemScope contextItem; contextItem)
-				{
-					if (Ludus::UI::Widgets::MenuItem("Select"))
+					if (Ludus::UI::Scope::PopupContextItemScope scenePopup; scenePopup)
 					{
-						selectedIndex = i;
+						if (Ludus::UI::Widgets::MenuItem("Create empty"))
+						{
+							auto handle = ecs.AddEntity();
+							ecs.AttachTransform(handle);
+
+							selection.SelectEntity(handle, sceneHandle);
+						}
+
+						auto hasSprite = false;
+
+						if (Ludus::UI::Scope::MenuScope menu("2D Sprite"); menu)
+						{
+							Ludus::Engine::Graphics::Shape shape;
+							std::string displayName;
+
+							if (Ludus::UI::Widgets::MenuItem("Quad"))
+							{
+								shape = Ludus::Engine::Graphics::Shape::Quad;
+								displayName = "Quad";
+								hasSprite = true;
+							}
+
+							if (Ludus::UI::Widgets::MenuItem("Circle"))
+							{
+								shape = Ludus::Engine::Graphics::Shape::Circle;
+								displayName = "Circle";
+								hasSprite = true;
+							}
+
+							if (hasSprite)
+							{
+								auto handle = ecs.AddEntity();
+								ecs.AttachTransform(handle);
+								ecs.AttachSprite(handle, shape);
+
+								selection.SelectEntity(handle, sceneHandle);
+							}
+						}
+
+						if (Ludus::UI::Widgets::MenuItem("Set active scene"))
+						{
+							context.SystemContext.SceneManager.SetActiveScene(sceneHandle);
+							selection.SelectScene(sceneHandle);
+						}
+
+						if (Ludus::UI::Widgets::MenuItem("Remove scene"))
+						{
+							context.SystemContext.SceneManager.RemoveScene(sceneHandle);
+							selection.DeselectAll();
+						}
 					}
 
-					if (Ludus::UI::Widgets::MenuItem("Remove"))
+					for (auto& entity : entities)
 					{
-						ecs.DestroyEntity(handle);
-						if (selectedIndex == i)
+						const auto entityHandle = entity.Handle;
+						const auto entityLabel = Ludus::UI::CreateLabel(std::format("Entity {}", entityHandle), entityHandle);
+
+						if (Ludus::UI::Widgets::Selectable(entityLabel.c_str(), selection.IsSelected(entityHandle, sceneHandle)))
 						{
-							selectedIndex = -1;
+							selection.SelectEntity(entityHandle, sceneHandle);
+						}
+
+						if (Ludus::UI::Scope::PopupContextItemScope contextItem; contextItem)
+						{
+							if (Ludus::UI::Widgets::MenuItem("Select"))
+							{
+								selection.SelectEntity(entityHandle, sceneHandle);
+							}
+
+							if (Ludus::UI::Widgets::MenuItem("Remove"))
+							{
+								ecs.DestroyEntity(entityHandle);
+								if (selection.IsSelected(entityHandle, sceneHandle))
+								{
+									selection.DeselectAll();
+								}
+							}
+
+							if (Ludus::UI::Scope::MenuScope componentMenu("Add Component"); componentMenu)
+							{
+								auto isComponentAdded = false;
+
+								if (!ecs.Cameras.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Camera 2D"))
+								{
+									ecs.AttachCamera(entityHandle);
+									isComponentAdded = true;
+								}
+
+								if (!ecs.Colliders.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Collider 2D"))
+								{
+									ecs.AttachCollider(entityHandle);
+									isComponentAdded = true;
+								}
+
+								if (!ecs.RigidBodies.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Rigid Body 2D"))
+								{
+									ecs.AttachRigidBody(entityHandle);
+									isComponentAdded = true;
+								}
+
+								if (!ecs.Sprites.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Sprite 2D"))
+								{
+									ecs.AttachSprite(entityHandle);
+									isComponentAdded = true;
+								}
+
+								if (!ecs.Texts.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Text 2D"))
+								{
+									ecs.AttachText(entityHandle, "");
+									isComponentAdded = true;
+								}
+
+								if (isComponentAdded)
+								{
+									selection.SelectEntity(entityHandle, sceneHandle);
+								}
+							}
 						}
 					}
 				}
 			}
 
-			context.EditorContext.State.SelectedEntity = selectedIndex < 0 ? -1 : entities[selectedIndex].Handle;
-
 			auto flags = Ludus::UI::Flags::Popup::MouseButtonRight | Ludus::UI::Flags::Popup::NoOpenOverItems;
 			if (Ludus::UI::Scope::PopupContextWindowScope contextWindow("HierarchyWindowContext", flags); contextWindow)
 			{
-				if (Ludus::UI::Widgets::MenuItem("Create empty"))
+				if (Ludus::UI::Widgets::MenuItem("Create scene"))
 				{
-					auto handle = ecs.AddEntity();
-					ecs.AttachTransform(handle);
-
-					context.EditorContext.State.SelectedEntity = handle;
-					selectedIndex = static_cast<int>(ecs.IndexOf(handle));
-				}
-
-				auto hasSprite = false;
-
-				if (Ludus::UI::Scope::MenuScope menu("2D Sprite"); menu)
-				{
-					Ludus::Engine::Graphics::Shape shape;
-
-					if (Ludus::UI::Widgets::MenuItem("Quad"))
-					{
-						shape = Ludus::Engine::Graphics::Shape::Rect;
-						hasSprite = true;
-					}
-
-					if (Ludus::UI::Widgets::MenuItem("Circle"))
-					{
-						shape = Ludus::Engine::Graphics::Shape::Circle;
-						hasSprite = true;
-					}
-
-					if (hasSprite)
-					{
-						auto handle = ecs.AddEntity();
-						ecs.AttachTransform(handle);
-						ecs.AttachSprite(handle, shape);
-
-						context.EditorContext.State.SelectedEntity = handle;
-						selectedIndex = static_cast<int>(ecs.IndexOf(handle));
-					}
+					auto sceneHandle = context.SystemContext.SceneManager.AddScene();
+					selection.SelectScene(sceneHandle);
 				}
 			}
 
 			if (Ludus::UI::Context::InputContext::IsMouseClicked(Ludus::Engine::Platform::MouseButton::Left) &&
-				Ludus::UI::Context::InputContext::IsWindowHovered(Ludus::UI::Flags::Hovered::AllowWhenBlockedByActiveItem)
-				&& !Ludus::UI::Context::InputContext::IsAnyItemHovered())
+				Ludus::UI::Context::InputContext::IsWindowHovered(Ludus::UI::Flags::Hovered::AllowWhenBlockedByActiveItem) &&
+				!Ludus::UI::Context::InputContext::IsAnyItemHovered())
 			{
-				selectedIndex = -1;
+				selection.DeselectAll();
 			}
 		}
 	}

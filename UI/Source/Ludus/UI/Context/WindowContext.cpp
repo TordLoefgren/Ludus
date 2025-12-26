@@ -20,6 +20,21 @@ namespace Ludus::UI::Context::WindowContext
 		ImGui::SetNextWindowViewport(viewportId);
 	}
 
+	void SetCursorPosition(Ludus::Engine::Math::Vector2D position)
+	{
+		ImGui::SetCursorPos({ position.X, position.Y });
+	}
+
+	void SetCursorPositionX(float x)
+	{
+		ImGui::SetCursorPosX(x);
+	}
+
+	void SetCursorPositionY(float y)
+	{
+		ImGui::SetCursorPosX(y);
+	}
+
 	Ludus::Engine::Math::Vector2D GetCursorPosition()
 	{
 		const auto cursorPosition = ImGui::GetCursorPos();
@@ -32,8 +47,15 @@ namespace Ludus::UI::Context::WindowContext
 		return { availableSpace.x, availableSpace.y };
 	}
 
-	void SetCursorPosition(Ludus::Engine::Math::Vector2D position)
+	Ludus::Engine::Math::Vector2D GetWindowContentRegionMin()
 	{
-		ImGui::SetCursorPos({ position.X, position.Y });
+		const auto contentRegionMin = ImGui::GetWindowContentRegionMin();
+		return { contentRegionMin.x, contentRegionMin.y };
+	}
+
+	Ludus::Engine::Math::Vector2D GetWindowContentRegionMax()
+	{
+		const auto contentRegionMax = ImGui::GetWindowContentRegionMax();
+		return { contentRegionMax.x, contentRegionMax.y };
 	}
 }

@@ -1,8 +1,10 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <string>
 
+#include <Ludus/Editor/Core/ViewportDisplayMode.h>
 #include <Ludus/Editor/Panels/IPanel.h>
 #include <Ludus/Editor/Panels/PanelContext.h>
 #include <Ludus/Engine/Graphics/Camera2D.h>
@@ -15,16 +17,28 @@ namespace Ludus::Editor::Panels
 	class ViewportPanel final : public Ludus::Editor::Panels::IPanel
 	{
 	private:
+		const float m_ZoomFactor = 0.1f;
+		const float m_MinZoom = 0.1f;
+		const float m_MaxZoom = 500.0f;
+
 		std::string m_Title;
-		std::shared_ptr<Ludus::Engine::Graphics::Camera2D> m_Camera;
+		Ludus::Engine::Graphics::Camera2D m_Camera;
 		std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> m_Target;
 		Ludus::Engine::Math::Size<int> m_PreviousTargetSize;
+
+		Ludus::Editor::Core::ViewportDisplayMode m_DisplayMode = Ludus::Editor::Core::ViewportDisplayMode::Editor;
+		std::optional<Ludus::Engine::Core::SceneHandle> m_SelectedSceneHandle = std::nullopt;
+
+		bool m_IsCameraPanning = false;
+		bool m_FollowActiveScene = true;
 
 		Ludus::Engine::Math::Vector2D GetViewportAspectSize(Ludus::Engine::Math::Size<int> framebufferSize);
 		Ludus::Engine::Math::Vector2D GetViewportAspectOffset(Ludus::Engine::Math::Vector2D aspectSize);
 
+		void HandleInput(Ludus::Editor::Panels::PanelContext& context);
+
 	public:
-		ViewportPanel(std::string title = "Viewport", std::shared_ptr<Ludus::Engine::Graphics::Camera2D> camera = nullptr);
+		ViewportPanel(std::string title = "Viewport");
 
 		virtual void UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
 	};

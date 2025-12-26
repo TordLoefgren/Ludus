@@ -12,7 +12,9 @@ namespace Ludus::UI::Context::InputContext
 	bool WantCaptureMouse();
 	bool WantCaptureKeyboard();
 
+	bool IsAnyItemActive();
+	bool IsAnyItemHovered();
+	bool IsItemHovered();
 	bool IsMouseClicked(Ludus::Engine::Platform::MouseButton mouseButton);
 	bool IsWindowHovered(Ludus::UI::Flags::Hovered flags = Ludus::UI::Flags::Hovered::None);
-	bool IsAnyItemHovered();
 }

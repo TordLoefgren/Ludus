@@ -3,6 +3,7 @@
 #include <span>
 #include <vector>
 
+#include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Graphics/RenderView2D.h>
 
 namespace Ludus::Engine::Core
@@ -20,7 +21,7 @@ namespace Ludus::Engine::Core
 			m_RenderViews.push_back(renderView);
 		}
 
-		void RegisterFullscreen(Ludus::Engine::Graphics::Camera2D camera, std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> target)
+		void RegisterFullscreen(std::optional<SceneHandle> sceneHandle, const Ludus::Engine::Graphics::Camera2D& camera, const std::shared_ptr<Ludus::Engine::Graphics::RenderTarget>& target)
 		{
 			if (!target)
 			{
@@ -32,6 +33,7 @@ namespace Ludus::Engine::Core
 
 			Ludus::Engine::Graphics::RenderView2D renderView {
 				.Camera = camera,
+				.SceneHandle = sceneHandle,
 				.Target = target,
 				.ViewportRect = Ludus::Engine::Math::Rect
 				{
@@ -47,6 +49,8 @@ namespace Ludus::Engine::Core
 		{
 			m_RenderViews.clear();
 		}
+
+		bool Empty() const { return m_RenderViews.empty(); }
 
 		size_t GetSize() const { return m_RenderViews.size(); }
 	};

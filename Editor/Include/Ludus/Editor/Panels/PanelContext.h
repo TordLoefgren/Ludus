@@ -7,8 +7,8 @@ namespace Ludus::Editor::Panels
 {
 	struct PanelContext
 	{
-		Ludus::Engine::Core::SystemContext SystemContext;
-		Ludus::Editor::Core::EditorContext EditorContext;
+		Ludus::Engine::Core::SystemContext& SystemContext;
+		Ludus::Editor::Core::EditorContext& EditorContext;
 		float DeltaTime;
 	};
 }

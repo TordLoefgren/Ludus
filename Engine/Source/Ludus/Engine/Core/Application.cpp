@@ -45,6 +45,7 @@ namespace Ludus::Engine::Core
 		m_RenderingConfiguration(std::make_unique<Ludus::Engine::Graphics::RenderingConfiguration2D>(std::move(renderingConfiguration))),
 		m_PhysicsConfiguration(std::make_unique<Ludus::Engine::Physics::Core::PhysicsConfiguration2D>(std::move(physicsConfiguration))),
 		m_Resources(std::make_unique<Ludus::Engine::Core::ResourceRegistry>()),
+		m_RenderViewRequestRegistry(std::make_unique<Ludus::Engine::Core::RenderViewRequestRegistry>()),
 		m_RenderViewRegistry(std::make_unique<Ludus::Engine::Core::RenderViewRegistry>()),
 		m_SceneManager(std::make_unique<Ludus::Engine::Core::SceneManager>()),
 		m_Time(std::make_unique<Ludus::Engine::Core::Time>()),
@@ -56,6 +57,7 @@ namespace Ludus::Engine::Core
 			*m_Input,
 			*m_Resources,
 			*m_RenderViewRegistry,
+			*m_RenderViewRequestRegistry,
 			*m_SceneManager,
 			*m_Window,
 			std::make_shared<Ludus::Engine::Graphics::RenderTarget>(windowOptions.Width, windowOptions.Height),
@@ -102,6 +104,7 @@ namespace Ludus::Engine::Core
 			m_Time->Step();
 			m_Input->Clear();
 
+			m_RenderViewRequestRegistry->Clear();
 			m_RenderViewRegistry->Clear();
 
 			m_Window->PollEvents();

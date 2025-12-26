@@ -14,13 +14,21 @@ namespace Ludus::Editor::Panels
 		auto windowTitle = CreateWindowTitle("Inspector");
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
 		{
-			auto& ecs = context.SystemContext.EntityComponentSystem;
-			auto handle = context.EditorContext.State.SelectedEntity;
-
-			if (handle == -1)
+			auto& selection = context.EditorContext.State.Selection;
+			if (!selection.HasScene() || !selection.HasEntity())
 			{
 				return;
 			}
+
+			auto* scene = context.SystemContext.SceneManager.TryGetScene(selection.SelectedScene.value());
+
+			if (!scene)
+			{
+				return;
+			}
+
+			auto& ecs = scene->EntityComponentSystem;
+			auto handle = selection.SelectedEntity.value();
 
 			auto* transformPtr = ecs.Transforms.TryGetByOwnerMutable(handle);
 			auto* colliderPtr = ecs.Colliders.TryGetByOwnerMutable(handle);

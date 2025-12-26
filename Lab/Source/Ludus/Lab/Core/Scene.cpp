@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include <optional>
+
 #include <Ludus/Lab/Core/Scene.h>
 
 namespace Ludus::Lab::Core
@@ -56,7 +58,7 @@ namespace Ludus::Lab::Core
 		);
 		ecs.AttachRigidBody(m_Info.CursorHandle, { 0.0f });
 
-		ecs.AttachSprite(m_Info.CursorHandle, Ludus::Engine::Graphics::Shape::Rect, m_Info.CursorColor);
+		ecs.AttachSprite(m_Info.CursorHandle, Ludus::Engine::Graphics::Shape::Quad, m_Info.CursorColor);
 		ecs.AttachTransform(m_Info.CursorHandle, { 0.0f }, m_World.Height * 0.1f);
 
 		if (m_World.Width <= 0.0f || m_World.Height <= 0.0f)
@@ -154,7 +156,7 @@ namespace Ludus::Lab::Core
 		camera.SetRotation(cameraTransformPtr->Rotation);
 		camera.SetOrthographicSize(cameraComponentPtr->OrthographicSize);
 
-		m_SystemContext->RenderViews.RegisterFullscreen(camera, m_SystemContext->WindowRenderTarget);
+		m_SystemContext->RenderViews.RegisterFullscreen(std::nullopt, camera, m_SystemContext->WindowRenderTarget);
 	}
 
 	FallingQuad Scene::CreateQuad()
@@ -169,7 +171,7 @@ namespace Ludus::Lab::Core
 		auto handle = ecs.AddEntity();
 		ecs.AttachCollider(handle, m_Info.QuadLayerIndex, Ludus::Engine::Physics::Core::LayerMask::FromIndex(m_Info.CursorLayerIndex));
 		ecs.AttachRigidBody(handle, { 0.0f }, Ludus::Engine::Physics::Core::BodyType::Dynamic, gravityScale);
-		ecs.AttachSprite(handle, Ludus::Engine::Graphics::Shape::Rect, m_Info.NonCollisionColor);
+		ecs.AttachSprite(handle, Ludus::Engine::Graphics::Shape::Quad, m_Info.NonCollisionColor);
 		ecs.AttachTransform(handle, { xPosition, m_World.Height + scaleY }, { scaleX, scaleY });
 
 		return FallingQuad { handle };

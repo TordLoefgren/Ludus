@@ -9,6 +9,7 @@
 #include <Ludus/Engine/Core/FlagSet.h>
 #include <Ludus/Engine/Core/ISystem.h>
 #include <Ludus/Engine/Core/RenderViewRegistry.h>
+#include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
 #include <Ludus/Engine/Core/ResourceRegistry.h>
 #include <Ludus/Engine/Core/SceneManager.h>
 #include <Ludus/Engine/Core/Scheduler.h>
@@ -41,6 +42,7 @@ namespace Ludus::Engine::Core
 		std::unique_ptr<Ludus::Engine::Physics::Core::PhysicsConfiguration2D> m_PhysicsConfiguration;
 		std::unique_ptr<Ludus::Engine::Core::ResourceRegistry> m_Resources;
 		std::unique_ptr<Ludus::Engine::Core::RenderViewRegistry> m_RenderViewRegistry;
+		std::unique_ptr<Ludus::Engine::Core::RenderViewRequestRegistry> m_RenderViewRequestRegistry;
 		std::unique_ptr<Ludus::Engine::Core::SceneManager> m_SceneManager;
 		std::unique_ptr<Ludus::Engine::Core::Time> m_Time;
 		Ludus::Engine::Core::FlagSet m_ExecutionFlags;

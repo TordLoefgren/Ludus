@@ -1,5 +1,7 @@
 #include <Ludus/Pong/Systems/ScoreMenuSystem.h>
 
+#include <optional>
+
 namespace Ludus::Pong::Systems
 {
 	ScoreMenuSystem::ScoreMenuSystem(std::shared_ptr<Ludus::Pong::Core::GameInfo> gameInfo, std::shared_ptr<Ludus::Pong::Core::PongInfo> pongInfo)
@@ -88,6 +90,6 @@ namespace Ludus::Pong::Systems
 			}
 		}
 
-		m_SystemContext->RenderViews.RegisterFullscreen(m_GameInfo->Camera, m_SystemContext->WindowRenderTarget);
+		m_SystemContext->RenderViews.RegisterFullscreen(std::nullopt, m_GameInfo->Camera, m_SystemContext->WindowRenderTarget);
 	}
 }

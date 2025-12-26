@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <Ludus/Engine/Graphics/IRenderPass.h>
+#include <Ludus/Engine/Graphics/NoCameraRenderPass.h>
 #include <Ludus/Engine/Graphics/SceneRenderPass.h>
 
 namespace Ludus::Engine::Graphics
@@ -33,6 +34,7 @@ namespace Ludus::Engine::Graphics
 			: m_RenderPasses()
 		{
 			m_RenderPasses.push_back(std::make_unique<SceneRenderPass>());
+			m_RenderPasses.push_back(std::make_unique<NoCameraRenderPass>());
 
 			SortPasses();
 		}

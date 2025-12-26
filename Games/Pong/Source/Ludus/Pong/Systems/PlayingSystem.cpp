@@ -1,5 +1,7 @@
 #include <Ludus/Pong/Systems/PlayingSystem.h>
 
+#include <optional>
+
 namespace Ludus::Pong::Systems
 {
 	PlayingSystem::PlayingSystem(std::shared_ptr<Ludus::Pong::Core::GameInfo> gameInfo, std::shared_ptr<Ludus::Pong::Core::PongInfo> pongInfo)
@@ -453,6 +455,6 @@ namespace Ludus::Pong::Systems
 		player1Transform.Position.Y = Ludus::Engine::Math::Numeric::Clamp(player1Transform.Position.Y, minY, maxY);
 		player2Transform.Position.Y = Ludus::Engine::Math::Numeric::Clamp(player2Transform.Position.Y, minY, maxY);
 
-		m_SystemContext->RenderViews.RegisterFullscreen(m_GameInfo->Camera, m_SystemContext->WindowRenderTarget);
+		m_SystemContext->RenderViews.RegisterFullscreen(std::nullopt, m_GameInfo->Camera, m_SystemContext->WindowRenderTarget);
 	}
 }

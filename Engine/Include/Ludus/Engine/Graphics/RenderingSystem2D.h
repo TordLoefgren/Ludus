@@ -4,6 +4,7 @@
 
 #include <Ludus/Engine/Core/EntityComponentSystem.h>
 #include <Ludus/Engine/Core/SystemContext.h>
+#include <Ludus/Engine/Graphics/CameraSource.h>
 #include <Ludus/Engine/Graphics/RenderContext2D.h>
 #include <Ludus/Engine/Graphics/Renderer2D.h>
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
@@ -48,6 +49,10 @@ namespace Ludus::Engine::Graphics
 					LUDUS_LOG_ERROR("Render view has no render target.");
 					return;
 				}
+
+				m_Renderer->SetClearColor(
+					renderView.CameraSource == Ludus::Engine::Graphics::CameraSource::None ? Colors::Black : m_RenderingOptions.ClearColor
+				);
 
 				// Execute render passes.
 				targetPtr->Framebuffer.Bind();

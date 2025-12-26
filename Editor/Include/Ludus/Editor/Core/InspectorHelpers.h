@@ -240,7 +240,9 @@ namespace Ludus::Editor::Core
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::TextUnformatted("Orthographic Size");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				Ludus::UI::Widgets::DragFloat("##Camera2D_OrthographicSize", &component.OrthographicSize);
+				Ludus::UI::Widgets::DragFloatLabelButton("Z##Camera2D_OrthographicSize_DragFloat_Rotation", &component.OrthographicSize);
+				Ludus::UI::Context::LayoutContext::SameLine();
+				Ludus::UI::Widgets::InputFloat("##Camera2D_OrthographicSize_InputFloat_Rotation_Z", &component.OrthographicSize);
 			}
 		}
 	}

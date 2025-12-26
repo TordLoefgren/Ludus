@@ -21,6 +21,7 @@ namespace Ludus::Editor::Core
 		Ludus::Engine::Core::ApplicationOptions m_ApplicationOptions;
 		Ludus::Engine::Graphics::RenderingConfiguration2D m_RenderingConfiguration;
 		Ludus::Engine::Graphics::RenderingOptions m_RenderingOptions;
+		Ludus::Engine::Graphics::RenderViewConfiguration m_RenderViewConfiguration;
 		Ludus::Engine::Physics::Core::PhysicsConfiguration2D m_PhysicsConfiguration;
 		Ludus::Engine::Platform::WindowOptions m_WindowOptions;
 

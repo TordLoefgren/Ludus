@@ -5,18 +5,16 @@
 
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Graphics/Camera2D.h>
-#include <Ludus/Engine/Graphics/CameraSource.h>
 #include <Ludus/Engine/Graphics/RenderTarget.h>
 #include <Ludus/Engine/Math/Rect.h>
 
 namespace Ludus::Engine::Graphics
 {
-	struct RenderView2D
+	struct RenderViewRequest2D
 	{
-		Ludus::Engine::Graphics::Camera2D Camera;
+		std::optional<Ludus::Engine::Graphics::Camera2D> Camera;
 		std::optional<Ludus::Engine::Core::SceneHandle> SceneHandle;
-		std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> Target;
+		std::shared_ptr<RenderTarget> Target;
 		Ludus::Engine::Math::Rect ViewportRect;
-		Ludus::Engine::Graphics::CameraSource CameraSource = Ludus::Engine::Graphics::CameraSource::None;
 	};
 }

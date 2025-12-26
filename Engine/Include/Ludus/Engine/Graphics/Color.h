@@ -22,18 +22,19 @@ namespace Ludus::Engine::Graphics
 
 	namespace Colors
 	{
-		inline constexpr Color Red { 1.0f, 0.0f, 0.0f };
-		inline constexpr Color Green { 0.0f, 1.0f, 0.0f };
-		inline constexpr Color Blue { 0.0f, 0.0f, 1.0f };
-		inline constexpr Color Orange { 1.0f, 0.5f, 0.0f };
-		inline constexpr Color Teal { 0.0f, 0.5f, 0.5f };
-		inline constexpr Color Cyan { 0.0f, 1.0f, 1.0f };
-		inline constexpr Color White { 1.0f, 1.0f, 1.0f };
-		inline constexpr Color Transparent { 0.0f, 0.0f, 0.0f, 0.0f };
 		inline constexpr Color Black { 0.0f, 0.0f, 0.0f };
-		inline constexpr Color LightGray { 0.75f, 0.75f, 0.75f };
-		inline constexpr Color Gray { 0.5f, 0.5f, 0.5f };
+		inline constexpr Color Blue { 0.0f, 0.0f, 1.0f };
+		inline constexpr Color Cyan { 0.0f, 1.0f, 1.0f };
 		inline constexpr Color DarkGray { 0.25f, 0.25f, 0.25f };
+		inline constexpr Color Gray { 0.5f, 0.5f, 0.5f };
+		inline constexpr Color Green { 0.0f, 1.0f, 0.0f };
 		inline constexpr Color LightBlue { 0.4f, 0.75f, 1.0f };
+		inline constexpr Color LightGray { 0.75f, 0.75f, 0.75f };
+		inline constexpr Color Magenta { 1.0f, 0.0f, 1.0f };
+		inline constexpr Color Orange { 1.0f, 0.5f, 0.0f };
+		inline constexpr Color Red { 1.0f, 0.0f, 0.0f };
+		inline constexpr Color Teal { 0.0f, 0.5f, 0.5f };
+		inline constexpr Color Transparent { 0.0f, 0.0f, 0.0f, 0.0f };
+		inline constexpr Color White { 1.0f, 1.0f, 1.0f };
 	}
 }
