@@ -5,16 +5,18 @@
 #include <vector>
 
 #include <Ludus/Engine/Core/ApplicationBuilder.h>
+#include <Ludus/Engine/Core/ExecutionFlags.h>
 
 namespace Ludus::Engine::Core
 {
 	std::unique_ptr<Ludus::Engine::Core::Application> ApplicationBuilder::Build()
 	{
 		auto application = std::make_unique<Ludus::Engine::Core::Application>(
-			m_WindowOptions,
-			m_RenderingOptions,
+			m_ApplicationOptions,
 			std::move(m_RenderingConfiguration),
-			std::move(m_PhysicsConfiguration)
+			m_RenderingOptions,
+			std::move(m_PhysicsConfiguration),
+			m_WindowOptions
 		);
 
 		for (auto& command : m_BuilderCommands)
@@ -31,9 +33,9 @@ namespace Ludus::Engine::Core
 		return *this;
 	}
 
-	ApplicationBuilder& ApplicationBuilder::WithWindowOptions(const Ludus::Engine::Platform::WindowOptions windowOptions)
+	ApplicationBuilder& ApplicationBuilder::WithApplicationOptions(const Ludus::Engine::Core::ApplicationOptions applicationOptions)
 	{
-		m_WindowOptions = windowOptions;
+		m_ApplicationOptions = applicationOptions;
 		return *this;
 	}
 
@@ -46,6 +48,12 @@ namespace Ludus::Engine::Core
 	ApplicationBuilder& ApplicationBuilder::WithRenderingConfiguration(Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration)
 	{
 		m_RenderingConfiguration = std::move(renderingConfiguration);
+		return *this;
+	}
+
+	ApplicationBuilder& ApplicationBuilder::WithWindowOptions(const Ludus::Engine::Platform::WindowOptions windowOptions)
+	{
+		m_WindowOptions = windowOptions;
 		return *this;
 	}
 
@@ -62,10 +70,13 @@ namespace Ludus::Engine::Core
 			m_BuilderCommands.emplace_back(
 				[renderingOptions = m_RenderingOptions](Ludus::Engine::Core::Application& application)
 				{
+					auto constraints = Ludus::Engine::Core::SystemConstraints::Create()
+						.RequireAnyOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::RenderingEnabled));
+
 					auto& renderingConfiguration = application.GetRenderingConfiguration();
 					auto renderingSystem = std::make_unique<Ludus::Engine::Graphics::RenderingSystem2D>(renderingOptions, renderingConfiguration);
 
-					application.AddSystem({ SystemPhase::Render, nullptr, SystemPhaseOrder::Before }, std::move(renderingSystem));
+					application.AddSystem({ SystemPhase::Render, SystemPhaseOrder::Before, constraints }, std::move(renderingSystem));
 				}
 			);
 
@@ -89,8 +100,11 @@ namespace Ludus::Engine::Core
 					// A physics context will already have been created when this build command is invoked.
 					auto& physicsConfiguration = application.GetPhysicsConfiguration();
 					auto physicsSystem = std::make_unique<Ludus::Engine::Physics::Core::PhysicsSystem2D>(physicsConfiguration);
+					auto constraints = Ludus::Engine::Core::SystemConstraints::Create()
+						.RequireAllOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::PhysicsEnabled))
+						.RequireAnyOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::PhysicsEnabled) | Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::Simulating));
 
-					application.AddSystem({ SystemPhase::FixedUpdate, nullptr, SystemPhaseOrder::Before }, std::move(physicsSystem));
+					application.AddSystem({ SystemPhase::FixedUpdate, SystemPhaseOrder::Before, constraints }, std::move(physicsSystem));
 				}
 			);
 

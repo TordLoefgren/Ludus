@@ -5,6 +5,7 @@
 namespace Ludus::Editor::Core::Constants
 {
 	inline Ludus::UI::Flags::Window PanelFlags = Ludus::UI::Flags::Window::None;
+
 	inline Ludus::UI::Flags::Window DockPanelWindowFlags = Ludus::UI::Flags::Window::NoDocking
 		| Ludus::UI::Flags::Window::MenuBar
 		| Ludus::UI::Flags::Window::NoTitleBar

@@ -24,8 +24,8 @@ namespace Ludus::UI::Systems
 
 					application.AddSystem(
 						{
-							{ Ludus::Engine::Core::SystemPhase::Update, nullptr, Ludus::Engine::Core::SystemPhaseOrder::Before },
-							{ Ludus::Engine::Core::SystemPhase::Render, nullptr, Ludus::Engine::Core::SystemPhaseOrder::After }
+							{ Ludus::Engine::Core::SystemPhase::Update, Ludus::Engine::Core::SystemPhaseOrder::Before },
+							{ Ludus::Engine::Core::SystemPhase::Render, Ludus::Engine::Core::SystemPhaseOrder::After }
 						},
 						std::move(imGuiSystem));
 				}
