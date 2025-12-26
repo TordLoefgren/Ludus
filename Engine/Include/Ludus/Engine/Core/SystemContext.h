@@ -3,6 +3,7 @@
 #include <Ludus/Engine/Core/EntityComponentSystem.h>
 #include <Ludus/Engine/Core/FlagSet.h>             
 #include <Ludus/Engine/Core/RenderViewRegistry.h>             
+#include <Ludus/Engine/Core/RenderViewRequestRegistry.h>             
 #include <Ludus/Engine/Core/ResourceRegistry.h>             
 #include <Ludus/Engine/Core/SceneManager.h>             
 #include <Ludus/Engine/Debug/Debug.h>
@@ -21,6 +22,7 @@ namespace Ludus::Engine::Core
 		Ludus::Engine::Core::FlagSet& ExecutionFlags;
 		Ludus::Engine::Platform::Input& Input;
 		Ludus::Engine::Core::ResourceRegistry& Resources;
+		Ludus::Engine::Core::RenderViewRequestRegistry& RenderViewRequests;
 		Ludus::Engine::Core::RenderViewRegistry& RenderViews;
 		Ludus::Engine::Core::SceneManager& SceneManager;
 		Ludus::Engine::Platform::Window& Window;
@@ -35,6 +37,7 @@ namespace Ludus::Engine::Core
 			Ludus::Engine::Platform::Input& input,
 			Ludus::Engine::Core::ResourceRegistry& resources,
 			Ludus::Engine::Core::RenderViewRegistry& renderViews,
+			Ludus::Engine::Core::RenderViewRequestRegistry& renderViewRequests,
 			Ludus::Engine::Core::SceneManager& SceneManager,
 			Ludus::Engine::Platform::Window& window,
 			std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> windowRenderTarget = nullptr,
@@ -46,6 +49,7 @@ namespace Ludus::Engine::Core
 			Window(window),
 			Resources(resources),
 			RenderViews(renderViews),
+			RenderViewRequests(renderViewRequests),
 			SceneManager(SceneManager),
 			PhysicsQueries(queries),
 			WindowRenderTarget(windowRenderTarget)

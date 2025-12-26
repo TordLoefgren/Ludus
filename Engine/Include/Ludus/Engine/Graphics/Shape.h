@@ -8,15 +8,15 @@
 
 namespace Ludus::Engine::Graphics
 {
-	enum class Shape { Rect, Circle };
+	enum class Shape { Circle, Quad };
 
 	constexpr std::string_view ToString(Shape shape)
 	{
 		switch (shape)
 		{
-			case Shape::Rect:	return "Rect";
-			case Shape::Circle:	return "Circle";
-			default:			return "Unknown";
+		case Shape::Circle:	return "Circle";
+		case Shape::Quad:	return "Quad";
+		default:			return "Unknown";
 		}
 	}
 }
@@ -25,8 +25,8 @@ template <>
 struct Ludus::Engine::Core::Enums::GetValues<Ludus::Engine::Graphics::Shape>
 {
 	static constexpr std::array<Ludus::Engine::Graphics::Shape, 2> Values {
-		Ludus::Engine::Graphics::Shape::Rect,
-		Ludus::Engine::Graphics::Shape::Circle
+		Ludus::Engine::Graphics::Shape::Circle,
+		Ludus::Engine::Graphics::Shape::Quad
 	};
 };
 

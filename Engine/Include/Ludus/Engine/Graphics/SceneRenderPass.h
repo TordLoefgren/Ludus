@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Ludus/Engine/Graphics/CameraSource.h>
 #include <Ludus/Engine/Graphics/IRenderPass.h>
 #include <Ludus/Engine/Graphics/RenderContext2D.h>
 #include <Ludus/Engine/Graphics/Renderer2D.h>
@@ -23,8 +24,23 @@ namespace Ludus::Engine::Graphics
 
 		virtual void Execute(Ludus::Engine::Graphics::RenderContext2D& context, Ludus::Engine::Graphics::Renderer2D& renderer) override
 		{
-			auto& ecs = context.SystemContext->EntityComponentSystem;
+			if (!context.RenderView.SceneHandle.has_value())
+			{
+				return;
+			}
 
+			const auto* scene = context.SystemContext->SceneManager.TryGetScene(context.RenderView.SceneHandle.value());
+			if (!scene)
+			{
+				return;
+			}
+
+			if (context.RenderView.CameraSource == Ludus::Engine::Graphics::CameraSource::None)
+			{
+				return;
+			}
+
+			const auto& ecs = scene->EntityComponentSystem;
 			for (const auto& sprite : ecs.Sprites.View())
 			{
 				const auto* transform = ecs.Transforms.TryGetByOwner(sprite.OwnerHandle);
@@ -35,12 +51,12 @@ namespace Ludus::Engine::Graphics
 
 				switch (sprite.Shape)
 				{
-					case Ludus::Engine::Graphics::Shape::Rect:
-						renderer.DrawQuad(*transform, sprite.Color, sprite.Texture, sprite.Fill);
-						break;
-					case Ludus::Engine::Graphics::Shape::Circle:
-						renderer.DrawCircle(*transform, sprite.Color, sprite.Fill);
-						break;
+				case Ludus::Engine::Graphics::Shape::Quad:
+					renderer.DrawQuad(*transform, sprite.Color, sprite.Texture, sprite.Fill);
+					break;
+				case Ludus::Engine::Graphics::Shape::Circle:
+					renderer.DrawCircle(*transform, sprite.Color, sprite.Fill);
+					break;
 				}
 			}
 

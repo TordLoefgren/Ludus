@@ -14,7 +14,15 @@ namespace Ludus::UI::Context::WindowContext
 
 	void SetCursorPosition(Ludus::Engine::Math::Vector2D position);
 
+	void SetCursorPositionX(float x);
+
+	void SetCursorPositionY(float y);
+
 	Ludus::Engine::Math::Vector2D GetCursorPosition();
 
 	Ludus::Engine::Math::Vector2D GetContentRegionAvailable();
+
+	Ludus::Engine::Math::Vector2D GetWindowContentRegionMin();
+
+	Ludus::Engine::Math::Vector2D GetWindowContentRegionMax();
 }

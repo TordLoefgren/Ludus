@@ -6,8 +6,8 @@
 
 namespace Ludus::UI::Context::LayoutContext
 {
-	void SameLine()
+	void SameLine(float offsetFromStart, float spacing)
 	{
-		ImGui::SameLine();
+		ImGui::SameLine(offsetFromStart, spacing);
 	}
 }

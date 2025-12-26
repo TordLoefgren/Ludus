@@ -6,6 +6,7 @@
 
 #include <Ludus/Engine/Core/ApplicationBuilder.h>
 #include <Ludus/Engine/Core/ExecutionFlags.h>
+#include <Ludus/Engine/Graphics/RenderViewSystem.h>
 
 namespace Ludus::Engine::Core
 {
@@ -51,9 +52,9 @@ namespace Ludus::Engine::Core
 		return *this;
 	}
 
-	ApplicationBuilder& ApplicationBuilder::WithWindowOptions(const Ludus::Engine::Platform::WindowOptions windowOptions)
+	ApplicationBuilder& ApplicationBuilder::WithRenderViewConfiguration(Ludus::Engine::Graphics::RenderViewConfiguration renderViewConfiguration)
 	{
-		m_WindowOptions = windowOptions;
+		m_RenderViewConfiguration = renderViewConfiguration;
 		return *this;
 	}
 
@@ -63,20 +64,29 @@ namespace Ludus::Engine::Core
 		return *this;
 	}
 
+	ApplicationBuilder& ApplicationBuilder::WithWindowOptions(const Ludus::Engine::Platform::WindowOptions windowOptions)
+	{
+		m_WindowOptions = windowOptions;
+		return *this;
+	}
+
 	ApplicationBuilder& ApplicationBuilder::UseDefaultRendering2D()
 	{
 		if (!m_HasDefaultRendering2D)
 		{
 			m_BuilderCommands.emplace_back(
-				[renderingOptions = m_RenderingOptions](Ludus::Engine::Core::Application& application)
+				[renderingOptions = m_RenderingOptions, renderViewConfiguration = m_RenderViewConfiguration](Ludus::Engine::Core::Application& application)
 				{
+					auto renderViewSystem = std::make_unique<Ludus::Engine::Graphics::RenderViewSystem>(renderViewConfiguration);
 					auto constraints = Ludus::Engine::Core::SystemConstraints::Create()
 						.RequireAnyOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::RenderingEnabled));
+
+					application.AddSystem({ SystemPhase::Render, SystemPhaseOrder::Before, constraints }, std::move(renderViewSystem));
 
 					auto& renderingConfiguration = application.GetRenderingConfiguration();
 					auto renderingSystem = std::make_unique<Ludus::Engine::Graphics::RenderingSystem2D>(renderingOptions, renderingConfiguration);
 
-					application.AddSystem({ SystemPhase::Render, SystemPhaseOrder::Before, constraints }, std::move(renderingSystem));
+					application.AddSystem({ SystemPhase::Render, SystemPhaseOrder::Before }, std::move(renderingSystem));
 				}
 			);
 
