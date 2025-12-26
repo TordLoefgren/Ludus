@@ -10,7 +10,7 @@
 
 namespace Ludus::Editor::Panels
 {
-	void ConsolePanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
+	bool ConsolePanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
 	{
 		const auto flags = Ludus::Editor::Core::Constants::PanelFlags | Ludus::UI::Flags::Window::HorizontalScrollbar;
 		auto windowTitle = CreateWindowTitle("Console");
@@ -52,6 +52,8 @@ namespace Ludus::Editor::Panels
 
 			logEntries.clear();
 		}
+
+		return true;
 	}
 
 	std::string ConsolePanel::FormatEntry(const Ludus::Engine::Debug::LogEntry& entry)

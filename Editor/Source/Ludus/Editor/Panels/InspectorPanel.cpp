@@ -9,7 +9,7 @@
 
 namespace Ludus::Editor::Panels
 {
-	void InspectorPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
+	bool InspectorPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
 	{
 		auto windowTitle = CreateWindowTitle("Inspector");
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
@@ -17,14 +17,14 @@ namespace Ludus::Editor::Panels
 			auto& selection = context.EditorContext.State.Selection;
 			if (!selection.HasScene() || !selection.HasEntity())
 			{
-				return;
+				return true;
 			}
 
 			auto* scene = context.SystemContext.SceneManager.TryGetScene(selection.SelectedScene.value());
 
 			if (!scene)
 			{
-				return;
+				return true;
 			}
 
 			auto& ecs = scene->EntityComponentSystem;
@@ -69,5 +69,7 @@ namespace Ludus::Editor::Panels
 				Ludus::Editor::Core::Camera2DPanel(*cameraPtr);
 			}
 		}
+
+		return true;
 	}
 }

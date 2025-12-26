@@ -120,7 +120,7 @@ namespace Ludus::Editor::Panels
 		}
 	}
 
-	void ViewportPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
+	bool ViewportPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
 	{
 		const auto flags = Ludus::Editor::Core::Constants::PanelFlags
 			| Ludus::UI::Flags::Window::NoScrollbar
@@ -176,7 +176,7 @@ namespace Ludus::Editor::Panels
 
 			if (desiredSize.Width <= 0 || desiredSize.Height <= 0)
 			{
-				return;
+				return true;
 			}
 
 			if (!m_Target)
@@ -221,5 +221,7 @@ namespace Ludus::Editor::Panels
 
 			context.SystemContext.RenderViewRequests.Register(renderViewRequest);
 		}
+
+		return m_Open;
 	}
 }

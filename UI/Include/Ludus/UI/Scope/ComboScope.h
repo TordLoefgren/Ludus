@@ -4,13 +4,15 @@
 
 namespace Ludus::UI::Scope
 {
+	constexpr Ludus::UI::Flags::Combo DefaultComboFlags = Ludus::UI::Flags::Combo::None;
+
 	class ComboScope
 	{
 	private:
 		bool m_Open = false;
 
 	public:
-		explicit ComboScope(const char* label, const char* previewValue, Ludus::UI::Flags::Combo flags = Ludus::UI::Flags::Combo::None);
+		explicit ComboScope(const char* label, const char* previewValue, Ludus::UI::Flags::Combo flags = DefaultComboFlags);
 
 		~ComboScope();
 
