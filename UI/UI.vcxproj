@@ -20,7 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Ludus\UI\Context\ImageContext.h" />
+    <ClInclude Include="Include\Ludus\UI\Context\SelectionContext.h" />
     <ClInclude Include="Include\Ludus\UI\Labels.h" />
+    <ClInclude Include="Include\Ludus\UI\Scope\ComboScope.h" />
     <ClInclude Include="Include\Ludus\UI\Systems\ImGuiModule.h" />
     <ClInclude Include="Include\Ludus\UI\Widgets\Demo.h" />
     <ClInclude Include="Include\Ludus\UI\Widgets\Headers.h" />
@@ -70,7 +72,9 @@
     <ClCompile Include="Source\Ludus\UI\Context\ImageContext.cpp" />
     <ClCompile Include="Source\Ludus\UI\Context\ScrollContext.cpp" />
     <ClCompile Include="Source\Ludus\UI\Context\InputContext.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Context\SelectionContext.cpp" />
     <ClCompile Include="Source\Ludus\UI\Layout\Layout.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Scope\ComboScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\StyleScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Widgets\Demo.cpp" />
     <ClCompile Include="Source\Ludus\UI\Widgets\Headers.cpp" />

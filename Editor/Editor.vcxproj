@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClCompile Include="Source\Ludus\Editor\Core\EditorSystem.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\EditorApplicationBuilder.cpp" />
-    <ClCompile Include="Source\Ludus\Editor\Core\Scene.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\DockPanel.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\HierarchyPanel.cpp" />
@@ -47,15 +46,17 @@
     <ClInclude Include="Include\Ludus\Editor\Core\EditorConfiguration.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorExecutionFlags.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorExecutionManager.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorSelection.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorState.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSystem.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\CameraControllerSystem.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorApplicationBuilder.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorGridRenderPass.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\ExecutionMode.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\ViewportDisplayMode.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelContext.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelRegistry.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\Constants.h" />
-    <ClInclude Include="Include\Ludus\Editor\Core\Scene.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\DockPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\InspectorHelpers.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\IPanel.h" />

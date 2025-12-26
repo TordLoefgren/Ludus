@@ -1,5 +1,7 @@
 #include <Ludus/Pong/Systems/MainMenuSystem.h>
 
+#include <optional>
+
 namespace Ludus::Pong::Systems
 {
 	MainMenuSystem::MainMenuSystem(std::shared_ptr<Ludus::Pong::Core::GameInfo> gameInfo, std::shared_ptr<Ludus::Pong::Core::PongInfo> pongInfo)
@@ -78,15 +80,15 @@ namespace Ludus::Pong::Systems
 		{
 			switch (m_MenuIndex)
 			{
-				case 1:
-					m_PongInfo->IsMultiplayer = false;
-					break;
-				case 2:
-					m_PongInfo->IsMultiplayer = true;
-					break;
-				case 3:
-					m_SystemContext->Window.SetWindowShouldClose();
-					break;
+			case 1:
+				m_PongInfo->IsMultiplayer = false;
+				break;
+			case 2:
+				m_PongInfo->IsMultiplayer = true;
+				break;
+			case 3:
+				m_SystemContext->Window.SetWindowShouldClose();
+				break;
 			}
 
 			auto& gameState = m_SystemContext->Resources.Get<Ludus::Engine::Core::State<Ludus::Pong::Core::GameState>>();
@@ -103,6 +105,6 @@ namespace Ludus::Pong::Systems
 			}
 		}
 
-		m_SystemContext->RenderViews.RegisterFullscreen(m_GameInfo->Camera, m_SystemContext->WindowRenderTarget);
+		m_SystemContext->RenderViews.RegisterFullscreen(std::nullopt, m_GameInfo->Camera, m_SystemContext->WindowRenderTarget);
 	}
 }

@@ -37,6 +37,20 @@ namespace Ludus::UI::Flags
 		DefaultOptions = Uint8 | DisplayRGB | InputRGB | PickerHueBar,
 	};
 
+	enum class Combo : uint32_t
+	{
+		None = 0,
+		PopupAlignLeft = 1 << 0,
+		HeightSmall = 1 << 1,
+		HeightRegular = 1 << 2,
+		HeightLarge = 1 << 3,
+		HeightLargest = 1 << 4,
+		NoArrowButton = 1 << 5,
+		NoPreview = 1 << 6,
+		WidthFitPreview = 1 << 7,
+		HeightMask_ = HeightSmall | HeightRegular | HeightLarge | HeightLargest,
+	};
+
 	enum class DockNode : uint32_t
 	{
 		None = 0,
@@ -48,6 +62,11 @@ namespace Ludus::UI::Flags
 		NoResize = 1 << 5,
 		AutoHideTabBar = 1 << 6,
 		NoUndocking = 1 << 7,
+	};
+
+	enum class DockNodeInternal : uint32_t
+	{
+		NoWindowMenuButton = 1 << 14
 	};
 
 	enum class Hovered : uint32_t
@@ -278,7 +297,19 @@ namespace Ludus::UI::Flags
 			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
 	}
 
+	constexpr Combo operator|(Combo a, Combo b)
+	{
+		return static_cast<Combo>(
+			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
+	}
+
 	constexpr DockNode operator|(DockNode a, DockNode b)
+	{
+		return static_cast<DockNode>(
+			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
+	}
+
+	constexpr DockNode operator|(DockNode a, DockNodeInternal b)
 	{
 		return static_cast<DockNode>(
 			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));

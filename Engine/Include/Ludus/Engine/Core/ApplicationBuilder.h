@@ -11,6 +11,7 @@
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
 #include <Ludus/Engine/Graphics/RenderingSystem2D.h>
+#include <Ludus/Engine/Graphics/RenderViewConfiguration.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
 #include <Ludus/Engine/Physics/Core/PhysicsSystem2D.h>
 #include <Ludus/Engine/Platform/WindowOptions.h>
@@ -25,6 +26,7 @@ namespace Ludus::Engine::Core
 		Ludus::Engine::Core::ApplicationOptions m_ApplicationOptions;
 		Ludus::Engine::Graphics::RenderingOptions m_RenderingOptions;
 		Ludus::Engine::Graphics::RenderingConfiguration2D m_RenderingConfiguration;
+		Ludus::Engine::Graphics::RenderViewConfiguration m_RenderViewConfiguration;
 		Ludus::Engine::Physics::Core::PhysicsConfiguration2D m_PhysicsConfiguration;
 		Ludus::Engine::Platform::WindowOptions m_WindowOptions;
 
@@ -41,6 +43,7 @@ namespace Ludus::Engine::Core
 		ApplicationBuilder& WithApplicationOptions(Ludus::Engine::Core::ApplicationOptions applicationOptions);
 		ApplicationBuilder& WithRenderingConfiguration(Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration);
 		ApplicationBuilder& WithRenderingOptions(Ludus::Engine::Graphics::RenderingOptions renderingOptions);
+		ApplicationBuilder& WithRenderViewConfiguration(Ludus::Engine::Graphics::RenderViewConfiguration renderViewConfiguration);
 		ApplicationBuilder& WithPhysicsConfiguration(Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration);
 		ApplicationBuilder& WithWindowOptions(Ludus::Engine::Platform::WindowOptions windowOptions);
 

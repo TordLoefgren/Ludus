@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Ludus/Engine/Core/EntityComponentSystem.h>
 #include <Ludus/Engine/Core/ISystem.h>
 #include <Ludus/Engine/Physics/Broadphase/IBroadphase2D.h>
 #include <Ludus/Engine/Physics/Broadphase/NaiveBroadphase2D.h>
@@ -34,13 +35,11 @@ namespace Ludus::Engine::Physics::Core
 			m_SubSteps(physicsConfiguration.SubSteps)
 		{ }
 
-		void PullEntityComponents()
+		void PullEntityComponents(Ludus::Engine::Core::EntityComponentSystem& entityComponentSystem)
 		{
-			auto& ecs = m_SystemContext->EntityComponentSystem;
-
 			m_PhysicsWorld.Clear();
 
-			auto rigidBodies = ecs.RigidBodies.ViewMutable();
+			auto rigidBodies = entityComponentSystem.RigidBodies.ViewMutable();
 
 			m_PhysicsWorld.Entities.reserve(rigidBodies.size());
 			m_PhysicsWorld.Colliders.reserve(rigidBodies.size());
@@ -49,13 +48,13 @@ namespace Ludus::Engine::Physics::Core
 
 			for (auto& body : rigidBodies)
 			{
-				auto* transform = ecs.Transforms.TryGetByOwnerMutable(body.OwnerHandle);
+				auto* transform = entityComponentSystem.Transforms.TryGetByOwnerMutable(body.OwnerHandle);
 				if (!transform)
 				{
 					continue;
 				}
 
-				auto* collider = ecs.Colliders.TryGetByOwnerMutable(body.OwnerHandle);
+				auto* collider = entityComponentSystem.Colliders.TryGetByOwnerMutable(body.OwnerHandle);
 				if (!collider)
 				{
 					continue;
@@ -70,9 +69,11 @@ namespace Ludus::Engine::Physics::Core
 
 		virtual void FixedUpdateImpl(float fixedTime) override
 		{
-			PullEntityComponents();
-
-			m_PhysicsPipeline.Step(m_PhysicsWorld, *m_Queries, fixedTime, m_SubSteps);
+			for (auto& scene : m_SystemContext->SceneManager.ViewMutable())
+			{
+				PullEntityComponents(scene.EntityComponentSystem);
+				m_PhysicsPipeline.Step(m_PhysicsWorld, *m_Queries, fixedTime, m_SubSteps);
+			}
 		};
 	};
 }

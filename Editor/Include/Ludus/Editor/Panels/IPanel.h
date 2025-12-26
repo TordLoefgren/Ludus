@@ -9,7 +9,6 @@
 
 namespace Ludus::Editor::Panels
 {
-
 	class IPanel
 	{
 	public:
