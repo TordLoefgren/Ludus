@@ -27,6 +27,7 @@ namespace Ludus::Engine::Graphics
 		void SetRotation(float rotation);
 
 		Ludus::Engine::Math::Vector2D GetPosition() const;
+		Ludus::Engine::Math::Vector2D GetViewportSize() const;
 		Ludus::Engine::Math::Rect GetWorldRect() const;
 		float GetOrthographicSize() const;
 

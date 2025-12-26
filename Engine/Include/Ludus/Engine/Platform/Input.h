@@ -28,10 +28,14 @@ namespace Ludus::Engine::Platform
 		std::set<MouseButton> m_JustPressedMouseButtons;
 		std::set<MouseButton> m_JustReleasedMouseButtons;
 
+		float m_MouseXDelta;
+		float m_MouseYDelta;
 		float m_MouseXPosition;
 		float m_MouseYPosition;
-		float m_MouseScrollXOffset;
-		float m_MouseScrollYOffset;
+		float m_MouseXScrollOffset;
+		float m_MouseYScrollOffset;
+
+		bool m_HasMouseDelta;
 
 		Key MapKey(int key);
 		int MapKey(Key key);
@@ -60,8 +64,9 @@ namespace Ludus::Engine::Platform
 		bool GetMouseButtonDown(MouseButton mouseButton) { return m_JustPressedMouseButtons.contains(mouseButton); }
 		bool GetMouseButtonUp(MouseButton mouseButton) { return m_JustReleasedMouseButtons.contains(mouseButton); }
 
+		const Ludus::Engine::Math::Vector2D GetMouseDelta() { return { m_MouseXDelta, m_MouseYDelta }; }
 		const Ludus::Engine::Math::Vector2D GetMousePosition() { return { m_MouseXPosition, m_MouseYPosition }; }
-		const Ludus::Engine::Math::Vector2D GetMouseScrollOffset() { return { m_MouseScrollXOffset, m_MouseScrollYOffset }; }
+		const Ludus::Engine::Math::Vector2D GetMouseScrollOffset() { return { m_MouseXScrollOffset, m_MouseYScrollOffset }; }
 
 		virtual bool ProcessEvent(const Ludus::Engine::Events::Event& event) override;
 	};

@@ -4,6 +4,5 @@
 
 namespace Ludus::UI::Widgets
 {
-	bool MenuItem(const char* label) { return ImGui::MenuItem(label); }
-
+	bool MenuItem(const char* label, const char* shortcut, bool selected, bool enabled) { return ImGui::MenuItem(label, shortcut, selected, enabled); }
 }

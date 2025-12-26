@@ -36,6 +36,7 @@ namespace Ludus::Engine::Physics::Core
 		{
 			return Value == other.Value;
 		}
+
 		LayerMask operator&(const LayerMask& other) const
 		{
 			return LayerMask(Value & other.Value);

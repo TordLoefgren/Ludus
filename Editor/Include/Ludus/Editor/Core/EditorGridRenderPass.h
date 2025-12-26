@@ -2,6 +2,7 @@
 
 #include <cmath>
 
+#include <Ludus/Engine/Graphics/CameraSource.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/IRenderPass.h>
 #include <Ludus/Engine/Graphics/RenderContext2D.h>
@@ -27,7 +28,8 @@ namespace Ludus::Editor::Core
 
 		virtual bool Enabled(Ludus::Engine::Graphics::RenderContext2D& context) override
 		{
-			return true;
+			return context.RenderView.SceneHandle.has_value() &&
+				context.RenderView.CameraSource == Ludus::Engine::Graphics::CameraSource::Explicit;
 		};
 
 		virtual void Execute(Ludus::Engine::Graphics::RenderContext2D& context, Ludus::Engine::Graphics::Renderer2D& renderer) override

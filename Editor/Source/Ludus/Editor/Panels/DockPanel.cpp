@@ -1,12 +1,19 @@
-#include "pch.h"
+﻿#include "pch.h"
+
+#include <optional>
 
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Panels/DockPanel.h>
 #include <Ludus/UI/Context/DockingContext.h>
+#include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/ViewportContext.h>
 #include <Ludus/UI/Context/WindowContext.h>
+#include <Ludus/UI/Labels.h>
 #include <Ludus/UI/Scope/StyleScope.h>
 #include <Ludus/UI/Scope/WindowScope.h>
+#include <Ludus/UI/Widgets/Menu.h>
+#include <Ludus/UI/Widgets/Text.h>
+#include <Ludus/UI/Widgets/Toggle.h>
 
 namespace Ludus::Editor::Panels
 {
@@ -30,7 +37,7 @@ namespace Ludus::Editor::Panels
 
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), nullptr, Ludus::Editor::Core::Constants::DockPanelWindowFlags); window)
 		{
-			Ludus::UI::Context::DockingContext::CreateDockSpace(windowTitle.c_str());
+			Ludus::UI::Context::DockingContext::CreateDockSpace(windowTitle.c_str(), { 0.0f, 0.0f }, Ludus::UI::Flags::DockNode::None | Ludus::UI::Flags::DockNodeInternal::NoWindowMenuButton);
 		}
 	}
 }

@@ -2,5 +2,5 @@
 
 namespace Ludus::UI::Context::LayoutContext
 {
-	void SameLine();
+	void SameLine(float offsetFromStart = 0.0f, float spacing = 0.0f);
 }

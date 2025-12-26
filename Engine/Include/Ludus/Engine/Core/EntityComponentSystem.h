@@ -78,7 +78,7 @@ namespace Ludus::Engine::Core
 
 		void AttachSprite(
 			EntityHandle handle,
-			Ludus::Engine::Graphics::Shape shape = Ludus::Engine::Graphics::Shape::Rect,
+			Ludus::Engine::Graphics::Shape shape = Ludus::Engine::Graphics::Shape::Quad,
 			Ludus::Engine::Graphics::Color color = Ludus::Engine::Graphics::Colors::White,
 			Ludus::Engine::Graphics::Texture* texture = nullptr,
 			bool fill = true

@@ -5,7 +5,6 @@
 #include <Ludus/Editor/Core/EditorExecutionFlags.h>
 #include <Ludus/Editor/Core/EditorGridRenderPass.h>
 #include <Ludus/Editor/Core/EditorSystem.h>
-#include <Ludus/Editor/Core/Scene.h>
 #include <Ludus/Engine/Core/Application.h>
 #include <Ludus/Engine/Core/ApplicationBuilder.h>
 #include <Ludus/Engine/Core/ApplicationOptions.h>
@@ -40,6 +39,7 @@ namespace Ludus::Editor::Core
 		m_RenderingConfiguration = Ludus::Engine::Graphics::RenderingConfiguration2D();
 		m_RenderingConfiguration.AddPass(std::make_unique<EditorGridRenderPass>());
 		m_RenderingOptions = Ludus::Engine::Graphics::RenderingOptions(Ludus::Engine::Graphics::Colors::DarkGray);
+		m_RenderViewConfiguration = Ludus::Engine::Graphics::RenderViewConfiguration(false);
 		m_PhysicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D();
 		m_WindowOptions = Ludus::Engine::Platform::WindowOptions(1920, 1080, "Ludus Editor", true);
 
@@ -49,6 +49,7 @@ namespace Ludus::Editor::Core
 			.WithApplicationOptions(m_ApplicationOptions)
 			.WithRenderingConfiguration(std::move(m_RenderingConfiguration))
 			.WithRenderingOptions(m_RenderingOptions)
+			.WithRenderViewConfiguration(m_RenderViewConfiguration)
 			.WithPhysicsConfiguration(std::move(m_PhysicsConfiguration))
 			.WithWindowOptions(m_WindowOptions)
 			.UseDefaultPhysics2D()
@@ -60,8 +61,7 @@ namespace Ludus::Editor::Core
 	EditorApplicationBuilder& EditorApplicationBuilder::AddEditorSystem()
 	{
 		m_ApplicationBuilder
-			.AddUpdateSystem<Ludus::Editor::Core::EditorSystem>(m_EditorConfiguration)
-			.AddUpdateSystem<Ludus::Editor::Core::Scene>();
+			.AddUpdateSystem<Ludus::Editor::Core::EditorSystem>(m_EditorConfiguration);
 
 		return *this;
 	}

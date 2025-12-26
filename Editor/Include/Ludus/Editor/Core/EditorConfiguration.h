@@ -29,6 +29,7 @@ namespace Ludus::Editor::Core
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::InspectorPanel>(); });
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ConsolePanel>(); });
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ViewportPanel>(); });
+			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ViewportPanel>(); });
 
 			return options;
 		}

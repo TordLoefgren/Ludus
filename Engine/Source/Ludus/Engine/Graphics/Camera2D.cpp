@@ -50,6 +50,8 @@ namespace Ludus::Engine::Graphics
 
 	Ludus::Engine::Math::Vector2D Camera2D::GetPosition() const { return { m_Position.x, m_Position.y }; }
 
+	Ludus::Engine::Math::Vector2D Camera2D::GetViewportSize() const { return { m_ViewportSize.x, m_ViewportSize.y }; }
+
 	Ludus::Engine::Math::Rect Camera2D::GetWorldRect() const
 	{
 		const auto aspect = m_ViewportSize.x / m_ViewportSize.y;
