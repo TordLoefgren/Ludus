@@ -80,6 +80,8 @@ namespace Ludus::UI::Scope
 
 	enum class Color : uint32_t;
 
+	Ludus::Engine::Graphics::Color GetStyleColor(Color color);
+
 	struct StyleColor
 	{
 		Color Col;

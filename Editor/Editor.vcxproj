@@ -194,7 +194,8 @@
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(SolutionDir)UI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"</Command>
+      <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"
+xcopy /y /e /i /d  "$(SolutionDir)UI\Resources\*"  "$(OutDir)Resources\"</Command>
     </PostBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
@@ -221,7 +222,8 @@
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(SolutionDir)UI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"</Command>
+      <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"
+xcopy /y /e /i /d  "$(SolutionDir)UI\Resources\*"  "$(OutDir)Resources\"</Command>
     </PostBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
