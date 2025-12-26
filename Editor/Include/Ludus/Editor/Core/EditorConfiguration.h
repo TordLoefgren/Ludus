@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include <Ludus/Editor/Core/ViewportDisplayMode.h>
 #include <Ludus/Editor/Panels/ConsolePanel.h>
 #include <Ludus/Editor/Panels/DockPanel.h>
 #include <Ludus/Editor/Panels/HierarchyPanel.h>
@@ -28,8 +29,8 @@ namespace Ludus::Editor::Core
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::HierarchyPanel>(); });
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::InspectorPanel>(); });
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ConsolePanel>(); });
-			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ViewportPanel>(); });
-			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ViewportPanel>(); });
+			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ViewportPanel>("Viewport", Ludus::Editor::Core::ViewportDisplayMode::Simulation); });
+			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ViewportPanel>("Viewport", Ludus::Editor::Core::ViewportDisplayMode::Editor); });
 
 			return options;
 		}

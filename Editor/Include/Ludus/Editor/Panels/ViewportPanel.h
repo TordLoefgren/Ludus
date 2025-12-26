@@ -25,8 +25,7 @@ namespace Ludus::Editor::Panels
 		Ludus::Engine::Graphics::Camera2D m_Camera;
 		std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> m_Target;
 		Ludus::Engine::Math::Size<int> m_PreviousTargetSize;
-
-		Ludus::Editor::Core::ViewportDisplayMode m_DisplayMode = Ludus::Editor::Core::ViewportDisplayMode::Editor;
+		Ludus::Editor::Core::ViewportDisplayMode m_DisplayMode;
 		std::optional<Ludus::Engine::Core::SceneHandle> m_SelectedSceneHandle = std::nullopt;
 
 		bool m_IsCameraPanning = false;
@@ -38,7 +37,10 @@ namespace Ludus::Editor::Panels
 		void HandleInput(Ludus::Editor::Panels::PanelContext& context);
 
 	public:
-		ViewportPanel(std::string title = "Viewport");
+		ViewportPanel(
+			std::string title = "Viewport",
+			Ludus::Editor::Core::ViewportDisplayMode displayMode = Ludus::Editor::Core::ViewportDisplayMode::Editor
+		);
 
 		virtual bool UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
 	};
