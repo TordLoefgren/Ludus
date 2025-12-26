@@ -2,11 +2,13 @@
 
 #include <Ludus/Editor/Core/EditorApplicationBuilder.h>
 #include <Ludus/Editor/Core/EditorConfiguration.h>
+#include <Ludus/Editor/Core/EditorExecutionFlags.h>
 #include <Ludus/Editor/Core/EditorGridRenderPass.h>
 #include <Ludus/Editor/Core/EditorSystem.h>
 #include <Ludus/Editor/Core/Scene.h>
 #include <Ludus/Engine/Core/Application.h>
 #include <Ludus/Engine/Core/ApplicationBuilder.h>
+#include <Ludus/Engine/Core/ApplicationOptions.h>
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
@@ -34,19 +36,21 @@ namespace Ludus::Editor::Core
 
 	EditorApplicationBuilder& EditorApplicationBuilder::AddDefaultEngine()
 	{
-		m_WindowOptions = Ludus::Engine::Platform::WindowOptions(1920, 1080, "Ludus Editor", true);
-		m_RenderingOptions = Ludus::Engine::Graphics::RenderingOptions(Ludus::Engine::Graphics::Colors::DarkGray);
+		m_ApplicationOptions = Ludus::Engine::Core::ApplicationOptions(Ludus::Editor::Core::DefaultEditorExecutionMask);
 		m_RenderingConfiguration = Ludus::Engine::Graphics::RenderingConfiguration2D();
 		m_RenderingConfiguration.AddPass(std::make_unique<EditorGridRenderPass>());
+		m_RenderingOptions = Ludus::Engine::Graphics::RenderingOptions(Ludus::Engine::Graphics::Colors::DarkGray);
 		m_PhysicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D();
+		m_WindowOptions = Ludus::Engine::Platform::WindowOptions(1920, 1080, "Ludus Editor", true);
 
 		Ludus::UI::Systems::RegisterImGui(m_ApplicationBuilder);
 
 		m_ApplicationBuilder
-			.WithWindowOptions(m_WindowOptions)
+			.WithApplicationOptions(m_ApplicationOptions)
+			.WithRenderingConfiguration(std::move(m_RenderingConfiguration))
 			.WithRenderingOptions(m_RenderingOptions)
 			.WithPhysicsConfiguration(std::move(m_PhysicsConfiguration))
-			.WithRenderingConfiguration(std::move(m_RenderingConfiguration))
+			.WithWindowOptions(m_WindowOptions)
 			.UseDefaultPhysics2D()
 			.UseDefaultRendering2D();
 

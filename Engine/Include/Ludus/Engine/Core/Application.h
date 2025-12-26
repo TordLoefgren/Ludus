@@ -3,15 +3,18 @@
 #include <initializer_list>
 #include <memory>
 
+#include <Ludus/Engine/Core/ApplicationOptions.h>
 #include <Ludus/Engine/Core/EntityComponentSystem.h>
+#include <Ludus/Engine/Core/ExecutionFlags.h>
+#include <Ludus/Engine/Core/FlagSet.h>
 #include <Ludus/Engine/Core/ISystem.h>
 #include <Ludus/Engine/Core/RenderViewRegistry.h>
 #include <Ludus/Engine/Core/ResourceRegistry.h>
 #include <Ludus/Engine/Core/SceneManager.h>
 #include <Ludus/Engine/Core/Scheduler.h>
 #include <Ludus/Engine/Core/SystemContext.h>
+#include <Ludus/Engine/Core/SystemDescriptor.h>
 #include <Ludus/Engine/Core/SystemPhase.h>
-#include <Ludus/Engine/Core/SystemPhaseInfo.h>
 #include <Ludus/Engine/Core/Time.h>
 #include <Ludus/Engine/Events/Event.h>
 #include <Ludus/Engine/Events/EventBus.h>
@@ -40,27 +43,30 @@ namespace Ludus::Engine::Core
 		std::unique_ptr<Ludus::Engine::Core::RenderViewRegistry> m_RenderViewRegistry;
 		std::unique_ptr<Ludus::Engine::Core::SceneManager> m_SceneManager;
 		std::unique_ptr<Ludus::Engine::Core::Time> m_Time;
+		Ludus::Engine::Core::FlagSet m_ExecutionFlags;
 		Ludus::Engine::Core::SystemContext m_SystemContext;
 		std::unique_ptr<Ludus::Engine::Core::Scheduler> m_Scheduler;
 
 	public:
 		Application(
-			Ludus::Engine::Platform::WindowOptions windowOptions = Ludus::Engine::Platform::WindowOptions(),
-			Ludus::Engine::Graphics::RenderingOptions renderingOptions = Ludus::Engine::Graphics::RenderingOptions(),
+			Ludus::Engine::Core::ApplicationOptions applicationOptions = Ludus::Engine::Core::ApplicationOptions(),
 			Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration = Ludus::Engine::Graphics::RenderingConfiguration2D(),
-			Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D()
+			Ludus::Engine::Graphics::RenderingOptions renderingOptions = Ludus::Engine::Graphics::RenderingOptions(),
+			Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D(),
+			Ludus::Engine::Platform::WindowOptions windowOptions = Ludus::Engine::Platform::WindowOptions()
 		);
 		~Application() = default;
 
 		static std::unique_ptr<Application> Create(
-			Ludus::Engine::Platform::WindowOptions windowOptions = Ludus::Engine::Platform::WindowOptions(),
-			Ludus::Engine::Graphics::RenderingOptions renderingOptions = Ludus::Engine::Graphics::RenderingOptions(),
+			Ludus::Engine::Core::ApplicationOptions applicationOptions = Ludus::Engine::Core::ApplicationOptions(),
 			Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration = Ludus::Engine::Graphics::RenderingConfiguration2D(),
-			Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D()
+			Ludus::Engine::Graphics::RenderingOptions renderingOptions = Ludus::Engine::Graphics::RenderingOptions(),
+			Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D(),
+			Ludus::Engine::Platform::WindowOptions windowOptions = Ludus::Engine::Platform::WindowOptions()
 		);
 
-		void AddSystem(SystemPhaseInfo info, std::unique_ptr<ISystem> system);
-		void AddSystem(std::initializer_list<SystemPhaseInfo> info, std::unique_ptr<ISystem> system);
+		void AddSystem(SystemDescriptor descriptor, std::unique_ptr<ISystem> system);
+		void AddSystem(std::initializer_list<SystemDescriptor> descriptor, std::unique_ptr<ISystem> system);
 
 		void Run();
 
@@ -82,17 +88,17 @@ namespace Ludus::Engine::Core
 		void AddResource(T resource) { m_Resources->Add(std::move(resource)); }
 
 		template<typename TSystem, typename... TArgs>
-		void AddSystem(Ludus::Engine::Core::SystemPhaseInfo info, TArgs&&... args)
+		void AddSystem(Ludus::Engine::Core::SystemDescriptor descriptor, TArgs&&... args)
 		{
 			auto system = std::make_unique<TSystem>(std::forward<TArgs>(args)...);
-			AddSystem(info, std::move(system));
+			AddSystem(descriptor, std::move(system));
 		}
 
 		template<typename TSystem, typename... TArgs>
-		void AddSystem(std::initializer_list<Ludus::Engine::Core::SystemPhaseInfo> infos, TArgs&&... args)
+		void AddSystem(std::initializer_list<Ludus::Engine::Core::SystemDescriptor> descriptors, TArgs&&... args)
 		{
 			auto system = std::make_unique<TSystem>(std::forward<TArgs>(args)...);
-			AddSystem(infos, std::move(system));
+			AddSystem(descriptors, std::move(system));
 		}
 
 		template<typename TSystem, typename... TArgs>
