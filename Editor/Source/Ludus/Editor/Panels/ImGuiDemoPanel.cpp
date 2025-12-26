@@ -5,8 +5,10 @@
 
 namespace Ludus::Editor::Panels
 {
-	void ImGuiDemoPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
+	bool ImGuiDemoPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
 	{
-		Ludus::UI::Widgets::ShowDemoWindow();
+		Ludus::UI::Widgets::ShowDemoWindow(&m_Open);
+
+		return true;
 	}
 }
