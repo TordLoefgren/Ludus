@@ -17,7 +17,7 @@
 
 namespace Ludus::Editor::Panels
 {
-	void HierarchyPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
+	bool HierarchyPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
 	{
 		auto windowTitle = CreateWindowTitle("Hierarchy");
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
@@ -175,5 +175,7 @@ namespace Ludus::Editor::Panels
 				selection.DeselectAll();
 			}
 		}
+
+		return true;
 	}
 }

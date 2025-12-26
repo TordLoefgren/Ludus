@@ -40,6 +40,6 @@ namespace Ludus::Editor::Panels
 	public:
 		ViewportPanel(std::string title = "Viewport");
 
-		virtual void UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
+		virtual bool UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
 	};
 }

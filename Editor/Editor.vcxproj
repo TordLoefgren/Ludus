@@ -42,10 +42,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\Editor\Core\ActivePanelState.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorContext.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorConfiguration.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorExecutionFlags.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorExecutionManager.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorRequests.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSelection.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorState.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSystem.h" />

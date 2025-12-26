@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Ludus/Editor/Core/ActivePanelState.h>
 #include <Ludus/Editor/Core/EditorConfiguration.h>
 #include <Ludus/Editor/Core/EditorContext.h>
 #include <Ludus/Editor/Panels/PanelRegistry.h>
@@ -11,8 +12,12 @@ namespace Ludus::Editor::Core
 	{
 	private:
 		EditorContext m_EditorContext;
+		ActivePanelState m_ActivePanelState;
 		EditorConfiguration m_EditorConfiguration;
 		Ludus::Editor::Panels::PanelRegistry m_PanelRegistry;
+
+		void AddViewport();
+		void HandleRequests();
 
 	public:
 		EditorSystem(EditorConfiguration editorConfiguration);
