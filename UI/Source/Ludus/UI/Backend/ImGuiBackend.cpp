@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <Ludus/UI/Backend/Fonts.h>
 #include <Ludus/UI/Backend/ImGuiBackend.h>
 
 namespace Ludus::UI::Backend
@@ -11,6 +12,12 @@ namespace Ludus::UI::Backend
 		auto& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+		const auto sizePixels = 16.0f;
+		const auto glyphMinAdvanceX = 16.0f;
+
+		Ludus::UI::Backend::AddFont(io, "Resources/Fonts/ARIAL.TTF", sizePixels);
+		Ludus::UI::Backend::AddMergedIconFont(io, "Resources/Fonts/FONT_AWESOME.TFF", sizePixels, glyphMinAdvanceX);
 
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init();

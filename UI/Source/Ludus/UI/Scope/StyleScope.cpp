@@ -8,6 +8,13 @@
 
 namespace Ludus::UI::Scope
 {
+	Ludus::Engine::Graphics::Color GetStyleColor(Color color)
+	{
+		const auto [r, g, b, a] = ImGui::GetStyle().Colors[static_cast<int>(color)];
+
+		return { r, g, b, a };
+	}
+
 	StyleVarScope::StyleVarScope(std::initializer_list<StyleVar> styles)
 	{
 		for (auto& style : styles)

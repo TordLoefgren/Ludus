@@ -112,7 +112,7 @@ namespace Ludus::Engine::Core
 					auto physicsSystem = std::make_unique<Ludus::Engine::Physics::Core::PhysicsSystem2D>(physicsConfiguration);
 					auto constraints = Ludus::Engine::Core::SystemConstraints::Create()
 						.RequireAllOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::PhysicsEnabled))
-						.RequireAnyOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::PhysicsEnabled) | Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::Simulating));
+						.RequireAnyOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::PhysicsEnabled) | Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::SimulationEnabled));
 
 					application.AddSystem({ SystemPhase::FixedUpdate, SystemPhaseOrder::Before, constraints }, std::move(physicsSystem));
 				}

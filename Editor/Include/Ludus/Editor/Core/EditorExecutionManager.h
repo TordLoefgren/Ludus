@@ -13,7 +13,7 @@ namespace Ludus::Editor::Core
 	private:
 		static constexpr uint32_t m_EditorToolsEnabled = Ludus::Engine::Core::Mask(Ludus::Editor::Core::EditorExecutionFlags::EditorToolsEnabled);
 		static constexpr uint32_t m_PhysicsEnabledFlag = Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::PhysicsEnabled);
-		static constexpr uint32_t m_SimulatingFlag = Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::Simulating);
+		static constexpr uint32_t m_SimulatingFlag = Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::SimulationEnabled);
 
 	public:
 		void Apply(Ludus::Engine::Core::SystemContext& context, Ludus::Editor::Core::ExecutionMode mode)

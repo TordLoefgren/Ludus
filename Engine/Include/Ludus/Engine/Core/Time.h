@@ -36,7 +36,7 @@ namespace Ludus::Engine::Core
 			return FIXED_DELTA_TIME;
 		}
 
-		void Step()
+		void Step(bool advance = true)
 		{
 			auto now = Clock::now();
 
@@ -50,6 +50,12 @@ namespace Ludus::Engine::Core
 
 			std::chrono::duration<float> delta = now - m_CurrentTime;
 			m_CurrentTime = now;
+
+			if (!advance)
+			{
+				m_DeltaTime = 0.0f;
+				return;
+			}
 
 			// Clamp frame delta time to cap accumulator growth.
 			m_DeltaTime = std::min(delta.count(), MAX_FRAME_TIME);

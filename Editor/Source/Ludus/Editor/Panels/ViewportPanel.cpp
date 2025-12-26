@@ -25,8 +25,8 @@
 
 namespace Ludus::Editor::Panels
 {
-	ViewportPanel::ViewportPanel(std::string title)
-		: m_Title(title), m_Camera(), m_Target(nullptr), m_PreviousTargetSize()
+	ViewportPanel::ViewportPanel(std::string title, Ludus::Editor::Core::ViewportDisplayMode displayMode)
+		: m_Title(title), m_Camera(), m_Target(nullptr), m_PreviousTargetSize(), m_DisplayMode(displayMode)
 	{ }
 
 	Ludus::Engine::Math::Vector2D ViewportPanel::GetViewportAspectSize(Ludus::Engine::Math::Size<int> framebufferSize)
@@ -126,7 +126,6 @@ namespace Ludus::Editor::Panels
 			| Ludus::UI::Flags::Window::NoScrollbar
 			| Ludus::UI::Flags::Window::NoScrollWithMouse;
 
-		Ludus::UI::Scope::StyleColorScope styleColor({ Ludus::UI::Scope::StyleColor(Ludus::UI::Scope::Color::WindowBg, Ludus::Engine::Graphics::Colors::Black) });
 		Ludus::UI::Scope::StyleVarScope styleVar({ Ludus::UI::Scope::StyleVar::Vector(Ludus::UI::Scope::Variable::WindowPadding, {0.0f, 0.0f }) });
 
 		auto windowTitle = CreateUniqueWindowTitle(m_Title);
@@ -148,20 +147,30 @@ namespace Ludus::Editor::Panels
 
 			Ludus::UI::Context::LayoutContext::SameLine();
 
+			const auto availableWidth = Ludus::UI::Context::WindowContext::GetContentRegionAvailable().X;
+			Ludus::UI::Context::LayoutContext::SetNextItemWidth(availableWidth);
+
 			if (Ludus::UI::Scope::ComboScope combo(comboLabel.c_str(), preview.c_str()); combo)
 			{
-				for (const auto& scene : scenes)
+				if (scenes.empty())
 				{
-					const bool isSelected = m_SelectedSceneHandle == scene.Handle;
-					const auto itemLabel = std::format("Scene {}", scene.Handle);
-					if (Ludus::UI::Widgets::Selectable(itemLabel.c_str(), isSelected))
+					const auto _ = Ludus::UI::Widgets::Selectable("None", false);
+				}
+				else
+				{
+					for (const auto& scene : scenes)
 					{
-						m_SelectedSceneHandle = scene.Handle;
-					}
+						const bool isSelected = m_SelectedSceneHandle == scene.Handle;
+						const auto itemLabel = std::format("Scene {}", scene.Handle);
+						if (Ludus::UI::Widgets::Selectable(itemLabel.c_str(), isSelected))
+						{
+							m_SelectedSceneHandle = scene.Handle;
+						}
 
-					if (isSelected)
-					{
-						Ludus::UI::Context::SelectionContext::SetItemDefaultFocus();
+						if (isSelected)
+						{
+							Ludus::UI::Context::SelectionContext::SetItemDefaultFocus();
+						}
 					}
 				}
 			}

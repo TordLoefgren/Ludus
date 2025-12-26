@@ -9,8 +9,11 @@ namespace Ludus::Editor::Panels
 	class DockPanel final : public Ludus::Editor::Panels::IPanel
 	{
 	private:
-		void DrawMenuBar(Ludus::Editor::Panels::PanelContext& context);
+		bool m_IsPlayButtonPressed = false;
+		bool m_IsPauseButtonPressed = false;
 
+		void DrawMenuBar(Ludus::Editor::Panels::PanelContext& context);
+		void DrawToolBar(Ludus::Editor::Panels::PanelContext& context);
 	public:
 		virtual bool UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
 	};

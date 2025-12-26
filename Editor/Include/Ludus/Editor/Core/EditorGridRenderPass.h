@@ -28,8 +28,7 @@ namespace Ludus::Editor::Core
 
 		virtual bool Enabled(Ludus::Engine::Graphics::RenderContext2D& context) override
 		{
-			return context.RenderView.SceneHandle.has_value() &&
-				context.RenderView.CameraSource == Ludus::Engine::Graphics::CameraSource::Explicit;
+			return context.RenderView.CameraSource == Ludus::Engine::Graphics::CameraSource::Explicit;
 		};
 
 		virtual void Execute(Ludus::Engine::Graphics::RenderContext2D& context, Ludus::Engine::Graphics::Renderer2D& renderer) override
