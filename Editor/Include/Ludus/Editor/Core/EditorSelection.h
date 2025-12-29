@@ -21,12 +21,7 @@ namespace Ludus::Editor::Core
 		void SelectScene(Ludus::Engine::Core::SceneHandle scene)
 		{
 			SelectedScene = scene;
-		}
-
-		void DeselectAll()
-		{
 			SelectedEntity = std::nullopt;
-			SelectedScene = std::nullopt;
 		}
 
 		void DeselectEntity()
@@ -37,6 +32,7 @@ namespace Ludus::Editor::Core
 		void DeselectScene()
 		{
 			SelectedScene = std::nullopt;
+			SelectedEntity = std::nullopt;
 		}
 
 		bool HasEntity() const { return SelectedEntity.has_value(); }

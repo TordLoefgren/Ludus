@@ -1,7 +1,10 @@
 #pragma once
 
+#include <string>
+
 #include <Ludus/Engine/Components/Camera2DComponent.h>
 #include <Ludus/Engine/Components/Collider2DComponent.h>
+#include <Ludus/Engine/Components/DisplayNameComponent.h>
 #include <Ludus/Engine/Components/RigidBody2DComponent.h>
 #include <Ludus/Engine/Components/Sprite2DComponent.h>
 #include <Ludus/Engine/Components/Text2DComponent.h>
@@ -24,6 +27,7 @@ namespace Ludus::Engine::Core
 	public:
 		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Camera2DComponent> Cameras;
 		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Collider2DComponent> Colliders;
+		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::DisplayNameComponent> DisplayNames;
 		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::RigidBody2DComponent> RigidBodies;
 		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Sprite2DComponent> Sprites;
 		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Text2DComponent> Texts;
@@ -38,6 +42,7 @@ namespace Ludus::Engine::Core
 		{
 			Cameras.RemoveByOwner(handle);
 			Colliders.RemoveByOwner(handle);
+			DisplayNames.RemoveByOwner(handle);
 			RigidBodies.RemoveByOwner(handle);
 			Sprites.RemoveByOwner(handle);
 			Texts.RemoveByOwner(handle);
@@ -63,6 +68,14 @@ namespace Ludus::Engine::Core
 		)
 		{
 			Colliders.Add(handle, layer, collidesWith, isTrigger);
+		}
+
+		void AttachDisplayName(
+			EntityHandle handle,
+			std::string value
+		)
+		{
+			DisplayNames.Add(handle, value);
 		}
 
 		void AttachRigidBody(

@@ -26,6 +26,7 @@
     <Font Include="Resources\Fonts\ARIAL.TTF" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\Engine\Components\DisplayNameComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\ApplicationBuilder.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\ApplicationOptions.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\ExecutionFlags.h" />
