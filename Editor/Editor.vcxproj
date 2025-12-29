@@ -60,7 +60,6 @@
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelRegistry.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\Constants.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\DockPanel.h" />
-    <ClInclude Include="Include\Ludus\Editor\Core\InspectorHelpers.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\IPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\Utilities.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\ConsolePanel.h" />

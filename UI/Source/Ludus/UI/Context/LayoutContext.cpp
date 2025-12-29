@@ -15,4 +15,9 @@ namespace Ludus::UI::Context::LayoutContext
 	{
 		ImGui::SetNextItemWidth(width);
 	}
+
+	void Separator()
+	{
+		ImGui::Separator();
+	}
 }
