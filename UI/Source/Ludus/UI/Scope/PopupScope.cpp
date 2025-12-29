@@ -5,6 +5,24 @@
 
 namespace Ludus::UI::Scope
 {
+	void OpenPopup(const char* id, Ludus::UI::Flags::Popup flags)
+	{
+		ImGui::OpenPopup(id, static_cast<int>(flags));
+	}
+
+	PopupScope::PopupScope(const char* id, Ludus::UI::Flags::Window flags)
+	{
+		m_Open = ImGui::BeginPopup(id, static_cast<int>(flags));
+	}
+
+	PopupScope::~PopupScope()
+	{
+		if (m_Open)
+		{
+			ImGui::EndPopup();
+		}
+	}
+
 	PopupContextItemScope::PopupContextItemScope(const char* label, Ludus::UI::Flags::Popup flags)
 	{
 		m_Open = ImGui::BeginPopupContextItem(label, static_cast<int>(flags));

@@ -49,7 +49,7 @@ namespace Ludus::Editor::Panels
 				if (Ludus::UI::Scope::MenuScope panelsMenu("Panels"); panelsMenu)
 				{
 					Ludus::UI::Widgets::Checkbox("Console", &context.ActivePanelState.ShowConsolePanel);
-					Ludus::UI::Widgets::Checkbox("Hierarchy", &context.ActivePanelState.ShowHierachyPanel);
+					Ludus::UI::Widgets::Checkbox("Hierarchy", &context.ActivePanelState.ShowHierarchyPanel);
 					Ludus::UI::Widgets::Checkbox("ImGuiDemo", &context.ActivePanelState.ShowImGuiDemoPanel);
 					Ludus::UI::Widgets::Checkbox("Inspector", &context.ActivePanelState.ShowInspectorPanel);
 				}

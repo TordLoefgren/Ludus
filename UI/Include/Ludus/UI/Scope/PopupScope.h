@@ -5,6 +5,22 @@
 namespace Ludus::UI::Scope
 {
 	constexpr Ludus::UI::Flags::Popup DefaultPopupContextItemFlags = Ludus::UI::Flags::Popup::MouseButtonRight;
+	constexpr Ludus::UI::Flags::Window DefaultPopupFlags = Ludus::UI::Flags::Window::None;
+
+	void OpenPopup(const char* id, Ludus::UI::Flags::Popup flags = DefaultPopupContextItemFlags);
+
+	class PopupScope
+	{
+	private:
+		bool m_Open = false;
+
+	public:
+		explicit PopupScope(const char* label = nullptr, Ludus::UI::Flags::Window flags = DefaultPopupFlags);
+
+		~PopupScope();
+
+		explicit operator bool() const { return m_Open; }
+	};
 
 	class PopupContextItemScope
 	{
