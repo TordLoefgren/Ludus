@@ -6,4 +6,6 @@ namespace Ludus::UI::Icons
 #define ICON_STOP reinterpret_cast<const char*>(u8"\uEF68")
 #define ICON_PAUSE reinterpret_cast<const char*>(u8"\uEDD1")
 #define ICON_STEP reinterpret_cast<const char*>(u8"\uEF64")
+#define ICON_PLUS reinterpret_cast<const char*>(u8"\uEE41")
+#define ICON_ELLIPSIS_V reinterpret_cast<const char*>(u8"\uEB47")
 }
