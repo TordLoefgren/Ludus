@@ -87,6 +87,8 @@
     <ClInclude Include="Include\Ludus\Engine\Core\Cooldown.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Entity.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Size.h" />
+    <ClInclude Include="Include\Ludus\Engine\Persistance\ILoadArchive.h" />
+    <ClInclude Include="Include\Ludus\Engine\Persistance\ISaveArchive.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Core\LayerMask.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Random.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Timer.h" />
