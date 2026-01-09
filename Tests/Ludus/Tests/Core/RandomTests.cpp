@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-namespace Ludus::Tests::Engine
+namespace Ludus::Tests::Core
 {
 	using Ludus::Engine::Core::Random;
 
