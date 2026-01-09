@@ -112,6 +112,11 @@ namespace Ludus::Engine::Debug
 			expression.data()
 		);
 
+		// Make sure that failure is also recorded with stderr. This is essential for testing failure behaviour.
+		std::fputs(buffer, stderr);
+		std::fputc('\n', stderr);
+		std::fflush(stderr);
+
 		LogLine(LogLevel::Critical, buffer, location);
 
 		std::terminate();
