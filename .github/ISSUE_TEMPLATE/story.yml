@@ -19,7 +19,7 @@ body:
   - type: textarea
     id: links
     attributes:
-      label: Related Issues (optional)
-      description: Reference related items (even if sub-issues are used).
+      label: Related Issues
+      description: Reference related items.
       value: |
         - [ ] #<id> 
