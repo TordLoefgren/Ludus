@@ -40,6 +40,29 @@ namespace Ludus::Engine::Physics::Core
 			default:					return "Unknown";
 		}
 	}
+
+	constexpr bool TryParse(std::string_view text, BodyType& out)
+	{
+		if (text == "Dynamic")
+		{
+			out = BodyType::Dynamic;
+			return true;
+		}
+
+		if (text == "Kinematic")
+		{
+			out = BodyType::Kinematic;
+			return true;
+		}
+
+		if (text == "Static")
+		{
+			out = BodyType::Static;
+			return true;
+		}
+
+		return false;
+	}
 }
 
 template <>

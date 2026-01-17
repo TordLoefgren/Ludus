@@ -12,9 +12,9 @@ namespace Ludus::Engine::Components
 		Ludus::Engine::Core::EntityHandle OwnerHandle;
 		std::string Value;
 
-		DisplayNameComponent(
+		explicit DisplayNameComponent(
 			Ludus::Engine::Core::EntityHandle owner,
-			std::string value
+			std::string value = ""
 		) :
 			OwnerHandle(owner),
 			Value(value)
