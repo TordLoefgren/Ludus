@@ -13,14 +13,14 @@ namespace Ludus::Engine::Components
 	public:
 		Ludus::Engine::Core::EntityHandle OwnerHandle;
 		std::string Text;
-		Ludus::Engine::Graphics::Color Color { Ludus::Engine::Graphics::Colors::White };
-		Ludus::Engine::Graphics::HorizontalTextAlignment HorizontalAlignment { Ludus::Engine::Graphics::HorizontalTextAlignment::Left };
+		Ludus::Engine::Graphics::Color Color;
+		Ludus::Engine::Graphics::HorizontalTextAlignment HorizontalAlignment;
 
-		Text2DComponent(
+		explicit Text2DComponent(
 			Ludus::Engine::Core::EntityHandle owner,
-			std::string text,
-			Ludus::Engine::Graphics::Color color,
-			Ludus::Engine::Graphics::HorizontalTextAlignment horizontalAlignment
+			std::string text = "",
+			Ludus::Engine::Graphics::Color color = Ludus::Engine::Graphics::Colors::White,
+			Ludus::Engine::Graphics::HorizontalTextAlignment horizontalAlignment = Ludus::Engine::Graphics::HorizontalTextAlignment::Left
 		) :
 			OwnerHandle(owner),
 			Text(text),

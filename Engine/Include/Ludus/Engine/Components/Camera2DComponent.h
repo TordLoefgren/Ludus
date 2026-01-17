@@ -17,7 +17,7 @@ namespace Ludus::Engine::Components
 		float OrthographicSize;
 		int Priority;
 
-		Camera2DComponent(
+		explicit Camera2DComponent(
 			Ludus::Engine::Core::EntityHandle owner,
 			float OrthographicSize = 10.0f,
 			int priority = -1

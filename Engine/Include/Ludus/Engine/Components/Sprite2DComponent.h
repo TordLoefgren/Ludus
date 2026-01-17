@@ -16,9 +16,9 @@ namespace Ludus::Engine::Components
 		Ludus::Engine::Graphics::Texture* Texture = nullptr;
 		bool Fill = true;
 
-		Sprite2DComponent(
+		explicit Sprite2DComponent(
 			Ludus::Engine::Core::EntityHandle owner,
-			Ludus::Engine::Graphics::Shape shape,
+			Ludus::Engine::Graphics::Shape shape = Ludus::Engine::Graphics::Shape::Quad,
 			Ludus::Engine::Graphics::Color color = Ludus::Engine::Graphics::Colors::White,
 			Ludus::Engine::Graphics::Texture* texture = nullptr,
 			bool fill = true
