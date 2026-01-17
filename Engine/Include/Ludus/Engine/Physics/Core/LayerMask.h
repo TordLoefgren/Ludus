@@ -78,7 +78,6 @@ namespace Ludus::Engine::Physics::Core
 #pragma endregion
 
 		static LayerMask GetEmpty() { return LayerMask(0u); }
-		static LayerMask GetDefault() { return LayerMask(1u << 0u); }
 
 		static LayerMask FromIndex(LayerIndex index)
 		{

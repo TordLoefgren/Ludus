@@ -17,9 +17,9 @@ namespace Ludus::Engine::Components
 		Ludus::Engine::Physics::Core::LayerMask CollidesWith;
 		bool IsTrigger;
 
-		Collider2DComponent(
+		explicit Collider2DComponent(
 			Ludus::Engine::Core::EntityHandle owner,
-			Ludus::Engine::Physics::Core::LayerIndex layerIndex,
+			Ludus::Engine::Physics::Core::LayerIndex layerIndex = 0,
 			Ludus::Engine::Physics::Core::LayerMask collidesWith = Ludus::Engine::Physics::Core::LayerMask::GetEmpty(),
 			bool isTrigger = false
 		) :

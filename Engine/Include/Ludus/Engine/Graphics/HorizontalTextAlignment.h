@@ -20,6 +20,29 @@ namespace Ludus::Engine::Graphics
 			default:								return "Unknown";
 		}
 	}
+
+	constexpr bool TryParse(std::string_view text, HorizontalTextAlignment& out)
+	{
+		if (text == "Left")
+		{
+			out = HorizontalTextAlignment::Left;
+			return true;
+		}
+
+		if (text == "Center")
+		{
+			out = HorizontalTextAlignment::Center;
+			return true;
+		}
+
+		if (text == "Right")
+		{
+			out = HorizontalTextAlignment::Right;
+			return true;
+		}
+
+		return false;
+	}
 }
 
 template <>

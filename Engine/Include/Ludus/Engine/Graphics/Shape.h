@@ -14,10 +14,27 @@ namespace Ludus::Engine::Graphics
 	{
 		switch (shape)
 		{
-		case Shape::Circle:	return "Circle";
-		case Shape::Quad:	return "Quad";
-		default:			return "Unknown";
+			case Shape::Circle:	return "Circle";
+			case Shape::Quad:	return "Quad";
+			default:			return "Unknown";
 		}
+	}
+
+	constexpr bool TryParse(std::string_view text, Shape& out)
+	{
+		if (text == "Circle")
+		{
+			out = Shape::Circle;
+			return true;
+		}
+
+		if (text == "Quad")
+		{
+			out = Shape::Quad;
+			return true;
+		}
+
+		return false;
 	}
 }
 
