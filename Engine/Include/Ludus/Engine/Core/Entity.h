@@ -18,8 +18,17 @@ namespace Ludus::Engine::Core
 			: Handle(s_NextHandle++)
 		{ }
 
-		Entity(const Entity&) = delete;
-		Entity& operator=(const Entity&) = delete;
+		Entity(EntityHandle handle)
+			: Handle(handle)
+		{
+			if (handle >= s_NextHandle)
+			{
+				s_NextHandle = handle + 1;
+			}
+		}
+
+		Entity(const Entity&) = default;
+		Entity& operator=(const Entity&) = default;
 		Entity(Entity&&) noexcept = default;
 		Entity& operator=(Entity&&) noexcept = default;
 		~Entity() = default;

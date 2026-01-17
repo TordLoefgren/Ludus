@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 
 #include <Ludus/Engine/Components/Camera2DComponent.h>
@@ -17,12 +18,18 @@
 #include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/Engine/Physics/Core/BodyType.h>
 
+namespace Ludus::Engine::Persistance::Serializers { struct SceneSerializer; }
+
 namespace Ludus::Engine::Core
 {
 	struct EntityComponentSystem
 	{
 	private:
 		Ludus::Engine::Core::EntityRegistry m_Entities;
+
+		void AddEntityWithHandle(EntityHandle handle) { m_Entities.AddEntity(handle); }
+
+		friend struct Ludus::Engine::Persistance::Serializers::SceneSerializer;
 
 	public:
 		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Camera2DComponent> Cameras;
@@ -32,6 +39,12 @@ namespace Ludus::Engine::Core
 		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Sprite2DComponent> Sprites;
 		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Text2DComponent> Texts;
 		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Transform2DComponent> Transforms;
+
+		EntityComponentSystem() = default;
+		EntityComponentSystem(const EntityComponentSystem&) = delete;
+		EntityComponentSystem& operator=(const EntityComponentSystem&) = delete;
+		EntityComponentSystem(EntityComponentSystem&&) noexcept = default;
+		EntityComponentSystem& operator=(EntityComponentSystem&&) noexcept = default;
 
 		EntityHandle AddEntity()
 		{
@@ -51,14 +64,12 @@ namespace Ludus::Engine::Core
 			return m_Entities.DestroyEntity(handle);
 		}
 
-		void AttachCamera(
-			EntityHandle handle,
-			float orthographicSize = 10.0f,
-			int priority = -1
-		)
+		void AttachCamera(EntityHandle handle, float orthographicSize = 10.0f, int priority = -1)
 		{
 			Cameras.Add(handle, orthographicSize, priority);
 		}
+
+		void AttachCamera(Ludus::Engine::Components::Camera2DComponent component) { Cameras.Add(component); }
 
 		void AttachCollider(
 			EntityHandle handle,
@@ -70,13 +81,14 @@ namespace Ludus::Engine::Core
 			Colliders.Add(handle, layer, collidesWith, isTrigger);
 		}
 
-		void AttachDisplayName(
-			EntityHandle handle,
-			std::string value
-		)
+		void AttachCollider(Ludus::Engine::Components::Collider2DComponent component) { Colliders.Add(component); }
+
+		void AttachDisplayName(EntityHandle handle, std::string value = "")
 		{
 			DisplayNames.Add(handle, value);
 		}
+
+		void AttachDisplayName(Ludus::Engine::Components::DisplayNameComponent component) { DisplayNames.Add(component); }
 
 		void AttachRigidBody(
 			EntityHandle handle,
@@ -89,6 +101,8 @@ namespace Ludus::Engine::Core
 			RigidBodies.Add(handle, velocity, type, gravityScale, mass);
 		}
 
+		void AttachRigidBody(Ludus::Engine::Components::RigidBody2DComponent component) { RigidBodies.Add(component); }
+
 		void AttachSprite(
 			EntityHandle handle,
 			Ludus::Engine::Graphics::Shape shape = Ludus::Engine::Graphics::Shape::Quad,
@@ -100,15 +114,19 @@ namespace Ludus::Engine::Core
 			Sprites.Add(handle, shape, color, texture, fill);
 		}
 
+		void AttachSprite(Ludus::Engine::Components::Sprite2DComponent component) { Sprites.Add(component); }
+
 		void AttachText(
 			EntityHandle handle,
-			std::string text,
+			std::string text = "",
 			Ludus::Engine::Graphics::Color color = Ludus::Engine::Graphics::Colors::White,
 			Ludus::Engine::Graphics::HorizontalTextAlignment horizontalAlignment = Ludus::Engine::Graphics::HorizontalTextAlignment::Left
 		)
 		{
 			Texts.Add(handle, text, color, horizontalAlignment);
 		}
+
+		void AttachText(Ludus::Engine::Components::Text2DComponent component) { Texts.Add(component); }
 
 		void AttachTransform(
 			EntityHandle handle,
@@ -120,9 +138,11 @@ namespace Ludus::Engine::Core
 			Transforms.Add(handle, position, scale, rotation);
 		}
 
-		const size_t GetEntityCount() { return m_Entities.GetCount(); }
+		void AttachTransform(Ludus::Engine::Components::Transform2DComponent component) { Transforms.Add(component); }
 
-		size_t IndexOf(EntityHandle handle) { return m_Entities.IndexOf(handle); }
+		size_t GetEntityCount() const { return m_Entities.GetCount(); }
+
+		std::optional<size_t> IndexOf(EntityHandle handle) const { return m_Entities.IndexOf(handle); }
 
 		std::span<const Entity> View() const { return m_Entities.View(); }
 	};

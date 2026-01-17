@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <span>
 #include <unordered_map>
 #include <utility>
@@ -37,6 +38,15 @@ namespace Ludus::Engine::Core
 		}
 
 	public:
+		void AddEntity(EntityHandle handle)
+		{
+			m_Data.emplace_back(handle);
+
+			const auto index = m_Data.size() - 1;
+
+			m_Handles.push_back(handle);
+			m_HandleToIndex[handle] = index;
+		}
 
 		EntityHandle CreateEntity()
 		{
@@ -85,16 +95,16 @@ namespace Ludus::Engine::Core
 
 		std::span<const Entity> View() const { return { m_Data.data(), m_Data.size() }; }
 
-		size_t IndexOf(EntityHandle handle)
+		std::optional<size_t> IndexOf(EntityHandle handle) const
 		{
-			if (m_HandleToIndex.contains(handle))
+			if (auto iter = m_HandleToIndex.find(handle); iter != m_HandleToIndex.end())
 			{
-				return m_HandleToIndex[handle];
+				return iter->second;
 			}
 
-			return -1;
+			return std::nullopt;
 		}
 
-		const size_t GetCount() { return m_Data.size(); }
+		size_t GetCount() const { return m_Data.size(); }
 	};
 }

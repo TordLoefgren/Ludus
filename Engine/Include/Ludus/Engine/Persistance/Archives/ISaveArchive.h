@@ -1,8 +1,12 @@
 #pragma once
 
-#include <string>
+#include <cstddef>
+#include <cstdint>
+#include <string_view>
 
-namespace Ludus::Engine::Persistance
+#include <Ludus/Engine/Persistance/Archives/IArchiveDiagnostics.h>
+
+namespace Ludus::Engine::Persistance::Archives
 {
 	class ISaveArchive
 	{
@@ -15,6 +19,7 @@ namespace Ludus::Engine::Persistance
 		virtual void BeginArray(std::string_view key) = 0;
 		virtual void EndArray() = 0;
 
+		virtual void BeginArrayElement(size_t index) = 0;
 		virtual void BeginArrayElement() = 0;
 		virtual void EndArrayElement() = 0;
 
@@ -23,5 +28,10 @@ namespace Ludus::Engine::Persistance
 		virtual void WriteFloat(std::string_view key, float value) = 0;
 		virtual void WriteInt(std::string_view key, int value) = 0;
 		virtual void WriteString(std::string_view key, std::string_view value) = 0;
+		virtual void WriteUint8(std::string_view key, uint8_t value) = 0;
+		virtual void WriteUint32(std::string_view key, uint32_t value) = 0;
+
+	protected:
+		IArchiveDiagnostics* m_Diagnostics = nullptr;
 	};
 }
