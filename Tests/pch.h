@@ -15,10 +15,7 @@
 #include <Ludus/Engine/Events/EventHandler.h>
 #include <Ludus/Engine/Math/AABB.h>
 #include <Ludus/Engine/Math/Vector2D.h>
-#include <Ludus/Engine/Persistance/Archives/DomArchiveDiagnostics.h>
-#include <Ludus/Engine/Persistance/Archives/DomLoadArchive.h>
-#include <Ludus/Engine/Persistance/Archives/DomNode.h>
-#include <Ludus/Engine/Persistance/Archives/DomSaveArchive.h>
-#include <Ludus/Engine/Persistance/Serializers/SceneSerializer.h>
-#include <Ludus/Engine/Persistance/Serializers/Sprite2DComponentSerializer.h>
-#include <Ludus/Engine/Persistance/Serializers/Transform2DComponentSerializer.h>
+#include <Ludus/Engine/Persistance/Codecs/LmlDomCodec.h>
+#include <Ludus/Engine/Persistance/Serialization/DomNode.h>
+#include <Ludus/Engine/Persistance/Serialization/DomTokenStreamReader.h>
+#include <Ludus/Engine/Persistance/Serialization/DomTokenStreamWriter.h>
