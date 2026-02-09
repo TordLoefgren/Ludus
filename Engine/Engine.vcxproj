@@ -83,6 +83,7 @@
     <ClInclude Include="Include\Ludus\Engine\Graphics\Shape.h" />
     <ClInclude Include="Include\Ludus\Engine\Components\Sprite2DComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Components\Text2DComponent.h" />
+    <ClInclude Include="Include\Ludus\Engine\IO\IO.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Rect.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Circle.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\EntityRegistry.h" />
@@ -115,7 +116,6 @@
     <ClInclude Include="Include\Ludus\Engine\Core\Random.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Timer.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Time.h" />
-    <ClInclude Include="Include\Ludus\Engine\Core\Utilities.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\Camera2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\Color.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\ElementBufferObject.h" />
@@ -472,7 +472,6 @@
     <ClCompile Include="Source\Ludus\Engine\Events\EventBus.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Core\Application.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Core\Random.cpp" />
-    <ClCompile Include="Source\Ludus\Engine\Core\Utilities.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\Camera2D.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\ElementBufferObject.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\GLContext.cpp" />

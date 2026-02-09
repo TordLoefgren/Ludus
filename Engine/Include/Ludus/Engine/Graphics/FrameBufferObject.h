@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Ludus/Engine/Core/Utilities.h>
-#include <Ludus/Engine/Graphics/Vertex.h>
 #include <Ludus/Engine/Math/Size.h>
 
 namespace Ludus::Engine::Graphics
