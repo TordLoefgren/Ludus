@@ -16,7 +16,7 @@
 #include <Ludus/Engine/IO/IO.h>
 #include <Ludus/Engine/Math/AABB.h>
 #include <Ludus/Engine/Math/Vector2D.h>
-#include <Ludus/Engine/Persistance/Codecs/LmlDomCodec.h>
-#include <Ludus/Engine/Persistance/Serialization/DomNode.h>
-#include <Ludus/Engine/Persistance/Serialization/DomTokenStreamReader.h>
-#include <Ludus/Engine/Persistance/Serialization/DomTokenStreamWriter.h>
+#include <Ludus/Engine/Serialization/Codecs/LmlDomCodec.h>
+#include <Ludus/Engine/Serialization/Core/DomNode.h>
+#include <Ludus/Engine/Serialization/Core/DomTokenStreamReader.h>
+#include <Ludus/Engine/Serialization/Core/DomTokenStreamWriter.h>

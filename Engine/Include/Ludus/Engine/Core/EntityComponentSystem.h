@@ -18,7 +18,7 @@
 #include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/Engine/Physics/Core/BodyType.h>
 
-namespace Ludus::Engine::Persistance::Schemas { struct SceneSchema; }
+namespace Ludus::Engine::Serialization::Schemas { struct SceneSchema; }
 
 namespace Ludus::Engine::Core
 {
@@ -29,7 +29,7 @@ namespace Ludus::Engine::Core
 
 		void AddEntityWithHandle(EntityHandle handle) { m_Entities.AddEntity(handle); }
 
-		friend struct Ludus::Engine::Persistance::Schemas::SceneSchema;
+		friend struct Ludus::Engine::Serialization::Schemas::SceneSchema;
 
 	public:
 		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Camera2DComponent> Cameras;
