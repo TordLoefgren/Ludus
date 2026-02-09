@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 
 #include <Ludus/Engine/Debug/Debug.h>
+#include <Ludus/Engine/Graphics/Vertex.h>
 #include <Ludus/Engine/Graphics/VertexBufferObject.h>
 
 namespace Ludus::Engine::Graphics

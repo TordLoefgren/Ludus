@@ -1,9 +1,5 @@
 #pragma once
 
-#include <filesystem>
-
-#include <Ludus/Engine/Core/Utilities.h>
-
 namespace Ludus::Engine::Graphics
 {
 	class Texture
