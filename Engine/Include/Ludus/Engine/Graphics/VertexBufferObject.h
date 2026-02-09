@@ -1,8 +1,5 @@
 #pragma once
 
-#include <Ludus/Engine/Core/Utilities.h>
-#include <Ludus/Engine/Graphics/Vertex.h>
-
 namespace Ludus::Engine::Graphics
 {
 	class VertexBufferObject

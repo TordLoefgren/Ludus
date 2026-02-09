@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 
+#include <Ludus/Engine/Graphics/Vertex.h>
 #include <Ludus/Engine/Graphics/VertexArrayObject.h>
 
 namespace Ludus::Engine::Graphics

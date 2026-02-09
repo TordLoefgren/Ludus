@@ -5,7 +5,6 @@
 #include <numeric>
 #include <unordered_map>
 
-#include <Ludus/Engine/Core/Utilities.h>
 #include <Ludus/Engine/Graphics/Texture.h>
 
 namespace Ludus::Engine::Graphics
