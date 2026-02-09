@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Ludus/Engine/Core/Utilities.h>
-
 namespace Ludus::Engine::Graphics
 {
 	class ElementBufferObject

@@ -2,7 +2,6 @@
 
 #include <GLFW/glfw3.h>
 
-#include <Ludus/Engine/Core/Utilities.h>
 #include <Ludus/Engine/Events/Event.h>
 #include <Ludus/Engine/Events/EventBus.h>
 #include <Ludus/Engine/Events/EventHandler.h>

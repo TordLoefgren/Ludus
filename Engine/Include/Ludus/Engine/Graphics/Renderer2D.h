@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -11,6 +12,7 @@
 #include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
 #include <Ludus/Engine/Graphics/Shader.h>
 #include <Ludus/Engine/Graphics/Texture.h>
+#include <Ludus/Engine/Graphics/Vertex.h>
 #include <Ludus/Engine/Graphics/VertexArrayObject.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 
