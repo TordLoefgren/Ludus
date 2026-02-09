@@ -109,7 +109,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Ludus\Tests\Persistance\Serialization\DomTestHelpers.h" />
+    <ClInclude Include="Ludus\Tests\Serialization\Core\DomTestHelpers.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
@@ -118,18 +118,18 @@
     <ClCompile Include="Ludus\Tests\Events\EventBusTests.cpp" />
     <ClCompile Include="Ludus\Tests\IO\IOTests.cpp" />
     <ClCompile Include="Ludus\Tests\Math\Vector2DTests.cpp" />
-    <ClCompile Include="Ludus\Tests\Persistance\Serialization\DomTokenStreamReaderTests.cpp" />
-    <ClCompile Include="Ludus\Tests\Persistance\Serialization\DomTokenStreamWriterTests.cpp" />
-    <ClCompile Include="Ludus\Tests\Persistance\Codecs\LmlDomCodecTests.cpp" />
-    <ClCompile Include="Ludus\Tests\Persistance\Schemas\Camera2DComponentSchemaTests.cpp" />
-    <ClCompile Include="Ludus\Tests\Persistance\Schemas\Collider2DComponentSchemaTests.cpp" />
-    <ClCompile Include="Ludus\Tests\Persistance\Schemas\DisplayNameComponentSchemaTests.cpp" />
-    <ClCompile Include="Ludus\Tests\Persistance\Schemas\ProjectSchemaTests.cpp" />
-    <ClCompile Include="Ludus\Tests\Persistance\Schemas\RigidBody2DComponentSchemaTests.cpp" />
-    <ClCompile Include="Ludus\Tests\Persistance\Schemas\SceneSchemaTests.cpp" />
-    <ClCompile Include="Ludus\Tests\Persistance\Schemas\Sprite2DComponentSchemaTests.cpp" />
-    <ClCompile Include="Ludus\Tests\Persistance\Schemas\Text2DComponentSchemaTests.cpp" />
-    <ClCompile Include="Ludus\Tests\Persistance\Schemas\Transform2DComponentSchemaTests.cpp" />
+    <ClCompile Include="Ludus\Tests\Serialization\Core\DomTokenStreamReaderTests.cpp" />
+    <ClCompile Include="Ludus\Tests\Serialization\Core\DomTokenStreamWriterTests.cpp" />
+    <ClCompile Include="Ludus\Tests\Serialization\Codecs\LmlDomCodecTests.cpp" />
+    <ClCompile Include="Ludus\Tests\Serialization\Schemas\Camera2DComponentSchemaTests.cpp" />
+    <ClCompile Include="Ludus\Tests\Serialization\Schemas\Collider2DComponentSchemaTests.cpp" />
+    <ClCompile Include="Ludus\Tests\Serialization\Schemas\DisplayNameComponentSchemaTests.cpp" />
+    <ClCompile Include="Ludus\Tests\Serialization\Schemas\ProjectSchemaTests.cpp" />
+    <ClCompile Include="Ludus\Tests\Serialization\Schemas\RigidBody2DComponentSchemaTests.cpp" />
+    <ClCompile Include="Ludus\Tests\Serialization\Schemas\SceneSchemaTests.cpp" />
+    <ClCompile Include="Ludus\Tests\Serialization\Schemas\Sprite2DComponentSchemaTests.cpp" />
+    <ClCompile Include="Ludus\Tests\Serialization\Schemas\Text2DComponentSchemaTests.cpp" />
+    <ClCompile Include="Ludus\Tests\Serialization\Schemas\Transform2DComponentSchemaTests.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
