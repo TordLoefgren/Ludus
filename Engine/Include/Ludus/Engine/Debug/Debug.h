@@ -75,13 +75,36 @@ namespace Ludus::Engine::Debug
 		return entries;
 	}
 
+	inline std::string ShortenFilePath(std::string_view full)
+	{
+		auto last = full.rfind("\\Ludus\\");
+		if (last == std::string_view::npos)
+		{
+			last = full.rfind("/Ludus/");
+		}
+
+		if (last != std::string_view::npos)
+		{
+			return std::string(full.substr(last + 1));
+		}
+
+		// Fallback on the filename.
+		auto slash = full.find_last_of("\\/");
+		if (slash != std::string_view::npos)
+		{
+			return std::string(full.substr(slash + 1));
+		}
+
+		return std::string(full);
+	}
+
 	inline void LogLine(
 		LogLevel level,
 		std::string_view message,
 		std::source_location location = std::source_location::current()
 	)
 	{
-		GetLogEntries().push_back({ level, message.data(), location.file_name(), location.line() });
+		GetLogEntries().push_back({ level, std::string(message), ShortenFilePath(location.file_name()), location.line() });
 	}
 
 	inline void LogLineTagged(
@@ -91,7 +114,7 @@ namespace Ludus::Engine::Debug
 		std::source_location location = std::source_location::current()
 	)
 	{
-		GetLogEntries().push_back({ level, message.data(), location.file_name(), location.line(), tag.data() });
+		GetLogEntries().push_back({ level, std::string(message), ShortenFilePath(location.file_name()), location.line(), tag.data() });
 	}
 
 	inline void Fail(
@@ -101,7 +124,8 @@ namespace Ludus::Engine::Debug
 	)
 	{
 		char buffer[1024];
-		const char* logMessage = message.empty() ? "assertion failed" : message.data();
+		const std::string messageText = message.empty() ? std::string("assertion failed") : std::string(message);
+		const char* logMessage = messageText.c_str();
 
 		std::snprintf(
 			buffer,

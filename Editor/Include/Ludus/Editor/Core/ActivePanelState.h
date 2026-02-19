@@ -8,5 +8,6 @@ namespace Ludus::Editor::Core
 		bool ShowHierarchyPanel = true;
 		bool ShowInspectorPanel = true;
 		bool ShowImGuiDemoPanel = true;
+		bool ShowProjectPanel = true;
 	};
 }

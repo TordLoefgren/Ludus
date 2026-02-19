@@ -8,7 +8,7 @@ namespace Ludus::Engine::Core
 	class Random
 	{
 	private:
-		std::mt19937 m_MT;
+		std::mt19937_64 m_MT;
 
 	public:
 		/// <summary>
@@ -23,6 +23,12 @@ namespace Ludus::Engine::Core
 		explicit Random(std::uint32_t seed);
 
 		~Random() = default;
+
+		/// <summary>
+		/// Computes a random unsigned 64-bit integer in the maximum limits range.
+		/// </summary>
+		/// <returns>A random unsigned integer.</returns>
+		uint64_t NextId();
 
 		/// <summary>
 		/// Computes a random integer in the range specified by min and max.
@@ -40,7 +46,16 @@ namespace Ludus::Engine::Core
 		/// <param name="max">The maximum value.</param>
 		/// <returns>A random unsigned integer.</returns>
 		/// <exception cref="std::invalid_argument">Thrown if min &gt;= max.</exception>
-		uint32_t NextUint(const uint32_t min, const uint32_t max);
+		uint32_t NextUint32(const uint32_t min, const uint32_t max);
+
+		/// <summary>
+		/// Computes a random unsigned integer in the range specified by min and max.
+		/// </summary>
+		/// <param name="min">The minimum value.</param>
+		/// <param name="max">The maximum value.</param>
+		/// <returns>A random unsigned integer.</returns>
+		/// <exception cref="std::invalid_argument">Thrown if min &gt;= max.</exception>
+		uint64_t NextUint64(const uint64_t min, const uint64_t max);
 
 		/// <summary>
 		/// Computes a random float in the range specified by min and max.

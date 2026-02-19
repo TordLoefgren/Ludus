@@ -1,12 +1,12 @@
 #include "pch.h"
 
 #include <format>
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 
 #include <Ludus/Engine/Debug/Debug.h>
+#include <Ludus/Engine/Graphics/GL.h>
 #include <Ludus/Engine/Graphics/Shader.h>
-#include <Ludus/Engine/IO/IO.h>
+#include <Ludus/Engine/FileSystem/FileSystem.h>
 
 namespace Ludus::Engine::Graphics
 {
@@ -122,8 +122,8 @@ namespace Ludus::Engine::Graphics
 
 	unsigned int Shader::LoadShaders(std::filesystem::path path)
 	{
-		auto vertexSource = Ludus::Engine::IO::ReadAllText(path / "shader.vert");
-		auto fragmentSource = Ludus::Engine::IO::ReadAllText(path / "shader.frag");
+		auto vertexSource = Ludus::Engine::FileSystem::ReadAllText(path / "shader.vert");
+		auto fragmentSource = Ludus::Engine::FileSystem::ReadAllText(path / "shader.frag");
 
 		auto shaders = std::vector<std::tuple<unsigned int, std::string>>();
 		shaders.push_back({ GL_VERTEX_SHADER, std::string(vertexSource) });

@@ -93,11 +93,11 @@ namespace Ludus::Tests::Serialization::Core
 		writer.Emit(Token::StartArray { });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "id" });
-		writer.Emit(Token::Uint32 { 7u });
+		writer.Emit(Token::Int { 7 });
 		writer.Emit(Token::EndObject { });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "id" });
-		writer.Emit(Token::Uint32 { 8u });
+		writer.Emit(Token::Int { 8 });
 		writer.Emit(Token::EndObject { });
 		writer.Emit(Token::EndArray { });
 		writer.Emit(Token::Key { "empty" });
@@ -118,7 +118,7 @@ namespace Ludus::Tests::Serialization::Core
 		reader.Consume();
 		ASSERT_TRUE(std::holds_alternative<Token::Key>(reader.Peek().Data));
 		reader.Consume();
-		ASSERT_TRUE(std::holds_alternative<Token::Uint32>(reader.Peek().Data));
+		ASSERT_TRUE(std::holds_alternative<Token::Int>(reader.Peek().Data));
 		reader.Consume();
 		ASSERT_TRUE(std::holds_alternative<Token::EndObject>(reader.Peek().Data));
 		reader.Consume();
@@ -126,7 +126,7 @@ namespace Ludus::Tests::Serialization::Core
 		reader.Consume();
 		ASSERT_TRUE(std::holds_alternative<Token::Key>(reader.Peek().Data));
 		reader.Consume();
-		ASSERT_TRUE(std::holds_alternative<Token::Uint32>(reader.Peek().Data));
+		ASSERT_TRUE(std::holds_alternative<Token::Int>(reader.Peek().Data));
 		reader.Consume();
 		ASSERT_TRUE(std::holds_alternative<Token::EndObject>(reader.Peek().Data));
 		reader.Consume();

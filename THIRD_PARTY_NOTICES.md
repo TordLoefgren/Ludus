@@ -64,13 +64,13 @@ Notes:
 
 ### 7) GoogleTest (NuGet package)
 - Component: GoogleTest package for Visual Studio
-- Location: `packages/Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.8`
+- Location: `.tools/packages/Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.8`
 - Upstream: https://github.com/google/googletest
 - Package source: NuGet package `Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn` version `1.8.1.8`
 - License: MIT
 - Local license text:
-  - `packages/Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.8/license (MIT).txt`
-  - `packages/Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.8/ThirdPartyNotices.txt`
+  - `.tools/packages/Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.8/license (MIT).txt`
+  - `.tools/packages/Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.8/ThirdPartyNotices.txt`
 
 ### 8) Font Awesome (font file)
 - Component: Font Awesome solid font (`fa-solid-900.ttf`)

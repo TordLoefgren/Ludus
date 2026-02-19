@@ -11,10 +11,11 @@
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
 #include <Ludus/Engine/Graphics/RenderingSystem2D.h>
+#include <Ludus/Engine/Graphics/RenderPresentationSettings.h>
 #include <Ludus/Engine/Graphics/RenderViewConfiguration.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
 #include <Ludus/Engine/Physics/Core/PhysicsSystem2D.h>
-#include <Ludus/Engine/Platform/WindowOptions.h>
+#include <Ludus/Engine/Windowing/WindowOptions.h>
 
 namespace Ludus::Engine::Core
 {
@@ -26,9 +27,10 @@ namespace Ludus::Engine::Core
 		Ludus::Engine::Core::ApplicationOptions m_ApplicationOptions;
 		Ludus::Engine::Graphics::RenderingOptions m_RenderingOptions;
 		Ludus::Engine::Graphics::RenderingConfiguration2D m_RenderingConfiguration;
+		Ludus::Engine::Graphics::RenderPresentationSettings m_RenderPresentationSettings;
 		Ludus::Engine::Graphics::RenderViewConfiguration m_RenderViewConfiguration;
 		Ludus::Engine::Physics::Core::PhysicsConfiguration2D m_PhysicsConfiguration;
-		Ludus::Engine::Platform::WindowOptions m_WindowOptions;
+		Ludus::Engine::Windowing::WindowOptions m_WindowOptions;
 
 		std::vector<BuilderCommand> m_BuilderCommands;
 
@@ -43,9 +45,10 @@ namespace Ludus::Engine::Core
 		ApplicationBuilder& WithApplicationOptions(Ludus::Engine::Core::ApplicationOptions applicationOptions);
 		ApplicationBuilder& WithRenderingConfiguration(Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration);
 		ApplicationBuilder& WithRenderingOptions(Ludus::Engine::Graphics::RenderingOptions renderingOptions);
+		ApplicationBuilder& WithRenderPresentationSettings(Ludus::Engine::Graphics::RenderPresentationSettings renderPresentationSettings);
 		ApplicationBuilder& WithRenderViewConfiguration(Ludus::Engine::Graphics::RenderViewConfiguration renderViewConfiguration);
 		ApplicationBuilder& WithPhysicsConfiguration(Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration);
-		ApplicationBuilder& WithWindowOptions(Ludus::Engine::Platform::WindowOptions windowOptions);
+		ApplicationBuilder& WithWindowOptions(Ludus::Engine::Windowing::WindowOptions windowOptions);
 
 		ApplicationBuilder& UseDefaultRendering2D();
 		ApplicationBuilder& UseDefaultPhysics2D();
@@ -59,9 +62,9 @@ namespace Ludus::Engine::Core
 		{
 			m_BuilderCommands.emplace_back(
 				[=](Ludus::Engine::Core::Application& application)
-				{
-					application.AddSystem<TSystem>(descriptor, args...);
-				}
+			{
+				application.AddSystem<TSystem>(descriptor, args...);
+			}
 			);
 
 			return *this;
@@ -72,9 +75,9 @@ namespace Ludus::Engine::Core
 		{
 			m_BuilderCommands.emplace_back(
 				[=](Ludus::Engine::Core::Application& application)
-				{
-					application.AddFixedUpdateSystem<TSystem>(args...);
-				}
+			{
+				application.AddFixedUpdateSystem<TSystem>(args...);
+			}
 			);
 
 			return *this;
@@ -85,9 +88,9 @@ namespace Ludus::Engine::Core
 		{
 			m_BuilderCommands.emplace_back(
 				[=](Ludus::Engine::Core::Application& application)
-				{
-					application.AddRenderSystem<TSystem>(args...);
-				}
+			{
+				application.AddRenderSystem<TSystem>(args...);
+			}
 			);
 
 			return *this;
@@ -98,9 +101,9 @@ namespace Ludus::Engine::Core
 		{
 			m_BuilderCommands.emplace_back(
 				[=](Ludus::Engine::Core::Application& application)
-				{
-					application.AddUpdateSystem<TSystem>(args...);
-				}
+			{
+				application.AddUpdateSystem<TSystem>(args...);
+			}
 			);
 
 			return *this;
@@ -111,9 +114,9 @@ namespace Ludus::Engine::Core
 		{
 			m_BuilderCommands.emplace_back(
 				[=](Ludus::Engine::Core::Application& application)
-				{
-					application.AddResource<T>(std::move(resource));
-				}
+			{
+				application.AddResource<T>(std::move(resource));
+			}
 			);
 
 			return *this;

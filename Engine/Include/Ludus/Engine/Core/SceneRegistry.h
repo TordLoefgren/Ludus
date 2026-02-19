@@ -3,21 +3,24 @@
 #include <cstdint>
 #include <optional>
 #include <span>
+#include <string_view>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
+#include <Ludus/Engine/Core/Random.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Debug/Debug.h>
 
 namespace Ludus::Engine::Core
 {
-	struct SceneManager
+	struct SceneRegistry
 	{
 	private:
 		std::vector<Ludus::Engine::Core::Scene> m_Scenes;
 		std::unordered_map<Ludus::Engine::Core::SceneHandle, size_t> m_HandleToIndex;
-
-		std::optional<Ludus::Engine::Core::SceneHandle> m_ActiveSceneHandle;
+		Ludus::Engine::Core::Random m_Random;
+		static constexpr size_t MaxUniqueIdAttempts = 32;
 
 	private:
 		void RemoveAndReorderIndices(size_t index)
@@ -39,25 +42,48 @@ namespace Ludus::Engine::Core
 			m_Scenes.pop_back();
 		}
 
-	public:
-		SceneManager() = default;
-
-		SceneManager(std::vector<Ludus::Engine::Core::Scene> scenes)
-			: m_Scenes(std::move(scenes))
+		Ludus::Engine::Core::SceneHandle CommitScene(Ludus::Engine::Core::Scene scene)
 		{
-			m_HandleToIndex.reserve(m_Scenes.size());
-			for (size_t i = 0; i < m_Scenes.size(); ++i)
+			const auto sceneHandle = scene.Handle;
+			LUDUS_ASSERT(!Contains(sceneHandle), "Scene handle collision.");
+
+			m_Scenes.push_back(std::move(scene));
+			m_HandleToIndex[sceneHandle] = m_Scenes.size() - 1;
+
+			return sceneHandle;
+		}
+
+		Ludus::Engine::Core::SceneHandle CreateUniqueId()
+		{
+			// Retry a fixed number of times to avoid collision loop.
+			for (size_t attempt = 0; attempt < MaxUniqueIdAttempts; ++attempt)
 			{
-				m_HandleToIndex[m_Scenes[i].Handle] = i;
+				const auto handle = m_Random.NextId();
+				if (!Contains(handle))
+				{
+					return handle;
+				}
 			}
 
-			if (!m_Scenes.empty())
+			LUDUS_ASSERT(false, "Failed to generate a unique scene handle.");
+			return 0;
+		}
+
+	public:
+		SceneRegistry() = default;
+
+		SceneRegistry(std::vector<Ludus::Engine::Core::Scene> scenes)
+		{
+			m_Scenes.reserve(scenes.size());
+			m_HandleToIndex.reserve(scenes.size());
+
+			for (auto& scene : scenes)
 			{
-				m_ActiveSceneHandle = m_Scenes.front().Handle;
+				(void)CommitScene(std::move(scene));
 			}
 		}
 
-		~SceneManager() = default;
+		~SceneRegistry() = default;
 
 	public:
 		std::span<const Ludus::Engine::Core::Scene> View() const
@@ -75,63 +101,26 @@ namespace Ludus::Engine::Core
 			return m_HandleToIndex.contains(handle);
 		}
 
-		Ludus::Engine::Core::SceneHandle AddScene()
+		Ludus::Engine::Core::SceneHandle AddScene(std::string_view name)
 		{
-			m_Scenes.emplace_back();
-			auto& scene = m_Scenes.back();
+			return CommitScene(Ludus::Engine::Core::Scene { CreateUniqueId(), name });
+		}
 
-			LUDUS_ASSERT(!Contains(scene.Handle), "Scene handle collision.");
-
-			const auto index = m_Scenes.size() - 1;
-
-			const auto handle = m_Scenes[index].Handle;
-			m_HandleToIndex[handle] = index;
-
-			// If this is the first scene, make it the active scene.
-			if (!m_ActiveSceneHandle.has_value())
-			{
-				m_ActiveSceneHandle = handle;
-			}
-
-			return handle;
+		Ludus::Engine::Core::SceneHandle AddScene(Ludus::Engine::Core::Scene scene)
+		{
+			return CommitScene(std::move(scene));
 		}
 
 		bool RemoveScene(Ludus::Engine::Core::SceneHandle handle)
 		{
 			if (auto it = m_HandleToIndex.find(handle); it != m_HandleToIndex.end())
 			{
-				const bool removedWasActive = m_ActiveSceneHandle.has_value() && m_ActiveSceneHandle.value() == handle;
-
 				RemoveAndReorderIndices(it->second);
-
-				if (removedWasActive)
-				{
-					if (m_Scenes.empty())
-					{
-						m_ActiveSceneHandle.reset();
-					}
-					else
-					{
-						// Pick the first scene from the collection as the new active scene.
-						m_ActiveSceneHandle = m_Scenes.front().Handle;
-					}
-				}
 
 				return true;
 			}
 
 			return false;
-		}
-
-		void SetActiveScene(Ludus::Engine::Core::SceneHandle handle)
-		{
-			LUDUS_ASSERT(Contains(handle), "Attempted to set active scene to a handle that does not exist.");
-			m_ActiveSceneHandle = handle;
-		}
-
-		std::optional<Ludus::Engine::Core::SceneHandle> GetActiveSceneHandle() const
-		{
-			return m_ActiveSceneHandle;
 		}
 
 		Ludus::Engine::Core::Scene* TryGetScene(Ludus::Engine::Core::SceneHandle handle)
@@ -168,38 +157,10 @@ namespace Ludus::Engine::Core
 			return *scene;
 		}
 
-		Ludus::Engine::Core::Scene* TryGetActiveScene()
+		void Clear()
 		{
-			if (!m_ActiveSceneHandle.has_value())
-			{
-				return nullptr;
-			}
-
-			return TryGetScene(m_ActiveSceneHandle.value());
-		}
-
-		const Ludus::Engine::Core::Scene* TryGetActiveScene() const
-		{
-			if (!m_ActiveSceneHandle.has_value())
-			{
-				return nullptr;
-			}
-
-			return TryGetScene(m_ActiveSceneHandle.value());
-		}
-
-		Ludus::Engine::Core::Scene& GetActiveScene()
-		{
-			auto* scene = TryGetActiveScene();
-			LUDUS_ASSERT(scene != nullptr, "No active scene is set.");
-			return *scene;
-		}
-
-		const Ludus::Engine::Core::Scene& GetActiveScene() const
-		{
-			const auto* scene = TryGetActiveScene();
-			LUDUS_ASSERT(scene != nullptr, "No active scene is set.");
-			return *scene;
+			m_Scenes.clear();
+			m_HandleToIndex.clear();
 		}
 	};
 }

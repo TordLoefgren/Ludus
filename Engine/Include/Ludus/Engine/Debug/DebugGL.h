@@ -3,9 +3,8 @@
 #include <string>
 #include <tuple>
 
-#include <glad/glad.h>
-
 #include <Ludus/Engine/Debug/Debug.h>
+#include <Ludus/Engine/Graphics/GL.h>
 
 namespace Ludus::Engine::Debug
 {

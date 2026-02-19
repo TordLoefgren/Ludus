@@ -16,8 +16,7 @@ namespace Ludus::Editor::Core
 		EditorConfiguration m_EditorConfiguration;
 		Ludus::Editor::Panels::PanelRegistry m_PanelRegistry;
 
-		void AddViewport();
-		void HandleRequests();
+		void HandleRequestCommands();
 
 	public:
 		EditorSystem(EditorConfiguration editorConfiguration);

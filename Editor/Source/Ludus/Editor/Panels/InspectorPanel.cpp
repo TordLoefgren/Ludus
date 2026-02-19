@@ -272,19 +272,23 @@ namespace Ludus::Editor::Panels
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
 		{
 			auto& selection = context.EditorContext.State.Selection;
-			if (!selection.HasScene() || !selection.HasEntity())
+			if (!selection.HasEntity())
 			{
 				return true;
 			}
 
-			auto* scene = context.SystemContext.SceneManager.TryGetScene(selection.SelectedScene.value());
+			auto& registry = context.SystemContext.SceneRegistry;
+			auto& session = context.EditorContext.Session;
 
-			if (!scene)
+			auto active = session.GetActiveScene();
+			if (!active.has_value() || !registry.Contains(active.value()))
 			{
 				return true;
 			}
 
-			auto& ecs = scene->EntityComponentSystem;
+			auto& scene = registry.GetScene(active.value());
+
+			auto& ecs = scene.EntityComponentSystem;
 			auto handle = selection.SelectedEntity.value();
 
 			auto* transformPtr = ecs.Transforms.TryGetByOwnerMutable(handle);

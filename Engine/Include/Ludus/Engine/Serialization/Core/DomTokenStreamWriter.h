@@ -87,10 +87,9 @@ namespace Ludus::Engine::Serialization::Core
 
 				[&](const Token::Bool& value) { AttachNode(m_Document.MakeValueNode(value.Data)); },
 				[&](const Token::Double& value) { AttachNode(m_Document.MakeValueNode(value.Data)); },
-				[&](const Token::Float& value) { AttachNode(m_Document.MakeValueNode(value.Data)); },
 				[&](const Token::Int& value) { AttachNode(m_Document.MakeValueNode(value.Data)); },
 				[&](const Token::String& value) { AttachNode(m_Document.MakeValueNode(std::string(value.Data))); },
-				[&](const Token::Uint32& value) { AttachNode(m_Document.MakeValueNode(value.Data)); },
+				[&](const Token::Uint& value) { AttachNode(m_Document.MakeValueNode(value.Data)); },
 				[&](auto&&) { LUDUS_ASSERT(false, "Unhandled token type."); },
 				}, token.Data);
 		}

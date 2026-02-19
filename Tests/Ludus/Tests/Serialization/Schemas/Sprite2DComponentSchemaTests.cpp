@@ -69,15 +69,15 @@ namespace Ludus::Tests::Serialization::Schemas
 		ASSERT_NE(colorNode, nullptr);
 		ASSERT_NE(fillNode, nullptr);
 
-		const auto ownerHandle = std::get<uint32_t>(AsValue(*ownerNode));
+		const auto ownerHandle = std::get<uint64_t>(AsValue(*ownerNode));
 		const auto shapeValue = std::get<std::string>(AsValue(*shapeNode));
 		const auto fillValue = std::get<bool>(AsValue(*fillNode));
 
 		const auto& colorObject = AsObject(*colorNode);
-		const auto colorR = std::get<float>(AsValue(*FindMember(colorObject, "R")));
-		const auto colorG = std::get<float>(AsValue(*FindMember(colorObject, "G")));
-		const auto colorB = std::get<float>(AsValue(*FindMember(colorObject, "B")));
-		const auto colorA = std::get<float>(AsValue(*FindMember(colorObject, "A")));
+		const auto colorR = std::get<double>(AsValue(*FindMember(colorObject, "R")));
+		const auto colorG = std::get<double>(AsValue(*FindMember(colorObject, "G")));
+		const auto colorB = std::get<double>(AsValue(*FindMember(colorObject, "B")));
+		const auto colorA = std::get<double>(AsValue(*FindMember(colorObject, "A")));
 
 		ASSERT_EQ(ownerHandle, 1u);
 		ASSERT_EQ(shapeValue, "Circle");
@@ -95,19 +95,19 @@ namespace Ludus::Tests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Uint32 { 1u });
+		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Shape" });
 		writer.Emit(Token::String { "Circle" });
 		writer.Emit(Token::Key { "Color" });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "R" });
-		writer.Emit(Token::Float { 0.2f });
+		writer.Emit(Token::Double { 0.2f });
 		writer.Emit(Token::Key { "G" });
-		writer.Emit(Token::Float { 0.4f });
+		writer.Emit(Token::Double { 0.4f });
 		writer.Emit(Token::Key { "B" });
-		writer.Emit(Token::Float { 0.6f });
+		writer.Emit(Token::Double { 0.6f });
 		writer.Emit(Token::Key { "A" });
-		writer.Emit(Token::Float { 0.8f });
+		writer.Emit(Token::Double { 0.8f });
 		writer.Emit(Token::EndObject { });
 		writer.Emit(Token::Key { "Fill" });
 		writer.Emit(Token::Bool { false });
@@ -137,7 +137,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Uint32 { 1u });
+		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 

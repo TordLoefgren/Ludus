@@ -20,18 +20,18 @@ namespace Ludus::Editor::Core
 		{
 			switch (mode)
 			{
-			case Ludus::Editor::Core::ExecutionMode::Start:
-				context.ExecutionFlags.Set(m_SimulatingFlag | m_PhysicsEnabledFlag);
-				context.ExecutionFlags.Unset(m_EditorToolsEnabled);
-				break;
-			case Ludus::Editor::Core::ExecutionMode::Stop:
-				context.ExecutionFlags.Set(m_EditorToolsEnabled);
-				context.ExecutionFlags.Unset(m_SimulatingFlag | m_PhysicsEnabledFlag);
-				break;
-			case Ludus::Editor::Core::ExecutionMode::Pause:
-				context.ExecutionFlags.Set(m_EditorToolsEnabled);
-				context.ExecutionFlags.Unset(m_SimulatingFlag | m_PhysicsEnabledFlag);
-				break;
+				case Ludus::Editor::Core::ExecutionMode::Start:
+					context.ExecutionFlags.Set(m_SimulatingFlag | m_PhysicsEnabledFlag);
+					context.ExecutionFlags.Unset(m_EditorToolsEnabled);
+					break;
+				case Ludus::Editor::Core::ExecutionMode::Stop:
+					context.ExecutionFlags.Set(m_EditorToolsEnabled);
+					context.ExecutionFlags.Unset(m_SimulatingFlag | m_PhysicsEnabledFlag);
+					break;
+				case Ludus::Editor::Core::ExecutionMode::Pause:
+					context.ExecutionFlags.Set(m_EditorToolsEnabled);
+					context.ExecutionFlags.Unset(m_SimulatingFlag | m_PhysicsEnabledFlag);
+					break;
 			}
 		}
 	};

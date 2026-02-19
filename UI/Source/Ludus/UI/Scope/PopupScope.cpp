@@ -5,11 +5,6 @@
 
 namespace Ludus::UI::Scope
 {
-	void OpenPopup(const char* id, Ludus::UI::Flags::Popup flags)
-	{
-		ImGui::OpenPopup(id, static_cast<int>(flags));
-	}
-
 	PopupScope::PopupScope(const char* id, Ludus::UI::Flags::Window flags)
 	{
 		m_Open = ImGui::BeginPopup(id, static_cast<int>(flags));

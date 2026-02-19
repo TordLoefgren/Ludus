@@ -2,12 +2,12 @@
 
 #include <format>
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Debug/DebugGL.h>
 #include <Ludus/Engine/Events/WindowEvents.h>
+#include <Ludus/Engine/Graphics/GL.h>
 #include <Ludus/Engine/Graphics/GLContext.h>
 
 namespace Ludus::Engine::Graphics

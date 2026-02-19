@@ -23,6 +23,12 @@ namespace Ludus::Engine::Serialization::Core
 			return m_Root.get();
 		}
 
+		DomNode* SetRoot(DomNode node)
+		{
+			m_Root = std::make_unique<DomNode>(std::move(node));
+			return m_Root.get();
+		}
+
 		DomNode* AddToObject(DomNode& parent, std::string key, DomNodePtr child)
 		{
 			auto& object = std::get<DomObject>(parent.NodeData);

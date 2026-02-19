@@ -277,23 +277,23 @@ namespace Ludus::Pong::Systems
 			state = Ludus::Pong::Core::GameState::ScoreMenu;
 		}
 
-		if (!m_RuntimeData.IsRunning && (input.GetKeyDown(Ludus::Engine::Platform::Key::Enter) || input.GetKeyDown(Ludus::Engine::Platform::Key::Space)))
+		if (!m_RuntimeData.IsRunning && (input.GetKeyDown(Ludus::Engine::Windowing::Key::Enter) || input.GetKeyDown(Ludus::Engine::Windowing::Key::Space)))
 		{
 			Start();
 		}
 
-		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Escape))
+		if (input.GetKeyDown(Ludus::Engine::Windowing::Key::Escape))
 		{
 			state = Ludus::Pong::Core::GameState::PauseMenu;
 		}
 
 		// Player 1.
-		m_Intents.Player1MoveY = (input.GetKey(Ludus::Engine::Platform::Key::W) ? 1.0f : 0.0f) + (input.GetKey(Ludus::Engine::Platform::Key::S) ? -1.0f : 0.0f);
+		m_Intents.Player1MoveY = (input.GetKey(Ludus::Engine::Windowing::Key::W) ? 1.0f : 0.0f) + (input.GetKey(Ludus::Engine::Windowing::Key::S) ? -1.0f : 0.0f);
 
 		// Player 2.
 		if (m_PongInfo->IsMultiplayer)
 		{
-			m_Intents.Player2MoveY = (input.GetKey(Ludus::Engine::Platform::Key::Up) ? 1.0f : 0.0f) + (input.GetKey(Ludus::Engine::Platform::Key::Down) ? -1.0f : 0.0f);
+			m_Intents.Player2MoveY = (input.GetKey(Ludus::Engine::Windowing::Key::Up) ? 1.0f : 0.0f) + (input.GetKey(Ludus::Engine::Windowing::Key::Down) ? -1.0f : 0.0f);
 		}
 
 		if (state != Ludus::Pong::Core::GameState::Playing)

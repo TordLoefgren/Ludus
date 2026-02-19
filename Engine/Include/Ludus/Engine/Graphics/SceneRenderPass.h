@@ -19,7 +19,8 @@ namespace Ludus::Engine::Graphics
 
 		virtual bool Enabled(Ludus::Engine::Graphics::RenderContext2D& context) override
 		{
-			return true;
+			return context.RenderView.SceneHandle.has_value()
+				&& context.RenderView.CameraSource != CameraSource::None;
 		};
 
 		virtual void Execute(Ludus::Engine::Graphics::RenderContext2D& context, Ludus::Engine::Graphics::Renderer2D& renderer) override
@@ -29,7 +30,7 @@ namespace Ludus::Engine::Graphics
 				return;
 			}
 
-			const auto* scene = context.SystemContext->SceneManager.TryGetScene(context.RenderView.SceneHandle.value());
+			const auto* scene = context.SystemContext->SceneRegistry.TryGetScene(context.RenderView.SceneHandle.value());
 			if (!scene)
 			{
 				return;
@@ -51,12 +52,12 @@ namespace Ludus::Engine::Graphics
 
 				switch (sprite.Shape)
 				{
-				case Ludus::Engine::Graphics::Shape::Quad:
-					renderer.DrawQuad(*transform, sprite.Color, sprite.Texture, sprite.Fill);
-					break;
-				case Ludus::Engine::Graphics::Shape::Circle:
-					renderer.DrawCircle(*transform, sprite.Color, sprite.Fill);
-					break;
+					case Ludus::Engine::Graphics::Shape::Quad:
+						renderer.DrawQuad(*transform, sprite.Color, sprite.Texture, sprite.Fill);
+						break;
+					case Ludus::Engine::Graphics::Shape::Circle:
+						renderer.DrawCircle(*transform, sprite.Color, sprite.Fill);
+						break;
 				}
 			}
 

@@ -85,7 +85,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -121,7 +121,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Source\Ludus\Lab;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Source\Ludus\Lab;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -129,7 +129,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
@@ -147,14 +147,14 @@ xcopy /E /I /Y "$(SolutionDir)UI\Resources" "$(TargetDir)Resources"</Command>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Source\Ludus\Lab;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Source\Ludus\Lab;$(ProjectDir)Include;$(ProjectDir)Vendors\PerlinNoise-3.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>

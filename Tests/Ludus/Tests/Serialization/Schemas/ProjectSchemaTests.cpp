@@ -4,14 +4,12 @@
 #include <string_view>
 
 #include <Ludus/Engine/Core/Project.h>
-#include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Serialization/Core/DomDocument.h>
 #include <Ludus/Engine/Serialization/Core/DomNode.h>
 #include <Ludus/Engine/Serialization/Core/DomTokenStreamReader.h>
 #include <Ludus/Engine/Serialization/Core/DomTokenStreamWriter.h>
 #include <Ludus/Engine/Serialization/Core/Token.h>
 #include <Ludus/Engine/Serialization/Schemas/ProjectSchema.h>
-#include <Ludus/Engine/Serialization/Schemas/SceneSchema.h>
 
 namespace Ludus::Tests::Serialization::Schemas
 {
@@ -21,7 +19,7 @@ namespace Ludus::Tests::Serialization::Schemas
 	using Token = Ludus::Engine::Serialization::Core::Token;
 
 	using Project = Ludus::Engine::Core::Project;
-	using Scene = Ludus::Engine::Core::Scene;
+	using ProjectSceneReference = Ludus::Engine::Core::ProjectSceneReference;
 	using ProjectSchema = Ludus::Engine::Serialization::Schemas::ProjectSchema;
 
 	using Ludus::Engine::Serialization::Core::AsObject;
@@ -43,17 +41,13 @@ namespace Ludus::Tests::Serialization::Schemas
 		return nullptr;
 	}
 
-	static Scene MakeSceneWithEntities(uint32_t sceneHandle, size_t entityCount)
+	static ProjectSceneReference MakeSceneReference(uint64_t sceneHandle, std::string_view name, std::string_view path)
 	{
-		Scene scene;
-		scene.Handle = sceneHandle;
-
-		for (size_t i = 0; i < entityCount; ++i)
-		{
-			(void)scene.EntityComponentSystem.AddEntity();
-		}
-
-		return scene;
+		ProjectSceneReference reference;
+		reference.Handle = sceneHandle;
+		reference.Name = std::string(name);
+		reference.Path = std::string(path);
+		return reference;
 	}
 
 	TEST(ProjectSchema, Serialize_WritesProjectHeader_When_Serialized)
@@ -88,9 +82,9 @@ namespace Ludus::Tests::Serialization::Schemas
 		project.Version.Minor = 2;
 		project.Version.Patch = 0;
 
-		project.Scenes.push_back(MakeSceneWithEntities(10, 3));
-		project.Scenes.push_back(MakeSceneWithEntities(11, 5));
-		project.Scenes.push_back(MakeSceneWithEntities(12, 7));
+		project.Scenes.push_back(MakeSceneReference(10, "SceneA", "Scenes/SceneA.lscene"));
+		project.Scenes.push_back(MakeSceneReference(11, "SceneB", "Scenes/SceneB.lscene"));
+		project.Scenes.push_back(MakeSceneReference(12, "SceneC", "Scenes/SceneC.lscene"));
 
 		// Act.
 		ProjectSchema::Serialize(writer, project);
@@ -117,8 +111,8 @@ namespace Ludus::Tests::Serialization::Schemas
 		project.Version.Minor = 2;
 		project.Version.Patch = 0;
 
-		project.Scenes.push_back(MakeSceneWithEntities(100, 1));
-		project.Scenes.push_back(MakeSceneWithEntities(200, 2));
+		project.Scenes.push_back(MakeSceneReference(100, "Scene100", "Scenes/Scene100.lscene"));
+		project.Scenes.push_back(MakeSceneReference(200, "Scene200", "Scenes/Scene200.lscene"));
 
 		// Act.
 		ProjectSchema::Serialize(writer, project);
@@ -150,11 +144,11 @@ namespace Ludus::Tests::Serialization::Schemas
 		writer.Emit(Token::Key { "Version" });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "Major" });
-		writer.Emit(Token::Uint32 { 7u });
+		writer.Emit(Token::Int { 7 });
 		writer.Emit(Token::Key { "Minor" });
-		writer.Emit(Token::Uint32 { 8u });
+		writer.Emit(Token::Int { 8 });
 		writer.Emit(Token::Key { "Patch" });
-		writer.Emit(Token::Uint32 { 9u });
+		writer.Emit(Token::Int { 9 });
 		writer.Emit(Token::EndObject { });
 		writer.Emit(Token::Key { "Scenes" });
 		writer.Emit(Token::StartArray { });
@@ -169,9 +163,9 @@ namespace Ludus::Tests::Serialization::Schemas
 		ASSERT_TRUE(result.HasValue());
 		const auto& project = result.GetValue();
 
-		ASSERT_EQ(project.Version.Major, 7u);
-		ASSERT_EQ(project.Version.Minor, 8u);
-		ASSERT_EQ(project.Version.Patch, 9u);
+		ASSERT_EQ(project.Version.Major, 7);
+		ASSERT_EQ(project.Version.Minor, 8);
+		ASSERT_EQ(project.Version.Patch, 9);
 	}
 
 	TEST(ProjectSchema, Deserialize_LoadsAllScenes_When_ArchiveIsValid)
@@ -185,8 +179,8 @@ namespace Ludus::Tests::Serialization::Schemas
 		project.Version.Minor = 2;
 		project.Version.Patch = 0;
 
-		project.Scenes.push_back(MakeSceneWithEntities(10, 3));
-		project.Scenes.push_back(MakeSceneWithEntities(11, 5));
+		project.Scenes.push_back(MakeSceneReference(10, "Scene10", "Scenes/Scene10.lscene"));
+		project.Scenes.push_back(MakeSceneReference(11, "Scene11", "Scenes/Scene11.lscene"));
 
 		ProjectSchema::Serialize(writer, project);
 		DomTokenStreamReader reader(document);
@@ -203,10 +197,8 @@ namespace Ludus::Tests::Serialization::Schemas
 		for (size_t i = 0; i < project.Scenes.size(); ++i)
 		{
 			ASSERT_EQ(loadedProject.Scenes[i].Handle, project.Scenes[i].Handle);
-			ASSERT_EQ(
-				loadedProject.Scenes[i].EntityComponentSystem.GetEntityCount(),
-				project.Scenes[i].EntityComponentSystem.GetEntityCount()
-			);
+			ASSERT_EQ(loadedProject.Scenes[i].Name, project.Scenes[i].Name);
+			ASSERT_EQ(loadedProject.Scenes[i].Path, project.Scenes[i].Path);
 		}
 	}
 
@@ -220,10 +212,11 @@ namespace Ludus::Tests::Serialization::Schemas
 		project.Version.Major = 1;
 		project.Version.Minor = 2;
 		project.Version.Patch = 3;
+		project.ActiveSceneHandle = 222;
 
-		project.Scenes.push_back(MakeSceneWithEntities(111, 10));
-		project.Scenes.push_back(MakeSceneWithEntities(222, 20));
-		project.Scenes.push_back(MakeSceneWithEntities(333, 30));
+		project.Scenes.push_back(MakeSceneReference(111, "Scene111", "Scenes/Scene111.lscene"));
+		project.Scenes.push_back(MakeSceneReference(222, "Scene222", "Scenes/Scene222.lscene"));
+		project.Scenes.push_back(MakeSceneReference(333, "Scene333", "Scenes/Scene333.lscene"));
 
 		// Act.
 		ProjectSchema::Serialize(writer, project);
@@ -237,16 +230,15 @@ namespace Ludus::Tests::Serialization::Schemas
 		ASSERT_EQ(loaded.Version.Major, project.Version.Major);
 		ASSERT_EQ(loaded.Version.Minor, project.Version.Minor);
 		ASSERT_EQ(loaded.Version.Patch, project.Version.Patch);
+		ASSERT_EQ(loaded.ActiveSceneHandle, project.ActiveSceneHandle);
 
 		ASSERT_EQ(loaded.Scenes.size(), project.Scenes.size());
 
 		for (size_t i = 0; i < project.Scenes.size(); ++i)
 		{
 			ASSERT_EQ(loaded.Scenes[i].Handle, project.Scenes[i].Handle);
-			ASSERT_EQ(
-				loaded.Scenes[i].EntityComponentSystem.GetEntityCount(),
-				project.Scenes[i].EntityComponentSystem.GetEntityCount()
-			);
+			ASSERT_EQ(loaded.Scenes[i].Name, project.Scenes[i].Name);
+			ASSERT_EQ(loaded.Scenes[i].Path, project.Scenes[i].Path);
 		}
 	}
 
@@ -293,11 +285,11 @@ namespace Ludus::Tests::Serialization::Schemas
 		writer.Emit(Token::Key { "Version" });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "Major" });
-		writer.Emit(Token::Uint32 { 0u });
+		writer.Emit(Token::Int { 0 });
 		writer.Emit(Token::Key { "Minor" });
-		writer.Emit(Token::Uint32 { 2u });
+		writer.Emit(Token::Int { 2 });
 		writer.Emit(Token::Key { "Patch" });
-		writer.Emit(Token::Uint32 { 0u });
+		writer.Emit(Token::Int { 0 });
 		writer.Emit(Token::EndObject { });
 		writer.Emit(Token::Key { "Scenes" });
 		writer.Emit(Token::StartObject { });
@@ -321,11 +313,11 @@ namespace Ludus::Tests::Serialization::Schemas
 		writer.Emit(Token::Key { "Version" });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "Major" });
-		writer.Emit(Token::Uint32 { 0u });
+		writer.Emit(Token::Int { 0 });
 		writer.Emit(Token::Key { "Minor" });
-		writer.Emit(Token::Uint32 { 2u });
+		writer.Emit(Token::Int { 2 });
 		writer.Emit(Token::Key { "Patch" });
-		writer.Emit(Token::Uint32 { 0u });
+		writer.Emit(Token::Int { 0 });
 		writer.Emit(Token::EndObject { });
 		writer.Emit(Token::Key { "Scenes" });
 		writer.Emit(Token::StartArray { });

@@ -65,9 +65,9 @@ namespace Ludus::Tests::Serialization::Schemas
 		ASSERT_NE(collidesNode, nullptr);
 		ASSERT_NE(triggerNode, nullptr);
 
-		const auto ownerHandle = std::get<uint32_t>(AsValue(*ownerNode));
-		const auto layerIndex = std::get<uint32_t>(AsValue(*layerNode));
-		const auto collidesWith = std::get<uint32_t>(AsValue(*collidesNode));
+		const auto ownerHandle = std::get<uint64_t>(AsValue(*ownerNode));
+		const auto layerIndex = std::get<uint64_t>(AsValue(*layerNode));
+		const auto collidesWith = std::get<uint64_t>(AsValue(*collidesNode));
 		const auto isTrigger = std::get<bool>(AsValue(*triggerNode));
 
 		ASSERT_EQ(ownerHandle, 1u);
@@ -83,11 +83,11 @@ namespace Ludus::Tests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Uint32 { 1u });
+		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "LayerIndex" });
-		writer.Emit(Token::Uint32 { 2u });
+		writer.Emit(Token::Int { 2 });
 		writer.Emit(Token::Key { "CollidesWith" });
-		writer.Emit(Token::Uint32 { 0xAAu });
+		writer.Emit(Token::Int { 0xAA });
 		writer.Emit(Token::Key { "IsTrigger" });
 		writer.Emit(Token::Bool { true });
 		writer.Emit(Token::EndObject { });
@@ -113,7 +113,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Uint32 { 1u });
+		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 

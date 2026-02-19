@@ -10,18 +10,10 @@ namespace Ludus::Editor::Core
 	struct EditorSelection
 	{
 		std::optional<Ludus::Engine::Core::EntityHandle> SelectedEntity;
-		std::optional<Ludus::Engine::Core::SceneHandle> SelectedScene;
 
-		void SelectEntity(Ludus::Engine::Core::EntityHandle entity, Ludus::Engine::Core::SceneHandle scene)
+		void SelectEntity(const Ludus::Engine::Core::EntityHandle entity)
 		{
 			SelectedEntity = entity;
-			SelectedScene = scene;
-		}
-
-		void SelectScene(Ludus::Engine::Core::SceneHandle scene)
-		{
-			SelectedScene = scene;
-			SelectedEntity = std::nullopt;
 		}
 
 		void DeselectEntity()
@@ -29,19 +21,14 @@ namespace Ludus::Editor::Core
 			SelectedEntity = std::nullopt;
 		}
 
-		void DeselectScene()
+		bool HasEntity() const
 		{
-			SelectedScene = std::nullopt;
-			SelectedEntity = std::nullopt;
+			return SelectedEntity.has_value();
 		}
 
-		bool HasEntity() const { return SelectedEntity.has_value(); }
-
-		bool HasScene() const { return SelectedScene.has_value(); }
-
-		bool IsSelected(Ludus::Engine::Core::EntityHandle entity, Ludus::Engine::Core::SceneHandle scene) const
+		bool IsSelected(const Ludus::Engine::Core::EntityHandle entity) const
 		{
-			return SelectedEntity == entity && SelectedScene == scene;
+			return SelectedEntity == entity;
 		}
 	};
 }

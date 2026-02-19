@@ -1,9 +1,12 @@
 #include "pch.h"
 
 #include <memory>
+#include <variant>
 
+#include <Ludus/Editor/Commands/CommandContext.h>
+#include <Ludus/Editor/Commands/RequestCommand.h>
+#include <Ludus/Editor/Commands/RequestCommandVisitor.h>
 #include <Ludus/Editor/Core/EditorSystem.h>
-#include <Ludus/Editor/Panels/ViewportPanel.h>
 
 namespace Ludus::Editor::Core
 {
@@ -11,24 +14,21 @@ namespace Ludus::Editor::Core
 		: m_EditorContext(), m_EditorConfiguration(editorOptions), m_PanelRegistry()
 	{ }
 
-	void EditorSystem::AddViewport()
+	void EditorSystem::HandleRequestCommands()
 	{
-		m_PanelRegistry.Register(std::make_unique<Ludus::Editor::Panels::ViewportPanel>());
-	}
+		std::vector <Ludus::Editor::Commands::RequestCommand> commands;
+		commands.swap(m_EditorContext.State.RequestCommands);
 
-	void EditorSystem::HandleRequests()
-	{
-		if (m_EditorContext.State.Requests.AddViewport)
+		for (const auto& command : commands)
 		{
-			AddViewport();
+			Ludus::Editor::Commands::CommandContext context { m_EditorContext, *m_SystemContext, m_PanelRegistry };
+			std::visit(Ludus::Editor::Commands::RequestCommandVisitor { context }, command.Data);
 		}
-
-		m_EditorContext.State.Requests.Clear();
 	}
 
 	void Ludus::Editor::Core::EditorSystem::OnAttachImpl()
 	{
-		for (auto& factoryMethod : m_EditorConfiguration.PanelFactories)
+		for (const auto& factoryMethod : m_EditorConfiguration.PanelFactories)
 		{
 			m_PanelRegistry.Register(factoryMethod());
 		}
@@ -43,7 +43,7 @@ namespace Ludus::Editor::Core
 	{
 		Ludus::Editor::Panels::PanelContext context { *m_SystemContext, m_EditorContext, m_ActivePanelState, deltaTime };
 
-		for (auto& panel : m_PanelRegistry.View())
+		for (const auto& panel : m_PanelRegistry.View())
 		{
 			if (!panel->Update(context))
 			{
@@ -53,6 +53,6 @@ namespace Ludus::Editor::Core
 
 		m_PanelRegistry.ApplyRemovals();
 
-		HandleRequests();
+		HandleRequestCommands();
 	}
 }

@@ -26,120 +26,146 @@
 namespace Ludus::Editor::Panels
 {
 
-#pragma region Scene Tool Bar
+#pragma region Entity Rows
 
-	struct SceneToolBarActions
+	enum class ComponentKind { Camera2D, Collider2D, RigidBody2D, Sprite2D, Text2D };
+
+	struct EntityRowActions
 	{
-		std::optional<Ludus::Engine::Core::SceneHandle> SelectedSceneHandle = std::nullopt;
-		bool IsSceneAdded = false;
-		bool IsSceneRemoved = false;
-		bool IsSceneSetActive = false;
+		bool IsEntityRemoved = false;
+		bool IsEntitySelected = false;
+		std::optional<ComponentKind> AddedComponent = std::nullopt;
 	};
 
-	const SceneToolBarActions HierarchyPanel::DrawSceneToolBar(
-		std::span<const Ludus::Engine::Core::Scene> scenes,
-		std::optional<Ludus::Engine::Core::SceneHandle> sceneHandle
-	)
+	struct EntityRowCommands
 	{
-		SceneToolBarActions actions;
+		std::vector<Ludus::Engine::Core::EntityHandle> EntitiesToRemove;
+		std::optional<Ludus::Engine::Core::EntityHandle> EntityToSelect = std::nullopt;
+		std::vector<std::pair<ComponentKind, Ludus::Engine::Core::EntityHandle>> ComponentsToAdd;
+	};
 
-		actions.SelectedSceneHandle = sceneHandle;
+	const EntityRowActions HierarchyPanel::DrawEntityRow(Ludus::Editor::Panels::PanelContext& context, Ludus::Engine::Core::Scene& scene, Ludus::Engine::Core::EntityHandle entityHandle)
+	{
+		EntityRowActions actions;
 
-		const auto comboLabel = Ludus::UI::CreateLabel("", "ActiveScene");
-		const auto preview = sceneHandle.has_value() ? std::format("Scene {}", sceneHandle.value()) : "None";
+		auto& selection = context.EditorContext.State.Selection;
+		auto& ecs = scene.EntityComponentSystem;
+		const auto sceneHandle = scene.Handle;
 
-		if (Ludus::UI::Scope::ComboScope combo(comboLabel.c_str(), preview.c_str()); combo)
+		const auto* displayNamePtr = ecs.DisplayNames.TryGetByOwner(entityHandle);
+		const auto entityLabel = displayNamePtr != nullptr
+			? Ludus::UI::CreateLabel(ICON_CUBE + std::string(" ") + displayNamePtr->Value, entityHandle)
+			: Ludus::UI::CreateLabel(std::format("{} Entity {}", ICON_CUBE, entityHandle), entityHandle);
+
+		if (Ludus::UI::Widgets::Selectable(entityLabel.c_str(), selection.IsSelected(entityHandle)))
 		{
-			if (scenes.empty())
+			actions.IsEntitySelected = true;
+		}
+
+		if (Ludus::UI::Scope::PopupContextItemScope contextItem; contextItem)
+		{
+			if (Ludus::UI::Widgets::MenuItem("Select"))
 			{
-				const auto _ = Ludus::UI::Widgets::Selectable("None", false);
+				actions.IsEntitySelected = true;
 			}
-			else
+
+			Ludus::UI::Context::LayoutContext::Separator();
+
+			if (Ludus::UI::Widgets::MenuItem("Remove"))
 			{
-				for (const auto& scene : scenes)
+				actions.IsEntityRemoved = true;
+			}
+
+			Ludus::UI::Context::LayoutContext::Separator();
+
+			if (Ludus::UI::Scope::MenuScope componentMenu("Add component"); componentMenu)
+			{
+				if (!ecs.Cameras.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Camera 2D"))
 				{
-					const bool isSelected = sceneHandle == scene.Handle;
-					const auto itemLabel = std::format("Scene {}", scene.Handle);
-					if (Ludus::UI::Widgets::Selectable(itemLabel.c_str(), isSelected))
-					{
-						actions.SelectedSceneHandle = scene.Handle;
-					}
-
-					if (isSelected)
-					{
-						Ludus::UI::Context::SelectionContext::SetItemDefaultFocus();
-					}
+					actions.AddedComponent = ComponentKind::Camera2D;
 				}
-			}
-		}
 
-		const auto spacing = 6.0f;
+				if (!ecs.Colliders.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Collider 2D"))
+				{
+					actions.AddedComponent = ComponentKind::Collider2D;
+				}
 
-		Ludus::UI::Context::LayoutContext::SameLine(0.0f, spacing);
+				if (!ecs.RigidBodies.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Rigid Body 2D"))
+				{
+					actions.AddedComponent = ComponentKind::RigidBody2D;
 
-		auto plusLabel = Ludus::UI::CreateLabel(ICON_PLUS, "Plus");
-		if (Ludus::UI::Widgets::Button(plusLabel.c_str()))
-		{
-			actions.IsSceneAdded = true;
-		}
+				}
 
-		Ludus::UI::Context::LayoutContext::SameLine(0.0f, spacing);
+				if (!ecs.Sprites.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Sprite 2D"))
+				{
+					actions.AddedComponent = ComponentKind::Sprite2D;
 
-		const char* popupId = "SceneOptionsPopup";
+				}
 
-		const auto ellipsisLabel = Ludus::UI::CreateLabel(ICON_ELLIPSIS_V, "Ellipsis");
-		if (Ludus::UI::Widgets::Button(ellipsisLabel.c_str()))
-		{
-			Ludus::UI::Scope::OpenPopup(popupId);
-		}
+				if (!ecs.Texts.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Text 2D"))
+				{
+					actions.AddedComponent = ComponentKind::Text2D;
 
-		if (Ludus::UI::Scope::PopupScope popupScope(popupId); popupScope)
-		{
-			if (Ludus::UI::Widgets::MenuItem("Set active scene"))
-			{
-				actions.IsSceneSetActive = true;
-			}
+				}
 
-			if (Ludus::UI::Widgets::MenuItem("Remove scene"))
-			{
-				actions.IsSceneRemoved = true;
+				if (actions.AddedComponent.has_value())
+				{
+					actions.IsEntitySelected = true;
+				}
 			}
 		}
 
 		return actions;
 	}
 
-	std::optional<Ludus::Engine::Core::SceneHandle> HierarchyPanel::ApplySceneToolBarActions(const SceneToolBarActions& actions, Ludus::Editor::Panels::PanelContext& context)
+	void HierarchyPanel::AddToEntityRowCommands(EntityRowCommands& commands, const EntityRowActions& actions, Ludus::Engine::Core::EntityHandle entityHandle)
 	{
-		auto& sceneManager = context.SystemContext.SceneManager;
+		if (actions.IsEntityRemoved)
+		{
+			commands.EntitiesToRemove.push_back(entityHandle);
+		}
+
+		if (actions.IsEntitySelected)
+		{
+			commands.EntityToSelect = entityHandle;
+		}
+
+		if (actions.AddedComponent.has_value())
+		{
+			commands.ComponentsToAdd.push_back({ *actions.AddedComponent, entityHandle });
+		}
+	}
+
+	void HierarchyPanel::ApplyEntityRowCommands(const EntityRowCommands& commands, Ludus::Editor::Panels::PanelContext& context, Ludus::Engine::Core::Scene& scene)
+	{
+		auto& ecs = scene.EntityComponentSystem;
 		auto& selection = context.EditorContext.State.Selection;
 
-		if (actions.IsSceneAdded)
+		for (auto [kind, handle] : commands.ComponentsToAdd)
 		{
-			const auto sceneHandle = sceneManager.AddScene();
-			selection.SelectScene(sceneHandle);
-
-			return sceneHandle;
-		}
-
-		if (actions.SelectedSceneHandle.has_value())
-		{
-			const auto sceneHandle = actions.SelectedSceneHandle.value();
-			if (actions.IsSceneRemoved)
+			switch (kind)
 			{
-				sceneManager.RemoveScene(sceneHandle);
-				selection.DeselectScene();
-
-				return sceneManager.GetActiveSceneHandle();
-			}
-
-			if (actions.IsSceneSetActive)
-			{
-				sceneManager.SetActiveScene(sceneHandle);
+				case ComponentKind::Camera2D:		ecs.AttachCamera(handle);		break;
+				case ComponentKind::Collider2D:		ecs.AttachCollider(handle);		break;
+				case ComponentKind::RigidBody2D:	ecs.AttachRigidBody(handle);	break;
+				case ComponentKind::Sprite2D:		ecs.AttachSprite(handle);		break;
+				case ComponentKind::Text2D:			ecs.AttachText(handle, "");		break;
 			}
 		}
 
-		return actions.SelectedSceneHandle;
+		for (auto handle : commands.EntitiesToRemove)
+		{
+			ecs.DestroyEntity(handle);
+			if (selection.IsSelected(handle))
+			{
+				selection.DeselectEntity();
+			}
+		}
+
+		if (commands.EntityToSelect.has_value())
+		{
+			selection.SelectEntity(commands.EntityToSelect.value());
+		}
 	}
 
 #pragma endregion
@@ -233,150 +259,51 @@ namespace Ludus::Editor::Panels
 			ecs.AttachSprite(handle, actions.SpriteShape);
 		}
 
-		selection.SelectEntity(handle, scene.Handle);
+		selection.SelectEntity(handle);
 	}
 
 #pragma endregion
 
-#pragma region Entity Rows
+#pragma region Scene Rows
 
-	enum class ComponentKind { Camera2D, Collider2D, RigidBody2D, Sprite2D, Text2D };
-
-	struct EntityRowActions
+	void HierarchyPanel::DrawSceneRow(Ludus::Editor::Panels::PanelContext& context, Ludus::Engine::Core::Scene& scene)
 	{
-		bool IsEntityRemoved = false;
-		bool IsEntitySelected = false;
-		std::optional<ComponentKind> AddedComponent = std::nullopt;
-	};
-
-	struct EntityRowCommands
-	{
-		std::vector<Ludus::Engine::Core::EntityHandle> EntitiesToRemove;
-		std::optional<Ludus::Engine::Core::EntityHandle> EntityToSelect = std::nullopt;
-		std::vector<std::pair<ComponentKind, Ludus::Engine::Core::EntityHandle>> ComponentsToAdd;
-	};
-
-	const EntityRowActions HierarchyPanel::DrawEntityRow(Ludus::Editor::Panels::PanelContext& context, Ludus::Engine::Core::Scene& scene, Ludus::Engine::Core::EntityHandle entityHandle)
-	{
-		EntityRowActions actions;
-
-		auto& selection = context.EditorContext.State.Selection;
-		auto& ecs = scene.EntityComponentSystem;
-		const auto sceneHandle = scene.Handle;
-
-		const auto* displayNamePtr = ecs.DisplayNames.TryGetByOwner(entityHandle);
-		const auto entityLabel = displayNamePtr != nullptr
-			? Ludus::UI::CreateLabel(displayNamePtr->Value, entityHandle)
-			: Ludus::UI::CreateLabel(std::format("Entity {}", entityHandle), entityHandle);
-
-		if (Ludus::UI::Widgets::Selectable(entityLabel.c_str(), selection.IsSelected(entityHandle, scene.Handle)))
+		auto sceneHeader = ICON_CUBES + std::string(" ") + scene.Name;
+		if (context.EditorContext.Session.IsDirty(scene.Handle))
 		{
-			actions.IsEntitySelected = true;
+			sceneHeader.append("*");
 		}
 
-		if (Ludus::UI::Scope::PopupContextItemScope contextItem; contextItem)
+		const auto sceneLabel = Ludus::UI::CreateLabel(sceneHeader, scene.Name);
+		if (Ludus::UI::Scope::TreeNodeScope treeScope(sceneLabel.c_str()); treeScope)
 		{
-			if (Ludus::UI::Widgets::MenuItem("Select"))
+			if (Ludus::UI::Scope::PopupContextItemScope contextItem; contextItem)
 			{
-				actions.IsEntitySelected = true;
+				if (Ludus::UI::Widgets::MenuItem("Save"))
+				{
+					context.EditorContext.State.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveScene { scene.Handle });
+				}
 			}
 
-			Ludus::UI::Context::LayoutContext::Separator();
+			const auto& contextMenuActions = DrawSceneContextMenu(context, scene);
+			ApplySceneContextMenuActions(contextMenuActions, context, scene);
 
-			if (Ludus::UI::Widgets::MenuItem("Remove"))
+			EntityRowCommands commands;
+
+			for (const auto& entity : scene.EntityComponentSystem.View())
 			{
-				actions.IsEntityRemoved = true;
+				const auto entityRowActions = DrawEntityRow(context, scene, entity.Handle);
+				AddToEntityRowCommands(commands, entityRowActions, entity.Handle);
 			}
 
-			Ludus::UI::Context::LayoutContext::Separator();
+			ApplyEntityRowCommands(commands, context, scene);
 
-			if (Ludus::UI::Scope::MenuScope componentMenu("Add component"); componentMenu)
+			if (Ludus::UI::Context::InputContext::IsMouseClicked(Ludus::Engine::Windowing::MouseButton::Left) &&
+				Ludus::UI::Context::InputContext::IsWindowHovered(Ludus::UI::Flags::Hovered::AllowWhenBlockedByActiveItem) &&
+				!Ludus::UI::Context::InputContext::IsAnyItemHovered())
 			{
-				if (!ecs.Cameras.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Camera 2D"))
-				{
-					actions.AddedComponent = ComponentKind::Camera2D;
-				}
-
-				if (!ecs.Colliders.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Collider 2D"))
-				{
-					actions.AddedComponent = ComponentKind::Collider2D;
-				}
-
-				if (!ecs.RigidBodies.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Rigid Body 2D"))
-				{
-					actions.AddedComponent = ComponentKind::RigidBody2D;
-
-				}
-
-				if (!ecs.Sprites.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Sprite 2D"))
-				{
-					actions.AddedComponent = ComponentKind::Sprite2D;
-
-				}
-
-				if (!ecs.Texts.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Text 2D"))
-				{
-					actions.AddedComponent = ComponentKind::Text2D;
-
-				}
-
-				if (actions.AddedComponent.has_value())
-				{
-					actions.IsEntitySelected = true;
-				}
+				context.EditorContext.State.Selection.DeselectEntity();
 			}
-		}
-
-		return actions;
-	}
-
-	void HierarchyPanel::AddToEntityRowCommands(EntityRowCommands& commands, const EntityRowActions& actions, Ludus::Engine::Core::EntityHandle entityHandle)
-	{
-		if (actions.IsEntityRemoved)
-		{
-			commands.EntitiesToRemove.push_back(entityHandle);
-		}
-
-		if (actions.IsEntitySelected)
-		{
-			commands.EntityToSelect = entityHandle;
-		}
-
-		if (actions.AddedComponent.has_value())
-		{
-			commands.ComponentsToAdd.push_back({ *actions.AddedComponent, entityHandle });
-		}
-	}
-
-	void HierarchyPanel::ApplyEntityRowCommands(const EntityRowCommands& commands, Ludus::Editor::Panels::PanelContext& context, Ludus::Engine::Core::Scene& scene)
-	{
-		auto& ecs = scene.EntityComponentSystem;
-		auto& selection = context.EditorContext.State.Selection;
-
-		for (auto [kind, handle] : commands.ComponentsToAdd)
-		{
-			switch (kind)
-			{
-			case ComponentKind::Camera2D:		ecs.AttachCamera(handle);		break;
-			case ComponentKind::Collider2D:		ecs.AttachCollider(handle);		break;
-			case ComponentKind::RigidBody2D:	ecs.AttachRigidBody(handle);	break;
-			case ComponentKind::Sprite2D:		ecs.AttachSprite(handle);		break;
-			case ComponentKind::Text2D:			ecs.AttachText(handle, "");		break;
-			}
-		}
-
-		for (auto handle : commands.EntitiesToRemove)
-		{
-			ecs.DestroyEntity(handle);
-			if (selection.IsSelected(handle, scene.Handle))
-			{
-				selection.DeselectEntity();
-			}
-		}
-
-		if (commands.EntityToSelect.has_value())
-		{
-			selection.SelectEntity(commands.EntityToSelect.value(), scene.Handle);
 		}
 	}
 
@@ -387,50 +314,18 @@ namespace Ludus::Editor::Panels
 		auto windowTitle = CreateWindowTitle("Hierarchy");
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
 		{
-			auto& sceneManager = context.SystemContext.SceneManager;
-			auto& selection = context.EditorContext.State.Selection;
+			auto& registry = context.SystemContext.SceneRegistry;
+			auto& session = context.EditorContext.Session;
 
-			if (!m_SelectedSceneHandle.has_value() || !sceneManager.Contains(m_SelectedSceneHandle.value()))
+			m_SelectedSceneHandle = session.GetActiveScene();
+			if (!m_SelectedSceneHandle.has_value() || !registry.Contains(m_SelectedSceneHandle.value()))
 			{
-				m_SelectedSceneHandle = sceneManager.GetActiveSceneHandle();
-			}
-
-			const auto& toolBarActions = DrawSceneToolBar(sceneManager.View(), m_SelectedSceneHandle);
-			m_SelectedSceneHandle = ApplySceneToolBarActions(toolBarActions, context);
-			if (!m_SelectedSceneHandle.has_value())
-			{
+				// No scene available.
 				return true;
 			}
 
-			const auto sceneHandle = m_SelectedSceneHandle.value();
-			auto* scene = context.SystemContext.SceneManager.TryGetScene(sceneHandle);
-
-			if (!scene)
-			{
-				return true;
-			}
-
-			Ludus::UI::Context::LayoutContext::Separator();
-
-			const auto& contextMenuActions = DrawSceneContextMenu(context, *scene);
-			ApplySceneContextMenuActions(contextMenuActions, context, *scene);
-
-			EntityRowCommands commands;
-
-			for (const auto& entity : scene->EntityComponentSystem.View())
-			{
-				const auto entityRowActions = DrawEntityRow(context, *scene, entity.Handle);
-				AddToEntityRowCommands(commands, entityRowActions, entity.Handle);
-			}
-
-			ApplyEntityRowCommands(commands, context, *scene);
-
-			if (Ludus::UI::Context::InputContext::IsMouseClicked(Ludus::Engine::Platform::MouseButton::Left) &&
-				Ludus::UI::Context::InputContext::IsWindowHovered(Ludus::UI::Flags::Hovered::AllowWhenBlockedByActiveItem) &&
-				!Ludus::UI::Context::InputContext::IsAnyItemHovered())
-			{
-				selection.DeselectEntity();
-			}
+			auto& scene = registry.GetScene(m_SelectedSceneHandle.value());
+			DrawSceneRow(context, scene);
 		}
 
 		return true;

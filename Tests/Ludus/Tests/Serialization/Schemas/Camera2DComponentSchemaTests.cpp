@@ -56,9 +56,9 @@ namespace Ludus::Tests::Serialization::Schemas
 		ASSERT_NE(sizeNode, nullptr);
 		ASSERT_NE(priorityNode, nullptr);
 
-		const auto ownerHandle = std::get<uint32_t>(AsValue(*ownerNode));
-		const auto orthographicSize = std::get<float>(AsValue(*sizeNode));
-		const auto priority = std::get<int>(AsValue(*priorityNode));
+		const auto ownerHandle = std::get<uint64_t>(AsValue(*ownerNode));
+		const auto orthographicSize = std::get<double>(AsValue(*sizeNode));
+		const auto priority = std::get<int64_t>(AsValue(*priorityNode));
 
 		ASSERT_EQ(ownerHandle, 1u);
 		ASSERT_EQ(orthographicSize, 10.0f);
@@ -76,9 +76,9 @@ namespace Ludus::Tests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject {});
 		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Uint32 { static_cast<uint32_t>(ownerHandle) });
+		writer.Emit(Token::Int { static_cast<int>(ownerHandle) });
 		writer.Emit(Token::Key { "OrthographicSize" });
-		writer.Emit(Token::Float { orthographicSize });
+		writer.Emit(Token::Double { orthographicSize });
 		writer.Emit(Token::Key { "Priority" });
 		writer.Emit(Token::Int { priority });
 		writer.Emit(Token::EndObject {});
@@ -103,7 +103,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject {});
 		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Uint32 { 1 });
+		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::EndObject {});
 		DomTokenStreamReader reader(document);
 

@@ -29,7 +29,7 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::StartObject { });
 
 			writer.Emit(Token::Key { "OwnerHandle" });
-			writer.Emit(Token::Uint32 { text.OwnerHandle });
+			writer.Emit(Token::Uint { text.OwnerHandle });
 
 			writer.Emit(Token::Key { "Text" });
 			writer.Emit(Token::String { text.Text });
@@ -38,13 +38,13 @@ namespace Ludus::Engine::Serialization::Schemas
 				writer.Emit(Token::Key { "Color" });
 				writer.Emit(Token::StartObject { });
 				writer.Emit(Token::Key { "R" });
-				writer.Emit(Token::Float { text.Color.R });
+				writer.Emit(Token::Double { text.Color.R });
 				writer.Emit(Token::Key { "G" });
-				writer.Emit(Token::Float { text.Color.G });
+				writer.Emit(Token::Double { text.Color.G });
 				writer.Emit(Token::Key { "B" });
-				writer.Emit(Token::Float { text.Color.B });
+				writer.Emit(Token::Double { text.Color.B });
 				writer.Emit(Token::Key { "A" });
-				writer.Emit(Token::Float { text.Color.A });
+				writer.Emit(Token::Double { text.Color.A });
 				writer.Emit(Token::EndObject { });
 			}
 
@@ -67,64 +67,63 @@ namespace Ludus::Engine::Serialization::Schemas
 				text.Color.B = 1.0f;
 				text.Color.A = 1.0f;
 
-				Ludus::Engine::Serialization::Core::ReadObject(reader,
-					[&](std::string_view key)
+				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
+				{
+					if (key == "OwnerHandle")
 					{
-						if (key == "OwnerHandle")
+						text.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
+						hasOwner = true;
+						return;
+					}
+					if (key == "Text")
+					{
+						text.Text = std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
+						return;
+					}
+					if (key == "Color")
+					{
+						Ludus::Engine::Serialization::Core::ReadObject(reader,
+							[&](std::string_view colorKey)
 						{
-							text.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Uint32>(reader).Data;
-							hasOwner = true;
-							return;
-						}
-						if (key == "Text")
-						{
-							text.Text = std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
-							return;
-						}
-						if (key == "Color")
-						{
-							Ludus::Engine::Serialization::Core::ReadObject(reader,
-								[&](std::string_view colorKey)
-								{
-									if (colorKey == "R")
-									{
-										text.Color.R = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Float>(reader).Data;
-										return;
-									}
-									if (colorKey == "G")
-									{
-										text.Color.G = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Float>(reader).Data;
-										return;
-									}
-									if (colorKey == "B")
-									{
-										text.Color.B = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Float>(reader).Data;
-										return;
-									}
-									if (colorKey == "A")
-									{
-										text.Color.A = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Float>(reader).Data;
-										return;
-									}
-
-									Ludus::Engine::Serialization::Core::SkipValue(reader);
-								});
-							return;
-						}
-						if (key == "HorizontalAlignment")
-						{
-							std::string horizontalAlignment = std::string(
-								Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
-							Ludus::Engine::Graphics::HorizontalTextAlignment parsed;
-							if (Ludus::Engine::Graphics::TryParse(horizontalAlignment, parsed))
+							if (colorKey == "R")
 							{
-								text.HorizontalAlignment = parsed;
+								text.Color.R = Ludus::Engine::Serialization::Core::ConsumeFloatLike(reader);
+								return;
 							}
-							return;
-						}
+							if (colorKey == "G")
+							{
+								text.Color.G = Ludus::Engine::Serialization::Core::ConsumeFloatLike(reader);
+								return;
+							}
+							if (colorKey == "B")
+							{
+								text.Color.B = Ludus::Engine::Serialization::Core::ConsumeFloatLike(reader);
+								return;
+							}
+							if (colorKey == "A")
+							{
+								text.Color.A = Ludus::Engine::Serialization::Core::ConsumeFloatLike(reader);
+								return;
+							}
 
-						Ludus::Engine::Serialization::Core::SkipValue(reader);
-					});
+							Ludus::Engine::Serialization::Core::SkipValue(reader);
+						});
+						return;
+					}
+					if (key == "HorizontalAlignment")
+					{
+						std::string horizontalAlignment = std::string(
+							Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
+						Ludus::Engine::Graphics::HorizontalTextAlignment parsed;
+						if (Ludus::Engine::Graphics::TryParse(horizontalAlignment, parsed))
+						{
+							text.HorizontalAlignment = parsed;
+						}
+						return;
+					}
+
+					Ludus::Engine::Serialization::Core::SkipValue(reader);
+				});
 
 				if (!hasOwner)
 				{
@@ -135,8 +134,10 @@ namespace Ludus::Engine::Serialization::Schemas
 			}
 			catch (const SerializationException& ex)
 			{
+				const auto error =
+					Ludus::Engine::Serialization::Core::WithContext(ex, "Text2DComponentSchema::Deserialize");
 				return Ludus::Engine::Core::Expected<Text, SerializationException>(
-					Ludus::Engine::Core::Unexpected<SerializationException>::Create(ex)
+					Ludus::Engine::Core::Unexpected<SerializationException>::Create(error)
 				);
 			}
 		}

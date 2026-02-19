@@ -62,17 +62,17 @@ namespace Ludus::Tests::Serialization::Schemas
 		ASSERT_NE(scaleNode, nullptr);
 		ASSERT_NE(rotationNode, nullptr);
 
-		const auto ownerHandle = std::get<uint32_t>(AsValue(*ownerNode));
+		const auto ownerHandle = std::get<uint64_t>(AsValue(*ownerNode));
 
 		const auto& positionObject = AsObject(*positionNode);
-		const auto positionX = std::get<float>(AsValue(*FindMember(positionObject, "X")));
-		const auto positionY = std::get<float>(AsValue(*FindMember(positionObject, "Y")));
+		const auto positionX = std::get<double>(AsValue(*FindMember(positionObject, "X")));
+		const auto positionY = std::get<double>(AsValue(*FindMember(positionObject, "Y")));
 
 		const auto& scaleObject = AsObject(*scaleNode);
-		const auto scaleX = std::get<float>(AsValue(*FindMember(scaleObject, "X")));
-		const auto scaleY = std::get<float>(AsValue(*FindMember(scaleObject, "Y")));
+		const auto scaleX = std::get<double>(AsValue(*FindMember(scaleObject, "X")));
+		const auto scaleY = std::get<double>(AsValue(*FindMember(scaleObject, "Y")));
 
-		const auto rotation = std::get<float>(AsValue(*rotationNode));
+		const auto rotation = std::get<double>(AsValue(*rotationNode));
 
 		ASSERT_EQ(ownerHandle, 1u);
 		ASSERT_EQ(positionX, 5.0f);
@@ -89,23 +89,23 @@ namespace Ludus::Tests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Uint32 { 1u });
+		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Position" });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "X" });
-		writer.Emit(Token::Float { 5.0f });
+		writer.Emit(Token::Double { 5.0f });
 		writer.Emit(Token::Key { "Y" });
-		writer.Emit(Token::Float { 10.0f });
+		writer.Emit(Token::Double { 10.0f });
 		writer.Emit(Token::EndObject { });
 		writer.Emit(Token::Key { "Scale" });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "X" });
-		writer.Emit(Token::Float { 2.0f });
+		writer.Emit(Token::Double { 2.0f });
 		writer.Emit(Token::Key { "Y" });
-		writer.Emit(Token::Float { 4.0f });
+		writer.Emit(Token::Double { 4.0f });
 		writer.Emit(Token::EndObject { });
 		writer.Emit(Token::Key { "Rotation" });
-		writer.Emit(Token::Float { 45.0f });
+		writer.Emit(Token::Double { 45.0f });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 
@@ -131,7 +131,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Uint32 { 1u });
+		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 

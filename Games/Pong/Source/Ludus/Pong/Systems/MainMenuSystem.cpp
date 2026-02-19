@@ -66,17 +66,17 @@ namespace Ludus::Pong::Systems
 	{
 		auto& input = m_SystemContext->Input;
 
-		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Up))
+		if (input.GetKeyDown(Ludus::Engine::Windowing::Key::Up))
 		{
 			m_MenuIndex = m_MenuIndex == 1 ? 3 : m_MenuIndex - 1;
 		}
 
-		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Down))
+		if (input.GetKeyDown(Ludus::Engine::Windowing::Key::Down))
 		{
 			m_MenuIndex = m_MenuIndex == 3 ? 1 : m_MenuIndex + 1;
 		}
 
-		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Enter) || input.GetKeyDown(Ludus::Engine::Platform::Key::Space))
+		if (input.GetKeyDown(Ludus::Engine::Windowing::Key::Enter) || input.GetKeyDown(Ludus::Engine::Windowing::Key::Space))
 		{
 			switch (m_MenuIndex)
 			{

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Ludus/Engine/Math/Vector2D.h>
-#include <Ludus/Engine/Platform/MouseButton.h>
+#include <Ludus/Engine/Windowing/MouseButton.h>
 #include <Ludus/UI/Flags/Flags.h>
 
 namespace Ludus::UI::Context::InputContext
@@ -15,6 +15,6 @@ namespace Ludus::UI::Context::InputContext
 	bool IsAnyItemActive();
 	bool IsAnyItemHovered();
 	bool IsItemHovered();
-	bool IsMouseClicked(Ludus::Engine::Platform::MouseButton mouseButton);
+	bool IsMouseClicked(Ludus::Engine::Windowing::MouseButton mouseButton);
 	bool IsWindowHovered(Ludus::UI::Flags::Hovered flags = Ludus::UI::Flags::Hovered::None);
 }

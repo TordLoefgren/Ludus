@@ -1,16 +1,19 @@
 #pragma once
 
+#include <filesystem>
+#include <string>
+
 #include <Ludus/Engine/Core/Expected.h>
 #include <Ludus/Engine/Core/Project.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamReader.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamWriter.h>
 #include <Ludus/Engine/Serialization/Core/SerializationException.h>
 #include <Ludus/Engine/Serialization/Core/TokenRead.h>
-#include <Ludus/Engine/Serialization/Schemas/SceneSchema.h>
 
 namespace Ludus::Engine::Serialization::Schemas
 {
 	using Project = Ludus::Engine::Core::Project;
+	using ProjectSceneReference = Ludus::Engine::Core::ProjectSceneReference;
 	using ITokenStreamWriter = Ludus::Engine::Serialization::Core::ITokenStreamWriter;
 	using ITokenStreamReader = Ludus::Engine::Serialization::Core::ITokenStreamReader;
 	using SerializationException = Ludus::Engine::Serialization::Core::SerializationException;
@@ -26,11 +29,11 @@ namespace Ludus::Engine::Serialization::Schemas
 				writer.Emit(Token::Key { "Version" });
 				writer.Emit(Token::StartObject { });
 				writer.Emit(Token::Key { "Major" });
-				writer.Emit(Token::Uint32 { project.Version.Major });
+				writer.Emit(Token::Uint { project.Version.Major });
 				writer.Emit(Token::Key { "Minor" });
-				writer.Emit(Token::Uint32 { project.Version.Minor });
+				writer.Emit(Token::Uint { project.Version.Minor });
 				writer.Emit(Token::Key { "Patch" });
-				writer.Emit(Token::Uint32 { project.Version.Patch });
+				writer.Emit(Token::Uint { project.Version.Patch });
 				writer.Emit(Token::EndObject { });
 			}
 
@@ -39,10 +42,20 @@ namespace Ludus::Engine::Serialization::Schemas
 
 			for (const auto& scene : project.Scenes)
 			{
-				SceneSchema::Serialize(writer, scene);
+				writer.Emit(Token::StartObject { });
+				writer.Emit(Token::Key { "Handle" });
+				writer.Emit(Token::Uint { scene.Handle });
+				writer.Emit(Token::Key { "Name" });
+				writer.Emit(Token::String { scene.Name });
+				writer.Emit(Token::Key { "Path" });
+				writer.Emit(Token::String { scene.Path.generic_string().c_str() });
+				writer.Emit(Token::EndObject { });
 			}
 
 			writer.Emit(Token::EndArray { });
+
+			writer.Emit(Token::Key { "ActiveSceneHandle" });
+			writer.Emit(Token::Uint { project.ActiveSceneHandle });
 			writer.Emit(Token::EndObject { });
 		}
 
@@ -56,67 +69,101 @@ namespace Ludus::Engine::Serialization::Schemas
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader,
 					[&](std::string_view key)
+				{
+					if (key == "Version")
 					{
-						if (key == "Version")
+						bool hasMajor = false;
+						bool hasMinor = false;
+						bool hasPatch = false;
+
+						Ludus::Engine::Serialization::Core::ReadObject(reader,
+							[&](std::string_view versionKey)
 						{
-							bool hasMajor = false;
-							bool hasMinor = false;
-							bool hasPatch = false;
-
-							Ludus::Engine::Serialization::Core::ReadObject(reader,
-								[&](std::string_view versionKey)
-								{
-									if (versionKey == "Major")
-									{
-										project.Version.Major = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Uint32>(reader).Data;
-										hasMajor = true;
-										return;
-									}
-									if (versionKey == "Minor")
-									{
-										project.Version.Minor = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Uint32>(reader).Data;
-										hasMinor = true;
-										return;
-									}
-									if (versionKey == "Patch")
-									{
-										project.Version.Patch = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Uint32>(reader).Data;
-										hasPatch = true;
-										return;
-									}
-
-									Ludus::Engine::Serialization::Core::SkipValue(reader);
-								});
-
-							if (!hasMajor || !hasMinor || !hasPatch)
+							if (versionKey == "Major")
 							{
-								throw SerializationException("Project version is incomplete.");
+								project.Version.Major = Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader);
+								hasMajor = true;
+								return;
+							}
+							if (versionKey == "Minor")
+							{
+								project.Version.Minor = Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader);
+								hasMinor = true;
+								return;
+							}
+							if (versionKey == "Patch")
+							{
+								project.Version.Patch = Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader);
+								hasPatch = true;
+								return;
 							}
 
-							hasVersion = true;
-							return;
-						}
-						if (key == "Scenes")
-						{
-							Ludus::Engine::Serialization::Core::ConsumeAs<Token::StartArray>(reader);
+							Ludus::Engine::Serialization::Core::SkipValue(reader);
+						});
 
-							while (!Ludus::Engine::Serialization::Core::Is<Token::EndArray>(reader.Peek()))
+						if (!hasMajor || !hasMinor || !hasPatch)
+						{
+							throw SerializationException("Project version is incomplete.");
+						}
+
+						hasVersion = true;
+						return;
+					}
+					if (key == "Scenes")
+					{
+						Ludus::Engine::Serialization::Core::ConsumeAs<Token::StartArray>(reader);
+
+						while (!Ludus::Engine::Serialization::Core::Is<Token::EndArray>(reader.Peek()))
+						{
+							ProjectSceneReference scene;
+							bool hasHandle = false;
+							bool hasName = false;
+							bool hasPath = false;
+
+							Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view sceneKey)
 							{
-								auto sceneResult = SceneSchema::Deserialize(reader);
-								if (!sceneResult.HasValue())
+								if (sceneKey == "Handle")
 								{
-									throw SerializationException(sceneResult.GetError().what());
+									scene.Handle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
+									hasHandle = true;
+									return;
+								}
+								if (sceneKey == "Name")
+								{
+									scene.Name = std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
+									hasName = true;
+									return;
+								}
+								if (sceneKey == "Path")
+								{
+									scene.Path = std::filesystem::path(
+										std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data));
+									hasPath = true;
+									return;
 								}
 
-								project.Scenes.emplace_back(std::move(sceneResult.GetValue()));
+								Ludus::Engine::Serialization::Core::SkipValue(reader);
+							});
+
+							if (!hasHandle || !hasName || !hasPath)
+							{
+								throw SerializationException("Project scene entry is incomplete.");
 							}
 
-							Ludus::Engine::Serialization::Core::ConsumeAs<Token::EndArray>(reader);
-							return;
+							project.Scenes.emplace_back(std::move(scene));
 						}
 
-						Ludus::Engine::Serialization::Core::SkipValue(reader);
-					});
+						Ludus::Engine::Serialization::Core::ConsumeAs<Token::EndArray>(reader);
+						return;
+					}
+					if (key == "ActiveSceneHandle")
+					{
+						project.ActiveSceneHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
+						return;
+					}
+
+					Ludus::Engine::Serialization::Core::SkipValue(reader);
+				});
 
 				if (!hasVersion)
 				{
@@ -127,8 +174,10 @@ namespace Ludus::Engine::Serialization::Schemas
 			}
 			catch (const SerializationException& ex)
 			{
+				const auto error =
+					Ludus::Engine::Serialization::Core::WithContext(ex, "ProjectSchema::Deserialize");
 				return Ludus::Engine::Core::Expected<Project, SerializationException>(
-					Ludus::Engine::Core::Unexpected<SerializationException>::Create(ex)
+					Ludus::Engine::Core::Unexpected<SerializationException>::Create(error)
 				);
 			}
 		}

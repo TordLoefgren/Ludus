@@ -7,6 +7,8 @@
 #include <vector>
 
 #include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Random.h>
+#include <Ludus/Engine/Debug/Debug.h>
 
 namespace Ludus::Engine::Core
 {
@@ -16,6 +18,8 @@ namespace Ludus::Engine::Core
 		std::vector<Entity> m_Data;										// Entity Storage.
 		std::vector<EntityHandle> m_Handles;							// Index -> entity handle.
 		std::unordered_map<EntityHandle, size_t> m_HandleToIndex;		// Entity handle -> index.
+		Ludus::Engine::Core::Random m_Random;
+		static constexpr size_t MaxUniqueIdAttempts = 32;
 
 		void RemoveAndReorderIndices(size_t index)
 		{
@@ -37,28 +41,43 @@ namespace Ludus::Engine::Core
 			m_Handles.pop_back();
 		}
 
+		EntityHandle CommitEntity(Entity entity)
+		{
+			const auto handle = entity.Handle;
+			LUDUS_ASSERT(!m_HandleToIndex.contains(handle), "Entity handle collision.");
+
+			m_Data.push_back(std::move(entity));
+			m_Handles.push_back(handle);
+			m_HandleToIndex[handle] = m_Data.size() - 1;
+
+			return handle;
+		}
+
+		EntityHandle CreateUniqueId()
+		{
+			// Retry a fixed number of times to avoid collision loop.
+			for (size_t attempt = 0; attempt < MaxUniqueIdAttempts; ++attempt)
+			{
+				const auto handle = m_Random.NextId();
+				if (!m_HandleToIndex.contains(handle))
+				{
+					return handle;
+				}
+			}
+
+			LUDUS_ASSERT(false, "Failed to generate a unique entity handle.");
+			return m_Random.NextId();
+		}
+
 	public:
 		void AddEntity(EntityHandle handle)
 		{
-			m_Data.emplace_back(handle);
-
-			const auto index = m_Data.size() - 1;
-
-			m_Handles.push_back(handle);
-			m_HandleToIndex[handle] = index;
+			(void)CommitEntity(Entity { handle });
 		}
 
 		EntityHandle CreateEntity()
 		{
-			m_Data.emplace_back();
-
-			const auto index = m_Data.size() - 1;
-			const auto handle = m_Data[index].Handle;
-
-			m_Handles.push_back(handle);
-			m_HandleToIndex[handle] = index;
-
-			return handle;
+			return CommitEntity(Entity { CreateUniqueId() });
 		}
 
 		bool DestroyEntity(EntityHandle handle)

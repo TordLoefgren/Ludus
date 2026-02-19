@@ -19,7 +19,7 @@ namespace Ludus::Engine::Serialization::Core
 	using DomNodePtr = std::unique_ptr<DomNode>;
 	using DomArray = std::vector<DomNodePtr>;
 	using DomObject = std::vector<std::pair<std::string, DomNodePtr>>;
-	using DomValue = std::variant<std::monostate, bool, double, float, int, std::string, uint8_t, uint32_t>;
+	using DomValue = std::variant<std::monostate, bool, double, std::string, int64_t, uint64_t>;
 
 	struct DomNode
 	{
@@ -30,12 +30,10 @@ namespace Ludus::Engine::Serialization::Core
 	template <class T>
 	static constexpr bool IsSupportedValue =
 		std::is_same_v<std::decay_t<T>, bool> ||
-		std::is_same_v<std::decay_t<T>, int> ||
-		std::is_same_v<std::decay_t<T>, float> ||
 		std::is_same_v<std::decay_t<T>, double> ||
 		std::is_same_v<std::decay_t<T>, std::string> ||
-		std::is_same_v<std::decay_t<T>, uint8_t> ||
-		std::is_same_v<std::decay_t<T>, uint32_t>;
+		std::is_same_v<std::decay_t<T>, int64_t> ||
+		std::is_same_v<std::decay_t<T>, uint64_t>;
 
 	inline const DomArray& AsArray(const DomNode& node)
 	{

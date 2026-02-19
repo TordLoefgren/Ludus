@@ -2,6 +2,8 @@
 
 namespace Ludus::UI::Context::LayoutContext
 {
+	void AlignTextToFramePadding();
+
 	void SameLine(float offsetFromStart = 0.0f, float spacing = 0.0f);
 
 	void SetNextItemWidth(float width);

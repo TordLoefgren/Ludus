@@ -2,25 +2,29 @@
 
 #include <cstdint>
 #include <optional>
+#include <string>
+#include <string_view>
 
 #include <Ludus/Engine/Components/Camera2DComponent.h>
 #include <Ludus/Engine/Core/EntityComponentSystem.h>
 
 namespace Ludus::Engine::Core
 {
-	using SceneHandle = uint32_t;
+	using SceneHandle = uint64_t;
 
 	struct Scene
 	{
-	private:
-		inline static SceneHandle s_NextHandle = 1;
-
 	public:
 		SceneHandle Handle;
+		std::string Name;
 		Ludus::Engine::Core::EntityComponentSystem EntityComponentSystem;
 
-		Scene()
-			: Handle(s_NextHandle++)
+		Scene(SceneHandle handle)
+			: Handle(handle), Name("Untitled")
+		{ }
+
+		Scene(SceneHandle handle, std::string_view name)
+			: Handle(handle), Name(name)
 		{ }
 
 		Scene(const Scene&) = delete;
@@ -83,7 +87,7 @@ namespace Ludus::Engine::Core
 			}
 
 			auto* transformPtr = EntityComponentSystem.Transforms.TryGetByOwnerMutable(cam->OwnerHandle);
-			if (!transformPtr) 
+			if (!transformPtr)
 			{
 				return std::nullopt;
 			}

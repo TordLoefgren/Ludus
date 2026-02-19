@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -20,8 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Resources\Fonts\liberation-sans\SIL Open Font License.txt" />
+    <Text Include="Vendors\glad\LICENSE.khrplatform.txt" />
+    <Text Include="Vendors\glad\LICENSE.txt" />
+    <Text Include="Vendors\GLFW\LICENSE.txt" />
     <Text Include="Vendors\glm\CMakeLists.txt" />
     <Text Include="Vendors\glm\copying.txt" />
+    <Text Include="Vendors\stb_image\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Ludus\Engine\Components\DisplayNameComponent.h" />
@@ -32,12 +36,14 @@
     <ClInclude Include="Include\Ludus\Engine\Core\FlagSet.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Mask.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Project.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\ProjectContext.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\RenderViewRegistry.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\RenderViewRequestRegistry.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Scene.h" />
-    <ClInclude Include="Include\Ludus\Engine\Core\SceneManager.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\SceneRegistry.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\SystemConstraints.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\SystemDescriptor.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\Variants.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Version.h" />
     <ClInclude Include="Include\Ludus\Engine\Debug\Debug.h" />
     <ClInclude Include="Include\Ludus\Engine\Components\Camera2DComponent.h" />
@@ -65,6 +71,7 @@
     <ClInclude Include="Include\Ludus\Engine\Events\MouseEvents.h" />
     <ClInclude Include="Include\Ludus\Engine\Events\WindowEvents.h" />
     <ClInclude Include="Include\Ludus\Engine\Geometries\Queries.h" />
+    <ClInclude Include="Include\Ludus\Engine\Graphics\GL.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\HorizontalTextAlignment.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\IRenderPass.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\NoCameraRenderPass.h" />
@@ -72,6 +79,7 @@
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderContext2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderingSystem2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderPhaseOrder.h" />
+    <ClInclude Include="Include\Ludus\Engine\Graphics\RenderPresentationSettings.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderTarget.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderView2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderViewConfiguration.h" />
@@ -81,7 +89,7 @@
     <ClInclude Include="Include\Ludus\Engine\Graphics\Shape.h" />
     <ClInclude Include="Include\Ludus\Engine\Components\Sprite2DComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Components\Text2DComponent.h" />
-    <ClInclude Include="Include\Ludus\Engine\IO\IO.h" />
+    <ClInclude Include="Include\Ludus\Engine\FileSystem\FileSystem.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Rect.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Circle.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\EntityRegistry.h" />
@@ -89,6 +97,15 @@
     <ClInclude Include="Include\Ludus\Engine\Core\Cooldown.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Entity.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Size.h" />
+    <ClInclude Include="Include\Ludus\Engine\Platform\FileSystem.h" />
+    <ClInclude Include="Include\Ludus\Engine\Platform\Modals.h" />
+    <ClInclude Include="Include\Ludus\Engine\Platform\Paths.h" />
+    <ClInclude Include="Include\Ludus\Engine\Persistence\IProjectPersistence.h" />
+    <ClInclude Include="Include\Ludus\Engine\Persistence\IScenePersistence.h" />
+    <ClInclude Include="Include\Ludus\Engine\Persistence\LmlProjectPersistence.h" />
+    <ClInclude Include="Include\Ludus\Engine\Persistence\LmlScenePersistence.h" />
+    <ClInclude Include="Include\Ludus\Engine\Persistence\Paths.h" />
+    <ClInclude Include="Include\Ludus\Engine\Persistence\ProjectRepository.h" />
     <ClInclude Include="Include\Ludus\Engine\Serialization\Core\DomDocument.h" />
     <ClInclude Include="Include\Ludus\Engine\Serialization\Core\DomTokenStreamReader.h" />
     <ClInclude Include="Include\Ludus\Engine\Serialization\Core\DomTokenStreamWriter.h" />
@@ -154,15 +171,15 @@
     <ClInclude Include="Include\Ludus\Engine\Physics\Solvers\IContactSolver2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Physics\Solvers\MTVContactSolver.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderingOptions.h" />
-    <ClInclude Include="Include\Ludus\Engine\Platform\Input.h" />
-    <ClInclude Include="Include\Ludus\Engine\Platform\Key.h" />
-    <ClInclude Include="Include\Ludus\Engine\Platform\MouseButton.h" />
-    <ClInclude Include="Include\Ludus\Engine\Platform\Window.h" />
-    <ClInclude Include="Include\Ludus\Engine\Platform\WindowOptions.h" />
+    <ClInclude Include="Include\Ludus\Engine\Windowing\Input.h" />
+    <ClInclude Include="Include\Ludus\Engine\Windowing\Key.h" />
+    <ClInclude Include="Include\Ludus\Engine\Windowing\MouseButton.h" />
+    <ClInclude Include="Include\Ludus\Engine\Windowing\Window.h" />
+    <ClInclude Include="Include\Ludus\Engine\Windowing\WindowOptions.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\EntityComponentSystem.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\ISystem.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Scheduler.h" />
-    <ClInclude Include="Include\Ludus\Engine\Platform\WindowUserData.h" />
+    <ClInclude Include="Include\Ludus\Engine\Windowing\WindowUserData.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderingPipeline2D.h" />
     <ClInclude Include="Source\Ludus\Engine\pch.h" />
     <ClInclude Include="Vendors\glad\include\glad\glad.h" />
@@ -460,6 +477,9 @@
     <ClInclude Include="Vendors\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Ludus\Engine\Platform\Windows\FileSystem.Windows.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Platform\Windows\Modals.Windows.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Platform\Windows\Paths.Windows.cpp" />
     <ClCompile Include="Source\Ludus\Engine\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -479,8 +499,8 @@
     <ClCompile Include="Source\Ludus\Engine\Graphics\VertexArrayObject.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\VertexBufferObject.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Math\Vector2D.cpp" />
-    <ClCompile Include="Source\Ludus\Engine\Platform\Input.cpp" />
-    <ClCompile Include="Source\Ludus\Engine\Platform\Window.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Windowing\Input.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Windowing\Window.cpp" />
     <ClCompile Include="Vendors\glad\src\glad.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>

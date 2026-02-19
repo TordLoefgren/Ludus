@@ -16,6 +16,7 @@ namespace Ludus::Engine::Core
 			m_ApplicationOptions,
 			std::move(m_RenderingConfiguration),
 			m_RenderingOptions,
+			m_RenderPresentationSettings,
 			std::move(m_PhysicsConfiguration),
 			m_WindowOptions
 		);
@@ -52,6 +53,12 @@ namespace Ludus::Engine::Core
 		return *this;
 	}
 
+	ApplicationBuilder& ApplicationBuilder::WithRenderPresentationSettings(Ludus::Engine::Graphics::RenderPresentationSettings renderPresentationSettings)
+	{
+		m_RenderPresentationSettings = renderPresentationSettings;
+		return *this;
+	}
+
 	ApplicationBuilder& ApplicationBuilder::WithRenderViewConfiguration(Ludus::Engine::Graphics::RenderViewConfiguration renderViewConfiguration)
 	{
 		m_RenderViewConfiguration = renderViewConfiguration;
@@ -64,7 +71,7 @@ namespace Ludus::Engine::Core
 		return *this;
 	}
 
-	ApplicationBuilder& ApplicationBuilder::WithWindowOptions(const Ludus::Engine::Platform::WindowOptions windowOptions)
+	ApplicationBuilder& ApplicationBuilder::WithWindowOptions(const Ludus::Engine::Windowing::WindowOptions windowOptions)
 	{
 		m_WindowOptions = windowOptions;
 		return *this;

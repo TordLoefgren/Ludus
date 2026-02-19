@@ -69,7 +69,7 @@ namespace Ludus::Engine::Physics::Core
 
 		virtual void FixedUpdateImpl(float fixedTime) override
 		{
-			for (auto& scene : m_SystemContext->SceneManager.ViewMutable())
+			for (auto& scene : m_SystemContext->SceneRegistry.ViewMutable())
 			{
 				PullEntityComponents(scene.EntityComponentSystem);
 				m_PhysicsPipeline.Step(m_PhysicsWorld, *m_Queries, fixedTime, m_SubSteps);

@@ -81,7 +81,7 @@ namespace Ludus::Lab::Core
 		UpdateWorld();
 
 		// Input Handling.
-		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Escape))
+		if (input.GetKeyDown(Ludus::Engine::Windowing::Key::Escape))
 		{
 			m_SystemContext->Window.SetWindowShouldClose();
 		}

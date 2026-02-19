@@ -4,13 +4,11 @@
 #include <string_view>
 #include <variant>
 
+#include <Ludus/Engine/Core/Variants.h>
+
 namespace Ludus::Engine::Serialization::Core
 {
-	template<class... Ts>
-	struct Overloaded : Ts... { using Ts::operator()...; };
-
-	template<class... Ts>
-	Overloaded(Ts...) -> Overloaded<Ts...>;
+	using Ludus::Engine::Core::Variants::Overloaded;
 
 	struct Token
 	{
@@ -24,9 +22,8 @@ namespace Ludus::Engine::Serialization::Core
 		struct Null { };
 
 		struct Bool { bool Data; };
-		struct Int { int Data; };
-		struct Uint32 { uint32_t Data; };
-		struct Float { float Data; };
+		struct Int { int64_t Data; };
+		struct Uint { uint64_t Data; };
 		struct Double { double Data; };
 		struct String { std::string_view Data; };
 
@@ -34,7 +31,7 @@ namespace Ludus::Engine::Serialization::Core
 			StartObject, EndObject,
 			StartArray, EndArray,
 			Key, Null,
-			Bool, Int, Uint32, Float, Double, String
+			Bool, Int, Uint, Double, String
 		>;
 
 		Variant Data;

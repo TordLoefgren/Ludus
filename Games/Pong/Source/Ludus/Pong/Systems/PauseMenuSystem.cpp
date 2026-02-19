@@ -55,12 +55,12 @@ namespace Ludus::Pong::Systems
 	{
 		auto& input = m_SystemContext->Input;
 
-		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Up) || input.GetKeyDown(Ludus::Engine::Platform::Key::Down))
+		if (input.GetKeyDown(Ludus::Engine::Windowing::Key::Up) || input.GetKeyDown(Ludus::Engine::Windowing::Key::Down))
 		{
 			m_MenuIndex = m_MenuIndex == 1 ? 2 : 1;
 		}
 
-		if (input.GetKeyDown(Ludus::Engine::Platform::Key::Enter) || input.GetKeyDown(Ludus::Engine::Platform::Key::Space))
+		if (input.GetKeyDown(Ludus::Engine::Windowing::Key::Enter) || input.GetKeyDown(Ludus::Engine::Windowing::Key::Space))
 		{
 			if (m_MenuIndex == 1)
 			{
