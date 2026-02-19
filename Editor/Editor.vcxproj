@@ -156,7 +156,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -176,7 +176,7 @@ xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"</Co
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -194,7 +194,7 @@ xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"</Co
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(ProjectDir)Source\Ludus\Editor;$(ProjectDir)Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(ProjectDir)Source\Ludus\Editor;$(ProjectDir)Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -204,12 +204,18 @@ xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"</Co
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;UI.lib</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(SolutionDir)UI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022;$(SolutionDir)UI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"
 xcopy /y /e /i /d  "$(SolutionDir)UI\Resources\*"  "$(OutDir)Resources\"
-xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"</Command>
+xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"
+if /I "$(Configuration)"=="Debug" (
+  xcopy /y /d  "$(VcpkgInstalledDir)$(VcpkgTriplet)\debug\bin\*.dll"  "$(OutDir)"
+) else (
+  xcopy /y /d  "$(VcpkgInstalledDir)$(VcpkgTriplet)\bin\*.dll"  "$(OutDir)"
+)
+xcopy /y  "$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"</Command>
     </PostBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
@@ -223,7 +229,7 @@ xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"</Co
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(ProjectDir)Source\Ludus\Editor;$(ProjectDir)Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(ProjectDir)Source\Ludus\Editor;$(ProjectDir)Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -233,12 +239,18 @@ xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"</Co
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;UI.lib</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(SolutionDir)UI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022;$(SolutionDir)UI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"
 xcopy /y /e /i /d  "$(SolutionDir)UI\Resources\*"  "$(OutDir)Resources\"
-xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"</Command>
+xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"
+if /I "$(Configuration)"=="Debug" (
+  xcopy /y /d  "$(VcpkgInstalledDir)$(VcpkgTriplet)\debug\bin\*.dll"  "$(OutDir)"
+) else (
+  xcopy /y /d  "$(VcpkgInstalledDir)$(VcpkgTriplet)\bin\*.dll"  "$(OutDir)"
+)
+xcopy /y  "$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"</Command>
     </PostBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>

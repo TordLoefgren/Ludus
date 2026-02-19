@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{E5222F19-54E2-431B-B8A5-67DC31E554E1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		THIRD_PARTY_NOTICES.md = THIRD_PARTY_NOTICES.md
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Pong", "Games\Pong\Pong.vcxproj", "{A543D0EF-17DB-4C1A-970D-1E469B6E43D6}"
 	ProjectSection(ProjectDependencies) = postProject

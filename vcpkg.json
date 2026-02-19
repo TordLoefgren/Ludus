@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "ludus",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "glfw3",
+    "freetype"
+  ],
+  "builtin-baseline": "ce35b1a53aac26d7fcdb8ee1ef7a8e4eea02d27b"
+}

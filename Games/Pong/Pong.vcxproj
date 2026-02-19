@@ -163,6 +163,13 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"
+xcopy /E /I /Y "$(SolutionDir)UI\Resources" "$(TargetDir)Resources"
+if /I "$(Configuration)"=="Debug" (
+  xcopy /y /d  "$(VcpkgInstalledDir)$(VcpkgTriplet)\debug\bin\*.dll"  "$(OutDir)"
+) else (
+  xcopy /y /d  "$(VcpkgInstalledDir)$(VcpkgTriplet)\bin\*.dll"  "$(OutDir)"
+)
+xcopy /y  "$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -186,6 +193,13 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"
+xcopy /E /I /Y "$(SolutionDir)UI\Resources" "$(TargetDir)Resources"
+if /I "$(Configuration)"=="Debug" (
+  xcopy /y /d  "$(VcpkgInstalledDir)$(VcpkgTriplet)\debug\bin\*.dll"  "$(OutDir)"
+) else (
+  xcopy /y /d  "$(VcpkgInstalledDir)$(VcpkgTriplet)\bin\*.dll"  "$(OutDir)"
+)
+xcopy /y  "$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

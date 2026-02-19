@@ -19,7 +19,7 @@
 A personal experiment in graphics, physics, and engine architecture design.
 </i></p>
 
----
+
 
 ## Overview
 
@@ -33,7 +33,7 @@ Rather than aiming for a finished engine product, the goal is to explore and und
 
 Ludus currently targets **2D**, with a clear intent to add **3D** support later.
 
----
+
 
 ## Architecture
 
@@ -45,7 +45,7 @@ Ludus follows a layered architecture separating:
 
 This separation is enforced throughout rendering, input, persistence, and tooling systems.
 
----
+
 
 ## Editor (Current State)
 
@@ -68,26 +68,26 @@ Implemented or in active development:
   <figcaption><i>Editor view while developing an in-engine Pong prototype (currently not playable, pending scripting integration).</i></figcaption>
 </figure>
 
----
+
 
 ## Project Status
 
 Ludus is **not yet distributed**.
 
-- Builds and runs locally.
-- Some third-party dependencies and build steps are not fully automated.
-- This repository represents an **in-progress** engine, not a consumer-ready product.
-- Third-party dependency and license details are documented in `THIRD_PARTY_NOTICES.md`.
+Its goal is to evolve into a complete game engine supporting both **2D and 3D** projects — and eventually include a **game editor**.
 
-Before reaching a “complete editor” milestone, planned additions include:
+## Features (v0.1.0)
 
-- Scripting integration.
-- Asset import pipeline.
-- Build system for packaging games and executables.
+### Ludus::Engine
+- Core registries for game objects, transforms, and colliders.
+- Scene and object management.
+- Deterministic time-step and timer system.
+- Layer-based collision filtering.
+- Debug and assert macros.
 
 This repository exists primarily as a **technical portfolio** and architectural exploration.
 
----
+
 
 ## Tech Highlights
 
@@ -95,7 +95,7 @@ This repository exists primarily as a **technical portfolio** and architectural 
 - Editor stack: Dear ImGui–based editor.
 - Testing: GoogleTest.
 
----
+
 
 ## Repository Structure
 
@@ -108,7 +108,7 @@ Lab/      -> Framework-based sandbox for building and iterating on demos
 Tests/    -> Unit and integration tests
 ```
 
----
+
 
 ## Building
 
@@ -122,27 +122,48 @@ Prerequisites:
 git clone https://github.com/TordLoefgren/Ludus.git
 cd Ludus
 
+# Install vcpkg (if not already installed)
+git clone https://github.com/microsoft/vcpkg C:\dev\tools\vcpkg
+C:\dev\tools\vcpkg\bootstrap-vcpkg.bat
+
+# Configure vcpkg for this shell
+set VCPKG_ROOT=C:\dev\tools\vcpkg
+set VCPKG_DEFAULT_TRIPLET=x64-windows
+
+# Bootstrap dependencies (manifest mode)
+%VCPKG_ROOT%\vcpkg.exe install --triplet x64-windows --x-manifest-root=. --x-install-root=.cache\vcpkg_installed
+
 # Build
-msbuild .\Ludus.sln /m /p:Configuration=Debug /p:Platform=x64
+msbuild .\Ludus.sln /m /p:Configuration=Debug /p:Platform=x64 /p:VcpkgEnableManifest=true
 ```
 
 Notes:
-- Ensure any local dependencies are installed before building.
+- The repository uses `vcpkg.json` + `vcpkg-configuration.json` to pin dependencies.
+- To force usage of tools already installed on your machine (git/cmake/ninja from PATH), set:
+```powershell
+$env:VCPKG_FORCE_SYSTEM_BINARIES = "1"
+```
+- If needed, persist local vcpkg environment variables once:
+```powershell
+setx VCPKG_ROOT "C:\dev\tools\vcpkg"
+setx VCPKG_DEFAULT_TRIPLET "x64-windows"
+```
 
 ## Running Tests
 
-- Build the `Tests` project in `Ludus.sln`.
-- Run tests from Visual Studio Test Explorer.
-- Optional (CLI with cache logs):
+Option 1 (Visual Studio):
+- Open `Ludus.sln`
+- Select `Debug|x64` (or `Release|x64`)
+- Build the `Tests` project
+- Run tests from Test Explorer
+
+Option 2 (command line):
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\.tools\scripts\invoke-msbuild.ps1 `
-  -ProjectOrSolution .\Tests\Tests.vcxproj `
-  -Configuration Debug `
-  -Platform x64 `
-  -LogName tests-build.log `
-  -Diagnostics
+msbuild .\Tests\Tests.vcxproj /m /p:Configuration=Debug /p:Platform=x64
+.\Tests\bin\x64\Debug\Tests.exe
 ```
-  Logs are written to `.cache\logs\` instead of repository root.
+
+Logs are written to `.cache\logs\` instead of repository root.
 
 ## Inspiration & References
 This project draws ideas from great resources in the C++ and graphics programming community:

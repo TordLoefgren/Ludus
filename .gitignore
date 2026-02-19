@@ -258,3 +258,10 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 /Editor/imgui.ini
+
+# vcpkg generated artifacts (manifest mode)
+vcpkg_installed/
+vcpkg_packages/
+vcpkg_buildtrees/
+vcpkg_downloads/
+.cache/

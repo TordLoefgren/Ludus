@@ -94,3 +94,16 @@ Notes:
 - Local license text:
   - `Engine/Resources/Fonts/liberation-sans/SIL Open Font License.txt`
   - `UI/Resources/Fonts/liberation-sans/SIL Open Font License.txt`
+
+### 10) FreeType (via vcpkg)
+- Component: FreeType
+- Source: vcpkg dependency (`vcpkg.json`)
+- Upstream: https://freetype.org/
+- vcpkg port: https://github.com/microsoft/vcpkg/tree/master/ports/freetype
+- License: FreeType License (FTL), with optional GPLv2 alternative in upstream distribution
+- Local build source: resolved from vcpkg at build time (not vendored in this repository)
+- Local copied license text: `.tools/THIRD_PARTY_LICENSES/freetype-copyright.txt`
+
+Distribution note:
+- If binaries are distributed with FreeType runtime artifacts (for example `freetype.dll`),
+  include the corresponding FreeType license notice in the shipped package.
