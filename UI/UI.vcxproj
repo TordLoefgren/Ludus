@@ -142,15 +142,12 @@
     <ClCompile Include="Source\Ludus\UI\Context\ViewportContext.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Include\Ludus\UI\Icons\font-awesome-style.css">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </None>
     <None Include="Vendors\imgui\.editorconfig" />
     <None Include="Vendors\imgui\.gitattributes" />
     <None Include="Vendors\imgui\.gitignore" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="Resources\Fonts\liberation-sans\SIL Open Font License.txt" />
     <Text Include="Vendors\imgui\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -159,8 +156,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Font Include="Resources\Fonts\ARIAL.TTF" />
-    <Font Include="Resources\Fonts\FONT_AWESOME.TFF" />
+    <Font Include="Resources\Fonts\font-awesome\fa-solid-900.ttf" />
+    <Font Include="Resources\Fonts\liberation-sans\LiberationSans-Bold.ttf" />
+    <Font Include="Resources\Fonts\liberation-sans\LiberationSans-BoldItalic.ttf" />
+    <Font Include="Resources\Fonts\liberation-sans\LiberationSans-Italic.ttf" />
+    <Font Include="Resources\Fonts\liberation-sans\LiberationSans-Regular.ttf" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

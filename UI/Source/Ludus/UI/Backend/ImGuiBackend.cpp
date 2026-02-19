@@ -15,9 +15,10 @@ namespace Ludus::UI::Backend
 
 		const auto sizePixels = 16.0f;
 		const auto glyphMinAdvanceX = 16.0f;
+		const auto iconGlyphOffsetY = 0.0f;
 
-		Ludus::UI::Backend::AddFont(io, "Resources/Fonts/ARIAL.TTF", sizePixels);
-		Ludus::UI::Backend::AddMergedIconFont(io, "Resources/Fonts/FONT_AWESOME.TFF", sizePixels, glyphMinAdvanceX);
+		Ludus::UI::Backend::AddFont(io, "Resources/Fonts/liberation-sans/LiberationSans-Regular.ttf", sizePixels);
+		Ludus::UI::Backend::AddMergedIconFont(io, "Resources/Fonts/font-awesome/fa-solid-900.ttf", sizePixels, glyphMinAdvanceX, iconGlyphOffsetY);
 
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init();

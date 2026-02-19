@@ -2,10 +2,14 @@
 
 namespace Ludus::UI::Icons
 {
-#define ICON_PLAY reinterpret_cast<const char*>(u8"\uEE38")
-#define ICON_STOP reinterpret_cast<const char*>(u8"\uEF68")
-#define ICON_PAUSE reinterpret_cast<const char*>(u8"\uEDD1")
-#define ICON_STEP reinterpret_cast<const char*>(u8"\uEF64")
-#define ICON_PLUS reinterpret_cast<const char*>(u8"\uEE41")
-#define ICON_ELLIPSIS_V reinterpret_cast<const char*>(u8"\uEB47")
+#define ICON_PLAY			"\xEF\x81\x8B" 
+#define ICON_PAUSE			"\xEF\x81\x8C" 
+#define ICON_STOP			"\xEF\x81\x8D" 
+#define ICON_PLUS			"\xEF\x81\xA7" 
+#define ICON_ELLIPSIS_V		"\xEF\x85\x82" 
+#define ICON_CUBE			"\xEF\x86\xB2" 
+#define ICON_CUBES			"\xEF\x86\xB3" 
+#define ICON_FILE			"\xEF\x85\x9B" 
+#define ICON_FOLDER			"\xEF\x81\xBB" 
+#define ICON_FOLDER_OPEN	"\xEF\x81\xBC" 
 }

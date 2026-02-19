@@ -14,7 +14,7 @@ namespace Ludus::Engine::Graphics
 			LUDUS_LOG_ERROR("Could not initialize FreeType Library");
 		}
 
-		if (FT_New_Face(m_FT_Library, "Resources/Fonts/ARIAL.TTF", 0, &m_Face))
+		if (FT_New_Face(m_FT_Library, "Resources/Fonts/liberation-sans/LiberationSans-Regular.ttf", 0, &m_Face))
 		{
 			LUDUS_LOG_ERROR("Failed to load font");
 		}

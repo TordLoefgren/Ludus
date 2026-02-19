@@ -1,0 +1,22 @@
+Font Awesome Free License Notice
+
+Files in this directory:
+- fa-solid-900.ttf
+- OFL.txt
+
+Upstream sources:
+- https://github.com/components/font-awesome/blob/master/webfonts/fa-solid-900.ttf
+- https://github.com/FortAwesome/Font-Awesome
+- https://fontawesome.com/license/free
+
+Font Awesome Free license model:
+- Icons: CC BY 4.0 License
+- Fonts: SIL OFL 1.1 License
+- Code: MIT License
+
+This repository uses the Font Awesome font asset `fa-solid-900.ttf`.
+The applicable font license is SIL Open Font License 1.1.
+The full OFL 1.1 text is provided locally in `OFL.txt`.
+
+Attribution:
+- Font Awesome Free by Fonticons, Inc.

@@ -13,7 +13,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/language-C++-00599C?style=flat&logo=c%2B%2B&logoColor=white" alt="Language">
   <img src="https://img.shields.io/badge/platform-Windows-blue?style=flat" alt="Platform">
-  <img src="https://img.shields.io/badge/tests-Doctest-success?style=flat&logo=github" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-GoogleTest-success?style=flat&logo=github" alt="Tests">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
   <img src="https://img.shields.io/badge/version-v0.1.0-yellow" alt="Version">
 </p>
@@ -55,7 +55,7 @@ Its goal is to evolve into a complete game engine supporting both **2D and 3D** 
 - Keyboard and input handling.
 
 ### Infrastructure
-- Unit testing with [Doctest](https://github.com/doctest/doctest).
+- Unit testing with [GoogleTest](https://github.com/google/googletest).
 - Continuous integration via GitHub Actions.
 - Semantic versioning and structured project flow.
 
@@ -103,7 +103,10 @@ This project draws ideas from great resources in the C++ and graphics programmin
   https://gameprogrammingpatterns.com/
 - **IndieGameDev.net** – _Articles, tutorials, and insights on game architecture and engine design_  
   https://indiegamedev.net/
-- **doctest** – _Unit testing library used in Ludus_  
-  https://github.com/doctest/doctest
+- **GoogleTest** – _Unit testing library used in Ludus_
+  https://github.com/google/googletest
 - **GLFW / OpenGL References** – _Windowing, input, and API specifications_  
   https://www.glfw.org/ · https://www.khronos.org/opengl/
+
+
+
