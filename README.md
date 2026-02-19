@@ -43,45 +43,34 @@ This separation is enforced throughout rendering, input, persistence, and toolin
 
 
 
-## Editor (Current State)
+## Current Status & Scope
 
-The editor is built on **Dear ImGui** and follows a layered architecture clearly separating UI, editor logic, and engine runtime.
-It is a client of the engine runtime, not part of the runtime itself.
+Ludus is in active development and currently focused on **2D** engine/editor workflows.
+The repository already includes a working editor application built on the runtime.
+Current work is centered on improving architecture, tooling, and runtime systems,
+with **3D** support as a future direction.
 
-Implemented or in active development:
-- Dockable panel system (Hierarchy, Viewport, Inspector, Console, Project).
-- Scene hierarchy and entity inspection.
-- Component-based editing.
-- Orthographic camera and 2D viewport rendering.
-- Basic extensible physics pipeline.
-- Event system.
-- Explicit control over framebuffers.
-- Project and scene serialization with persistence layer.
-- Logging, assertions, and debug tooling.
+Current content includes:
+- A modular C++ engine runtime focused on 2D systems.
+- A render pipeline and OpenGL-based rendering systems for 2D scenes.
+- A developing 2D physics pipeline integrated with core engine systems.
+- An editor built on top of the engine runtime.
+- A shared UI layer for editor tooling.
+- Automated tests for core engine and serialization behavior.
+
+```text
+Engine/   -> Runtime code
+Editor/   -> Editor application
+UI/       -> Shared UI layer
+Tests/    -> Automated tests
+```
+
+Current editor snapshot:
 
 <figure>
   <img src=".tools/assets/editor.png" alt="Ludus Editor" width="900"/>
   <figcaption><i>Editor view while iterating on core engine systems.</i></figcaption>
 </figure>
-
-
-
-## Project Status
-
-Ludus is **not yet distributed**.
-
-Its goal is to evolve into a complete game engine supporting both **2D and 3D** projects — and eventually include a **game editor**.
-
-## Features (v0.1.0)
-
-### Ludus::Engine
-- Core registries for game objects, transforms, and colliders.
-- Scene and object management.
-- Deterministic time-step and timer system.
-- Layer-based collision filtering.
-- Debug and assert macros.
-
-This repository exists primarily as a **technical portfolio** and architectural exploration.
 
 
 
@@ -93,17 +82,6 @@ This repository exists primarily as a **technical portfolio** and architectural 
 
 
 
-## Repository Structure
-
-```text
-Engine/   -> Runtime code
-Editor/   -> Editor application
-UI/       -> Shared UI layer
-Tests/    -> Automated tests
-```
-
-
-
 ## Building
 
 Prerequisites:
@@ -111,8 +89,9 @@ Prerequisites:
 - Visual Studio 2022
 - Desktop development with C++
 - C++20 toolset
+- Run commands from a **Developer Command Prompt for VS 2022** (or equivalent VS-initialized shell)
 
-```bash
+```cmd
 git clone https://github.com/TordLoefgren/Ludus.git
 cd Ludus
 
@@ -156,8 +135,6 @@ Option 2 (command line):
 msbuild .\Tests\Tests.vcxproj /m /p:Configuration=Debug /p:Platform=x64
 .\Tests\bin\x64\Debug\Tests.exe
 ```
-
-Logs are written to `.cache\logs\` instead of repository root.
 
 ## Inspiration & References
 This project draws ideas from great resources in the C++ and graphics programming community:
