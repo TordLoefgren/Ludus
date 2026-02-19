@@ -1,5 +1,5 @@
 ---
-name: Ludus CI — Build & Unit Tests (Windows, self-hosted)
+name: Ludus CI - Build & Unit Tests (Windows, self-hosted)
 on:
   pull_request:
     branches: [ master ]
@@ -24,22 +24,35 @@ jobs:
       matrix:
         Platform: [ x64 ]
         Configuration: [ Debug, Release ]
-    name: Build & test — ${{ matrix.Platform }} / ${{ matrix.Configuration }}
+    name: Build & test - ${{ matrix.Platform }} / ${{ matrix.Configuration }}
     runs-on: [ self-hosted, windows, x64 ]
     env:
       Configuration: ${{ matrix.Configuration }}
       Platform: ${{ matrix.Platform }}
-      VCPKG_ROOT: C:\dev\tools\vcpkg
       VCPKG_DEFAULT_TRIPLET: x64-windows
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
+      - name: Bootstrap vcpkg
+        shell: cmd
+        run: |
+          set "VCPKG_DIR=%GITHUB_WORKSPACE%\vcpkg"
+          if not exist "%VCPKG_DIR%\vcpkg.exe" (
+            git clone https://github.com/microsoft/vcpkg "%VCPKG_DIR%"
+            call "%VCPKG_DIR%\bootstrap-vcpkg.bat" -disableMetrics
+          )
+          echo VCPKG_ROOT=%VCPKG_DIR%>> "%GITHUB_ENV%"
       - name: Setup vcpkg MSBuild integration
         shell: cmd
         run: |
           "%VCPKG_ROOT%\vcpkg.exe" integrate install
+      - name: Install vcpkg dependencies (manifest)
+        if: ${{ hashFiles('vcpkg.json') != '' }}
+        shell: cmd
+        run: |
+          "%VCPKG_ROOT%\vcpkg.exe" install --triplet %VCPKG_DEFAULT_TRIPLET% --x-manifest-root="%GITHUB_WORKSPACE%" --x-install-root="%GITHUB_WORKSPACE%\.cache\vcpkg_installed"
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1
       - name: Restore NuGet packages

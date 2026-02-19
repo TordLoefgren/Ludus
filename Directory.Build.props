@@ -1,0 +1,38 @@
+<Project>
+  <PropertyGroup>
+    <!-- Allow direct .vcxproj builds (without .sln) to resolve repo-relative paths. -->
+    <SolutionDir Condition="'$(SolutionDir)' == ''">$(MSBuildThisFileDirectory)</SolutionDir>
+
+    <!-- Use manifest mode consistently when vcpkg.json exists at repo root. -->
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+    <VcpkgManifestRoot>$(MSBuildThisFileDirectory)</VcpkgManifestRoot>
+    <!-- Keep manifest install output out of the repo root (vcpkg appends triplet internally). -->
+    <VcpkgInstalledDir>$(MSBuildThisFileDirectory).cache\vcpkg_installed\</VcpkgInstalledDir>
+
+    <!-- Fallback defaults for local builds where VS vcpkg integration is partially configured. -->
+    <VcpkgTriplet Condition="'$(VcpkgTriplet)' == '' and '$(Platform)' == 'x64'">x64-windows</VcpkgTriplet>
+    <VcpkgLocalTripletDir Condition="'$(VcpkgTriplet)' != ''">$(VcpkgInstalledDir)$(VcpkgTriplet)\</VcpkgLocalTripletDir>
+    <!-- Avoid pwsh.exe dependency in vcpkg applocal deployment. -->
+    <VcpkgXUseBuiltInApplocalDeps>true</VcpkgXUseBuiltInApplocalDeps>
+  </PropertyGroup>
+
+  <!-- Always expose vendored GLFW headers to all C++ projects (including Tests). -->
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)Engine\Vendors\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <!-- Fallback include/lib paths for vcpkg-managed packages like freetype/glfw3. -->
+  <ItemDefinitionGroup Condition="'$(VcpkgLocalTripletDir)' != '' and Exists('$(VcpkgLocalTripletDir)include')">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(VcpkgLocalTripletDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(VcpkgLocalTripletDir)' != '' and Exists('$(VcpkgLocalTripletDir)lib')">
+    <Link>
+      <AdditionalLibraryDirectories>$(VcpkgLocalTripletDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>
