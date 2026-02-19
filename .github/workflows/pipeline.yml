@@ -17,6 +17,7 @@ jobs:
     permissions:
       contents: read
       checks: write
+      pull-requests: write
     strategy:
       fail-fast: false
       matrix:
@@ -30,6 +31,7 @@ jobs:
       Configuration: ${{ matrix.Configuration }}
       Platform: ${{ matrix.Platform }}
       VCPKG_DEFAULT_TRIPLET: x64-windows
+      VCPKG_INSTALLED_DIR: ${{ github.workspace }}\.cache\vcpkg_installed
 
     steps:
       - name: Checkout repository
@@ -42,14 +44,12 @@ jobs:
         uses: lukka/run-vcpkg@v11.5
         with:
           vcpkgJsonGlob: '**/vcpkg.json'
-          runVcpkgInstall: true
+          runVcpkgInstall: false
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-
-      - name: Print vcpkg env
-        shell: pwsh
+      - name: Install vcpkg dependencies (manifest)
+        shell: cmd
         run: |
-          echo "VCPKG_ROOT=$env:VCPKG_ROOT"
-          echo "VCPKG_INSTALLED_DIR=$env:VCPKG_INSTALLED_DIR"
+          "%VCPKG_ROOT%\vcpkg.exe" install --triplet %VCPKG_DEFAULT_TRIPLET% --x-manifest-root="%GITHUB_WORKSPACE%" --x-install-root="%VCPKG_INSTALLED_DIR%"
 
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1
@@ -63,8 +63,10 @@ jobs:
         run: |
           msbuild .\Tests\Tests.vcxproj /m ^
             /p:Configuration=%Configuration% /p:Platform=%Platform% ^
-            /p:VcpkgEnabled=true ^
-            /p:VcpkgInstalledDir="%VCPKG_INSTALLED_DIR%"
+            /p:VcpkgEnableManifest=true ^
+            /p:VcpkgManifestRoot="%GITHUB_WORKSPACE%" ^
+            /p:VcpkgTriplet=%VCPKG_DEFAULT_TRIPLET% ^
+            /p:VcpkgInstalledDir="%VCPKG_INSTALLED_DIR%\"
 
       - name: Run GoogleTests
         shell: cmd
