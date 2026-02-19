@@ -3,10 +3,6 @@
   <img src=".tools/assets/logo.png" alt="Ludus" width="280">
 </h1>
 
-<h4 align="center">
-  A C++ game engine and editor for learning and exploring core engine systems.
-</h4>
-
 <p align="center">
   <img src="https://img.shields.io/badge/language-C++-00599C?style=flat&logo=c%2B%2B&logoColor=white">
   <img src="https://img.shields.io/badge/rendering-OpenGL-blue?style=flat">
@@ -65,7 +61,7 @@ Implemented or in active development:
 
 <figure>
   <img src=".tools/assets/editor.png" alt="Ludus Editor" width="900"/>
-  <figcaption><i>Editor view while developing an in-engine Pong prototype (currently not playable, pending scripting integration).</i></figcaption>
+  <figcaption><i>Editor view while iterating on core engine systems.</i></figcaption>
 </figure>
 
 
@@ -100,12 +96,10 @@ This repository exists primarily as a **technical portfolio** and architectural 
 ## Repository Structure
 
 ```text
-Engine/   -> Runtime library
-Editor/   -> Desktop editor application
-UI/       -> UI wrapper/utilities for editor tooling
-Games/    -> Games built directly on the engine as a framework
-Lab/      -> Framework-based sandbox for building and iterating on demos
-Tests/    -> Unit and integration tests
+Engine/   -> Runtime code
+Editor/   -> Editor application
+UI/       -> Shared UI layer
+Tests/    -> Automated tests
 ```
 
 
