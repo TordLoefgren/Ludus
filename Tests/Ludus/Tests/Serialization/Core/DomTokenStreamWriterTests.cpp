@@ -93,13 +93,13 @@ namespace Ludus::Tests::Serialization::Core
 
 		const DomNode* firstValue = ArrayValueAt(*root, 0);
 		ASSERT_NE(firstValue, nullptr);
-		const auto* firstInt = std::get_if<int>(&Value(*firstValue));
+		const auto* firstInt = std::get_if<int64_t>(&Value(*firstValue));
 		ASSERT_NE(firstInt, nullptr);
 		EXPECT_EQ(*firstInt, 1);
 
 		const DomNode* secondValue = ArrayValueAt(*root, 1);
 		ASSERT_NE(secondValue, nullptr);
-		const auto* secondInt = std::get_if<int>(&Value(*secondValue));
+		const auto* secondInt = std::get_if<int64_t>(&Value(*secondValue));
 		ASSERT_NE(secondInt, nullptr);
 		EXPECT_EQ(*secondInt, 2);
 	}
@@ -116,11 +116,11 @@ namespace Ludus::Tests::Serialization::Core
 		writer.Emit(Token::StartArray { });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "id" });
-		writer.Emit(Token::Uint32 { 7u });
+		writer.Emit(Token::Int { 7 });
 		writer.Emit(Token::EndObject { });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "id" });
-		writer.Emit(Token::Uint32 { 8u });
+		writer.Emit(Token::Int { 8 });
 		writer.Emit(Token::EndObject { });
 		writer.Emit(Token::EndArray { });
 		writer.Emit(Token::Key { "empty" });
@@ -148,18 +148,18 @@ namespace Ludus::Tests::Serialization::Core
 		ASSERT_TRUE(std::holds_alternative<DomObject>(firstItem->NodeData));
 		const DomNode* firstId = ObjectValueAt(*firstItem, 0);
 		ASSERT_NE(firstId, nullptr);
-		const auto* firstIdValue = std::get_if<uint32_t>(&Value(*firstId));
+		const auto* firstIdValue = std::get_if<int64_t>(&Value(*firstId));
 		ASSERT_NE(firstIdValue, nullptr);
-		EXPECT_EQ(*firstIdValue, 7u);
+		EXPECT_EQ(*firstIdValue, 7);
 
 		const DomNode* secondItem = ArrayValueAt(*itemsNode, 1);
 		ASSERT_NE(secondItem, nullptr);
 		ASSERT_TRUE(std::holds_alternative<DomObject>(secondItem->NodeData));
 		const DomNode* secondId = ObjectValueAt(*secondItem, 0);
 		ASSERT_NE(secondId, nullptr);
-		const auto* secondIdValue = std::get_if<uint32_t>(&Value(*secondId));
+		const auto* secondIdValue = std::get_if<int64_t>(&Value(*secondId));
 		ASSERT_NE(secondIdValue, nullptr);
-		EXPECT_EQ(*secondIdValue, 8u);
+		EXPECT_EQ(*secondIdValue, 8);
 
 		const DomNode* emptyNode = ObjectValueAt(*root, 1);
 		ASSERT_NE(emptyNode, nullptr);

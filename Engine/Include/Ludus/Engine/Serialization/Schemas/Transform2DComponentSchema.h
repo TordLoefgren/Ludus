@@ -23,15 +23,15 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::StartObject { });
 
 			writer.Emit(Token::Key { "OwnerHandle" });
-			writer.Emit(Token::Uint32 { transform.OwnerHandle });
+			writer.Emit(Token::Uint { transform.OwnerHandle });
 
 			{
 				writer.Emit(Token::Key { "Position" });
 				writer.Emit(Token::StartObject { });
 				writer.Emit(Token::Key { "X" });
-				writer.Emit(Token::Float { transform.Position.X });
+				writer.Emit(Token::Double { transform.Position.X });
 				writer.Emit(Token::Key { "Y" });
-				writer.Emit(Token::Float { transform.Position.Y });
+				writer.Emit(Token::Double { transform.Position.Y });
 				writer.Emit(Token::EndObject { });
 			}
 
@@ -39,14 +39,14 @@ namespace Ludus::Engine::Serialization::Schemas
 				writer.Emit(Token::Key { "Scale" });
 				writer.Emit(Token::StartObject { });
 				writer.Emit(Token::Key { "X" });
-				writer.Emit(Token::Float { transform.Scale.X });
+				writer.Emit(Token::Double { transform.Scale.X });
 				writer.Emit(Token::Key { "Y" });
-				writer.Emit(Token::Float { transform.Scale.Y });
+				writer.Emit(Token::Double { transform.Scale.Y });
 				writer.Emit(Token::EndObject { });
 			}
 
 			writer.Emit(Token::Key { "Rotation" });
-			writer.Emit(Token::Float { transform.Rotation });
+			writer.Emit(Token::Double { transform.Rotation });
 
 			writer.Emit(Token::EndObject { });
 		}
@@ -63,63 +63,62 @@ namespace Ludus::Engine::Serialization::Schemas
 				transform.Scale.Y = 1.0f;
 				transform.Rotation = 0.0f;
 
-				Ludus::Engine::Serialization::Core::ReadObject(reader,
-					[&](std::string_view key)
+				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
+				{
+					if (key == "OwnerHandle")
 					{
-						if (key == "OwnerHandle")
+						transform.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
+						hasOwner = true;
+						return;
+					}
+					if (key == "Position")
+					{
+						Ludus::Engine::Serialization::Core::ReadObject(reader,
+							[&](std::string_view positionKey)
 						{
-							transform.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Uint32>(reader).Data;
-							hasOwner = true;
-							return;
-						}
-						if (key == "Position")
-						{
-							Ludus::Engine::Serialization::Core::ReadObject(reader,
-								[&](std::string_view positionKey)
-								{
-									if (positionKey == "X")
-									{
-										transform.Position.X = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Float>(reader).Data;
-										return;
-									}
-									if (positionKey == "Y")
-									{
-										transform.Position.Y = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Float>(reader).Data;
-										return;
-									}
+							if (positionKey == "X")
+							{
+								transform.Position.X = Ludus::Engine::Serialization::Core::ConsumeFloatLike(reader);
+								return;
+							}
+							if (positionKey == "Y")
+							{
+								transform.Position.Y = Ludus::Engine::Serialization::Core::ConsumeFloatLike(reader);
+								return;
+							}
 
-									Ludus::Engine::Serialization::Core::SkipValue(reader);
-								});
-							return;
-						}
-						if (key == "Scale")
+							Ludus::Engine::Serialization::Core::SkipValue(reader);
+						});
+						return;
+					}
+					if (key == "Scale")
+					{
+						Ludus::Engine::Serialization::Core::ReadObject(reader,
+							[&](std::string_view scaleKey)
 						{
-							Ludus::Engine::Serialization::Core::ReadObject(reader,
-								[&](std::string_view scaleKey)
-								{
-									if (scaleKey == "X")
-									{
-										transform.Scale.X = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Float>(reader).Data;
-										return;
-									}
-									if (scaleKey == "Y")
-									{
-										transform.Scale.Y = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Float>(reader).Data;
-										return;
-									}
+							if (scaleKey == "X")
+							{
+								transform.Scale.X = Ludus::Engine::Serialization::Core::ConsumeFloatLike(reader);
+								return;
+							}
+							if (scaleKey == "Y")
+							{
+								transform.Scale.Y = Ludus::Engine::Serialization::Core::ConsumeFloatLike(reader);
+								return;
+							}
 
-									Ludus::Engine::Serialization::Core::SkipValue(reader);
-								});
-							return;
-						}
-						if (key == "Rotation")
-						{
-							transform.Rotation = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Float>(reader).Data;
-							return;
-						}
+							Ludus::Engine::Serialization::Core::SkipValue(reader);
+						});
+						return;
+					}
+					if (key == "Rotation")
+					{
+						transform.Rotation = Ludus::Engine::Serialization::Core::ConsumeFloatLike(reader);
+						return;
+					}
 
-						Ludus::Engine::Serialization::Core::SkipValue(reader);
-					});
+					Ludus::Engine::Serialization::Core::SkipValue(reader);
+				});
 
 				if (!hasOwner)
 				{
@@ -130,8 +129,10 @@ namespace Ludus::Engine::Serialization::Schemas
 			}
 			catch (const SerializationException& ex)
 			{
+				const auto error =
+					Ludus::Engine::Serialization::Core::WithContext(ex, "Transform2DComponentSchema::Deserialize");
 				return Ludus::Engine::Core::Expected<Transform, SerializationException>(
-					Ludus::Engine::Core::Unexpected<SerializationException>::Create(ex)
+					Ludus::Engine::Core::Unexpected<SerializationException>::Create(error)
 				);
 			}
 		}

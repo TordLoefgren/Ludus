@@ -9,7 +9,7 @@
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
-#include <Ludus/Engine/Platform/WindowOptions.h>
+#include <Ludus/Engine/Windowing/WindowOptions.h>
 
 namespace Ludus::Editor::Core
 {
@@ -23,7 +23,7 @@ namespace Ludus::Editor::Core
 		Ludus::Engine::Graphics::RenderingOptions m_RenderingOptions;
 		Ludus::Engine::Graphics::RenderViewConfiguration m_RenderViewConfiguration;
 		Ludus::Engine::Physics::Core::PhysicsConfiguration2D m_PhysicsConfiguration;
-		Ludus::Engine::Platform::WindowOptions m_WindowOptions;
+		Ludus::Engine::Windowing::WindowOptions m_WindowOptions;
 
 		Ludus::Editor::Core::EditorConfiguration m_EditorConfiguration = Ludus::Editor::Core::EditorConfiguration::Default();
 

@@ -6,10 +6,10 @@
 #include <Ludus/Engine/Events/EventBus.h>
 #include <Ludus/Engine/Events/EventHandler.h>
 #include <Ludus/Engine/Math/Size.h>
-#include <Ludus/Engine/Platform/WindowOptions.h>
-#include <Ludus/Engine/Platform/WindowUserData.h>
+#include <Ludus/Engine/Windowing/WindowOptions.h>
+#include <Ludus/Engine/Windowing/WindowUserData.h>
 
-namespace Ludus::Engine::Platform
+namespace Ludus::Engine::Windowing
 {
 	class Window
 	{
@@ -31,6 +31,7 @@ namespace Ludus::Engine::Platform
 		void SetWindowShouldClose();
 		bool WindowShouldClose();
 		void SetVSync(bool enable);
+		void SetTitle(std::string_view title);
 
 		Ludus::Engine::Math::Size<int> GetFramebufferSize() const;
 		Ludus::Engine::Math::Size<int> GetWindowSize() const;

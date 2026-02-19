@@ -23,7 +23,7 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::StartObject { });
 
 			writer.Emit(Token::Key { "OwnerHandle" });
-			writer.Emit(Token::Uint32 { displayName.OwnerHandle });
+			writer.Emit(Token::Uint { displayName.OwnerHandle });
 
 			writer.Emit(Token::Key { "Value" });
 			writer.Emit(Token::String { displayName.Value });
@@ -38,23 +38,22 @@ namespace Ludus::Engine::Serialization::Schemas
 				DisplayName displayName(0);
 				bool hasOwner = false;
 
-				Ludus::Engine::Serialization::Core::ReadObject(reader,
-					[&](std::string_view key)
+				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
+				{
+					if (key == "OwnerHandle")
 					{
-						if (key == "OwnerHandle")
-						{
-							displayName.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Uint32>(reader).Data;
-							hasOwner = true;
-							return;
-						}
-						if (key == "Value")
-						{
-							displayName.Value = std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
-							return;
-						}
+						displayName.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
+						hasOwner = true;
+						return;
+					}
+					if (key == "Value")
+					{
+						displayName.Value = std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
+						return;
+					}
 
-						Ludus::Engine::Serialization::Core::SkipValue(reader);
-					});
+					Ludus::Engine::Serialization::Core::SkipValue(reader);
+				});
 
 				if (!hasOwner)
 				{
@@ -65,8 +64,10 @@ namespace Ludus::Engine::Serialization::Schemas
 			}
 			catch (const SerializationException& ex)
 			{
+				const auto error =
+					Ludus::Engine::Serialization::Core::WithContext(ex, "DisplayNameComponentSchema::Deserialize");
 				return Ludus::Engine::Core::Expected<DisplayName, SerializationException>(
-					Ludus::Engine::Core::Unexpected<SerializationException>::Create(ex)
+					Ludus::Engine::Core::Unexpected<SerializationException>::Create(error)
 				);
 			}
 		}

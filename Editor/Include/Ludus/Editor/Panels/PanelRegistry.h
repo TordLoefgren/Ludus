@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <memory>
 #include <span>
+#include <type_traits>
 #include <vector>
 
 #include <Ludus/Editor/Panels/IPanel.h>
@@ -24,6 +25,38 @@ namespace Ludus::Editor::Panels
 		void Register(std::unique_ptr<IPanel> panel)
 		{
 			m_Panels.push_back(std::move(panel));
+		}
+
+		template <typename T>
+		T* TryGet()
+		{
+			static_assert(std::is_base_of_v<IPanel, T>, "T must derive from IPanel.");
+
+			for (auto& panel : m_Panels)
+			{
+				if (auto* typedPanel = dynamic_cast<T*>(panel.get()))
+				{
+					return typedPanel;
+				}
+			}
+
+			return nullptr;
+		}
+
+		template <typename T>
+		const T* TryGet() const
+		{
+			static_assert(std::is_base_of_v<IPanel, T>, "T must derive from IPanel.");
+
+			for (const auto& panel : m_Panels)
+			{
+				if (const auto* typedPanel = dynamic_cast<const T*>(panel.get()))
+				{
+					return typedPanel;
+				}
+			}
+
+			return nullptr;
 		}
 
 		void Clear()
@@ -48,9 +81,9 @@ namespace Ludus::Editor::Panels
 			std::erase_if(
 				m_Panels,
 				[this](const std::unique_ptr<IPanel>& panel)
-				{
-					return std::ranges::find(m_ScheduledRemovals, panel->GetHandle()) != m_ScheduledRemovals.end();
-				}
+			{
+				return std::ranges::find(m_ScheduledRemovals, panel->GetHandle()) != m_ScheduledRemovals.end();
+			}
 			);
 
 			m_ScheduledRemovals.clear();

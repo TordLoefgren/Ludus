@@ -11,20 +11,20 @@
 #include <system_error>
 #include <vector>
 
-#include <Ludus/Engine/IO/IO.h>
+#include <Ludus/Engine/FileSystem/FileSystem.h>
 
-namespace Ludus::Tests::IO
+namespace Ludus::Tests::FileSystem
 {
-	namespace IO = Ludus::Engine::IO;
+	namespace FileSystem = Ludus::Engine::FileSystem;
 
 	static std::filesystem::path MakeUniqueTempDir()
 	{
-		return std::filesystem::temp_directory_path() / IO::GenerateUniqueName("Ludus_IO_Tests_", "");
+		return std::filesystem::temp_directory_path() / FileSystem::GenerateUniqueName("Ludus_IO_Tests_", "");
 	}
 
-	IO::DirectoryDeleteScope CreateTestDirectory()
+	FileSystem::DirectoryDeleteScope CreateTestDirectory()
 	{
-		return IO::DirectoryDeleteScope { MakeUniqueTempDir() };
+		return FileSystem::DirectoryDeleteScope { MakeUniqueTempDir() };
 	}
 
 	TEST(IO, ReadAllBytes_Should_ReadExactBytes)
@@ -37,10 +37,10 @@ namespace Ludus::Tests::IO
 		std::vector<std::uint8_t> data(256);
 		std::iota(data.begin(), data.end(), 0);
 
-		IO::WriteAllBytes(tempFile, std::as_bytes(std::span { data }));
+		FileSystem::WriteAllBytes(tempFile, std::as_bytes(std::span { data }));
 
 		// Act.
-		const auto result = IO::ReadAllBytes(tempFile);
+		const auto result = FileSystem::ReadAllBytes(tempFile);
 
 		// Assert.
 		ASSERT_EQ(result.size(), data.size());
@@ -60,10 +60,10 @@ namespace Ludus::Tests::IO
 
 		std::vector<std::uint8_t> data;
 
-		IO::WriteAllBytes(tempFile, std::as_bytes(std::span { data }));
+		FileSystem::WriteAllBytes(tempFile, std::as_bytes(std::span { data }));
 
 		// Act.
-		const auto result = IO::ReadAllBytes(tempFile);
+		const auto result = FileSystem::ReadAllBytes(tempFile);
 
 		// Assert.
 		ASSERT_TRUE(result.empty());
@@ -77,7 +77,7 @@ namespace Ludus::Tests::IO
 
 		// Act & Assert.
 		ASSERT_THROW(
-			IO::ReadAllBytes(tempDirectoryScoped.Path / "Missing.bin"),
+			FileSystem::ReadAllBytes(tempDirectoryScoped.Path / "Missing.bin"),
 			std::runtime_error
 		);
 	}
@@ -91,10 +91,10 @@ namespace Ludus::Tests::IO
 
 		const auto text = std::string("\r\nHello there.\n");
 
-		IO::WriteAllText(tempFile, text);
+		FileSystem::WriteAllText(tempFile, text);
 
 		// Act.
-		const auto result = IO::ReadAllText(tempFile);
+		const auto result = FileSystem::ReadAllText(tempFile);
 
 		// Assert.
 		ASSERT_EQ(result.size(), text.size());
@@ -110,10 +110,10 @@ namespace Ludus::Tests::IO
 
 		const auto text = std::string("");
 
-		IO::WriteAllText(tempFile, text);
+		FileSystem::WriteAllText(tempFile, text);
 
 		// Act.
-		const auto result = IO::ReadAllText(tempFile);
+		const auto result = FileSystem::ReadAllText(tempFile);
 
 		// Assert.
 		ASSERT_TRUE(result.empty());
@@ -127,7 +127,7 @@ namespace Ludus::Tests::IO
 
 		// Act & Assert.
 		ASSERT_THROW(
-			IO::ReadAllText(tempDirectoryScoped.Path / "Missing.txt"),
+			FileSystem::ReadAllText(tempDirectoryScoped.Path / "Missing.txt"),
 			std::runtime_error
 		);
 	}
@@ -144,11 +144,11 @@ namespace Ludus::Tests::IO
 
 		std::vector<std::uint8_t> second = { 7, 8 };
 
-		IO::WriteAllBytes(tempFile, std::as_bytes(std::span { first }));
-		IO::WriteAllBytes(tempFile, std::as_bytes(std::span { second }));
+		FileSystem::WriteAllBytes(tempFile, std::as_bytes(std::span { first }));
+		FileSystem::WriteAllBytes(tempFile, std::as_bytes(std::span { second }));
 
 		// Act.
-		const auto result = IO::ReadAllBytes(tempFile);
+		const auto result = FileSystem::ReadAllBytes(tempFile);
 
 		// Assert.
 		ASSERT_EQ(result.size(), second.size());
@@ -166,11 +166,11 @@ namespace Ludus::Tests::IO
 		std::filesystem::create_directories(tempDirectoryScoped.Path);
 		const auto tempFile = tempDirectoryScoped.Path / "overwrite.txt";
 
-		IO::WriteAllText(tempFile, "Hello world");
-		IO::WriteAllText(tempFile, "Hi");
+		FileSystem::WriteAllText(tempFile, "Hello world");
+		FileSystem::WriteAllText(tempFile, "Hi");
 
 		// Act.
-		const auto result = IO::ReadAllText(tempFile);
+		const auto result = FileSystem::ReadAllText(tempFile);
 
 		// Assert.
 		ASSERT_EQ(result, "Hi");
@@ -187,13 +187,13 @@ namespace Ludus::Tests::IO
 		std::iota(data.begin(), data.end(), 0);
 
 		// Act.
-		IO::WriteAllBytes(tempFile, std::as_bytes(std::span { data }));
+		FileSystem::WriteAllBytes(tempFile, std::as_bytes(std::span { data }));
 
 		// Assert.
 		ASSERT_TRUE(std::filesystem::exists(tempFile));
 		ASSERT_EQ(std::filesystem::file_size(tempFile), data.size());
 
-		const auto result = IO::ReadAllBytes(tempFile);
+		const auto result = FileSystem::ReadAllBytes(tempFile);
 		ASSERT_EQ(result.size(), data.size());
 		ASSERT_TRUE(std::equal(
 			result.begin(),
@@ -212,8 +212,8 @@ namespace Ludus::Tests::IO
 		const std::string text("A\0B", 3);
 
 		// Act.
-		IO::WriteAllText(tempFile, text);
-		const auto result = IO::ReadAllText(tempFile);
+		FileSystem::WriteAllText(tempFile, text);
+		const auto result = FileSystem::ReadAllText(tempFile);
 
 		// Assert.
 		ASSERT_EQ(result.size(), text.size());
@@ -232,11 +232,11 @@ namespace Ludus::Tests::IO
 		const auto fileA = tempDirectoryScoped.Path / "a.txt";
 		const auto fileB = nested / "b.txt";
 
-		IO::WriteAllText(fileA, "A");
-		IO::WriteAllText(fileB, "B");
+		FileSystem::WriteAllText(fileA, "A");
+		FileSystem::WriteAllText(fileB, "B");
 
 		// Act.
-		const auto paths = IO::GetFilePaths(tempDirectoryScoped.Path);
+		const auto paths = FileSystem::GetFilePaths(tempDirectoryScoped.Path);
 
 		// Assert.
 		ASSERT_EQ(paths.size(), 2u);
@@ -258,11 +258,11 @@ namespace Ludus::Tests::IO
 		const auto fileA = aDir / "config.json";
 		const auto fileB = bDir / "config.json";
 
-		IO::WriteAllText(fileA, "{}");
-		IO::WriteAllText(fileB, "{}");
+		FileSystem::WriteAllText(fileA, "{}");
+		FileSystem::WriteAllText(fileB, "{}");
 
 		// Act.
-		const auto names = IO::GetFileNames(tempDirectoryScoped.Path);
+		const auto names = FileSystem::GetFileNames(tempDirectoryScoped.Path);
 
 		// Assert.
 		ASSERT_EQ(names.size(), 2u);

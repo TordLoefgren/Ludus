@@ -40,8 +40,52 @@ namespace Ludus::Engine::Serialization::Codecs
 			out.append(spaces, ' ');
 		}
 
+		static bool IsNumberLiteralForString(std::string_view raw)
+		{
+			if (raw.empty())
+			{
+				return false;
+			}
+
+			size_t i = 0;
+			if (raw[0] == '-')
+			{
+				if (raw.size() == 1)
+				{
+					return false;
+				}
+				i = 1;
+			}
+
+			bool sawDigit = false;
+			bool sawDot = false;
+
+			for (; i < raw.size(); i++)
+			{
+				const char c = raw[i];
+				if (c >= '0' && c <= '9')
+				{
+					sawDigit = true;
+					continue;
+				}
+				if (c == '.' && !sawDot)
+				{
+					sawDot = true;
+					continue;
+				}
+				return false;
+			}
+
+			return sawDigit;
+		}
+
 		static bool ShouldQuoteString(std::string_view raw)
 		{
+			if (raw == "null" || raw == "true" || raw == "false" || IsNumberLiteralForString(raw))
+			{
+				return true;
+			}
+
 			for (char c : raw)
 			{
 				switch (c)
@@ -72,47 +116,39 @@ namespace Ludus::Engine::Serialization::Codecs
 		static void EmitScalar(std::string& out, const DomValue& value)
 		{
 			std::visit([&](const auto& v)
-				{
-					using T = std::decay_t<decltype(v)>;
+			{
+				using T = std::decay_t<decltype(v)>;
 
-					if constexpr (std::is_same_v<T, std::monostate>)
+				if constexpr (std::is_same_v<T, std::monostate>)
+				{
+					out += "null";
+				}
+				else if constexpr (std::is_same_v<T, bool>)
+				{
+					out += (v ? "true" : "false");
+				}
+				else if constexpr (std::is_same_v<T, double>)
+				{
+					out += std::format("{:.2f}", v);
+				}
+				else if constexpr (std::is_same_v<T, int64_t> || std::is_same_v<T, uint64_t>)
+				{
+					out += std::format("{}", v);
+				}
+				else if constexpr (std::is_same_v<T, std::string>)
+				{
+					if (ShouldQuoteString(v))
 					{
-						out += "null";
+						out.push_back('"');
+						AppendEscaped(out, v);
+						out.push_back('"');
 					}
-					else if constexpr (std::is_same_v<T, bool>)
+					else
 					{
-						out += (v ? "true" : "false");
+						out += v;
 					}
-					else if constexpr (std::is_same_v<T, float>)
-					{
-						out += std::format("{:.2f}", v);
-					}
-					else if constexpr (std::is_same_v<T, double>)
-					{
-						out += std::format("{:.2f}", v);
-					}
-					else if constexpr (std::is_same_v<T, uint8_t>)
-					{
-						out += std::format("{}", static_cast<uint32_t>(v));
-					}
-					else if constexpr (std::is_same_v<T, int> || std::is_same_v<T, uint32_t>)
-					{
-						out += std::format("{}", v);
-					}
-					else if constexpr (std::is_same_v<T, std::string>)
-					{
-						if (ShouldQuoteString(v))
-						{
-							out.push_back('"');
-							AppendEscaped(out, v);
-							out.push_back('"');
-						}
-						else
-						{
-							out += v;
-						}
-					}
-				}, value);
+				}
+			}, value);
 		}
 
 		static bool IsScalarNode(const DomNode* n)
@@ -562,17 +598,17 @@ namespace Ludus::Engine::Serialization::Codecs
 					return LineToken { LineKind::Empty, indent };
 				}
 				auto trimView = [](std::string_view raw)
+				{
+					while (!raw.empty() && raw.front() == ' ')
 					{
-						while (!raw.empty() && raw.front() == ' ')
-						{
-							raw.remove_prefix(1);
-						}
-						while (!raw.empty() && raw.back() == ' ')
-						{
-							raw.remove_suffix(1);
-						}
-						return raw;
-					};
+						raw.remove_prefix(1);
+					}
+					while (!raw.empty() && raw.back() == ' ')
+					{
+						raw.remove_suffix(1);
+					}
+					return raw;
+				};
 
 				std::string_view line = Input.substr(lineStart + indent, lineLimit - (lineStart + indent));
 				if (!line.empty() && line.front() == '-')
@@ -1048,62 +1084,67 @@ namespace Ludus::Engine::Serialization::Codecs
 			DomValue ReadScalar(std::string_view raw)
 			{
 				raw = TrimView(raw);
+
+				// Empty scalar results in an empty string.
 				if (raw.empty())
 				{
 					return DomValue { std::string {} };
 				}
-				if (!raw.empty() && raw.front() == '"' && raw.back() != '"')
+
+				// Quoted string validation.
+				if (raw.front() == '"' && raw.back() != '"')
 				{
 					throw std::runtime_error("LmlDomCodec: Unterminated quoted string.");
 				}
-				if (!raw.empty() && raw.front() == '"' && raw.back() == '"')
+
+				// Quoted string decode.
+				if (raw.front() == '"' && raw.back() == '"')
 				{
 					std::string out;
 					out.reserve(raw.size());
+
 					bool escape = false;
 					for (size_t i = 1; i + 1 < raw.size(); i++)
 					{
 						char c = raw[i];
+
 						if (escape)
 						{
 							switch (c)
 							{
 								case 'n': out.push_back('\n'); break;
-								case '"': out.push_back('"'); break;
+								case '"': out.push_back('"');  break;
 								case '\\': out.push_back('\\'); break;
-								default: out.push_back(c); break;
+								default: out.push_back(c);    break;
 							}
 							escape = false;
 							continue;
 						}
+
 						if (c == '\\')
 						{
 							escape = true;
 							continue;
 						}
+
 						out.push_back(c);
 					}
+
 					return DomValue { std::move(out) };
 				}
 
-				if (raw == "null")
-				{
-					return DomValue { std::monostate {} };
-				}
-				if (raw == "true")
-				{
-					return DomValue { true };
-				}
-				if (raw == "false")
-				{
-					return DomValue { false };
-				}
+				// Keywords.
+				if (raw == "null") return DomValue { std::monostate {} };
+				if (raw == "true") return DomValue { true };
+				if (raw == "false") return DomValue { false };
 
+				// If it does not look like a number, we treat it as a plain string.
 				if (!IsNumberLiteral(raw))
 				{
 					return DomValue { std::string(raw) };
 				}
 
+				// Float vs integer.
 				const bool isFloat = raw.find('.') != std::string_view::npos;
 				if (isFloat)
 				{
@@ -1111,19 +1152,24 @@ namespace Ludus::Engine::Serialization::Codecs
 					return DomValue { value };
 				}
 
-				const bool isNegative = !raw.empty() && raw.front() == '-';
-				if (isNegative)
+				// Integer parsing (negative vs. non-negative).
+				if (raw.front() == '-')
 				{
-					const long long value = std::stoll(std::string(raw));
-					return DomValue { static_cast<int>(value) };
+					const long long s = std::stoll(std::string(raw));
+					if (s < std::numeric_limits<int64_t>::min() || s > std::numeric_limits<int64_t>::max())
+					{
+						throw std::runtime_error("LmlDomCodec: Signed integer literal out of range for int64_t.");
+					}
+					return DomValue { static_cast<int64_t>(s) };
 				}
 
-				const unsigned long long value = std::stoull(std::string(raw));
-				if (value <= std::numeric_limits<uint32_t>::max())
+				const unsigned long long u = std::stoull(std::string(raw));
+				if (u <= std::numeric_limits<uint64_t>::max())
 				{
-					return DomValue { static_cast<uint32_t>(value) };
+					return DomValue { static_cast<uint64_t>(u) };
 				}
-				return DomValue { static_cast<int>(value) };
+
+				throw std::runtime_error("LmlDomCodec: Unsigned integer literal out of range for uint64_t.");
 			}
 
 		private:

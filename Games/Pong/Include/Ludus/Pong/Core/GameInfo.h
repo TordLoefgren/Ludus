@@ -6,8 +6,8 @@
 #include <Ludus/Engine/Graphics/Camera2D.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Physics/Queries/IPhysicsQueryCache2D.h>
-#include <Ludus/Engine/Platform/Input.h>
-#include <Ludus/Engine/Platform/Window.h>
+#include <Ludus/Engine/Windowing/Input.h>
+#include <Ludus/Engine/Windowing/Window.h>
 
 namespace Ludus::Pong::Core
 {

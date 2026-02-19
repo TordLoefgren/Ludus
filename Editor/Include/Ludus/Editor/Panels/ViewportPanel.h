@@ -8,6 +8,7 @@
 #include <Ludus/Editor/Panels/IPanel.h>
 #include <Ludus/Editor/Panels/PanelContext.h>
 #include <Ludus/Engine/Graphics/Camera2D.h>
+#include <Ludus/Engine/Graphics/RenderPresentationSettings.h>
 #include <Ludus/Engine/Graphics/RenderTarget.h>
 #include <Ludus/Engine/Math/Size.h>
 #include <Ludus/Engine/Math/Vector2D.h>
@@ -31,8 +32,14 @@ namespace Ludus::Editor::Panels
 		bool m_IsCameraPanning = false;
 		bool m_FollowActiveScene = true;
 
-		Ludus::Engine::Math::Vector2D GetViewportAspectSize(Ludus::Engine::Math::Size<int> framebufferSize);
+		Ludus::Engine::Math::Vector2D GetViewportAspectSize(float targetAspectRatio);
 		Ludus::Engine::Math::Vector2D GetViewportAspectOffset(Ludus::Engine::Math::Vector2D aspectSize);
+		float ResolveTargetAspectRatio(const Ludus::Engine::Graphics::RenderPresentationSettings& renderPresentationSettings) const;
+		Ludus::Engine::Math::Size<int> ResolveRenderTargetSize(
+			Ludus::Editor::Panels::PanelContext& context,
+			const Ludus::Engine::Graphics::RenderPresentationSettings& renderPresentationSettings,
+			Ludus::Engine::Math::Vector2D viewportDisplaySize
+		) const;
 
 		void HandleInput(Ludus::Editor::Panels::PanelContext& context);
 

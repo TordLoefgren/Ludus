@@ -7,8 +7,8 @@
 #include <Ludus/Engine/Core/SystemPhaseOrder.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
-#include <Ludus/Engine/Platform/Window.h>
-#include <Ludus/Engine/Platform/WindowOptions.h>
+#include <Ludus/Engine/Windowing/Window.h>
+#include <Ludus/Engine/Windowing/WindowOptions.h>
 
 #include <Ludus/Pong/Core/GameInfo.h>
 #include <Ludus/Pong/Core/GameState.h>
@@ -20,7 +20,7 @@
 
 int main()
 {
-	auto windowOptions = Ludus::Engine::Platform::WindowOptions(1024, 768, "Pong (1972)", false);
+	auto windowOptions = Ludus::Engine::Windowing::WindowOptions(1024, 768, "Pong (1972)", false);
 	auto renderingOptions = Ludus::Engine::Graphics::RenderingOptions(Ludus::Engine::Graphics::Colors::Black);
 	auto physicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D();
 

@@ -66,7 +66,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Engine\Include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Engine\Vendors\GLFW\include;$(ProjectDir)..\Engine\Include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -99,7 +99,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Engine\Include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Engine\Vendors\GLFW\include;$(ProjectDir)..\Engine\Include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -116,7 +116,7 @@
     <ClCompile Include="Ludus\Tests\Core\ExpectedTests.cpp" />
     <ClCompile Include="Ludus\Tests\Core\RandomTests.cpp" />
     <ClCompile Include="Ludus\Tests\Events\EventBusTests.cpp" />
-    <ClCompile Include="Ludus\Tests\IO\IOTests.cpp" />
+    <ClCompile Include="Ludus\Tests\IO\FileSystemTests.cpp" />
     <ClCompile Include="Ludus\Tests\Math\Vector2DTests.cpp" />
     <ClCompile Include="Ludus\Tests\Serialization\Core\DomTokenStreamReaderTests.cpp" />
     <ClCompile Include="Ludus\Tests\Serialization\Core\DomTokenStreamWriterTests.cpp" />
@@ -146,14 +146,17 @@
     <None Include="nuget.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <PropertyGroup>
+    <GoogleTestTargetsPath>$(MSBuildProjectDirectory)\..\.cache\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.8\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets</GoogleTestTargetsPath>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.8\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets" Condition="Exists('..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.8\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets')" />
+    <Import Project="$(GoogleTestTargetsPath)" Condition="Exists('$(GoogleTestTargetsPath)')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.8\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.8\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets'))" />
+    <Error Condition="!Exists('$(GoogleTestTargetsPath)')" Text="$([System.String]::Format('$(ErrorText)', '$(GoogleTestTargetsPath)'))" />
   </Target>
 </Project>

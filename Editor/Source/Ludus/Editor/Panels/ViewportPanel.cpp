@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include <algorithm>
+#include <cmath>
 
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Core/Utilities.h>
@@ -25,16 +26,25 @@
 
 namespace Ludus::Editor::Panels
 {
-	ViewportPanel::ViewportPanel(std::string title, Ludus::Editor::Core::ViewportDisplayMode displayMode)
-		: m_Title(title), m_Camera(), m_Target(nullptr), m_PreviousTargetSize(), m_DisplayMode(displayMode)
+	ViewportPanel::ViewportPanel(
+		std::string title,
+		Ludus::Editor::Core::ViewportDisplayMode displayMode
+	)
+		: m_Title(title),
+		m_Camera(),
+		m_Target(nullptr),
+		m_PreviousTargetSize(),
+		m_DisplayMode(displayMode)
 	{ }
 
-	Ludus::Engine::Math::Vector2D ViewportPanel::GetViewportAspectSize(Ludus::Engine::Math::Size<int> framebufferSize)
+	Ludus::Engine::Math::Vector2D ViewportPanel::GetViewportAspectSize(float targetAspectRatio)
 	{
 		auto availableSpace = Ludus::UI::Context::WindowContext::GetContentRegionAvailable();
 
-		const auto [width, height] = framebufferSize;
-		const auto targetAspectRatio = static_cast<float>(width) / static_cast<float>(height);
+		if (availableSpace.X <= 0.0f || availableSpace.Y <= 0.0f || targetAspectRatio <= 0.0f)
+		{
+			return { 0.0f, 0.0f };
+		}
 
 		auto aspectWidth = availableSpace.X;
 		auto aspectHeight = aspectWidth / targetAspectRatio;
@@ -46,6 +56,35 @@ namespace Ludus::Editor::Panels
 		}
 
 		return { aspectWidth, aspectHeight };
+	}
+
+	float ViewportPanel::ResolveTargetAspectRatio(const Ludus::Engine::Graphics::RenderPresentationSettings& renderPresentationSettings) const
+	{
+		return renderPresentationSettings.GetAspectRatio();
+	}
+
+	Ludus::Engine::Math::Size<int> ViewportPanel::ResolveRenderTargetSize(
+		Ludus::Editor::Panels::PanelContext& context,
+		const Ludus::Engine::Graphics::RenderPresentationSettings& renderPresentationSettings,
+		Ludus::Engine::Math::Vector2D viewportDisplaySize
+	) const
+	{
+		const auto fixedResolution = renderPresentationSettings.InternalResolution;
+		if (renderPresentationSettings.UseFixedRenderResolution && fixedResolution.Width > 0 && fixedResolution.Height > 0)
+		{
+			return fixedResolution;
+		}
+
+		const auto [framebufferWidth, framebufferHeight] = context.SystemContext.Window.GetFramebufferSize();
+		const auto [windowWidth, windowHeight] = context.SystemContext.Window.GetWindowSize();
+
+		const auto scaleX = static_cast<float>(framebufferWidth) / static_cast<float>(std::max(1, windowWidth));
+		const auto scaleY = static_cast<float>(framebufferHeight) / static_cast<float>(std::max(1, windowHeight));
+
+		const auto desiredWidth = std::max(1, static_cast<int>(std::lround(viewportDisplaySize.X * scaleX)));
+		const auto desiredHeight = std::max(1, static_cast<int>(std::lround(viewportDisplaySize.Y * scaleY)));
+
+		return { desiredWidth, desiredHeight };
 	}
 
 	Ludus::Engine::Math::Vector2D ViewportPanel::GetViewportAspectOffset(Ludus::Engine::Math::Vector2D aspectSize)
@@ -67,18 +106,18 @@ namespace Ludus::Editor::Panels
 		auto& input = context.SystemContext.Input;
 
 		// Failsafe in the event that the mouse button up event is not caught.
-		const auto rightMouseButtonPressed = input.GetMouseButton(Ludus::Engine::Platform::MouseButton::Right);
+		const auto rightMouseButtonPressed = input.GetMouseButton(Ludus::Engine::Windowing::MouseButton::Right);
 		if (m_IsCameraPanning && !rightMouseButtonPressed)
 		{
 			m_IsCameraPanning = false;
 		}
 
-		if (isMouseHovering && input.GetMouseButtonDown(Ludus::Engine::Platform::MouseButton::Right))
+		if (isMouseHovering && input.GetMouseButtonDown(Ludus::Engine::Windowing::MouseButton::Right))
 		{
 			m_IsCameraPanning = true;
 		}
 
-		if (m_IsCameraPanning && input.GetMouseButtonUp(Ludus::Engine::Platform::MouseButton::Right))
+		if (m_IsCameraPanning && input.GetMouseButtonUp(Ludus::Engine::Windowing::MouseButton::Right))
 		{
 			m_IsCameraPanning = false;
 		}
@@ -131,57 +170,24 @@ namespace Ludus::Editor::Panels
 		auto windowTitle = CreateUniqueWindowTitle(m_Title);
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, flags); window)
 		{
-			auto _ = Ludus::Editor::Core::Utilities::ComboEnum("##Mode_Combo", m_DisplayMode);
+			const auto availableWidth = Ludus::UI::Context::WindowContext::GetContentRegionAvailable().X;
+			Ludus::UI::Context::LayoutContext::SetNextItemWidth(availableWidth);
+			auto displayModeLabel = Ludus::UI::CreateLabel("Display Mode", "DisplayMode_Combo");
+			auto _ = Ludus::Editor::Core::Utilities::ComboEnum(displayModeLabel.c_str(), m_DisplayMode);
 
-			auto& sceneManager = context.SystemContext.SceneManager;
-			auto active = sceneManager.GetActiveSceneHandle();
+			auto& registry = context.SystemContext.SceneRegistry;
+			auto& session = context.EditorContext.Session;
 
-			if (!m_SelectedSceneHandle.has_value() || !sceneManager.Contains(m_SelectedSceneHandle.value()))
+			auto active = session.GetActiveScene();
+			if (!m_SelectedSceneHandle.has_value() || !registry.Contains(m_SelectedSceneHandle.value()))
 			{
 				m_SelectedSceneHandle = active;
 			}
 
-			auto scenes = sceneManager.View();
-			const auto comboLabel = Ludus::UI::CreateLabel("", "Scenes");
-			const auto preview = m_SelectedSceneHandle.has_value() ? std::format("Scene {}", m_SelectedSceneHandle.value()) : "None";
-
-			Ludus::UI::Context::LayoutContext::SameLine();
-
-			const auto availableWidth = Ludus::UI::Context::WindowContext::GetContentRegionAvailable().X;
-			Ludus::UI::Context::LayoutContext::SetNextItemWidth(availableWidth);
-
-			if (Ludus::UI::Scope::ComboScope combo(comboLabel.c_str(), preview.c_str()); combo)
-			{
-				if (scenes.empty())
-				{
-					const auto _ = Ludus::UI::Widgets::Selectable("None", false);
-				}
-				else
-				{
-					for (const auto& scene : scenes)
-					{
-						const bool isSelected = m_SelectedSceneHandle == scene.Handle;
-						const auto itemLabel = std::format("Scene {}", scene.Handle);
-						if (Ludus::UI::Widgets::Selectable(itemLabel.c_str(), isSelected))
-						{
-							m_SelectedSceneHandle = scene.Handle;
-						}
-
-						if (isSelected)
-						{
-							Ludus::UI::Context::SelectionContext::SetItemDefaultFocus();
-						}
-					}
-				}
-			}
-
-			const auto framebufferSize = context.SystemContext.Window.GetFramebufferSize();
-			const auto aspectSize = GetViewportAspectSize(framebufferSize);
-
-			const auto desiredSize = Ludus::Engine::Math::Size<int>(
-				static_cast<int>(aspectSize.X),
-				static_cast<int>(aspectSize.Y)
-			);
+			const auto& renderPresentationSettings = context.SystemContext.RenderPresentation;
+			const auto targetAspectRatio = ResolveTargetAspectRatio(renderPresentationSettings);
+			const auto aspectSize = GetViewportAspectSize(targetAspectRatio);
+			const auto desiredSize = ResolveRenderTargetSize(context, renderPresentationSettings, aspectSize);
 
 			if (desiredSize.Width <= 0 || desiredSize.Height <= 0)
 			{

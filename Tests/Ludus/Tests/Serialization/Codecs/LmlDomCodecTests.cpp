@@ -79,38 +79,29 @@ namespace Ludus::Tests::Serialization::Codecs
 		ASSERT_TRUE(std::holds_alternative<std::monostate>(AsValue(*node)));
 	}
 
-	static void ExpectIntLikeValue(const DomNode* node, int expected)
+	static void ExpectIntLikeValue(const DomNode* node, int64_t expected)
 	{
 		ASSERT_NE(node, nullptr);
 		const auto& value = AsValue(*node);
-		if (const auto* intValue = std::get_if<int>(&value))
+		if (const auto* intValue = std::get_if<int64_t>(&value))
 		{
 			EXPECT_EQ(*intValue, expected);
 			return;
 		}
-		if (const auto* uintValue = std::get_if<uint32_t>(&value))
-		{
-			EXPECT_EQ(*uintValue, static_cast<uint32_t>(expected));
-			return;
-		}
-		FAIL() << "Expected int or uint32 value.";
+
+		const auto* uintValue = std::get_if<uint64_t>(&value);
+		ASSERT_NE(uintValue, nullptr);
+		ASSERT_GE(expected, 0);
+		EXPECT_EQ(*uintValue, static_cast<uint64_t>(expected));
 	}
 
-	static void ExpectFloatLikeValue(const DomNode* node, double expected)
+	static void ExpectFloatValue(const DomNode* node, double expected)
 	{
 		ASSERT_NE(node, nullptr);
 		const auto& value = AsValue(*node);
-		if (const auto* floatValue = std::get_if<float>(&value))
-		{
-			EXPECT_FLOAT_EQ(*floatValue, static_cast<float>(expected));
-			return;
-		}
-		if (const auto* doubleValue = std::get_if<double>(&value))
-		{
-			EXPECT_DOUBLE_EQ(*doubleValue, expected);
-			return;
-		}
-		FAIL() << "Expected float or double value.";
+		const auto* floatValue = std::get_if<double>(&value);
+		ASSERT_NE(floatValue, nullptr);
+		EXPECT_DOUBLE_EQ(*floatValue, expected);
 	}
 
 #pragma endregion
@@ -124,12 +115,12 @@ namespace Ludus::Tests::Serialization::Codecs
 
 		// Act.
 		const auto result = EncodeRootObject([](auto& w)
-			{
-				EmitKey(w, "A");
-				w.Emit(Token::String { "ValueA" });
-				EmitKey(w, "B");
-				w.Emit(Token::Int { 2 });
-			});
+		{
+			EmitKey(w, "A");
+			w.Emit(Token::String { "ValueA" });
+			EmitKey(w, "B");
+			w.Emit(Token::Int { 2 });
+		});
 
 		// Assert.
 		ASSERT_EQ(result, expected);
@@ -142,28 +133,55 @@ namespace Ludus::Tests::Serialization::Codecs
 
 		// Act.
 		const auto result = EncodeRootObject([](auto& w)
-			{
-				EmitKey(w, "Message");
-				w.Emit(Token::String { "Hello:\n\"World\"\\Test" });
-			});
+		{
+			EmitKey(w, "Message");
+			w.Emit(Token::String { "Hello:\n\"World\"\\Test" });
+		});
 
 		// Assert.
 		ASSERT_EQ(result, expected);
 	}
 
-	TEST(LmlDomCodec, Encode_FormatsFloatsAndDoublesWithTwoDecimals)
+	TEST(LmlDomCodec, Encode_FormatsFloatsWithTwoDecimals)
 	{
 		// Arrange.
-		const auto expected = std::string("FloatValue: 1.50\nDoubleValue: 2.00\n");
+		const auto expected = std::string("FloatValue: 1.50\nFloatValue2: 2.00\n");
 
 		// Act.
 		const auto result = EncodeRootObject([](auto& w)
-			{
-				EmitKey(w, "FloatValue");
-				w.Emit(Token::Float { 1.5f });
-				EmitKey(w, "DoubleValue");
-				w.Emit(Token::Double { 2.0 });
-			});
+		{
+			EmitKey(w, "FloatValue");
+			w.Emit(Token::Double { 1.5f });
+			EmitKey(w, "FloatValue2");
+			w.Emit(Token::Double { 2.0f });
+		});
+
+		// Assert.
+		ASSERT_EQ(result, expected);
+	}
+
+	TEST(LmlDomCodec, Encode_QuotesStringsThatLookLikeScalars)
+	{
+		// Arrange.
+		const auto expected = std::string(
+			"NumberLike: \"0\"\n"
+			"FloatLike: \"10.50\"\n"
+			"BoolLike: \"true\"\n"
+			"NullLike: \"null\"\n"
+		);
+
+		// Act.
+		const auto result = EncodeRootObject([](auto& w)
+		{
+			EmitKey(w, "NumberLike");
+			w.Emit(Token::String { "0" });
+			EmitKey(w, "FloatLike");
+			w.Emit(Token::String { "10.50" });
+			EmitKey(w, "BoolLike");
+			w.Emit(Token::String { "true" });
+			EmitKey(w, "NullLike");
+			w.Emit(Token::String { "null" });
+		});
 
 		// Assert.
 		ASSERT_EQ(result, expected);
@@ -179,15 +197,15 @@ namespace Ludus::Tests::Serialization::Codecs
 
 		// Act.
 		const auto result = EncodeRootObject([](auto& w)
-			{
-				EmitKey(w, "EmptyObject");
-				w.Emit(Token::StartObject {});
-				w.Emit(Token::EndObject {});
+		{
+			EmitKey(w, "EmptyObject");
+			w.Emit(Token::StartObject {});
+			w.Emit(Token::EndObject {});
 
-				EmitKey(w, "EmptyArray");
-				w.Emit(Token::StartArray {});
-				w.Emit(Token::EndArray {});
-			});
+			EmitKey(w, "EmptyArray");
+			w.Emit(Token::StartArray {});
+			w.Emit(Token::EndArray {});
+		});
 
 		// Assert.
 		ASSERT_EQ(result, expected);
@@ -203,13 +221,13 @@ namespace Ludus::Tests::Serialization::Codecs
 
 		// Act.
 		const auto result = EncodeRootObject([](auto& w)
-			{
-				EmitKey(w, "Parent");
-				w.Emit(Token::StartObject {});
-				EmitKey(w, "Child");
-				w.Emit(Token::String { "Value" });
-				w.Emit(Token::EndObject {});
-			});
+		{
+			EmitKey(w, "Parent");
+			w.Emit(Token::StartObject {});
+			EmitKey(w, "Child");
+			w.Emit(Token::String { "Value" });
+			w.Emit(Token::EndObject {});
+		});
 
 		// Assert.
 		ASSERT_EQ(result, expected);
@@ -224,15 +242,15 @@ namespace Ludus::Tests::Serialization::Codecs
 
 		// Act.
 		const auto result = EncodeRootObject([](auto& w)
-			{
-				EmitKey(w, "Transform");
-				w.Emit(Token::StartObject {});
-				EmitKey(w, "X");
-				w.Emit(Token::Float { 2.0f });
-				EmitKey(w, "Y");
-				w.Emit(Token::Float { 4.0f });
-				w.Emit(Token::EndObject {});
-			});
+		{
+			EmitKey(w, "Transform");
+			w.Emit(Token::StartObject {});
+			EmitKey(w, "X");
+			w.Emit(Token::Double { 2.0f });
+			EmitKey(w, "Y");
+			w.Emit(Token::Double { 4.0f });
+			w.Emit(Token::EndObject {});
+		});
 
 		// Assert.
 		ASSERT_EQ(result, expected);
@@ -247,14 +265,14 @@ namespace Ludus::Tests::Serialization::Codecs
 
 		// Act.
 		const auto result = EncodeRootObject([](auto& w)
-			{
-				EmitKey(w, "Ints");
-				w.Emit(Token::StartArray {});
-				w.Emit(Token::Int { 1 });
-				w.Emit(Token::Int { 2 });
-				w.Emit(Token::Int { 3 });
-				w.Emit(Token::EndArray {});
-			});
+		{
+			EmitKey(w, "Ints");
+			w.Emit(Token::StartArray {});
+			w.Emit(Token::Int { 1 });
+			w.Emit(Token::Int { 2 });
+			w.Emit(Token::Int { 3 });
+			w.Emit(Token::EndArray {});
+		});
 
 		// Assert.
 		ASSERT_EQ(result, expected);
@@ -271,24 +289,24 @@ namespace Ludus::Tests::Serialization::Codecs
 
 		// Act.
 		const auto result = EncodeRootObject([](auto& w)
-			{
-				EmitKey(w, "Items");
-				w.Emit(Token::StartArray {});
+		{
+			EmitKey(w, "Items");
+			w.Emit(Token::StartArray {});
 
-				w.Emit(Token::StartObject {});
-				EmitKey(w, "Handle");
-				w.Emit(Token::Uint32 { 1u });
-				EmitKey(w, "Transform");
-				w.Emit(Token::StartObject {});
-				EmitKey(w, "X");
-				w.Emit(Token::Float { 2.0f });
-				EmitKey(w, "Y");
-				w.Emit(Token::Float { 4.0f });
-				w.Emit(Token::EndObject {});
-				w.Emit(Token::EndObject {});
+			w.Emit(Token::StartObject {});
+			EmitKey(w, "Handle");
+			w.Emit(Token::Int { 1 });
+			EmitKey(w, "Transform");
+			w.Emit(Token::StartObject {});
+			EmitKey(w, "X");
+			w.Emit(Token::Double { 2.0f });
+			EmitKey(w, "Y");
+			w.Emit(Token::Double { 4.0f });
+			w.Emit(Token::EndObject {});
+			w.Emit(Token::EndObject {});
 
-				w.Emit(Token::EndArray {});
-			});
+			w.Emit(Token::EndArray {});
+		});
 
 		// Assert.
 		ASSERT_EQ(result, expected);
@@ -305,22 +323,22 @@ namespace Ludus::Tests::Serialization::Codecs
 
 		// Act.
 		const auto result = EncodeRootObject([](auto& w)
-			{
-				EmitKey(w, "Items");
-				w.Emit(Token::StartArray {});
+		{
+			EmitKey(w, "Items");
+			w.Emit(Token::StartArray {});
 
-				w.Emit(Token::StartObject {});
-				EmitKey(w, "Child1");
-				w.Emit(Token::String { "Value1" });
-				w.Emit(Token::EndObject {});
+			w.Emit(Token::StartObject {});
+			EmitKey(w, "Child1");
+			w.Emit(Token::String { "Value1" });
+			w.Emit(Token::EndObject {});
 
-				w.Emit(Token::StartObject {});
-				EmitKey(w, "Child2");
-				w.Emit(Token::String { "Value2" });
-				w.Emit(Token::EndObject {});
+			w.Emit(Token::StartObject {});
+			EmitKey(w, "Child2");
+			w.Emit(Token::String { "Value2" });
+			w.Emit(Token::EndObject {});
 
-				w.Emit(Token::EndArray {});
-			});
+			w.Emit(Token::EndArray {});
+		});
 
 		// Assert.
 		ASSERT_EQ(result, expected);
@@ -337,22 +355,22 @@ namespace Ludus::Tests::Serialization::Codecs
 
 		// Act.
 		const auto result = EncodeRootObject([](auto& w)
-			{
-				EmitKey(w, "Items");
-				w.Emit(Token::StartArray {});
+		{
+			EmitKey(w, "Items");
+			w.Emit(Token::StartArray {});
 
-				w.Emit(Token::StartObject {});
-				EmitKey(w, "Id");
-				w.Emit(Token::Uint32 { 1u });
-				w.Emit(Token::EndObject {});
+			w.Emit(Token::StartObject {});
+			EmitKey(w, "Id");
+			w.Emit(Token::Int { 1 });
+			w.Emit(Token::EndObject {});
 
-				w.Emit(Token::StartObject {});
-				EmitKey(w, "Id");
-				w.Emit(Token::Uint32 { 2u });
-				w.Emit(Token::EndObject {});
+			w.Emit(Token::StartObject {});
+			EmitKey(w, "Id");
+			w.Emit(Token::Int { 2 });
+			w.Emit(Token::EndObject {});
 
-				w.Emit(Token::EndArray {});
-			});
+			w.Emit(Token::EndArray {});
+		});
 
 		// Assert.
 		ASSERT_EQ(result, expected);
@@ -404,7 +422,7 @@ namespace Ludus::Tests::Serialization::Codecs
 		writer.Emit(Token::StartObject {});
 		writer.Emit(Token::Key { "BoolTrue" }); writer.Emit(Token::Bool { true });
 		writer.Emit(Token::Key { "Int" });      writer.Emit(Token::Int { 42 });
-		writer.Emit(Token::Key { "Float" });    writer.Emit(Token::Float { 1.5f });
+		writer.Emit(Token::Key { "Float" });    writer.Emit(Token::Double { 1.5f });
 		writer.Emit(Token::Key { "String" });   writer.Emit(Token::String { "Hello" });
 		writer.Emit(Token::EndObject {});
 
@@ -438,20 +456,20 @@ namespace Ludus::Tests::Serialization::Codecs
 		writer.Emit(Token::StartArray {});
 
 		writer.Emit(Token::StartObject {});
-		writer.Emit(Token::Key { "Handle" }); writer.Emit(Token::Uint32 { 1u });
+		writer.Emit(Token::Key { "Handle" }); writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Transform" });
 		writer.Emit(Token::StartObject {});
-		writer.Emit(Token::Key { "X" }); writer.Emit(Token::Float { 2.0f });
-		writer.Emit(Token::Key { "Y" }); writer.Emit(Token::Float { 4.0f });
+		writer.Emit(Token::Key { "X" }); writer.Emit(Token::Double { 2.0f });
+		writer.Emit(Token::Key { "Y" }); writer.Emit(Token::Double { 4.0f });
 		writer.Emit(Token::EndObject {});
 		writer.Emit(Token::EndObject {});
 
 		writer.Emit(Token::StartObject {});
-		writer.Emit(Token::Key { "Handle" }); writer.Emit(Token::Uint32 { 2u });
+		writer.Emit(Token::Key { "Handle" }); writer.Emit(Token::Int { 2 });
 		writer.Emit(Token::Key { "Transform" });
 		writer.Emit(Token::StartObject {});
-		writer.Emit(Token::Key { "X" }); writer.Emit(Token::Float { -2.0f });
-		writer.Emit(Token::Key { "Y" }); writer.Emit(Token::Float { -4.0f });
+		writer.Emit(Token::Key { "X" }); writer.Emit(Token::Double { -2.0f });
+		writer.Emit(Token::Key { "Y" }); writer.Emit(Token::Double { -4.0f });
 		writer.Emit(Token::EndObject {});
 		writer.Emit(Token::EndObject {});
 
@@ -573,12 +591,12 @@ namespace Ludus::Tests::Serialization::Codecs
 		ExpectStringValue(object[0].second.get(), "Hello:\n\"World\"\\Test");
 	}
 
-	TEST(LmlDomCodec, Decode_ParsesFloatsAndDoublesWithTwoDecimals)
+	TEST(LmlDomCodec, Decode_ParsesFloatsWithTwoDecimals)
 	{
 		// Arrange.
 		const auto input = std::string(
 			"FloatValue: 1.50\n"
-			"DoubleValue: 2.00\n"
+			"FloatValue2: 2.00\n"
 		);
 
 		// Act.
@@ -590,9 +608,9 @@ namespace Ludus::Tests::Serialization::Codecs
 		const auto& object = AsObject(root);
 		ASSERT_EQ(object.size(), 2u);
 		EXPECT_EQ(object[0].first, "FloatValue");
-		ExpectFloatLikeValue(object[0].second.get(), 1.5);
-		EXPECT_EQ(object[1].first, "DoubleValue");
-		ExpectFloatLikeValue(object[1].second.get(), 2.0);
+		ExpectFloatValue(object[0].second.get(), 1.5f);
+		EXPECT_EQ(object[1].first, "FloatValue2");
+		ExpectFloatValue(object[1].second.get(), 2.0f);
 	}
 
 	TEST(LmlDomCodec, Decode_EmptyObjectAndArray_AreInlineBracesAndBrackets)
@@ -665,9 +683,9 @@ namespace Ludus::Tests::Serialization::Codecs
 		const auto& transform = AsObject(*object[0].second);
 		ASSERT_EQ(transform.size(), 2u);
 		EXPECT_EQ(transform[0].first, "X");
-		ExpectFloatLikeValue(transform[0].second.get(), 2.0);
+		ExpectFloatValue(transform[0].second.get(), 2.0f);
 		EXPECT_EQ(transform[1].first, "Y");
-		ExpectFloatLikeValue(transform[1].second.get(), 4.0);
+		ExpectFloatValue(transform[1].second.get(), 4.0f);
 	}
 
 	TEST(LmlDomCodec, Decode_Array_Inline_WhenSmallScalarArray)
@@ -729,9 +747,9 @@ namespace Ludus::Tests::Serialization::Codecs
 		const auto& transform = AsObject(*itemObject[1].second);
 		ASSERT_EQ(transform.size(), 2u);
 		EXPECT_EQ(transform[0].first, "X");
-		ExpectFloatLikeValue(transform[0].second.get(), 2.0);
+		ExpectFloatValue(transform[0].second.get(), 2.0f);
 		EXPECT_EQ(transform[1].first, "Y");
-		ExpectFloatLikeValue(transform[1].second.get(), 4.0);
+		ExpectFloatValue(transform[1].second.get(), 4.0f);
 	}
 
 	TEST(LmlDomCodec, Decode_Array_Block_WhenNotInlineFriendly)
@@ -866,7 +884,7 @@ namespace Ludus::Tests::Serialization::Codecs
 		const auto& scalars = AsObject(*scalarsNode);
 		ExpectBoolValue(FindMember(scalars, "BoolTrue"), true);
 		ExpectIntLikeValue(FindMember(scalars, "Int"), 42);
-		ExpectFloatLikeValue(FindMember(scalars, "Float"), 1.5);
+		ExpectFloatValue(FindMember(scalars, "Float"), 1.5f);
 		ExpectStringValue(FindMember(scalars, "String"), "Hello");
 
 		const DomNode* stringsNode = FindMember(torture, "Strings");
@@ -909,16 +927,16 @@ namespace Ludus::Tests::Serialization::Codecs
 		const DomNode* firstTransformNode = FindMember(firstItem, "Transform");
 		ASSERT_NE(firstTransformNode, nullptr);
 		const auto& firstTransform = AsObject(*firstTransformNode);
-		ExpectFloatLikeValue(FindMember(firstTransform, "X"), 2.0);
-		ExpectFloatLikeValue(FindMember(firstTransform, "Y"), 4.0);
+		ExpectFloatValue(FindMember(firstTransform, "X"), 2.0f);
+		ExpectFloatValue(FindMember(firstTransform, "Y"), 4.0f);
 
 		const auto& secondItem = AsObject(*arrayOfObjects[1]);
 		ExpectIntLikeValue(FindMember(secondItem, "Handle"), 2);
 		const DomNode* secondTransformNode = FindMember(secondItem, "Transform");
 		ASSERT_NE(secondTransformNode, nullptr);
 		const auto& secondTransform = AsObject(*secondTransformNode);
-		ExpectFloatLikeValue(FindMember(secondTransform, "X"), -2.0);
-		ExpectFloatLikeValue(FindMember(secondTransform, "Y"), -4.0);
+		ExpectFloatValue(FindMember(secondTransform, "X"), -2.0f);
+		ExpectFloatValue(FindMember(secondTransform, "Y"), -4.0f);
 
 		const DomNode* diagnosticsNode = FindMember(torture, "DiagnosticsTarget");
 		ASSERT_NE(diagnosticsNode, nullptr);

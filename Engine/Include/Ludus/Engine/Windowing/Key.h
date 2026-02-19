@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
-namespace Ludus::Engine::Platform
+namespace Ludus::Engine::Windowing
 {
 	enum class Key : int
 	{

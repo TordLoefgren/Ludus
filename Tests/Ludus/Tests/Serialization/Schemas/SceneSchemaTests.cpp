@@ -26,6 +26,12 @@ namespace Ludus::Tests::Serialization::Schemas
 	using Ludus::Engine::Serialization::Core::DomNode;
 	using Ludus::Engine::Serialization::Core::DomObject;
 
+	static const Ludus::Engine::Core::SceneHandle GetId()
+	{
+		Ludus::Engine::Core::Random random;
+		return random.NextId();
+	}
+
 	static const DomNode* FindMember(const DomObject& object, std::string_view key)
 	{
 		for (const auto& [memberKey, memberValue] : object)
@@ -46,7 +52,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		const auto* handleNode = FindMember(entityObject, "Handle");
 		ASSERT_NE(handleNode, nullptr);
 
-		const auto entityHandle = std::get<uint32_t>(AsValue(*handleNode));
+		const auto entityHandle = std::get<uint64_t>(AsValue(*handleNode));
 
 		const auto* componentNode = FindMember(entityObject, component);
 		ASSERT_NE(componentNode, nullptr);
@@ -55,7 +61,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		const auto* ownerNode = FindMember(componentObject, "OwnerHandle");
 		ASSERT_NE(ownerNode, nullptr);
 
-		const auto componentHandle = std::get<uint32_t>(AsValue(*ownerNode));
+		const auto componentHandle = std::get<uint64_t>(AsValue(*ownerNode));
 		ASSERT_EQ(entityHandle, componentHandle);
 	}
 
@@ -64,7 +70,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		// Arrange.
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
-		Scene scene;
+		Scene scene(GetId());
 
 		const int entityCount = 10;
 		for (int i = 0; i < entityCount; i++)
@@ -93,7 +99,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		// Arrange.
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
-		Scene scene;
+		Scene scene(GetId());
 
 		const size_t entityCount = 5;
 		for (size_t i = 0; i < entityCount; i++)
@@ -141,7 +147,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		// Arrange.
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
-		Scene scene;
+		Scene scene(GetId());
 
 		const size_t entityCount = 10;
 		for (size_t i = 0; i < entityCount; i++)
@@ -174,7 +180,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		// Arrange.
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
-		Scene scene;
+		Scene scene(GetId());
 
 		const auto handle1 = scene.EntityComponentSystem.AddEntity();
 		scene.EntityComponentSystem.AttachCamera(handle1);
@@ -221,7 +227,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		// Arrange.
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
-		Scene scene;
+		Scene scene(GetId());
 
 		const size_t entityCount = 10;
 		for (size_t i = 0; i < entityCount; i++)
@@ -264,7 +270,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "Handle" });
-		writer.Emit(Token::Uint32 { 1u });
+		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Entities" });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::EndObject { });
@@ -285,7 +291,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "Handle" });
-		writer.Emit(Token::Uint32 { 1u });
+		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Entities" });
 		writer.Emit(Token::StartArray { });
 		writer.Emit(Token::StartObject { });
@@ -309,12 +315,12 @@ namespace Ludus::Tests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "Handle" });
-		writer.Emit(Token::Uint32 { 1u });
+		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Entities" });
 		writer.Emit(Token::StartArray { });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "Handle" });
-		writer.Emit(Token::Uint32 { 1u });
+		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Transform2D" });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::EndObject { });

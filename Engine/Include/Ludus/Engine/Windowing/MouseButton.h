@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Ludus::Engine::Platform
+namespace Ludus::Engine::Windowing
 {
 	enum class MouseButton
 	{

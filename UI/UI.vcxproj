@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\UI\AssetBrowser.h" />
+    <ClInclude Include="Include\Ludus\UI\Scope\DisabledScope.h" />
     <ClInclude Include="Include\Ludus\UI\Backend\Fonts.h" />
     <ClInclude Include="Include\Ludus\UI\Context\ImageContext.h" />
     <ClInclude Include="Include\Ludus\UI\Context\SelectionContext.h" />
@@ -43,6 +45,8 @@
     <ClInclude Include="Include\Ludus\UI\Context\ScrollContext.h" />
     <ClInclude Include="Include\Ludus\UI\Context\LayoutContext.h" />
     <ClInclude Include="Include\Ludus\UI\Scope\MenuBarScope.h" />
+    <ClInclude Include="Include\Ludus\UI\Scope\ModalScope.h" />
+    <ClInclude Include="Include\Ludus\UI\Context\PopupContext.h" />
     <ClInclude Include="Source\Ludus\UI\pch.h" />
     <ClInclude Include="Include\Ludus\UI\Flags\Flags.h" />
     <ClInclude Include="Include\Ludus\UI\Systems\ImGuiSystem.h" />
@@ -70,6 +74,10 @@
     <ClInclude Include="Include\Ludus\UI\Context\ViewportContext.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Ludus\UI\AssetBrowser.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Scope\DisabledScope.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Context\PopupContext.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Scope\ModalScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Backend\Fonts.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\MenuBarScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Context\LayoutContext.cpp" />

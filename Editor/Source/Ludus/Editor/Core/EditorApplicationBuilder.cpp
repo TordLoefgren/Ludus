@@ -11,7 +11,7 @@
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
-#include <Ludus/Engine/Platform/WindowOptions.h>
+#include <Ludus/Engine/Windowing/WindowOptions.h>
 #include <Ludus/UI/Systems/ImGuiModule.h>
 
 namespace Ludus::Editor::Core
@@ -41,7 +41,7 @@ namespace Ludus::Editor::Core
 		m_RenderingOptions = Ludus::Engine::Graphics::RenderingOptions(Ludus::Engine::Graphics::Colors::DarkGray);
 		m_RenderViewConfiguration = Ludus::Engine::Graphics::RenderViewConfiguration(false);
 		m_PhysicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D();
-		m_WindowOptions = Ludus::Engine::Platform::WindowOptions(1920, 1080, "Ludus Editor", true);
+		m_WindowOptions = Ludus::Engine::Windowing::WindowOptions(1920, 1080, "Ludus Editor", true, "Resources/LudusIcon.png");
 
 		Ludus::UI::Systems::RegisterImGui(m_ApplicationBuilder);
 

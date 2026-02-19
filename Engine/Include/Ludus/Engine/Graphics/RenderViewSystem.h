@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include <Ludus/Engine/Core/ISystem.h>
 #include <Ludus/Engine/Core/SystemContext.h>
 #include <Ludus/Engine/Graphics/Camera2D.h>
@@ -32,27 +34,10 @@ namespace Ludus::Engine::Graphics
 				// Check configuration.
 				if (m_RenderViewConfiguration.EnableDefaultViewFallback)
 				{
-					auto* scene = m_SystemContext->SceneManager.TryGetActiveScene();
-					if (!scene)
-					{
-						return;
-					}
-
-					const auto primaryCamera = scene->TryGetPrimaryCamera2D();
-					if (!primaryCamera.has_value())
-					{
-						return;
-					}
-
 					const auto [framebufferWidth, framebufferHeight] = m_SystemContext->Window.GetFramebufferSize();
+					auto camera = CreateDefaultCamera(framebufferWidth, framebufferHeight);
 
-					Ludus::Engine::Graphics::Camera2D camera;
-					camera.SetViewport(framebufferWidth, framebufferHeight);
-					camera.SetPosition({ primaryCamera.value().Transform.Position.X, primaryCamera.value().Transform.Position.Y });
-					camera.SetRotation(primaryCamera.value().Transform.Rotation);
-					camera.SetOrthographicSize(primaryCamera.value().Camera.OrthographicSize);
-
-					m_SystemContext->RenderViews.RegisterFullscreen(scene->Handle, camera, m_SystemContext->WindowRenderTarget);
+					m_SystemContext->RenderViews.RegisterFullscreen(std::nullopt, camera, m_SystemContext->WindowRenderTarget);
 				}
 
 				return;
@@ -106,7 +91,7 @@ namespace Ludus::Engine::Graphics
 			// Resolve camera from scene -> Scene primary camera view.
 			if (request.SceneHandle.has_value())
 			{
-				auto* scene = context.SceneManager.TryGetScene(request.SceneHandle.value());
+				auto* scene = context.SceneRegistry.TryGetScene(request.SceneHandle.value());
 				if (scene)
 				{
 					if (auto primaryCamera = scene->TryGetPrimaryCamera2D(); primaryCamera.has_value())

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Ludus\Editor\Panels\ProjectPanel.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\EditorSystem.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\EditorApplicationBuilder.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\DockPanel.cpp" />
@@ -42,12 +43,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\Editor\Commands\CommandContext.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\RequestCommandVisitor.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Panels.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Projects.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Scenes.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ActivePanelState.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\RequestCommand.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorContext.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorConfiguration.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorExecutionFlags.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorExecutionManager.h" />
-    <ClInclude Include="Include\Ludus\Editor\Core\EditorRequests.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorSession.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSelection.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorState.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSystem.h" />
@@ -55,6 +62,7 @@
     <ClInclude Include="Include\Ludus\Editor\Core\EditorApplicationBuilder.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorGridRenderPass.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ExecutionMode.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorSceneMetadata.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ViewportDisplayMode.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelContext.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelRegistry.h" />
@@ -67,7 +75,11 @@
     <ClInclude Include="Include\Ludus\Editor\Panels\InspectorPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\ViewportPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\HierarchyPanel.h" />
+    <ClInclude Include="Include\Ludus\Editor\Panels\ProjectPanel.h" />
     <ClInclude Include="Source\Ludus\Editor\pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\LudusIcon.png" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -144,7 +156,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -152,7 +164,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"</Command>
+      <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"
+xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -163,7 +176,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -171,7 +184,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"</Command>
+      <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"
+xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -180,7 +194,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(ProjectDir)Source\Ludus\Editor;$(ProjectDir)Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(ProjectDir)Source\Ludus\Editor;$(ProjectDir)Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -188,13 +202,14 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;UI.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;UI.lib</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(SolutionDir)UI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"
-xcopy /y /e /i /d  "$(SolutionDir)UI\Resources\*"  "$(OutDir)Resources\"</Command>
+xcopy /y /e /i /d  "$(SolutionDir)UI\Resources\*"  "$(OutDir)Resources\"
+xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"</Command>
     </PostBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
@@ -208,7 +223,7 @@ xcopy /y /e /i /d  "$(SolutionDir)UI\Resources\*"  "$(OutDir)Resources\"</Comman
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(ProjectDir)Source\Ludus\Editor;$(ProjectDir)Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(ProjectDir)Source\Ludus\Editor;$(ProjectDir)Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -216,13 +231,14 @@ xcopy /y /e /i /d  "$(SolutionDir)UI\Resources\*"  "$(OutDir)Resources\"</Comman
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;UI.lib</AdditionalDependencies>
+      <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;UI.lib</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(SolutionDir)UI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"
-xcopy /y /e /i /d  "$(SolutionDir)UI\Resources\*"  "$(OutDir)Resources\"</Command>
+xcopy /y /e /i /d  "$(SolutionDir)UI\Resources\*"  "$(OutDir)Resources\"
+xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"</Command>
     </PostBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>

@@ -6,6 +6,11 @@
 
 namespace Ludus::UI::Context::LayoutContext
 {
+	void AlignTextToFramePadding()
+	{
+		ImGui::AlignTextToFramePadding();
+	}
+
 	void SameLine(float offsetFromStart, float spacing)
 	{
 		ImGui::SameLine(offsetFromStart, spacing);

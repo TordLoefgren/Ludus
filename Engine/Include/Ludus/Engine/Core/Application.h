@@ -11,7 +11,7 @@
 #include <Ludus/Engine/Core/RenderViewRegistry.h>
 #include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
 #include <Ludus/Engine/Core/ResourceRegistry.h>
-#include <Ludus/Engine/Core/SceneManager.h>
+#include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Core/Scheduler.h>
 #include <Ludus/Engine/Core/SystemContext.h>
 #include <Ludus/Engine/Core/SystemDescriptor.h>
@@ -24,9 +24,12 @@
 #include <Ludus/Engine/Graphics/GLContext.h>
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
+#include <Ludus/Engine/Graphics/RenderPresentationSettings.h>
+#include <Ludus/Engine/Persistence/LmlProjectPersistence.h>
+#include <Ludus/Engine/Persistence/LmlScenePersistence.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
-#include <Ludus/Engine/Platform/Input.h>
-#include <Ludus/Engine/Platform/Window.h>
+#include <Ludus/Engine/Windowing/Input.h>
+#include <Ludus/Engine/Windowing/Window.h>
 
 namespace Ludus::Engine::Core
 {
@@ -35,15 +38,17 @@ namespace Ludus::Engine::Core
 	private:
 		std::unique_ptr<Ludus::Engine::Core::EntityComponentSystem> m_EntityComponentSystem;
 		std::unique_ptr<Ludus::Engine::Events::EventBus> m_EventBus;
-		std::unique_ptr<Ludus::Engine::Platform::Input> m_Input;
-		std::unique_ptr<Ludus::Engine::Platform::Window> m_Window;
+		std::unique_ptr<Ludus::Engine::Windowing::Input> m_Input;
+		std::unique_ptr<Ludus::Engine::Windowing::Window> m_Window;
 		std::unique_ptr<Ludus::Engine::Graphics::GLContext> m_GLContext;
+		std::unique_ptr<Ludus::Engine::Graphics::RenderPresentationSettings> m_RenderPresentationSettings;
 		std::unique_ptr<Ludus::Engine::Graphics::RenderingConfiguration2D> m_RenderingConfiguration;
 		std::unique_ptr<Ludus::Engine::Physics::Core::PhysicsConfiguration2D> m_PhysicsConfiguration;
 		std::unique_ptr<Ludus::Engine::Core::ResourceRegistry> m_Resources;
 		std::unique_ptr<Ludus::Engine::Core::RenderViewRegistry> m_RenderViewRegistry;
 		std::unique_ptr<Ludus::Engine::Core::RenderViewRequestRegistry> m_RenderViewRequestRegistry;
-		std::unique_ptr<Ludus::Engine::Core::SceneManager> m_SceneManager;
+		std::unique_ptr<Ludus::Engine::Core::SceneRegistry> m_SceneRegistry;
+		std::unique_ptr<Ludus::Engine::Persistence::ProjectRepository> m_ProjectRepository;
 		std::unique_ptr<Ludus::Engine::Core::Time> m_Time;
 		Ludus::Engine::Core::FlagSet m_ExecutionFlags;
 		Ludus::Engine::Core::SystemContext m_SystemContext;
@@ -54,8 +59,9 @@ namespace Ludus::Engine::Core
 			Ludus::Engine::Core::ApplicationOptions applicationOptions = Ludus::Engine::Core::ApplicationOptions(),
 			Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration = Ludus::Engine::Graphics::RenderingConfiguration2D(),
 			Ludus::Engine::Graphics::RenderingOptions renderingOptions = Ludus::Engine::Graphics::RenderingOptions(),
+			Ludus::Engine::Graphics::RenderPresentationSettings renderPresentationSettings = Ludus::Engine::Graphics::RenderPresentationSettings(),
 			Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D(),
-			Ludus::Engine::Platform::WindowOptions windowOptions = Ludus::Engine::Platform::WindowOptions()
+			Ludus::Engine::Windowing::WindowOptions windowOptions = Ludus::Engine::Windowing::WindowOptions()
 		);
 		~Application() = default;
 
@@ -63,8 +69,9 @@ namespace Ludus::Engine::Core
 			Ludus::Engine::Core::ApplicationOptions applicationOptions = Ludus::Engine::Core::ApplicationOptions(),
 			Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration = Ludus::Engine::Graphics::RenderingConfiguration2D(),
 			Ludus::Engine::Graphics::RenderingOptions renderingOptions = Ludus::Engine::Graphics::RenderingOptions(),
+			Ludus::Engine::Graphics::RenderPresentationSettings renderPresentationSettings = Ludus::Engine::Graphics::RenderPresentationSettings(),
 			Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D(),
-			Ludus::Engine::Platform::WindowOptions windowOptions = Ludus::Engine::Platform::WindowOptions()
+			Ludus::Engine::Windowing::WindowOptions windowOptions = Ludus::Engine::Windowing::WindowOptions()
 		);
 
 		void AddSystem(SystemDescriptor descriptor, std::unique_ptr<ISystem> system);
@@ -81,6 +88,9 @@ namespace Ludus::Engine::Core
 		Ludus::Engine::Graphics::RenderingConfiguration2D& GetRenderingConfiguration() { return *m_RenderingConfiguration; }
 		const Ludus::Engine::Graphics::RenderingConfiguration2D& GetRenderingConfiguration() const { return *m_RenderingConfiguration; }
 
+		Ludus::Engine::Graphics::RenderPresentationSettings& GetRenderPresentationSettings() { return *m_RenderPresentationSettings; }
+		const Ludus::Engine::Graphics::RenderPresentationSettings& GetRenderPresentationSettings() const { return *m_RenderPresentationSettings; }
+
 		void SubscribeToEvents();
 		virtual bool ProcessEvent(const Ludus::Engine::Events::Event& event) override;
 
@@ -88,6 +98,12 @@ namespace Ludus::Engine::Core
 
 		template<typename T>
 		void AddResource(T resource) { m_Resources->Add(std::move(resource)); }
+
+		template<typename T>
+		T& GetResource() { return m_Resources->Get<T>(); }
+
+		template<typename T>
+		const T& GetResource() const { return m_Resources->Get<T>(); }
 
 		template<typename TSystem, typename... TArgs>
 		void AddSystem(Ludus::Engine::Core::SystemDescriptor descriptor, TArgs&&... args)

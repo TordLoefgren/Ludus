@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <string>
 #include <string_view>
 
 #include <Ludus/Engine/Components/Camera2DComponent.h>
@@ -12,6 +13,7 @@
 #include <Ludus/Engine/Components/Transform2DComponent.h>
 #include <Ludus/Engine/Core/Expected.h>
 #include <Ludus/Engine/Core/Scene.h>
+#include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamReader.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamWriter.h>
 #include <Ludus/Engine/Serialization/Core/SerializationException.h>
@@ -55,7 +57,12 @@ namespace Ludus::Engine::Serialization::Schemas
 		};
 
 		template <class SlotT, class LoaderT>
-		static inline bool TryReadComponent(ITokenStreamReader& reader, SlotT& componentSlot, LoaderT loader)
+		static inline bool TryReadComponent(
+			ITokenStreamReader& reader,
+			SlotT& componentSlot,
+			LoaderT loader,
+			std::string_view componentName
+		)
 		{
 			if (!Ludus::Engine::Serialization::Core::Is<Token::StartObject>(reader.Peek()))
 			{
@@ -66,13 +73,17 @@ namespace Ludus::Engine::Serialization::Schemas
 			const auto result = loader(reader);
 			if (!result.HasValue())
 			{
+				LUDUS_LOG_WARN(
+					std::string("SceneSchema: failed to read component ") +
+					std::string(componentName) + ": " + result.GetError().what()
+				);
+
 				if (!Ludus::Engine::Serialization::Core::Is<Token::Key>(reader.Peek()) &&
 					!Ludus::Engine::Serialization::Core::Is<Token::EndObject>(reader.Peek()) &&
 					!Ludus::Engine::Serialization::Core::Is<Token::EndArray>(reader.Peek()))
 				{
 					Ludus::Engine::Serialization::Core::SkipValue(reader);
 				}
-
 				return false;
 			}
 
@@ -86,7 +97,10 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::StartObject { });
 
 			writer.Emit(Token::Key { "Handle" });
-			writer.Emit(Token::Uint32 { scene.Handle });
+			writer.Emit(Token::Uint { scene.Handle });
+
+			writer.Emit(Token::Key { "Name" });
+			writer.Emit(Token::String { scene.Name });
 
 			writer.Emit(Token::Key { "Entities" });
 			writer.Emit(Token::StartArray { });
@@ -97,7 +111,7 @@ namespace Ludus::Engine::Serialization::Schemas
 				writer.Emit(Token::StartObject { });
 
 				writer.Emit(Token::Key { "Handle" });
-				writer.Emit(Token::Uint32 { entity.Handle });
+				writer.Emit(Token::Uint { entity.Handle });
 
 				if (const auto* camera = ecs.Cameras.TryGetByOwner(entity.Handle))
 				{
@@ -150,184 +164,188 @@ namespace Ludus::Engine::Serialization::Schemas
 
 		inline static Ludus::Engine::Core::Expected<Scene, SerializationException> Deserialize(ITokenStreamReader& reader)
 		{
-			Scene scene;
+			Scene scene { 0 };
 
 			try
 			{
 				bool hasHandle = false;
 
-				Ludus::Engine::Serialization::Core::ReadObject(reader,
-					[&](std::string_view key)
+				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
+				{
+					if (key == "Handle")
 					{
-						if (key == "Handle")
-						{
-							scene.Handle = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Uint32>(reader).Data;
-							hasHandle = true;
-							return;
-						}
-						if (key == "Entities")
-						{
-							Ludus::Engine::Serialization::Core::ConsumeAs<Token::StartArray>(reader);
+						scene.Handle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
+						hasHandle = true;
+						return;
+					}
+					if (key == "Name")
+					{
+						scene.Name = Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data;
+						return;
+					}
+					if (key == "Entities")
+					{
+						Ludus::Engine::Serialization::Core::ConsumeAs<Token::StartArray>(reader);
 
-							while (!Ludus::Engine::Serialization::Core::Is<Token::EndArray>(reader.Peek()))
+						while (!Ludus::Engine::Serialization::Core::Is<Token::EndArray>(reader.Peek()))
+						{
+							StagedComponents stagedComponents;
+							uint64_t entityHandle = 0;
+							bool entityValid = true;
+							bool hasEntityHandle = false;
+
+							Ludus::Engine::Serialization::Core::ReadObject(reader,
+								[&](std::string_view entityKey)
 							{
-								StagedComponents stagedComponents;
-								uint32_t entityHandle = 0;
-								bool entityValid = true;
-								bool hasEntityHandle = false;
-
-								Ludus::Engine::Serialization::Core::ReadObject(reader,
-									[&](std::string_view entityKey)
+								if (entityKey == "Handle")
+								{
+									entityHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
+									hasEntityHandle = true;
+									return;
+								}
+								if (entityKey == Camera2DString)
+								{
+									if (!TryReadComponent(reader, stagedComponents.Camera, Camera2DComponentSchema::Deserialize, "Camera2D"))
 									{
-										if (entityKey == "Handle")
-										{
-											entityHandle = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Uint32>(reader).Data;
-											hasEntityHandle = true;
-											return;
-										}
-										if (entityKey == Camera2DString)
-										{
-											if (!TryReadComponent(reader, stagedComponents.Camera, Camera2DComponentSchema::Deserialize))
-											{
-												entityValid = false;
-											}
-											return;
-										}
-										if (entityKey == Collider2DString)
-										{
-											if (!TryReadComponent(reader, stagedComponents.Collider, Collider2DComponentSchema::Deserialize))
-											{
-												entityValid = false;
-											}
-											return;
-										}
-										if (entityKey == DisplayNameString)
-										{
-											if (!TryReadComponent(reader, stagedComponents.DisplayName, DisplayNameComponentSchema::Deserialize))
-											{
-												entityValid = false;
-											}
-											return;
-										}
-										if (entityKey == RigidBody2DString)
-										{
-											if (!TryReadComponent(reader, stagedComponents.RigidBody, RigidBody2DComponentSchema::Deserialize))
-											{
-												entityValid = false;
-											}
-											return;
-										}
-										if (entityKey == Sprite2DString)
-										{
-											if (!TryReadComponent(reader, stagedComponents.Sprite, Sprite2DComponentSchema::Deserialize))
-											{
-												entityValid = false;
-											}
-											return;
-										}
-										if (entityKey == Text2DString)
-										{
-											if (!TryReadComponent(reader, stagedComponents.Text, Text2DComponentSchema::Deserialize))
-											{
-												entityValid = false;
-											}
-											return;
-										}
-										if (entityKey == Transform2DString)
-										{
-											if (!TryReadComponent(reader, stagedComponents.Transform, Transform2DComponentSchema::Deserialize))
-											{
-												entityValid = false;
-											}
-											return;
-										}
-
-										Ludus::Engine::Serialization::Core::SkipValue(reader);
-									});
-
-								if (!hasEntityHandle)
+										entityValid = false;
+									}
+									return;
+								}
+								if (entityKey == Collider2DString)
 								{
-									continue;
+									if (!TryReadComponent(reader, stagedComponents.Collider, Collider2DComponentSchema::Deserialize, "Collider2D"))
+									{
+										entityValid = false;
+									}
+									return;
+								}
+								if (entityKey == DisplayNameString)
+								{
+									if (!TryReadComponent(reader, stagedComponents.DisplayName, DisplayNameComponentSchema::Deserialize, "DisplayName"))
+									{
+										entityValid = false;
+									}
+									return;
+								}
+								if (entityKey == RigidBody2DString)
+								{
+									if (!TryReadComponent(reader, stagedComponents.RigidBody, RigidBody2DComponentSchema::Deserialize, "RigidBody2D"))
+									{
+										entityValid = false;
+									}
+									return;
+								}
+								if (entityKey == Sprite2DString)
+								{
+									if (!TryReadComponent(reader, stagedComponents.Sprite, Sprite2DComponentSchema::Deserialize, "Sprite2D"))
+									{
+										entityValid = false;
+									}
+									return;
+								}
+								if (entityKey == Text2DString)
+								{
+									if (!TryReadComponent(reader, stagedComponents.Text, Text2DComponentSchema::Deserialize, "Text2D"))
+									{
+										entityValid = false;
+									}
+									return;
+								}
+								if (entityKey == Transform2DString)
+								{
+									if (!TryReadComponent(reader, stagedComponents.Transform, Transform2DComponentSchema::Deserialize, "Transform2D"))
+									{
+										entityValid = false;
+									}
+									return;
 								}
 
-								if (stagedComponents.Camera && stagedComponents.Camera->OwnerHandle != entityHandle)
-								{
-									entityValid = false;
-								}
-								if (stagedComponents.Collider && stagedComponents.Collider->OwnerHandle != entityHandle)
-								{
-									entityValid = false;
-								}
-								if (stagedComponents.DisplayName && stagedComponents.DisplayName->OwnerHandle != entityHandle)
-								{
-									entityValid = false;
-								}
-								if (stagedComponents.RigidBody && stagedComponents.RigidBody->OwnerHandle != entityHandle)
-								{
-									entityValid = false;
-								}
-								if (stagedComponents.Sprite && stagedComponents.Sprite->OwnerHandle != entityHandle)
-								{
-									entityValid = false;
-								}
-								if (stagedComponents.Text && stagedComponents.Text->OwnerHandle != entityHandle)
-								{
-									entityValid = false;
-								}
-								if (stagedComponents.Transform && stagedComponents.Transform->OwnerHandle != entityHandle)
-								{
-									entityValid = false;
-								}
+								Ludus::Engine::Serialization::Core::SkipValue(reader);
+							});
 
-								if (!entityValid)
-								{
-									continue;
-								}
-
-								scene.EntityComponentSystem.AddEntityWithHandle(entityHandle);
-
-								if (stagedComponents.Camera.has_value())
-								{
-									scene.EntityComponentSystem.AttachCamera(stagedComponents.Camera.value());
-								}
-
-								if (stagedComponents.Collider.has_value())
-								{
-									scene.EntityComponentSystem.AttachCollider(stagedComponents.Collider.value());
-								}
-
-								if (stagedComponents.DisplayName.has_value())
-								{
-									scene.EntityComponentSystem.AttachDisplayName(stagedComponents.DisplayName.value());
-								}
-
-								if (stagedComponents.RigidBody.has_value())
-								{
-									scene.EntityComponentSystem.AttachRigidBody(stagedComponents.RigidBody.value());
-								}
-
-								if (stagedComponents.Sprite.has_value())
-								{
-									scene.EntityComponentSystem.AttachSprite(stagedComponents.Sprite.value());
-								}
-
-								if (stagedComponents.Text.has_value())
-								{
-									scene.EntityComponentSystem.AttachText(stagedComponents.Text.value());
-								}
-
-								if (stagedComponents.Transform.has_value())
-								{
-									scene.EntityComponentSystem.AttachTransform(stagedComponents.Transform.value());
-								}
+							if (!hasEntityHandle)
+							{
+								continue;
 							}
 
-							Ludus::Engine::Serialization::Core::ConsumeAs<Token::EndArray>(reader);
-							return;
+							if (stagedComponents.Camera && stagedComponents.Camera->OwnerHandle != entityHandle)
+							{
+								entityValid = false;
+							}
+							if (stagedComponents.Collider && stagedComponents.Collider->OwnerHandle != entityHandle)
+							{
+								entityValid = false;
+							}
+							if (stagedComponents.DisplayName && stagedComponents.DisplayName->OwnerHandle != entityHandle)
+							{
+								entityValid = false;
+							}
+							if (stagedComponents.RigidBody && stagedComponents.RigidBody->OwnerHandle != entityHandle)
+							{
+								entityValid = false;
+							}
+							if (stagedComponents.Sprite && stagedComponents.Sprite->OwnerHandle != entityHandle)
+							{
+								entityValid = false;
+							}
+							if (stagedComponents.Text && stagedComponents.Text->OwnerHandle != entityHandle)
+							{
+								entityValid = false;
+							}
+							if (stagedComponents.Transform && stagedComponents.Transform->OwnerHandle != entityHandle)
+							{
+								entityValid = false;
+							}
+
+							if (!entityValid)
+							{
+								continue;
+							}
+
+							scene.EntityComponentSystem.AddEntityWithHandle(entityHandle);
+
+							if (stagedComponents.Camera.has_value())
+							{
+								scene.EntityComponentSystem.AttachCamera(stagedComponents.Camera.value());
+							}
+
+							if (stagedComponents.Collider.has_value())
+							{
+								scene.EntityComponentSystem.AttachCollider(stagedComponents.Collider.value());
+							}
+
+							if (stagedComponents.DisplayName.has_value())
+							{
+								scene.EntityComponentSystem.AttachDisplayName(stagedComponents.DisplayName.value());
+							}
+
+							if (stagedComponents.RigidBody.has_value())
+							{
+								scene.EntityComponentSystem.AttachRigidBody(stagedComponents.RigidBody.value());
+							}
+
+							if (stagedComponents.Sprite.has_value())
+							{
+								scene.EntityComponentSystem.AttachSprite(stagedComponents.Sprite.value());
+							}
+
+							if (stagedComponents.Text.has_value())
+							{
+								scene.EntityComponentSystem.AttachText(stagedComponents.Text.value());
+							}
+
+							if (stagedComponents.Transform.has_value())
+							{
+								scene.EntityComponentSystem.AttachTransform(stagedComponents.Transform.value());
+							}
 						}
 
-						Ludus::Engine::Serialization::Core::SkipValue(reader);
-					});
+						Ludus::Engine::Serialization::Core::ConsumeAs<Token::EndArray>(reader);
+						return;
+					}
+
+					Ludus::Engine::Serialization::Core::SkipValue(reader);
+				});
 
 				if (!hasHandle)
 				{
@@ -336,8 +354,10 @@ namespace Ludus::Engine::Serialization::Schemas
 			}
 			catch (const SerializationException& ex)
 			{
+				const auto error =
+					Ludus::Engine::Serialization::Core::WithContext(ex, "SceneSchema::Deserialize");
 				return Ludus::Engine::Core::Expected<Scene, SerializationException>(
-					Ludus::Engine::Core::Unexpected<SerializationException>::Create(ex)
+					Ludus::Engine::Core::Unexpected<SerializationException>::Create(error)
 				);
 			}
 

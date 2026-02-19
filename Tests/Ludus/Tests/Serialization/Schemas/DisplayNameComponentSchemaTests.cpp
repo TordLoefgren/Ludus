@@ -58,7 +58,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		ASSERT_NE(ownerNode, nullptr);
 		ASSERT_NE(valueNode, nullptr);
 
-		const auto ownerHandle = std::get<uint32_t>(AsValue(*ownerNode));
+		const auto ownerHandle = std::get<uint64_t>(AsValue(*ownerNode));
 		const auto value = std::get<std::string>(AsValue(*valueNode));
 
 		ASSERT_EQ(ownerHandle, 1u);
@@ -72,7 +72,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Uint32 { 1u });
+		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Value" });
 		writer.Emit(Token::String { "Name" });
 		writer.Emit(Token::EndObject { });
@@ -96,7 +96,7 @@ namespace Ludus::Tests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Uint32 { 1u });
+		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 

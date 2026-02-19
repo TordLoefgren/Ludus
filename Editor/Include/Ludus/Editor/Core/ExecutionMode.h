@@ -2,5 +2,5 @@
 
 namespace Ludus::Editor::Core
 {
-	enum class ExecutionMode { Start, Stop, Pause, Step };
+	enum class ExecutionMode { Start, Stop, Pause };
 }

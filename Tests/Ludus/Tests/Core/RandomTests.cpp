@@ -47,7 +47,7 @@ namespace Ludus::Tests::Core
 		EXPECT_THROW(random.NextInt(v1, v2), std::invalid_argument);
 	}
 
-	TEST(Random, NextUint_ReturnsValueBetweenMinMax)
+	TEST(Random, NextUint32_ReturnsValueBetweenMinMax)
 	{
 		// Arrange.
 		auto random = Random();
@@ -55,14 +55,14 @@ namespace Ludus::Tests::Core
 		auto v2 = 2u;
 
 		// Act.
-		auto value = random.NextUint(v1, v2);
+		auto value = random.NextUint32(v1, v2);
 
 		// Assert.
 		EXPECT_GE(value, v1);
 		EXPECT_LE(value, v2);
 	}
 
-	TEST(Random, NextUint_ThrowsInvalidArgumentException_When_MinGreaterThanMax)
+	TEST(Random, NextUint32_ThrowsInvalidArgumentException_When_MinGreaterThanMax)
 	{
 		// Arrange.
 		auto random = Random();
@@ -70,7 +70,33 @@ namespace Ludus::Tests::Core
 		auto v2 = 1u;
 
 		// Act & Assert.
-		EXPECT_THROW(random.NextUint(v1, v2), std::invalid_argument);
+		EXPECT_THROW(random.NextUint32(v1, v2), std::invalid_argument);
+	}
+
+	TEST(Random, NextUint64_ReturnsValueBetweenMinMax)
+	{
+		// Arrange.
+		auto random = Random();
+		auto v1 = 1ull;
+		auto v2 = 2ull;
+
+		// Act.
+		auto value = random.NextUint64(v1, v2);
+
+		// Assert.
+		EXPECT_GE(value, v1);
+		EXPECT_LE(value, v2);
+	}
+
+	TEST(Random, NextUint64_ThrowsInvalidArgumentException_When_MinGreaterThanMax)
+	{
+		// Arrange.
+		auto random = Random();
+		auto v1 = 2ull;
+		auto v2 = 1ull;
+
+		// Act & Assert.
+		EXPECT_THROW(random.NextUint64(v1, v2), std::invalid_argument);
 	}
 
 	TEST(Random, NextFloat_ReturnsValueBetweenMinMax)

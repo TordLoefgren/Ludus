@@ -1,9 +1,8 @@
 #include "pch.h"
 
-#include <glad/glad.h>
-
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Graphics/FramebufferObject.h>
+#include <Ludus/Engine/Graphics/GL.h>
 
 namespace Ludus::Engine::Graphics
 {

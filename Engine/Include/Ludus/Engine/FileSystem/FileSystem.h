@@ -3,6 +3,7 @@
 #include <atomic>
 #include <chrono>
 #include <cstddef>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <span>
@@ -12,7 +13,9 @@
 #include <system_error>
 #include <vector>
 
-namespace Ludus::Engine::IO
+#include <Ludus/Engine/Platform/FileSystem.h>
+
+namespace Ludus::Engine::FileSystem
 {
 
 #pragma region Utility
@@ -25,7 +28,7 @@ namespace Ludus::Engine::IO
 		{
 			if (!Path.empty())
 			{
-				// Safe removal.
+				// Safe removal of file.
 				std::error_code _;
 				std::filesystem::remove(Path, _);
 			}
@@ -50,7 +53,7 @@ namespace Ludus::Engine::IO
 		const std::string_view suffix
 	)
 	{
-		// Create unique path. Can be replaced with GUIDs when they are needed more broadly.
+		// Create unique path. Can be replaced with GUIDs when a more robust solution is needed.
 		static std::atomic_uint64_t counter { 0 };
 
 		const auto t = std::chrono::high_resolution_clock::now().time_since_epoch().count();
@@ -67,43 +70,9 @@ namespace Ludus::Engine::IO
 		return directory / GenerateUniqueName(name + ".", ".tmp");
 	}
 
-	inline void CommitTempFile(
-		const std::filesystem::path& temp,
-		const std::filesystem::path& destination
-	)
-	{
-		std::error_code errorCode;
-
-#ifdef _WIN32
-
-		// Platform specific: Windows is not completely atomic.
-		const auto exists = std::filesystem::exists(destination, errorCode);
-		if (errorCode)
-		{
-			throw std::runtime_error("Could not find file '" + destination.string() + "': " + errorCode.message());
-		}
-
-		if (exists)
-		{
-			std::filesystem::remove(destination, errorCode);
-			if (errorCode)
-			{
-				throw std::runtime_error("Removing '" + destination.string() + "' failed: " + errorCode.message());
-			}
-		}
-
-#endif
-
-		std::filesystem::rename(temp, destination, errorCode);
-		if (errorCode)
-		{
-			throw std::runtime_error("Renaming '" + destination.string() + "' failed: " + errorCode.message());
-		}
-	}
-
 	inline void CommitTempFile(FileDeleteScope& temp, const std::filesystem::path& destination)
 	{
-		CommitTempFile(temp.Path, destination);
+		Ludus::Engine::Platform::FileSystem::ReplaceFile(temp.Path, destination);
 		temp.Path.clear();
 	}
 
@@ -115,7 +84,7 @@ namespace Ludus::Engine::IO
 		{
 			if (!p.is_regular_file())
 			{
-				// Skip directories.
+				// Skip any directories.
 				continue;
 			}
 
@@ -123,6 +92,17 @@ namespace Ludus::Engine::IO
 		}
 
 		return filePaths;
+	}
+
+	inline bool ArePathsEqual(const std::filesystem::path& left, const std::filesystem::path& right)
+	{
+		std::error_code errorCode;
+		if (std::filesystem::equivalent(left, right, errorCode))
+		{
+			return true;
+		}
+
+		return left.lexically_normal() == right.lexically_normal();
 	}
 
 	inline std::vector<std::string> GetFileNames(const std::filesystem::path& path)
