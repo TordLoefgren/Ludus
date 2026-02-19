@@ -1,67 +1,87 @@
----
-name: Ludus CI - Build & Unit Tests (Windows, self-hosted)
+name: Ludus CI - Build & Unit Tests (Windows)
+
 on:
   pull_request:
     branches: [ master ]
     types: [ opened, synchronize, reopened, ready_for_review ]
   push:
     branches: [ master ]
-  workflow_dispatch: null
+  workflow_dispatch:
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
   build-and-test:
     permissions:
-        contents: read
-        checks: write
-        pull-requests: write
-    concurrency:
-        group: ci-${{ github.ref }}-${{ matrix.Configuration }}
-        cancel-in-progress: true
+      contents: read
+      checks: write
+      pull-requests: write
+
     strategy:
       fail-fast: false
       matrix:
         Platform: [ x64 ]
         Configuration: [ Debug, Release ]
+
     name: Build & test - ${{ matrix.Platform }} / ${{ matrix.Configuration }}
-    runs-on: [ self-hosted, windows, x64 ]
+    runs-on: windows-latest
+
     env:
       Configuration: ${{ matrix.Configuration }}
       Platform: ${{ matrix.Platform }}
+
       VCPKG_DEFAULT_TRIPLET: x64-windows
+      VCPKG_INSTALLED_DIR: ${{ github.workspace }}\.cache\vcpkg_installed
+      VCPKG_DISABLE_METRICS: 1
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
-      - name: Bootstrap vcpkg
-        shell: cmd
-        run: |
-          set "VCPKG_DIR=%GITHUB_WORKSPACE%\vcpkg"
-          if not exist "%VCPKG_DIR%\vcpkg.exe" (
-            git clone https://github.com/microsoft/vcpkg "%VCPKG_DIR%"
-            call "%VCPKG_DIR%\bootstrap-vcpkg.bat" -disableMetrics
-          )
-          echo VCPKG_ROOT=%VCPKG_DIR%>> "%GITHUB_ENV%"
-      - name: Setup vcpkg MSBuild integration
+
+      - name: Cache vcpkg installed tree
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_INSTALLED_DIR }}
+          key: vcpkg-installed-${{ runner.os }}-${{ env.VCPKG_DEFAULT_TRIPLET }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
+          restore-keys: |
+            vcpkg-installed-${{ runner.os }}-${{ env.VCPKG_DEFAULT_TRIPLET }}-
+
+      - name: Bootstrap vcpkg (action)
+        uses: lukka/run-vcpkg@v11.5
+        with:
+          vcpkgJsonGlob: '**/vcpkg.json'
+          vcpkgConfigurationJsonGlob: '**/vcpkg-configuration.json'
+          runVcpkgInstall: false
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+
+      - name: Enable vcpkg MSBuild integration (CI only)
         shell: cmd
         run: |
           "%VCPKG_ROOT%\vcpkg.exe" integrate install
-      - name: Install vcpkg dependencies (manifest)
-        if: ${{ hashFiles('vcpkg.json') != '' }}
-        shell: cmd
-        run: |
-          "%VCPKG_ROOT%\vcpkg.exe" install --triplet %VCPKG_DEFAULT_TRIPLET% --x-manifest-root="%GITHUB_WORKSPACE%" --x-install-root="%GITHUB_WORKSPACE%\.cache\vcpkg_installed"
+
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1
+
       - name: Restore NuGet packages
         shell: cmd
         run: nuget restore Ludus.sln
-      - name: Build tests
+
+      - name: Build tests (MSBuild + vcpkg manifest)
         shell: cmd
-        run: msbuild .\Tests\Tests.vcxproj /m ^
-          /p:Configuration=%Configuration% /p:Platform=%Platform%
+        run: |
+          msbuild .\Tests\Tests.vcxproj /m ^
+            /p:Configuration=%Configuration% /p:Platform=%Platform% ^
+            /p:VcpkgEnableManifest=true ^
+            /p:VcpkgManifestRoot="%GITHUB_WORKSPACE%" ^
+            /p:VcpkgRoot="%VCPKG_ROOT%" ^
+            /p:VcpkgTriplet=%VCPKG_DEFAULT_TRIPLET% ^
+            /p:VcpkgInstalledDir="%VCPKG_INSTALLED_DIR%"
+
       - name: Run GoogleTests
         shell: cmd
         run: |
@@ -74,20 +94,25 @@ jobs:
           )
           echo Tests.exe not found
           exit /b 1
+
           :runit
           set "RESULTS=!EXEDIR!TestResults"
           if not exist "!RESULTS!" mkdir "!RESULTS!"
           "!EXE!" --gtest_output=xml:"!RESULTS!\gtest.xml"
           exit /b !errorlevel!
+
       - name: Publish Ludus Unit Tests
         if: always()
+        continue-on-error: true
         uses: mikepenz/action-junit-report@v4
         with:
-          report_paths: "**/TestResults/*.xml"
+          report_paths: '**/TestResults/*.xml'
           check_name: Ludus - Unit Tests (${{ matrix.Configuration }})
           include_passed: true
           detailed_summary: true
+          require_tests: true
           token: ${{ github.token }}
+
       - name: Job summary
         if: always()
         shell: cmd
