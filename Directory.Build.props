@@ -10,7 +10,7 @@
     <VcpkgInstalledDir>$(MSBuildThisFileDirectory).cache\vcpkg_installed\</VcpkgInstalledDir>
 
     <!-- Fallback defaults for local builds where VS vcpkg integration is partially configured. -->
-    <VcpkgTriplet Condition="'$(VcpkgTriplet)' == '' and '$(Platform)' == 'x64'">x64-windows</VcpkgTriplet>
+    <VcpkgTriplet Condition="'$(VcpkgTriplet)' == ''">x64-windows</VcpkgTriplet>
     <VcpkgLocalTripletDir Condition="'$(VcpkgTriplet)' != ''">$(VcpkgInstalledDir)$(VcpkgTriplet)\</VcpkgLocalTripletDir>
     <!-- Avoid pwsh.exe dependency in vcpkg applocal deployment. -->
     <VcpkgXUseBuiltInApplocalDeps>true</VcpkgXUseBuiltInApplocalDeps>
