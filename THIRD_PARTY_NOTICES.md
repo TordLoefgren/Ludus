@@ -54,15 +54,7 @@ Notes:
 - Local license text: in-file license block in `Engine/Vendors/stb_image/stb_image.h`
 - Local copied license file: `Engine/Vendors/stb_image/LICENSE.txt`
 
-### 6) siv::PerlinNoise
-- Component: PerlinNoise (siv::PerlinNoise)
-- Location: `Lab/Vendors/PerlinNoise-3.0.0/PerlinNoise.hpp`
-- Upstream: https://github.com/Reputeless/PerlinNoise
-- License: MIT
-- Local license text: header notice in `Lab/Vendors/PerlinNoise-3.0.0/PerlinNoise.hpp`
-- Local copied license file: `Lab/Vendors/PerlinNoise-3.0.0/LICENSE.txt`
-
-### 7) GoogleTest (NuGet package)
+### 6) GoogleTest (NuGet package)
 - Component: GoogleTest package for Visual Studio
 - Location: `.tools/packages/Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.8`
 - Upstream: https://github.com/google/googletest
@@ -72,7 +64,7 @@ Notes:
   - `.tools/packages/Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.8/license (MIT).txt`
   - `.tools/packages/Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.8/ThirdPartyNotices.txt`
 
-### 8) Font Awesome (font file)
+### 7) Font Awesome (font file)
 - Component: Font Awesome solid font (`fa-solid-900.ttf`)
 - Location: `UI/Resources/Fonts/font-awesome/fa-solid-900.ttf`
 - Source URL:
@@ -84,7 +76,7 @@ Notes:
 - Local notice file: `UI/Resources/Fonts/font-awesome/LICENSE.txt`
 - Local OFL license text: `UI/Resources/Fonts/font-awesome/OFL.txt`
 
-### 9) Liberation Sans
+### 8) Liberation Sans
 - Component: Liberation Sans
 - Location:
   - `Engine/Resources/Fonts/liberation-sans`
@@ -95,7 +87,7 @@ Notes:
   - `Engine/Resources/Fonts/liberation-sans/SIL Open Font License.txt`
   - `UI/Resources/Fonts/liberation-sans/SIL Open Font License.txt`
 
-### 10) FreeType (via vcpkg)
+### 9) FreeType (via vcpkg)
 - Component: FreeType
 - Source: vcpkg dependency (`vcpkg.json`)
 - Upstream: https://freetype.org/
