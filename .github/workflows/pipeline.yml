@@ -1,5 +1,5 @@
----
 name: Ludus CI - Build & Unit Tests (Windows)
+
 on:
   pull_request:
     branches: [ master ]
@@ -7,9 +7,11 @@ on:
   push:
     branches: [ master ]
   workflow_dispatch:
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
   build-and-test:
     permissions:
@@ -20,33 +22,50 @@ jobs:
       matrix:
         Platform: [ x64 ]
         Configuration: [ Debug, Release ]
+
     name: Build & test - ${{ matrix.Platform }} / ${{ matrix.Configuration }}
     runs-on: windows-latest
+
     env:
       Configuration: ${{ matrix.Configuration }}
       Platform: ${{ matrix.Platform }}
       VCPKG_DEFAULT_TRIPLET: x64-windows
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
+
       - name: vcpkg install (manifest)
         uses: lukka/run-vcpkg@v11.5
         with:
           vcpkgJsonGlob: '**/vcpkg.json'
           runVcpkgInstall: true
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-          vcpkgInstallRoot: '${{ github.workspace }}/.cache/vcpkg_installed'
+
+      - name: Print vcpkg env
+        shell: pwsh
+        run: |
+          echo "VCPKG_ROOT=$env:VCPKG_ROOT"
+          echo "VCPKG_INSTALLED_DIR=$env:VCPKG_INSTALLED_DIR"
+
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1
+
       - name: Restore NuGet packages
         shell: cmd
         run: nuget restore Ludus.sln
+
       - name: Build tests
         shell: cmd
-        run: msbuild .\Tests\Tests.vcxproj /m ^
-          /p:Configuration=%Configuration% /p:Platform=%Platform%
+        run: |
+          msbuild .\Tests\Tests.vcxproj /m ^
+            /p:Configuration=%Configuration% /p:Platform=%Platform% ^
+            /p:VcpkgEnabled=true ^
+            /p:VcpkgInstalledDir="%VCPKG_INSTALLED_DIR%"
+
       - name: Run GoogleTests
         shell: cmd
         run: |
@@ -64,15 +83,17 @@ jobs:
           if not exist "!RESULTS!" mkdir "!RESULTS!"
           "!EXE!" --gtest_output=xml:"!RESULTS!\gtest.xml"
           exit /b !errorlevel!
+
       - name: Publish Ludus Unit Tests
         if: always()
         uses: mikepenz/action-junit-report@v4
         with:
-          report_paths: "**/TestResults/*.xml"
+          report_paths: '**/TestResults/*.xml'
           check_name: Ludus - Unit Tests (${{ matrix.Configuration }})
           include_passed: true
           detailed_summary: true
           token: ${{ github.token }}
+
       - name: Job summary
         if: always()
         shell: cmd
