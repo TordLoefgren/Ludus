@@ -18,7 +18,7 @@ namespace Ludus::Engine::Core
 
 	struct Project
 	{
-		Ludus::Engine::Core::Version Version = { 0, 1, 0 };
+		Ludus::Engine::Core::Version Version = { 0, 2, 0 };
 		std::vector<ProjectSceneReference> Scenes;
 		Ludus::Engine::Core::SceneHandle ActiveSceneHandle = 0;
 	};
