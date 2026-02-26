@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Graphics/CameraSource.h>
 #include <Ludus/Engine/Graphics/IRenderPass.h>
 #include <Ludus/Engine/Graphics/RenderContext2D.h>

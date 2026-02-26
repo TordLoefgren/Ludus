@@ -6,6 +6,7 @@
 #include <Ludus/Editor/Core/EditorSelection.h>
 #include <Ludus/Editor/Panels/HierarchyPanel.h>
 #include <Ludus/Engine/Core/Scene.h>
+#include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Graphics/Shape.h>
 #include <Ludus/UI/Context/InputContext.h>
 #include <Ludus/UI/Context/LayoutContext.h>

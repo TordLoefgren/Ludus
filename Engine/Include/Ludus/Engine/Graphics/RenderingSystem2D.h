@@ -4,6 +4,7 @@
 
 #include <Ludus/Engine/Core/EntityComponentSystem.h>
 #include <Ludus/Engine/Core/SystemContext.h>
+#include <Ludus/Engine/Core/RenderViewRegistry.h>
 #include <Ludus/Engine/Graphics/CameraSource.h>
 #include <Ludus/Engine/Graphics/RenderContext2D.h>
 #include <Ludus/Engine/Graphics/Renderer2D.h>

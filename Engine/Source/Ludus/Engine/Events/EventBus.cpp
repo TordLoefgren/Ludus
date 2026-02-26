@@ -6,10 +6,12 @@
 
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Events/EventBus.h>
+#include <Ludus/Engine/Events/Event.h>
+#include <Ludus/Engine/Events/EventHandler.h>
 
 namespace Ludus::Engine::Events
 {
-	void EventBus::Subscribe(EventType type, Eventhandler& handler)
+	void EventBus::Subscribe(EventType type, EventHandler& handler)
 	{
 		auto& handlers = m_EventHandlers[type];
 
@@ -19,7 +21,7 @@ namespace Ludus::Engine::Events
 		}
 	}
 
-	void EventBus::Unsubscribe(EventType type, Eventhandler& handler)
+	void EventBus::Unsubscribe(EventType type, EventHandler& handler)
 	{
 		auto& handlers = m_EventHandlers[type];
 		handlers.erase(std::remove(handlers.begin(), handlers.end(), &handler), handlers.end());

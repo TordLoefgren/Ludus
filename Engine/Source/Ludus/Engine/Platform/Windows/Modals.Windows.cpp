@@ -76,14 +76,14 @@ namespace Ludus::Engine::Platform::Modals
 			return {};
 		}
 
-		auto length = MultiByteToWideChar(CP_UTF8, 0, string.data(), (int)string.size(), nullptr, 0);
+		auto length = MultiByteToWideChar(CP_UTF8, 0, string.data(), static_cast<int>(string.size()), nullptr, 0);
 		if (length <= 0)
 		{
 			return {};
 		}
 
-		std::wstring out((size_t)length, L'\0');
-		MultiByteToWideChar(CP_UTF8, 0, string.data(), (int)string.size(), out.data(), length);
+		std::wstring out(static_cast<size_t>(length), L'\0');
+		MultiByteToWideChar(CP_UTF8, 0, string.data(), static_cast<int>(string.size()), out.data(), length);
 
 		return out;
 	}
@@ -102,7 +102,7 @@ namespace Ludus::Engine::Platform::Modals
 		}
 
 		// Length includes the null terminator.
-		std::string out((size_t)len, '\0');
+		std::string out(static_cast<size_t>(len), '\0');
 		WideCharToMultiByte(CP_UTF8, 0, wideString, -1, out.data(), len, nullptr, nullptr);
 
 		// Remove null terminator.

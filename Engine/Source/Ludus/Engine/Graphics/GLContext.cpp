@@ -14,7 +14,7 @@ namespace Ludus::Engine::Graphics
 {
 	void GLContext::Init()
 	{
-		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
 		{
 			LUDUS_LOG_CRITICAL("Failed to initialize GLAD.");
 

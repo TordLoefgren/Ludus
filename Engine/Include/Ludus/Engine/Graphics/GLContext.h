@@ -1,11 +1,15 @@
 #pragma once
 
-#include <Ludus/Engine/Events/Event.h>
-#include <Ludus/Engine/Events/Eventhandler.h>
+#include <Ludus/Engine/Events/EventHandler.h>
+
+namespace Ludus::Engine::Events
+{
+	struct Event;
+}
 
 namespace Ludus::Engine::Graphics
 {
-	class GLContext : Ludus::Engine::Events::Eventhandler
+	class GLContext : public Ludus::Engine::Events::EventHandler
 	{
 	public:
 		void Init();

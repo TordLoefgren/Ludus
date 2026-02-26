@@ -7,11 +7,15 @@
 #include <Ludus/Editor/Core/Utilities.h>
 #include <Ludus/Editor/Core/ViewportDisplayMode.h>
 #include <Ludus/Editor/Panels/ViewportPanel.h>
+#include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
+#include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/RenderView2D.h>
 #include <Ludus/Engine/Graphics/RenderViewRequest2D.h>
 #include <Ludus/Engine/Math/Size.h>
 #include <Ludus/Engine/Math/Vector2D.h>
+#include <Ludus/Engine/Windowing/Input.h>
+#include <Ludus/Engine/Windowing/Window.h>
 #include <Ludus/UI/Context/ImageContext.h>
 #include <Ludus/UI/Context/InputContext.h>
 #include <Ludus/UI/Context/LayoutContext.h>

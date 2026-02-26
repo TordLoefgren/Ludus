@@ -11,6 +11,7 @@
 #include <Ludus/Engine/Core/FlagSet.h>
 #include <Ludus/Engine/Core/ISystem.h>
 #include <Ludus/Engine/Core/RenderViewRegistry.h>
+#include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
 #include <Ludus/Engine/Core/ResourceRegistry.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Core/Scheduler.h>
@@ -25,6 +26,8 @@
 #include <Ludus/Engine/Graphics/GLContext.h>
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
+#include <Ludus/Engine/Graphics/RenderTarget.h>
+#include <Ludus/Engine/Persistence/ProjectRepository.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
 #include <Ludus/Engine/Windowing/Input.h>
 #include <Ludus/Engine/Windowing/Window.h>
@@ -38,8 +41,7 @@ namespace Ludus::Engine::Core
 		Ludus::Engine::Graphics::RenderPresentationSettings renderPresentationSettings,
 		Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration,
 		Ludus::Engine::Windowing::WindowOptions windowOptions
-	) : m_EntityComponentSystem(std::make_unique<Ludus::Engine::Core::EntityComponentSystem>()),
-		m_EventBus(std::make_unique<Ludus::Engine::Events::EventBus>()),
+	) : m_EventBus(std::make_unique<Ludus::Engine::Events::EventBus>()),
 		m_Input(std::make_unique<Ludus::Engine::Windowing::Input>()),
 		m_Window(std::make_unique<Ludus::Engine::Windowing::Window>(windowOptions, *m_EventBus)),
 		m_GLContext(std::make_unique<Ludus::Engine::Graphics::GLContext>()),
@@ -54,7 +56,6 @@ namespace Ludus::Engine::Core
 		m_Time(std::make_unique<Ludus::Engine::Core::Time>()),
 		m_ExecutionFlags(applicationOptions.ExecutionMask),
 		m_SystemContext(
-			*m_EntityComponentSystem,
 			*m_EventBus,
 			m_ExecutionFlags,
 			*m_Input,
@@ -77,6 +78,8 @@ namespace Ludus::Engine::Core
 
 		SubscribeToEvents();
 	}
+
+	Application::~Application() = default;
 
 	std::unique_ptr<Application> Application::Create(
 		Ludus::Engine::Core::ApplicationOptions applicationOptions,
@@ -138,16 +141,15 @@ namespace Ludus::Engine::Core
 	void Application::SubscribeToEvents()
 	{
 		using EventType = Ludus::Engine::Events::EventType;
-		using Eventhandler = Ludus::Engine::Events::Eventhandler;
 
-		m_EventBus->Subscribe(EventType::KeyEvent, (Eventhandler&)*m_Input);
-		m_EventBus->Subscribe(EventType::TextInputEvent, (Eventhandler&)*m_Input);
-		m_EventBus->Subscribe(EventType::MouseButtonEvent, (Eventhandler&)*m_Input);
-		m_EventBus->Subscribe(EventType::MouseMoveEvent, (Eventhandler&)*m_Input);
-		m_EventBus->Subscribe(EventType::MouseScrollEvent, (Eventhandler&)*m_Input);
-		m_EventBus->Subscribe(EventType::WindowFocusEvent, (Eventhandler&)*m_Input);
+		m_EventBus->Subscribe(EventType::KeyEvent, *m_Input);
+		m_EventBus->Subscribe(EventType::TextInputEvent, *m_Input);
+		m_EventBus->Subscribe(EventType::MouseButtonEvent, *m_Input);
+		m_EventBus->Subscribe(EventType::MouseMoveEvent, *m_Input);
+		m_EventBus->Subscribe(EventType::MouseScrollEvent, *m_Input);
+		m_EventBus->Subscribe(EventType::WindowFocusEvent, *m_Input);
 		m_EventBus->Subscribe(EventType::FramebufferSizeEvent, *this);
-		m_EventBus->Subscribe(EventType::FramebufferSizeEvent, (Eventhandler&)*m_GLContext);
+		m_EventBus->Subscribe(EventType::FramebufferSizeEvent, *m_GLContext);
 		m_EventBus->Subscribe(EventType::WindowCloseEvent, *this);
 	}
 

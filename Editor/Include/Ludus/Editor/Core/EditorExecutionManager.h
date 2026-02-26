@@ -3,6 +3,7 @@
 #include <Ludus/Editor/Core/EditorExecutionFlags.h>
 #include <Ludus/Editor/Core/ExecutionMode.h>
 #include <Ludus/Engine/Core/ExecutionFlags.h>
+#include <Ludus/Engine/Core/FlagSet.h>
 #include <Ludus/Engine/Core/Mask.h>
 #include <Ludus/Engine/Core/SystemContext.h>
 

@@ -6,6 +6,7 @@
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Core/ExecutionMode.h>
 #include <Ludus/Editor/Panels/DockPanel.h>
+#include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Platform/Modals.h>
 #include <Ludus/UI/Context/DockingContext.h>

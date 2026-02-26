@@ -3,28 +3,52 @@
 #include <memory>
 #include <optional>
 
-#include <Ludus/Engine/Core/EntityComponentSystem.h>
-#include <Ludus/Engine/Core/FlagSet.h>
-#include <Ludus/Engine/Core/RenderViewRegistry.h>
-#include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
-#include <Ludus/Engine/Core/ResourceRegistry.h>
-#include <Ludus/Engine/Core/SceneRegistry.h>
-#include <Ludus/Engine/Debug/Debug.h>
-#include <Ludus/Engine/Events/EventBus.h>
-#include <Ludus/Engine/Graphics/RenderPresentationSettings.h>
-#include <Ludus/Engine/Graphics/RenderTarget.h>             
-#include <Ludus/Engine/Persistence/LmlProjectPersistence.h>
-#include <Ludus/Engine/Persistence/LmlScenePersistence.h>
-#include <Ludus/Engine/Persistence/ProjectRepository.h>
-#include <Ludus/Engine/Physics/Queries/IPhysicsQueryCache2D.h>       
-#include <Ludus/Engine/Windowing/Input.h>
-#include <Ludus/Engine/Windowing/Window.h>
+#include <Ludus/Engine/Core/ProjectContext.h>
+
+#pragma region Forward Declarations
+
+namespace Ludus::Engine::Core
+{
+	struct FlagSet;
+	struct RenderViewRegistry;
+	struct RenderViewRequestRegistry;
+	struct ResourceRegistry;
+	struct SceneRegistry;
+}
+
+namespace Ludus::Engine::Events
+{
+	class EventBus;
+}
+
+namespace Ludus::Engine::Graphics
+{
+	struct RenderPresentationSettings;
+	struct RenderTarget;
+}
+
+namespace Ludus::Engine::Persistence
+{
+	struct ProjectRepository;
+}
+
+namespace Ludus::Engine::Physics::Queries
+{
+	class IPhysicsQueryCache2D;
+}
+
+namespace Ludus::Engine::Windowing
+{
+	class Input;
+	class Window;
+}
+
+#pragma endregion
 
 namespace Ludus::Engine::Core
 {
 	struct SystemContext
 	{
-		Ludus::Engine::Core::EntityComponentSystem& EntityComponentSystem;
 		Ludus::Engine::Events::EventBus& EventBus;
 		Ludus::Engine::Core::FlagSet& ExecutionFlags;
 		Ludus::Engine::Windowing::Input& Input;
@@ -41,7 +65,6 @@ namespace Ludus::Engine::Core
 		Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* PhysicsQueries = nullptr;
 
 		SystemContext(
-			Ludus::Engine::Core::EntityComponentSystem& ecs,
 			Ludus::Engine::Events::EventBus& events,
 			Ludus::Engine::Core::FlagSet& executionFlags,
 			Ludus::Engine::Windowing::Input& input,
@@ -54,37 +77,13 @@ namespace Ludus::Engine::Core
 			Ludus::Engine::Graphics::RenderPresentationSettings& renderPresentation,
 			std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> windowRenderTarget = nullptr,
 			Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* queries = nullptr
-		) : EntityComponentSystem(ecs),
-			EventBus(events),
-			ExecutionFlags(executionFlags),
-			Input(input),
-			Resources(resources),
-			ProjectContext(std::nullopt),
-			ProjectRepository(projectRepository),
-			RenderViewRequests(renderViewRequests),
-			SceneRegistry(SceneRegistry),
-			RenderViews(renderViews),
-			Window(window),
-			RenderPresentation(renderPresentation),
-			WindowRenderTarget(windowRenderTarget),
-			PhysicsQueries(queries)
-		{ }
+		);
 
-		bool HasProjectContext() const
-		{
-			return ProjectContext.has_value();
-		}
+		bool HasProjectContext() const;
 
-		bool HasPhysics() const
-		{
-			return PhysicsQueries != nullptr;
-		}
+		bool HasPhysics() const;
 
-		Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D& GetPhysicsQueries()
-		{
-			LUDUS_ASSERT(PhysicsQueries, "Physics not enabled in this SystemContext.");
-			return *PhysicsQueries;
-		}
+		Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D& GetPhysicsQueries();
 
 		SystemContext(const SystemContext&) = delete;
 		SystemContext& operator=(const SystemContext&) = delete;

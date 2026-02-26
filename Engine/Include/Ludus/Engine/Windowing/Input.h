@@ -1,21 +1,20 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
 #include <set>
-#include <vector>
 
-#include <Ludus/Engine/Events/Event.h>
 #include <Ludus/Engine/Events/EventHandler.h>
-#include <Ludus/Engine/Events/EventType.h>
-#include <Ludus/Engine/Events/KeyboardEvents.h>
-#include <Ludus/Engine/Events/MouseEvents.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/Engine/Windowing/Key.h>
 #include <Ludus/Engine/Windowing/MouseButton.h>
 
+namespace Ludus::Engine::Events
+{
+	struct Event;
+}
+
 namespace Ludus::Engine::Windowing
 {
-	class Input : Ludus::Engine::Events::Eventhandler
+	class Input : public Ludus::Engine::Events::EventHandler
 	{
 	private:
 		std::set<Key> m_PressedKeys;
