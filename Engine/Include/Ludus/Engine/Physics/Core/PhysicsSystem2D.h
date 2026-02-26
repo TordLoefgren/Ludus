@@ -2,6 +2,7 @@
 
 #include <Ludus/Engine/Core/EntityComponentSystem.h>
 #include <Ludus/Engine/Core/ISystem.h>
+#include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Physics/Broadphase/IBroadphase2D.h>
 #include <Ludus/Engine/Physics/Broadphase/NaiveBroadphase2D.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>

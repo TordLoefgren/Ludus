@@ -2,7 +2,13 @@
 
 #include <cmath>
 
+#include <GLFW/glfw3.h>
+
 #include <Ludus/Engine/Debug/Debug.h>
+#include <Ludus/Engine/Events/Event.h>
+#include <Ludus/Engine/Events/EventType.h>
+#include <Ludus/Engine/Events/KeyboardEvents.h>
+#include <Ludus/Engine/Events/MouseEvents.h>
 #include <Ludus/Engine/Windowing/Input.h>
 
 namespace Ludus::Engine::Windowing
@@ -152,46 +158,46 @@ namespace Ludus::Engine::Windowing
 		switch (event.Type)
 		{
 			case EventType::KeyEvent:
-				{
-					const auto& e = static_cast<const KeyboardEvents::KeyEvent&>(event);
-					OnKey(e.Key, e.Scancode, e.Action, e.Mods);
-					break;
-				}
+			{
+				const auto& e = static_cast<const KeyboardEvents::KeyEvent&>(event);
+				OnKey(e.Key, e.Scancode, e.Action, e.Mods);
+				break;
+			}
 
 			case EventType::TextInputEvent:
-				{
-					const auto& e = static_cast<const KeyboardEvents::TextInputEvent&>(event);
-					OnText(e.Codepoint);
-					break;
-				}
+			{
+				const auto& e = static_cast<const KeyboardEvents::TextInputEvent&>(event);
+				OnText(e.Codepoint);
+				break;
+			}
 
 			case EventType::MouseButtonEvent:
-				{
-					const auto& e = static_cast<const MouseEvents::MouseButtonEvent&>(event);
-					OnMouseButton(e.Button, e.Action, e.Mods);
-					break;
-				}
+			{
+				const auto& e = static_cast<const MouseEvents::MouseButtonEvent&>(event);
+				OnMouseButton(e.Button, e.Action, e.Mods);
+				break;
+			}
 
 			case EventType::MouseMoveEvent:
-				{
-					const auto& e = static_cast<const MouseEvents::MouseMoveEvent&>(event);
-					OnMouseMove(e.XPosition, e.YPosition);
-					break;
-				}
+			{
+				const auto& e = static_cast<const MouseEvents::MouseMoveEvent&>(event);
+				OnMouseMove(e.XPosition, e.YPosition);
+				break;
+			}
 
 			case EventType::MouseScrollEvent:
-				{
-					const auto& e = static_cast<const MouseEvents::MouseScrollEvent&>(event);
-					OnMouseScroll(e.XOffset, e.YOffset);
-					break;
-				}
+			{
+				const auto& e = static_cast<const MouseEvents::MouseScrollEvent&>(event);
+				OnMouseScroll(e.XOffset, e.YOffset);
+				break;
+			}
 
 			case EventType::MouseEnterEvent:
-				{
-					const auto& e = static_cast<const MouseEvents::MouseEnterEvent&>(event);
-					OnMouseEnter(e.Entered);
-					break;
-				}
+			{
+				const auto& e = static_cast<const MouseEvents::MouseEnterEvent&>(event);
+				OnMouseEnter(e.Entered);
+				break;
+			}
 
 			default: return false;
 		}

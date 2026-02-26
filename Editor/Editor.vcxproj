@@ -19,6 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Panels.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Projects.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Scenes.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\ProjectPanel.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\EditorSystem.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\EditorApplicationBuilder.cpp" />

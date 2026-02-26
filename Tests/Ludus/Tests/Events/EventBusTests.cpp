@@ -5,7 +5,7 @@
 namespace Ludus::Tests::Events
 {
 	using Ludus::Engine::Events::EventBus;
-	using Ludus::Engine::Events::Eventhandler;
+	using Ludus::Engine::Events::EventHandler;
 	using Ludus::Engine::Events::Event;
 	using Ludus::Engine::Events::EventType;
 
@@ -26,7 +26,7 @@ namespace Ludus::Tests::Events
 		explicit NumberedEvent(int id) : Event(EventType::MouseEnterEvent), Id(id) { }
 	};
 
-	struct ConcreteHandler final : Eventhandler
+	struct ConcreteHandler final : EventHandler
 	{
 		int Counter = 0;
 		bool HandleEvent;
@@ -36,7 +36,7 @@ namespace Ludus::Tests::Events
 		virtual bool ProcessEvent(const Event& event) override { Counter++; return HandleEvent; }
 	};
 
-	struct LoggingHandler final : Eventhandler
+	struct LoggingHandler final : EventHandler
 	{
 		int Id;
 		std::vector<int>& Log;

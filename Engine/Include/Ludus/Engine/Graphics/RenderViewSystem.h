@@ -3,12 +3,16 @@
 #include <optional>
 
 #include <Ludus/Engine/Core/ISystem.h>
+#include <Ludus/Engine/Core/RenderViewRegistry.h>
+#include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
+#include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Core/SystemContext.h>
 #include <Ludus/Engine/Graphics/Camera2D.h>
 #include <Ludus/Engine/Graphics/CameraSource.h>
 #include <Ludus/Engine/Graphics/RenderView2D.h>
 #include <Ludus/Engine/Graphics/RenderViewConfiguration.h>
 #include <Ludus/Engine/Graphics/RenderViewRequest2D.h>
+#include <Ludus/Engine/Windowing/Window.h>
 
 namespace Ludus::Engine::Graphics
 {

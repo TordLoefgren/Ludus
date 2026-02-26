@@ -1,12 +1,15 @@
 #pragma once
 
-#include <Ludus/Engine/Events/Event.h>
+namespace Ludus::Engine::Events
+{
+	struct Event;
+}
 
 namespace Ludus::Engine::Events
 {
-	struct Eventhandler
+	struct EventHandler
 	{
-		virtual ~Eventhandler() = default;
+		virtual ~EventHandler() = default;
 		virtual bool ProcessEvent(const Event& event) = 0;
 	};
 }

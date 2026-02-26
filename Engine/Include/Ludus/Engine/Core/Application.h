@@ -2,41 +2,61 @@
 
 #include <initializer_list>
 #include <memory>
+#include <utility>
 
 #include <Ludus/Engine/Core/ApplicationOptions.h>
-#include <Ludus/Engine/Core/EntityComponentSystem.h>
-#include <Ludus/Engine/Core/ExecutionFlags.h>
 #include <Ludus/Engine/Core/FlagSet.h>
 #include <Ludus/Engine/Core/ISystem.h>
-#include <Ludus/Engine/Core/RenderViewRegistry.h>
-#include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
 #include <Ludus/Engine/Core/ResourceRegistry.h>
-#include <Ludus/Engine/Core/SceneRegistry.h>
-#include <Ludus/Engine/Core/Scheduler.h>
 #include <Ludus/Engine/Core/SystemContext.h>
 #include <Ludus/Engine/Core/SystemDescriptor.h>
-#include <Ludus/Engine/Core/SystemPhase.h>
-#include <Ludus/Engine/Core/Time.h>
-#include <Ludus/Engine/Events/Event.h>
-#include <Ludus/Engine/Events/EventBus.h>
 #include <Ludus/Engine/Events/EventHandler.h>
-#include <Ludus/Engine/Events/WindowEvents.h>
-#include <Ludus/Engine/Graphics/GLContext.h>
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
 #include <Ludus/Engine/Graphics/RenderPresentationSettings.h>
-#include <Ludus/Engine/Persistence/LmlProjectPersistence.h>
-#include <Ludus/Engine/Persistence/LmlScenePersistence.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
-#include <Ludus/Engine/Windowing/Input.h>
-#include <Ludus/Engine/Windowing/Window.h>
+#include <Ludus/Engine/Windowing/WindowOptions.h>
+
+#pragma region Forward Declarations
 
 namespace Ludus::Engine::Core
 {
-	class Application : public Ludus::Engine::Events::Eventhandler
+	struct RenderViewRegistry;
+	struct RenderViewRequestRegistry;
+	struct SceneRegistry;
+	struct Scheduler;
+	struct Time;
+}
+
+namespace Ludus::Engine::Events
+{
+	struct Event;
+	class EventBus;
+}
+
+namespace Ludus::Engine::Graphics
+{
+	class GLContext;
+}
+
+namespace Ludus::Engine::Persistence
+{
+	struct ProjectRepository;
+}
+
+namespace Ludus::Engine::Windowing
+{
+	class Input;
+	class Window;
+}
+
+#pragma endregion
+
+namespace Ludus::Engine::Core
+{
+	class Application : public Ludus::Engine::Events::EventHandler
 	{
 	private:
-		std::unique_ptr<Ludus::Engine::Core::EntityComponentSystem> m_EntityComponentSystem;
 		std::unique_ptr<Ludus::Engine::Events::EventBus> m_EventBus;
 		std::unique_ptr<Ludus::Engine::Windowing::Input> m_Input;
 		std::unique_ptr<Ludus::Engine::Windowing::Window> m_Window;
@@ -63,7 +83,7 @@ namespace Ludus::Engine::Core
 			Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D(),
 			Ludus::Engine::Windowing::WindowOptions windowOptions = Ludus::Engine::Windowing::WindowOptions()
 		);
-		~Application() = default;
+		~Application();
 
 		static std::unique_ptr<Application> Create(
 			Ludus::Engine::Core::ApplicationOptions applicationOptions = Ludus::Engine::Core::ApplicationOptions(),

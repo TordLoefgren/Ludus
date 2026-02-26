@@ -12,6 +12,7 @@
 #include <Ludus/Engine/Components/Transform2DComponent.h>
 #include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Enums.h>
+#include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
 #include <Ludus/Engine/Graphics/Shape.h>
@@ -128,8 +129,8 @@ namespace Ludus::Editor::Panels
 
 					for (size_t i = 0; i < count; i++)
 					{
-						auto layer = Ludus::Engine::Physics::Core::LayerMask::FromIndex((uint8_t)i);
-						auto label = Ludus::Engine::Physics::Core::LayerMask::LayerIndexToName((uint8_t)i);
+						auto layer = Ludus::Engine::Physics::Core::LayerMask::FromIndex(static_cast<uint8_t>(i));
+						auto label = Ludus::Engine::Physics::Core::LayerMask::LayerIndexToName(static_cast<uint8_t>(i));
 						auto isChecked = component.CollidesWith.Contains(layer);
 
 						auto item = Ludus::UI::Widgets::CheckboxItem(std::format("{} {}", i, label), isChecked);

@@ -3,6 +3,7 @@
 #include <Ludus/Engine/Core/SystemConstraints.h>
 #include <Ludus/Engine/Core/SystemPhase.h>
 #include <Ludus/Engine/Core/SystemPhaseOrder.h>
+#include <Ludus/Engine/Core/SystemPredicate.h>
 
 namespace Ludus::Engine::Core
 {
@@ -10,7 +11,7 @@ namespace Ludus::Engine::Core
 	{
 		SystemPhase Phase;
 		SystemPhaseOrder Order = SystemPhaseOrder::Normal;
-		SystemConstraints Constraints{ };
+		SystemConstraints Constraints { };
 		SystemPredicate Predicate = nullptr;
 	};
 }

@@ -52,7 +52,6 @@
     <ClInclude Include="Include\Ludus\Engine\Core\Enums.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\ITransitionableResource.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\ResourceRegistry.h" />
-    <ClInclude Include="Include\Ludus\Engine\Core\SystemPhaseInfo.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\SystemPhaseOrder.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\SystemPredicate.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\ScheduledSystem.h" />
@@ -143,7 +142,6 @@
     <ClInclude Include="Include\Ludus\Engine\Graphics\VertexArrayObject.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\VertexBufferObject.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\AABB.h" />
-    <ClInclude Include="Include\Ludus\Engine\Math\CoordinateSpace.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Numeric.h" />
     <ClInclude Include="Include\Ludus\Engine\Components\Transform2DComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Vector2D.h" />
@@ -489,10 +487,20 @@
     <ClCompile Include="Source\Ludus\Engine\Events\EventBus.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Core\Application.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Core\Random.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Core\SystemContext.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\FileSystem\FileSystem.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\Camera2D.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\ElementBufferObject.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\GLContext.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\Renderer2D.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Persistence\LmlProjectPersistence.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Persistence\LmlScenePersistence.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Persistence\ProjectRepository.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Serialization\Codecs\LmlDomCodec.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Serialization\Core\DomTokenStreamReader.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Serialization\Core\DomTokenStreamWriter.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Serialization\Schemas\ProjectSchema.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Serialization\Schemas\SceneSchema.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\Shader.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\Font.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\Texture.cpp" />

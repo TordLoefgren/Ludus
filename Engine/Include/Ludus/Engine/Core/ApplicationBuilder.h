@@ -2,19 +2,18 @@
 
 #include <functional>
 #include <memory>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include <Ludus/Engine/Core/Application.h>
 #include <Ludus/Engine/Core/ApplicationOptions.h>
 #include <Ludus/Engine/Core/SystemDescriptor.h>
-#include <Ludus/Engine/Core/SystemPhase.h>
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
-#include <Ludus/Engine/Graphics/RenderingSystem2D.h>
 #include <Ludus/Engine/Graphics/RenderPresentationSettings.h>
 #include <Ludus/Engine/Graphics/RenderViewConfiguration.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
-#include <Ludus/Engine/Physics/Core/PhysicsSystem2D.h>
 #include <Ludus/Engine/Windowing/WindowOptions.h>
 
 namespace Ludus::Engine::Core
@@ -58,12 +57,20 @@ namespace Ludus::Engine::Core
 #pragma region Templates
 
 		template<typename TSystem, typename... TArgs>
-		ApplicationBuilder& AddSystem(Ludus::Engine::Core::SystemDescriptor descriptor, TArgs... args)
+		ApplicationBuilder& AddSystem(Ludus::Engine::Core::SystemDescriptor descriptor, TArgs&&... args)
 		{
+			auto capturedArgs = std::make_tuple(std::forward<TArgs>(args)...);
+
 			m_BuilderCommands.emplace_back(
-				[=](Ludus::Engine::Core::Application& application)
+				[descriptor, capturedArgs = std::move(capturedArgs)](Ludus::Engine::Core::Application& application) mutable
 			{
-				application.AddSystem<TSystem>(descriptor, args...);
+				std::apply(
+					[&](auto&... unpackedArgs)
+				{
+					application.AddSystem<TSystem>(descriptor, unpackedArgs...);
+				},
+					capturedArgs
+				);
 			}
 			);
 
@@ -71,12 +78,20 @@ namespace Ludus::Engine::Core
 		}
 
 		template<typename TSystem, typename... TArgs>
-		ApplicationBuilder& AddFixedUpdateSystem(TArgs... args)
+		ApplicationBuilder& AddFixedUpdateSystem(TArgs&&... args)
 		{
+			auto capturedArgs = std::make_tuple(std::forward<TArgs>(args)...);
+
 			m_BuilderCommands.emplace_back(
-				[=](Ludus::Engine::Core::Application& application)
+				[capturedArgs = std::move(capturedArgs)](Ludus::Engine::Core::Application& application) mutable
 			{
-				application.AddFixedUpdateSystem<TSystem>(args...);
+				std::apply(
+					[&](auto&... unpackedArgs)
+				{
+					application.AddFixedUpdateSystem<TSystem>(unpackedArgs...);
+				},
+					capturedArgs
+				);
 			}
 			);
 
@@ -84,12 +99,20 @@ namespace Ludus::Engine::Core
 		}
 
 		template<typename TSystem, typename... TArgs>
-		ApplicationBuilder& AddRenderSystem(TArgs... args)
+		ApplicationBuilder& AddRenderSystem(TArgs&&... args)
 		{
+			auto capturedArgs = std::make_tuple(std::forward<TArgs>(args)...);
+
 			m_BuilderCommands.emplace_back(
-				[=](Ludus::Engine::Core::Application& application)
+				[capturedArgs = std::move(capturedArgs)](Ludus::Engine::Core::Application& application) mutable
 			{
-				application.AddRenderSystem<TSystem>(args...);
+				std::apply(
+					[&](auto&... unpackedArgs)
+				{
+					application.AddRenderSystem<TSystem>(unpackedArgs...);
+				},
+					capturedArgs
+				);
 			}
 			);
 
@@ -97,12 +120,20 @@ namespace Ludus::Engine::Core
 		}
 
 		template<typename TSystem, typename... TArgs>
-		ApplicationBuilder& AddUpdateSystem(TArgs... args)
+		ApplicationBuilder& AddUpdateSystem(TArgs&&... args)
 		{
+			auto capturedArgs = std::make_tuple(std::forward<TArgs>(args)...);
+
 			m_BuilderCommands.emplace_back(
-				[=](Ludus::Engine::Core::Application& application)
+				[capturedArgs = std::move(capturedArgs)](Ludus::Engine::Core::Application& application) mutable
 			{
-				application.AddUpdateSystem<TSystem>(args...);
+				std::apply(
+					[&](auto&... unpackedArgs)
+				{
+					application.AddUpdateSystem<TSystem>(unpackedArgs...);
+				},
+					capturedArgs
+				);
 			}
 			);
 
@@ -110,12 +141,14 @@ namespace Ludus::Engine::Core
 		}
 
 		template<typename T>
-		ApplicationBuilder& AddResource(T resource)
+		ApplicationBuilder& AddResource(T&& resource)
 		{
+			auto capturedResource = std::forward<T>(resource);
+
 			m_BuilderCommands.emplace_back(
-				[=](Ludus::Engine::Core::Application& application)
+				[capturedResource = std::move(capturedResource)](Ludus::Engine::Core::Application& application) mutable
 			{
-				application.AddResource<T>(std::move(resource));
+				application.AddResource(capturedResource);
 			}
 			);
 

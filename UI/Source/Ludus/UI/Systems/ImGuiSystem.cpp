@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <Ludus/Engine/Windowing/Window.h>
 #include <Ludus/UI/Systems/ImGuiSystem.h>
 
 namespace Ludus::UI::Systems
