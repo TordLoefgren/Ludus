@@ -35,7 +35,7 @@ namespace Ludus::Engine::Serialization::Schemas
 		{
 			try
 			{
-				DisplayName displayName(0);
+				DisplayName displayName;
 				bool hasOwner = false;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)

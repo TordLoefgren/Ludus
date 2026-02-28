@@ -9,15 +9,23 @@ namespace Ludus::Engine::Components
 	struct DisplayNameComponent
 	{
 	public:
-		Ludus::Engine::Core::EntityHandle OwnerHandle;
-		std::string Value;
+		Ludus::Engine::Core::EntityHandle OwnerHandle {};
+		std::string Value = "";
+
+		DisplayNameComponent() = default;
 
 		explicit DisplayNameComponent(
+			std::string value
+		) :
+			Value(std::move(value))
+		{ }
+
+		DisplayNameComponent(
 			Ludus::Engine::Core::EntityHandle owner,
 			std::string value = ""
 		) :
 			OwnerHandle(owner),
-			Value(value)
+			Value(std::move(value))
 		{ }
 
 		~DisplayNameComponent() = default;

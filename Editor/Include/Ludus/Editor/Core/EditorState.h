@@ -1,23 +1,17 @@
 #pragma once
 
-#include <vector>
-
-#include <Ludus/Editor/Commands/RequestCommand.h>
-#include <Ludus/Editor/Core/EditorExecutionManager.h>
-#include <Ludus/Editor/Core/EditorSelection.h>
+#include <Ludus/Editor/Commands/CommandManager.h>
+#include <Ludus/Editor/Core/ExecutionManager.h>
+#include <Ludus/Editor/Core/SelectionManager.h>
+#include <Ludus/Editor/Dialogs/DialogManager.h>
 
 namespace Ludus::Editor::Core
 {
 	struct EditorState
 	{
-		Ludus::Editor::Core::ExecutionMode ExecutionMode = ExecutionMode::Stop;
-		Ludus::Editor::Core::EditorExecutionManager ExecutionManager;
-		std::vector<Ludus::Editor::Commands::RequestCommand> RequestCommands;
-		Ludus::Editor::Core::EditorSelection Selection;
-
-		void AddRequestCommand(Ludus::Editor::Commands::RequestCommand command)
-		{
-			RequestCommands.emplace_back(std::move(command));
-		}
+		Ludus::Editor::Dialogs::DialogManager Dialogs;
+		Ludus::Editor::Core::ExecutionManager Execution;
+		Ludus::Editor::Core::SelectionManager Selection;
+		Ludus::Editor::Commands::CommandManager Commands;
 	};
 }

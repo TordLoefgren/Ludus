@@ -59,13 +59,8 @@ namespace Ludus::Engine::Serialization::Schemas
 		{
 			try
 			{
-				Text text(0);
+				Text text;
 				bool hasOwner = false;
-				text.Text = "";
-				text.Color.R = 1.0f;
-				text.Color.G = 1.0f;
-				text.Color.B = 1.0f;
-				text.Color.A = 1.0f;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 				{

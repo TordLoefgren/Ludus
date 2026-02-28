@@ -55,13 +55,8 @@ namespace Ludus::Engine::Serialization::Schemas
 		{
 			try
 			{
-				Transform transform(0);
+				Transform transform;
 				bool hasOwner = false;
-				transform.Position.X = 0.0f;
-				transform.Position.Y = 0.0f;
-				transform.Scale.X = 1.0f;
-				transform.Scale.Y = 1.0f;
-				transform.Rotation = 0.0f;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 				{

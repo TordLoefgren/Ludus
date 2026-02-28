@@ -2,10 +2,14 @@
 
 #include <utility>
 
+#include <Ludus/Editor/Commands/EditCommand.h>
 #include <Ludus/Editor/Commands/Requests/Projects.h>
+#include <Ludus/Editor/Core/EditorContext.h>
 #include <Ludus/Editor/Core/EditorSceneMetadata.h>
+#include <Ludus/Editor/Panels/PanelRegistry.h>
 #include <Ludus/Editor/Panels/ProjectPanel.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
+#include <Ludus/Engine/Core/SystemContext.h>
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Persistence/ProjectRepository.h>
 #include <Ludus/Engine/Windowing/Window.h>
@@ -34,6 +38,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 
 		registry.Clear();
 		session.Clear();
+		context.EditorContext.State.Commands.AddEditCommand(Ludus::Editor::Commands::EditCommand::ClearSelection { });
 
 		auto projectContext = systemContext.ProjectRepository.CreateProject(command.Name, command.RootPath);
 		systemContext.ProjectContext = std::move(projectContext);
@@ -62,6 +67,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 
 		registry.Clear();
 		session.Clear();
+		context.EditorContext.State.Commands.AddEditCommand(Ludus::Editor::Commands::EditCommand::ClearSelection { });
 
 		auto projectContext = systemContext.ProjectRepository.LoadProject(command.Path);
 		systemContext.ProjectContext = std::move(projectContext);
@@ -107,6 +113,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 		systemContext.ProjectContext.reset();
 		systemContext.SceneRegistry.Clear();
 		context.EditorContext.Session.Clear();
+		context.EditorContext.State.Commands.AddEditCommand(Ludus::Editor::Commands::EditCommand::ClearSelection { });
 
 		RefreshProjectPanel(context);
 		systemContext.Window.SetTitle("Ludus Editor");

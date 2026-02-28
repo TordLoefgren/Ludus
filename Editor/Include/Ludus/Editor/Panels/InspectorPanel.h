@@ -2,14 +2,18 @@
 
 #include <Ludus/Editor/Panels/IPanel.h>
 #include <Ludus/Editor/Panels/PanelContext.h>
-#include <Ludus/Engine/Components/Camera2DComponent.h>
-#include <Ludus/Engine/Components/Collider2DComponent.h>
-#include <Ludus/Engine/Components/DisplayNameComponent.h>
-#include <Ludus/Engine/Components/RigidBody2DComponent.h>
-#include <Ludus/Engine/Components/Sprite2DComponent.h>
-#include <Ludus/Engine/Components/Text2DComponent.h>
-#include <Ludus/Engine/Components/Transform2DComponent.h>
 #include <Ludus/Engine/Core/Entity.h>
+
+namespace Ludus::Engine::Components
+{
+	struct Camera2DComponent;
+	struct Collider2DComponent;
+	struct DisplayNameComponent;
+	struct RigidBody2DComponent;
+	struct Sprite2DComponent;
+	struct Text2DComponent;
+	struct Transform2DComponent;
+}
 
 namespace Ludus::Editor::Panels
 {

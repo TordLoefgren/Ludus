@@ -27,7 +27,7 @@ namespace Ludus::Engine::Serialization::Core
 		Data NodeData;
 	};
 
-	template <class T>
+	template<typename T>
 	static constexpr bool IsSupportedValue =
 		std::is_same_v<std::decay_t<T>, bool> ||
 		std::is_same_v<std::decay_t<T>, double> ||

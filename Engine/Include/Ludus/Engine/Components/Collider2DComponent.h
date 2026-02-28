@@ -4,7 +4,6 @@
 #include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Math/AABB.h>
 #include <Ludus/Engine/Math/Circle.h>
-#include <Ludus/Engine/Physics/Core/BodyType.h>
 #include <Ludus/Engine/Physics/Core/LayerMask.h>
 
 namespace Ludus::Engine::Components
@@ -12,12 +11,24 @@ namespace Ludus::Engine::Components
 	struct Collider2DComponent
 	{
 	public:
-		Ludus::Engine::Core::EntityHandle OwnerHandle;
-		Ludus::Engine::Physics::Core::LayerIndex LayerIndex;
-		Ludus::Engine::Physics::Core::LayerMask CollidesWith;
-		bool IsTrigger;
+		Ludus::Engine::Core::EntityHandle OwnerHandle {};
+		Ludus::Engine::Physics::Core::LayerIndex LayerIndex = 0;
+		Ludus::Engine::Physics::Core::LayerMask CollidesWith = Ludus::Engine::Physics::Core::LayerMask::GetEmpty();
+		bool IsTrigger = false;
+
+		Collider2DComponent() = default;
 
 		explicit Collider2DComponent(
+			Ludus::Engine::Physics::Core::LayerIndex layerIndex,
+			Ludus::Engine::Physics::Core::LayerMask collidesWith,
+			bool isTrigger = false
+		) :
+			LayerIndex(layerIndex),
+			CollidesWith(collidesWith),
+			IsTrigger(isTrigger)
+		{ }
+
+		Collider2DComponent(
 			Ludus::Engine::Core::EntityHandle owner,
 			Ludus::Engine::Physics::Core::LayerIndex layerIndex = 0,
 			Ludus::Engine::Physics::Core::LayerMask collidesWith = Ludus::Engine::Physics::Core::LayerMask::GetEmpty(),

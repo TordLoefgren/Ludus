@@ -19,7 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Ludus\Editor\Commands\CommandManager.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\UI\Dialogs.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\Edit\Entities.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\Edit\Selection.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Core\ExecutionManager.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Core\SelectionManager.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Dialogs\CreateProjectDialog.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\RequestCommand.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\UICommand.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Panels.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\EditCommand.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Projects.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Scenes.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\ProjectPanel.cpp" />
@@ -46,19 +56,28 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\Editor\Commands\CommandManager.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\CommandSet.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\CommandContext.h" />
-    <ClInclude Include="Include\Ludus\Editor\Commands\RequestCommandVisitor.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Enqueue.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\EditCommand.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Edit\Components.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Edit\Entities.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Edit\Selection.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\EntityReference.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Panels.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Projects.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Scenes.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\UICommand.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\UI\Dialogs.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ActivePanelState.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\RequestCommand.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorContext.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorConfiguration.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorExecutionFlags.h" />
-    <ClInclude Include="Include\Ludus\Editor\Core\EditorExecutionManager.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\ExecutionManager.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSession.h" />
-    <ClInclude Include="Include\Ludus\Editor\Core\EditorSelection.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\SelectionManager.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorState.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSystem.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\CameraControllerSystem.h" />
@@ -67,6 +86,9 @@
     <ClInclude Include="Include\Ludus\Editor\Core\ExecutionMode.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSceneMetadata.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ViewportDisplayMode.h" />
+    <ClInclude Include="Include\Ludus\Editor\Dialogs\CreateProjectDialog.h" />
+    <ClInclude Include="Include\Ludus\Editor\Dialogs\DialogManager.h" />
+    <ClInclude Include="Include\Ludus\Editor\Dialogs\DialogOutcome.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelContext.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelRegistry.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\Constants.h" />

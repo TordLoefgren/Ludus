@@ -13,7 +13,7 @@ namespace Ludus::Engine::Core
 	{
 		E Error;
 
-		template<class U>
+		template<typename U>
 		static Unexpected<std::decay_t<U>> Create(U&& unexpected)
 		{
 			return Unexpected<std::decay_t<U>>(std::forward<U>(unexpected));

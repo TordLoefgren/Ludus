@@ -41,31 +41,30 @@ namespace Ludus::Engine::Serialization::Schemas
 		{
 			try
 			{
-				Camera camera(0);
-
+				Camera camera;
 				bool hasOwner = false;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
+				{
+					if (key == "OwnerHandle")
 					{
-						if (key == "OwnerHandle")
-						{
-							camera.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
-							hasOwner = true;
-							return;
-						}
-						if (key == "OrthographicSize")
-						{
-							camera.OrthographicSize = Ludus::Engine::Serialization::Core::ConsumeFloatLike(reader);
-							return;
-						}
-						if (key == "Priority")
-						{
-							camera.Priority = Ludus::Engine::Serialization::Core::ConsumeIntLike(reader);
-							return;
-						}
+						camera.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
+						hasOwner = true;
+						return;
+					}
+					if (key == "OrthographicSize")
+					{
+						camera.OrthographicSize = Ludus::Engine::Serialization::Core::ConsumeFloatLike(reader);
+						return;
+					}
+					if (key == "Priority")
+					{
+						camera.Priority = Ludus::Engine::Serialization::Core::ConsumeIntLike(reader);
+						return;
+					}
 
-						Ludus::Engine::Serialization::Core::SkipValue(reader);
-					});
+					Ludus::Engine::Serialization::Core::SkipValue(reader);
+				});
 
 				if (!hasOwner)
 				{

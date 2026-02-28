@@ -1,8 +1,19 @@
 #pragma once
 
-#include <Ludus/Editor/Core/EditorContext.h>
-#include <Ludus/Editor/Panels/PanelRegistry.h>
-#include <Ludus/Engine/Core/SystemContext.h>
+namespace Ludus::Editor::Core
+{
+	struct EditorContext;
+}
+
+namespace Ludus::Editor::Panels
+{
+	struct PanelRegistry;
+}
+
+namespace Ludus::Engine::Core
+{
+	struct SystemContext;
+}
 
 namespace Ludus::Editor::Commands
 {

@@ -3,15 +3,15 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <utility>
 #include <variant>
 
 #include <Ludus/Editor/Core/ExecutionMode.h>
 #include <Ludus/Engine/Core/Scene.h>
-#include <Ludus/Engine/Core/Variants.h>
 
 namespace Ludus::Editor::Commands
 {
-	using Ludus::Engine::Core::Variants::VisitOverloaded;
+	struct CommandContext;
 
 	struct RequestCommand
 	{
@@ -38,7 +38,9 @@ namespace Ludus::Editor::Commands
 
 		Variant Data;
 
-		template<class T>
+		template<typename T>
 		RequestCommand(T value) : Data(std::move(value)) { }
 	};
+
+	void Execute(const RequestCommand& command, CommandContext& context);
 }

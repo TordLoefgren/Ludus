@@ -41,11 +41,9 @@ namespace Ludus::Engine::Core
 		std::span<const T> View() const { return { m_Data.data(), m_Data.size() }; }
 		std::span<T> ViewMutable() { return { m_Data.data(), m_Data.size() }; }
 
-		template<class... Args>
+		template<typename... Args>
 			requires std::constructible_from<T, EntityHandle, Args...>
-		void Add(
-			EntityHandle owner, Args&&... args
-		)
+		void Add(EntityHandle owner, Args&&... args)
 		{
 			LUDUS_ASSERT(!ContainsOwner(owner), "Invalid component handle.");
 

@@ -11,12 +11,24 @@ namespace Ludus::Engine::Components
 	struct Text2DComponent
 	{
 	public:
-		Ludus::Engine::Core::EntityHandle OwnerHandle;
-		std::string Text;
-		Ludus::Engine::Graphics::Color Color;
-		Ludus::Engine::Graphics::HorizontalTextAlignment HorizontalAlignment;
+		Ludus::Engine::Core::EntityHandle OwnerHandle {};
+		std::string Text = "";
+		Ludus::Engine::Graphics::Color Color = Ludus::Engine::Graphics::Colors::White;
+		Ludus::Engine::Graphics::HorizontalTextAlignment HorizontalAlignment = Ludus::Engine::Graphics::HorizontalTextAlignment::Left;
+
+		Text2DComponent() = default;
 
 		explicit Text2DComponent(
+			std::string text,
+			Ludus::Engine::Graphics::Color color = Ludus::Engine::Graphics::Colors::White,
+			Ludus::Engine::Graphics::HorizontalTextAlignment horizontalAlignment = Ludus::Engine::Graphics::HorizontalTextAlignment::Left
+		) :
+			Text(text),
+			Color(color),
+			HorizontalAlignment(horizontalAlignment)
+		{ }
+
+		Text2DComponent(
 			Ludus::Engine::Core::EntityHandle owner,
 			std::string text = "",
 			Ludus::Engine::Graphics::Color color = Ludus::Engine::Graphics::Colors::White,

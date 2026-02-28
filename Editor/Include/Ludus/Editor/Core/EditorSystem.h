@@ -16,7 +16,9 @@ namespace Ludus::Editor::Core
 		EditorConfiguration m_EditorConfiguration;
 		Ludus::Editor::Panels::PanelRegistry m_PanelRegistry;
 
-		void HandleRequestCommands();
+		void DelegateUICommands();
+		void DelegateEditCommands();
+		void DelegateRequestCommands();
 
 	public:
 		EditorSystem(EditorConfiguration editorConfiguration);

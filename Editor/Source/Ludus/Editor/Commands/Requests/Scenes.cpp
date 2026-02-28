@@ -8,10 +8,14 @@
 #include <string_view>
 #include <utility>
 
+#include <Ludus/Editor/Commands/EditCommand.h>
 #include <Ludus/Editor/Commands/Requests/Scenes.h>
+#include <Ludus/Editor/Core/EditorContext.h>
 #include <Ludus/Editor/Core/EditorSceneMetadata.h>
+#include <Ludus/Editor/Panels/PanelRegistry.h>
 #include <Ludus/Editor/Panels/ProjectPanel.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
+#include <Ludus/Engine/Core/SystemContext.h>
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Persistence/ProjectRepository.h>
 
@@ -115,6 +119,8 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 		{
 			registry.Clear();
 			session.Clear();
+
+			editorContext.State.Commands.AddEditCommand(Ludus::Editor::Commands::EditCommand::ClearSelection { });
 		}
 
 		if (const auto knownHandle = systemContext.ProjectContext.value().TryFindSceneHandleByPath(command.Path);

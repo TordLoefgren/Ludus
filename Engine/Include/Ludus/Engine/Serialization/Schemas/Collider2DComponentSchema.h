@@ -42,7 +42,7 @@ namespace Ludus::Engine::Serialization::Schemas
 		{
 			try
 			{
-				Collider collider(0);
+				Collider collider;
 				bool hasOwner = false;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)

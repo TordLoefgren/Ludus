@@ -27,7 +27,7 @@ namespace Ludus::Editor::Panels
 				{
 					if (openedFilePath->extension() == ".lscene")
 					{
-						context.EditorContext.State.AddRequestCommand(
+						context.EditorContext.State.Commands.AddRequestCommand(
 							Ludus::Editor::Commands::RequestCommand::OpenScene { *openedFilePath }
 						);
 					}

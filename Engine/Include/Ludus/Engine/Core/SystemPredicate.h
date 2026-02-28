@@ -13,9 +13,9 @@ namespace Ludus::Engine::Core
 	SystemPredicate RunIfInState(TState expectedState)
 	{
 		return [expectedState](const SystemContext& context)
-			{
-				auto& state = context.Resources.Get<State<TState>>();
-				return state.Current == expectedState;
-			};
+		{
+			auto& state = context.Resources.Get<State<TState>>();
+			return state.Current == expectedState;
+		};
 	}
 }
