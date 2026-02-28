@@ -57,12 +57,8 @@ namespace Ludus::Engine::Serialization::Schemas
 		{
 			try
 			{
-				RigidBody rigidBody(0);
+				RigidBody rigidBody;
 				bool hasOwner = false;
-				rigidBody.Velocity.X = 0.0f;
-				rigidBody.Velocity.Y = 0.0f;
-				rigidBody.GravityScale = 1.0f;
-				rigidBody.Mass = 1.0f;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 				{

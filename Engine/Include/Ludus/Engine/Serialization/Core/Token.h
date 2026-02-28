@@ -36,7 +36,7 @@ namespace Ludus::Engine::Serialization::Core
 
 		Variant Data;
 
-		template<class T>
+		template<typename T>
 		Token(T value) : Data(std::move(value)) { }
 	};
 }

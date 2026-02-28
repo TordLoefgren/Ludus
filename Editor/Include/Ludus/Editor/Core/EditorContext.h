@@ -7,7 +7,7 @@ namespace Ludus::Editor::Core
 {
 	struct EditorContext
 	{
-		Ludus::Editor::Core::EditorSession Session;
+		EditorSession Session;
 		EditorState State;
 
 		EditorContext()

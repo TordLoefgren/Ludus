@@ -234,7 +234,7 @@ namespace Ludus::Engine::Serialization::Core
 		reader.Consume();
 	}
 
-	template<class TMemberFunction>
+	template<typename TMemberFunction>
 	inline void ReadObject(ITokenStreamReader& reader, TMemberFunction&& onMember)
 	{
 		ConsumeAs<Token::StartObject>(reader);

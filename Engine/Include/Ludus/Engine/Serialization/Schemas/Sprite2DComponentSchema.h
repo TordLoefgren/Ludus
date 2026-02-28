@@ -59,13 +59,8 @@ namespace Ludus::Engine::Serialization::Schemas
 		{
 			try
 			{
-				Sprite sprite(0);
+				Sprite sprite;
 				bool hasOwner = false;
-				sprite.Color.R = 1.0f;
-				sprite.Color.G = 1.0f;
-				sprite.Color.B = 1.0f;
-				sprite.Color.A = 1.0f;
-				sprite.Fill = true;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 				{

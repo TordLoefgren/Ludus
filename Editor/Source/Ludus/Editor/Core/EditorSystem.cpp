@@ -4,26 +4,47 @@
 #include <variant>
 
 #include <Ludus/Editor/Commands/CommandContext.h>
+#include <Ludus/Editor/Commands/EditCommand.h>
 #include <Ludus/Editor/Commands/RequestCommand.h>
-#include <Ludus/Editor/Commands/RequestCommandVisitor.h>
+#include <Ludus/Editor/Commands/UICommand.h>
 #include <Ludus/Editor/Core/EditorSystem.h>
 
 namespace Ludus::Editor::Core
 {
+	namespace
+	{
+		template<typename TCommand>
+		void DelegateCommands(std::vector<TCommand>& stateCommands, EditorContext& editorContext, Ludus::Engine::Core::SystemContext& systemContext, Ludus::Editor::Panels::PanelRegistry& panelRegistry)
+		{
+			std::vector<TCommand> commands;
+			commands.swap(stateCommands);
+
+			Ludus::Editor::Commands::CommandContext context { editorContext, systemContext, panelRegistry };
+
+			for (const auto& command : commands)
+			{
+				Ludus::Editor::Commands::Execute(command, context);
+			}
+		}
+	}
+
 	EditorSystem::EditorSystem(Ludus::Editor::Core::EditorConfiguration editorOptions)
 		: m_EditorContext(), m_EditorConfiguration(editorOptions), m_PanelRegistry()
 	{ }
 
-	void EditorSystem::HandleRequestCommands()
+	void EditorSystem::DelegateUICommands()
 	{
-		std::vector <Ludus::Editor::Commands::RequestCommand> commands;
-		commands.swap(m_EditorContext.State.RequestCommands);
+		DelegateCommands<Ludus::Editor::Commands::UICommand>(m_EditorContext.State.Commands.PendingCommands.UICommands, m_EditorContext, *m_SystemContext, m_PanelRegistry);
+	}
 
-		for (const auto& command : commands)
-		{
-			Ludus::Editor::Commands::CommandContext context { m_EditorContext, *m_SystemContext, m_PanelRegistry };
-			std::visit(Ludus::Editor::Commands::RequestCommandVisitor { context }, command.Data);
-		}
+	void EditorSystem::DelegateEditCommands()
+	{
+		DelegateCommands<Ludus::Editor::Commands::EditCommand>(m_EditorContext.State.Commands.PendingCommands.EditCommands, m_EditorContext, *m_SystemContext, m_PanelRegistry);
+	}
+
+	void EditorSystem::DelegateRequestCommands()
+	{
+		DelegateCommands<Ludus::Editor::Commands::RequestCommand>(m_EditorContext.State.Commands.PendingCommands.RequestCommands, m_EditorContext, *m_SystemContext, m_PanelRegistry);
 	}
 
 	void Ludus::Editor::Core::EditorSystem::OnAttachImpl()
@@ -41,6 +62,8 @@ namespace Ludus::Editor::Core
 
 	void Ludus::Editor::Core::EditorSystem::UpdateImpl(float deltaTime)
 	{
+		DelegateUICommands();
+
 		Ludus::Editor::Panels::PanelContext context { *m_SystemContext, m_EditorContext, m_ActivePanelState, deltaTime };
 
 		for (const auto& panel : m_PanelRegistry.View())
@@ -53,6 +76,14 @@ namespace Ludus::Editor::Core
 
 		m_PanelRegistry.ApplyRemovals();
 
-		HandleRequestCommands();
+		if (auto commands = m_EditorContext.State.Dialogs.Update())
+		{
+			m_EditorContext.State.Commands.EnqueueCommands(std::move(commands.value()));
+		}
+
+		DelegateEditCommands();
+		DelegateRequestCommands();
+
+		m_EditorContext.State.Commands.ClearEntityReferences();
 	}
 }

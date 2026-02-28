@@ -11,17 +11,33 @@ namespace Ludus::Engine::Components
 	struct Transform2DComponent
 	{
 	public:
-		Ludus::Engine::Core::EntityHandle OwnerHandle;
+		Ludus::Engine::Core::EntityHandle OwnerHandle {};
 		Ludus::Engine::Math::Vector2D Position { 0.0f, 0.0f };
 		Ludus::Engine::Math::Vector2D Scale { 1.0f, 1.0f };
 		float Rotation { 0.0f };
 
+		Transform2DComponent() = default;
+
 		explicit Transform2DComponent(
+			Ludus::Engine::Math::Vector2D position,
+			Ludus::Engine::Math::Vector2D scale = { 1.0f, 1.0f },
+			float rotation = 0.0f
+		) :
+			Position(position),
+			Scale(scale),
+			Rotation(rotation)
+		{ }
+
+		Transform2DComponent(
 			Ludus::Engine::Core::EntityHandle ownerHandle,
 			Ludus::Engine::Math::Vector2D position = { 0.0f, 0.0f },
 			Ludus::Engine::Math::Vector2D scale = { 1.0f, 1.0f },
 			float rotation = 0.0f
-		) : OwnerHandle(ownerHandle), Position(position), Scale(scale), Rotation(rotation)
+		) :
+			OwnerHandle(ownerHandle),
+			Position(position),
+			Scale(scale),
+			Rotation(rotation)
 		{ }
 
 		~Transform2DComponent() = default;

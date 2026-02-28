@@ -3,7 +3,10 @@
 #include <memory>
 
 #include <Ludus/Editor/Commands/Requests/Panels.h>
+#include <Ludus/Editor/Core/EditorContext.h>
+#include <Ludus/Editor/Panels/PanelRegistry.h>
 #include <Ludus/Editor/Panels/ViewportPanel.h>
+#include <Ludus/Engine/Core/SystemContext.h>
 
 namespace Ludus::Editor::Commands::Requests::Panels
 {
@@ -14,7 +17,7 @@ namespace Ludus::Editor::Commands::Requests::Panels
 
 	void SetExecutionMode(const RequestCommand::SetExecutionMode& command, CommandContext& context)
 	{
-		context.EditorContext.State.ExecutionMode = command.Mode;
-		context.EditorContext.State.ExecutionManager.Apply(context.SystemContext, command.Mode);
+		context.EditorContext.State.Execution.ExecutionMode = command.Mode;
+		context.EditorContext.State.Execution.Apply(context.SystemContext, command.Mode);
 	}
 }

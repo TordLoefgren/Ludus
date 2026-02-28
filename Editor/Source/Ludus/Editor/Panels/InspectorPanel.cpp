@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <Ludus/Editor/Commands/EditCommand.h>
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Core/Utilities.h>
 #include <Ludus/Editor/Panels/InspectorPanel.h>
@@ -291,6 +292,14 @@ namespace Ludus::Editor::Panels
 
 			auto& ecs = scene.EntityComponentSystem;
 			auto handle = selection.SelectedEntity.value();
+			const bool existsInActiveScene = ecs.IndexOf(handle).has_value();
+			if (!existsInActiveScene)
+			{
+				context.EditorContext.State.Commands.AddEditCommand(
+					Ludus::Editor::Commands::EditCommand::ClearSelection { }
+				);
+				return true;
+			}
 
 			auto* transformPtr = ecs.Transforms.TryGetByOwnerMutable(handle);
 			auto* displayNamePtr = ecs.DisplayNames.TryGetByOwnerMutable(handle);

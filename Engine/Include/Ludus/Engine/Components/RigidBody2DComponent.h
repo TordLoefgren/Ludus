@@ -9,13 +9,27 @@ namespace Ludus::Engine::Components
 	struct RigidBody2DComponent
 	{
 	public:
-		Ludus::Engine::Core::EntityHandle OwnerHandle;
+		Ludus::Engine::Core::EntityHandle OwnerHandle {};
 		Ludus::Engine::Math::Vector2D Velocity;
-		float GravityScale;
-		float Mass;
-		Ludus::Engine::Physics::Core::BodyType Type;
+		float GravityScale = 1.0f;
+		float Mass = 1.0f;
+		Ludus::Engine::Physics::Core::BodyType Type = Ludus::Engine::Physics::Core::BodyType::Dynamic;
+
+		RigidBody2DComponent() = default;
 
 		explicit RigidBody2DComponent(
+			Ludus::Engine::Math::Vector2D velocity,
+			Ludus::Engine::Physics::Core::BodyType type = Ludus::Engine::Physics::Core::BodyType::Dynamic,
+			float gravityScale = 1.0f,
+			float mass = 1.0f
+		) :
+			Velocity(velocity),
+			Type(type),
+			GravityScale(gravityScale),
+			Mass(mass)
+		{ }
+
+		RigidBody2DComponent(
 			Ludus::Engine::Core::EntityHandle owner,
 			Ludus::Engine::Math::Vector2D velocity = { 0.0f, 0.0f },
 			Ludus::Engine::Physics::Core::BodyType type = Ludus::Engine::Physics::Core::BodyType::Dynamic,
