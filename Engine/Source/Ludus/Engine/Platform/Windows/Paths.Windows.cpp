@@ -11,6 +11,8 @@
 #include <stdexcept>
 #include <system_error>
 
+#include "WinShellExecute.h"
+
 #include <Ludus/Engine/Platform/Paths.h>
 
 namespace Ludus::Engine::Platform::Paths
@@ -42,6 +44,20 @@ namespace Ludus::Engine::Platform::Paths
 		return AppData(FOLDERID_RoamingAppData);
 	}
 
+	std::filesystem::path GetExecutablePath()
+	{
+		std::wstring buffer(MAX_PATH, L'\0');
+
+		const auto length = GetModuleFileNameW(nullptr, buffer.data(), MAX_PATH);
+		if (length == 0)
+		{
+			throw std::runtime_error("GetModuleFileNameW failed.");
+		}
+
+		buffer.resize(length);
+		return std::filesystem::path(buffer);
+	}
+
 	void OpenFolder(const std::filesystem::path& path)
 	{
 		if (!std::filesystem::exists(path))
@@ -51,9 +67,6 @@ namespace Ludus::Engine::Platform::Paths
 			);
 		}
 
-		if (!ShellExecuteW(nullptr, L"open", path.wstring().c_str(), nullptr, nullptr, SW_SHOWNORMAL))
-		{
-			throw std::runtime_error("Failed to open folder in path '" + path.string() + "'.");
-		}
+		Ludus::Engine::Platform::Windows::Detail::ShellOpen(path);
 	}
 }

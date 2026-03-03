@@ -82,9 +82,9 @@ namespace Ludus::Tests::Serialization::Schemas
 		project.Version.Minor = 2;
 		project.Version.Patch = 0;
 
-		project.Scenes.push_back(MakeSceneReference(10, "SceneA", "Scenes/SceneA.lscene"));
-		project.Scenes.push_back(MakeSceneReference(11, "SceneB", "Scenes/SceneB.lscene"));
-		project.Scenes.push_back(MakeSceneReference(12, "SceneC", "Scenes/SceneC.lscene"));
+		project.Scenes.push_back(MakeSceneReference(10, "SceneA", "Scenes/SceneA.ludus.scene"));
+		project.Scenes.push_back(MakeSceneReference(11, "SceneB", "Scenes/SceneB.ludus.scene"));
+		project.Scenes.push_back(MakeSceneReference(12, "SceneC", "Scenes/SceneC.ludus.scene"));
 
 		// Act.
 		ProjectSchema::Serialize(writer, project);
@@ -111,8 +111,8 @@ namespace Ludus::Tests::Serialization::Schemas
 		project.Version.Minor = 2;
 		project.Version.Patch = 0;
 
-		project.Scenes.push_back(MakeSceneReference(100, "Scene100", "Scenes/Scene100.lscene"));
-		project.Scenes.push_back(MakeSceneReference(200, "Scene200", "Scenes/Scene200.lscene"));
+		project.Scenes.push_back(MakeSceneReference(100, "Scene100", "Scenes/Scene100.ludus.scene"));
+		project.Scenes.push_back(MakeSceneReference(200, "Scene200", "Scenes/Scene200.ludus.scene"));
 
 		// Act.
 		ProjectSchema::Serialize(writer, project);
@@ -179,8 +179,8 @@ namespace Ludus::Tests::Serialization::Schemas
 		project.Version.Minor = 2;
 		project.Version.Patch = 0;
 
-		project.Scenes.push_back(MakeSceneReference(10, "Scene10", "Scenes/Scene10.lscene"));
-		project.Scenes.push_back(MakeSceneReference(11, "Scene11", "Scenes/Scene11.lscene"));
+		project.Scenes.push_back(MakeSceneReference(10, "Scene10", "Scenes/Scene10.ludus.scene"));
+		project.Scenes.push_back(MakeSceneReference(11, "Scene11", "Scenes/Scene11.ludus.scene"));
 
 		ProjectSchema::Serialize(writer, project);
 		DomTokenStreamReader reader(document);
@@ -214,9 +214,9 @@ namespace Ludus::Tests::Serialization::Schemas
 		project.Version.Patch = 3;
 		project.ActiveSceneHandle = 222;
 
-		project.Scenes.push_back(MakeSceneReference(111, "Scene111", "Scenes/Scene111.lscene"));
-		project.Scenes.push_back(MakeSceneReference(222, "Scene222", "Scenes/Scene222.lscene"));
-		project.Scenes.push_back(MakeSceneReference(333, "Scene333", "Scenes/Scene333.lscene"));
+		project.Scenes.push_back(MakeSceneReference(111, "Scene111", "Scenes/Scene111.ludus.scene"));
+		project.Scenes.push_back(MakeSceneReference(222, "Scene222", "Scenes/Scene222.ludus.scene"));
+		project.Scenes.push_back(MakeSceneReference(333, "Scene333", "Scenes/Scene333.ludus.scene"));
 
 		// Act.
 		ProjectSchema::Serialize(writer, project);

@@ -1,18 +1,20 @@
 #include "pch.h"
 
+#include <format>
+
 #include <Ludus/Editor/Commands/EditCommand.h>
 #include <Ludus/Editor/Core/Constants.h>
-#include <Ludus/Editor/Core/Utilities.h>
 #include <Ludus/Editor/Panels/InspectorPanel.h>
 #include <Ludus/Engine/Components/Camera2DComponent.h>
 #include <Ludus/Engine/Components/Collider2DComponent.h>
 #include <Ludus/Engine/Components/DisplayNameComponent.h>
 #include <Ludus/Engine/Components/RigidBody2DComponent.h>
+#include <Ludus/Engine/Components/ScriptComponent.h>
 #include <Ludus/Engine/Components/Sprite2DComponent.h>
 #include <Ludus/Engine/Components/Text2DComponent.h>
 #include <Ludus/Engine/Components/Transform2DComponent.h>
 #include <Ludus/Engine/Core/Entity.h>
-#include <Ludus/Engine/Core/Enums.h>
+#include <Ludus/Engine/Core/ProjectContext.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
@@ -21,6 +23,7 @@
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/TableContext.h>
 #include <Ludus/UI/Context/WindowContext.h>
+#include <Ludus/UI/Scope/DisabledScope.h>
 #include <Ludus/UI/Scope/MenuScope.h>
 #include <Ludus/UI/Scope/TableScope.h>
 #include <Ludus/UI/Scope/TreeNodeScope.h>
@@ -29,6 +32,7 @@
 #include <Ludus/UI/Widgets/Headers.h>
 #include <Ludus/UI/Widgets/Input.h>
 #include <Ludus/UI/Widgets/Menu.h>
+#include <Ludus/UI/Widgets/Selection.h>
 #include <Ludus/UI/Widgets/Text.h>
 #include <Ludus/UI/Widgets/Toggle.h>
 
@@ -179,7 +183,7 @@ namespace Ludus::Editor::Panels
 				Ludus::UI::Widgets::TextUnformatted("Body Type");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 
-				auto _ = Ludus::Editor::Core::Utilities::ComboEnum("##RigidBody2D_Combo", component.Type);
+				auto _ = Ludus::UI::Widgets::ComboEnum("##RigidBody2D_Combo", component.Type);
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::TextUnformatted("Gravity Scale");
@@ -194,6 +198,85 @@ namespace Ludus::Editor::Panels
 		}
 	}
 
+	void InspectorPanel::DrawScript(
+		Ludus::Engine::Components::ScriptComponent& component,
+		const Ludus::Engine::Core::ProjectContext& projectContext
+	)
+	{
+		if (Ludus::UI::Scope::TreeNodeScope treeNode("Script"); treeNode)
+		{
+			if (Ludus::UI::Scope::TableScope table("Script_Panel", 2); table)
+			{
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Handle");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
+				Ludus::UI::Widgets::TextUnformatted(std::to_string(component.Handle));
+
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				Ludus::UI::Widgets::TextUnformatted("Name");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
+
+				const auto& scriptReferences = projectContext.Project.Scripts;
+				if (scriptReferences.empty())
+				{
+					const auto noneValues = { "None" };
+					auto currentIndex = 0;
+
+					Ludus::UI::Scope::DisabledScope disabled(true);
+					auto _ = Ludus::UI::Widgets::Combo("##Script_Panel_Name", &currentIndex, noneValues);
+				}
+				else
+				{
+					// The variable passed to Combo must be an integer. 
+					auto currentIndex = -1;
+
+					// Check for handle.
+					for (auto i = 0; i < static_cast<int>(scriptReferences.size()); i++)
+					{
+						const auto& reference = scriptReferences[static_cast<size_t>(i)];
+						if (reference.Handle == component.Handle)
+						{
+							currentIndex = i;
+							break;
+						}
+					}
+
+					// Check for name.
+					if (currentIndex < 0)
+					{
+						for (auto i = 0; i < static_cast<int>(scriptReferences.size()); i++)
+						{
+							const auto& reference = scriptReferences[static_cast<size_t>(i)];
+							if (reference.Name == component.Name)
+							{
+								currentIndex = i;
+								break;
+							}
+						}
+					}
+
+					// Default to first item.
+					if (currentIndex < 0)
+					{
+						currentIndex = 0;
+					}
+
+					auto items = Ludus::UI::Widgets::GetCStringItems(scriptReferences, [](const Ludus::Engine::Core::ProjectScriptReference& item)
+					{
+						return item.Name.c_str();
+					});
+
+					if (Ludus::UI::Widgets::Combo("##Script_Panel_Name", &currentIndex, items))
+					{
+						const auto& selected = scriptReferences[static_cast<size_t>(currentIndex)];
+						component.Name = selected.Name;
+						component.Handle = selected.Handle;
+					}
+				}
+			}
+		}
+	}
+
 	void InspectorPanel::DrawSprite2D(Ludus::Engine::Components::Sprite2DComponent& component)
 	{
 		if (Ludus::UI::Scope::TreeNodeScope treeNode("Sprite 2D"); treeNode)
@@ -204,7 +287,7 @@ namespace Ludus::Editor::Panels
 				Ludus::UI::Widgets::TextUnformatted("Shape");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 
-				auto _ = Ludus::Editor::Core::Utilities::ComboEnum("##Sprite2D_Panel_Combo", component.Shape);
+				auto _ = Ludus::UI::Widgets::ComboEnum("##Sprite2D_Panel_Combo", component.Shape);
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::TextUnformatted("Color");
@@ -245,7 +328,7 @@ namespace Ludus::Editor::Panels
 				Ludus::UI::Widgets::TextUnformatted("Horizontal Alignment");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 
-				auto _ = Ludus::Editor::Core::Utilities::ComboEnum("##Text2D_Panel_Combo", component.HorizontalAlignment);
+				auto _ = Ludus::UI::Widgets::ComboEnum("##Text2D_Panel_Combo", component.HorizontalAlignment);
 			}
 		}
 	}
@@ -305,6 +388,7 @@ namespace Ludus::Editor::Panels
 			auto* displayNamePtr = ecs.DisplayNames.TryGetByOwnerMutable(handle);
 			auto* colliderPtr = ecs.Colliders.TryGetByOwnerMutable(handle);
 			auto* rigidBodyPtr = ecs.RigidBodies.TryGetByOwnerMutable(handle);
+			auto* scriptPtr = ecs.Scripts.TryGetByOwnerMutable(handle);
 			auto* spritePtr = ecs.Sprites.TryGetByOwnerMutable(handle);
 			auto* textPtr = ecs.Texts.TryGetByOwnerMutable(handle);
 			auto* cameraPtr = ecs.Cameras.TryGetByOwnerMutable(handle);
@@ -329,6 +413,11 @@ namespace Ludus::Editor::Panels
 			if (rigidBodyPtr)
 			{
 				DrawRigidBody2D(*rigidBodyPtr);
+			}
+
+			if (scriptPtr && context.SystemContext.ProjectContext.has_value())
+			{
+				DrawScript(*scriptPtr, context.SystemContext.ProjectContext.value());
 			}
 
 			if (spritePtr)

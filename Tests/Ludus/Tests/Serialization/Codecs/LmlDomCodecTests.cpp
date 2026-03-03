@@ -187,6 +187,24 @@ namespace Ludus::Tests::Serialization::Codecs
 		ASSERT_EQ(result, expected);
 	}
 
+	TEST(LmlDomCodec, Encode_QuotesEmptyStrings)
+	{
+		// Arrange.
+		const auto expected = std::string(
+			"Name: \"\"\n"
+		);
+
+		// Act.
+		const auto result = EncodeRootObject([](auto& w)
+		{
+			EmitKey(w, "Name");
+			w.Emit(Token::String { "" });
+		});
+
+		// Assert.
+		ASSERT_EQ(result, expected);
+	}
+
 	TEST(LmlDomCodec, Encode_EmptyObjectAndArray_AreInlineBracesAndBrackets)
 	{
 		// Arrange.
@@ -589,6 +607,25 @@ namespace Ludus::Tests::Serialization::Codecs
 		ASSERT_EQ(object.size(), 1u);
 		EXPECT_EQ(object[0].first, "Message");
 		ExpectStringValue(object[0].second.get(), "Hello:\n\"World\"\\Test");
+	}
+
+	TEST(LmlDomCodec, Decode_ReadsEmptyQuotedString)
+	{
+		// Arrange.
+		const auto input = std::string(
+			"Name: \"\"\n"
+		);
+
+		// Act.
+		LmlDomCodec codec;
+		DomNode root = codec.Decode(input);
+
+		// Assert.
+		ASSERT_TRUE(std::holds_alternative<DomObject>(root.NodeData));
+		const auto& object = AsObject(root);
+		ASSERT_EQ(object.size(), 1u);
+		EXPECT_EQ(object[0].first, "Name");
+		ExpectStringValue(object[0].second.get(), "");
 	}
 
 	TEST(LmlDomCodec, Decode_ParsesFloatsWithTwoDecimals)

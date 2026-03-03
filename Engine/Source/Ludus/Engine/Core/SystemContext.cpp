@@ -2,7 +2,6 @@
 
 #include <utility>
 
-#include <Ludus/Engine/Core/FlagSet.h>
 #include <Ludus/Engine/Core/SystemContext.h>
 #include <Ludus/Engine/Debug/Debug.h>
 
@@ -19,6 +18,7 @@ namespace Ludus::Engine::Core
 		Ludus::Engine::Core::SceneRegistry& sceneRegistry,
 		Ludus::Engine::Windowing::Window& window,
 		Ludus::Engine::Graphics::RenderPresentationSettings& renderPresentation,
+		Ludus::Engine::Core::ScriptRuntimeState scriptRuntime,
 		std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> windowRenderTarget,
 		Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* queries
 	) : EventBus(events),
@@ -32,6 +32,7 @@ namespace Ludus::Engine::Core
 		SceneRegistry(sceneRegistry),
 		Window(window),
 		RenderPresentation(renderPresentation),
+		ScriptRuntime(scriptRuntime),
 		WindowRenderTarget(std::move(windowRenderTarget)),
 		PhysicsQueries(queries)
 	{ }

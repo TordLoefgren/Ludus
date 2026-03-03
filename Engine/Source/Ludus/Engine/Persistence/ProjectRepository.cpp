@@ -7,6 +7,7 @@
 #include <Ludus/Engine/Persistence/LmlScenePersistence.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Persistence/ProjectRepository.h>
+#include <Ludus/Engine/Platform/Paths.h>
 
 namespace Ludus::Engine::Persistence
 {
@@ -23,31 +24,40 @@ namespace Ludus::Engine::Persistence
 		m_ScenePersistence(std::move(scenePersistence))
 	{ }
 
-	std::filesystem::path ProjectRepository::GetScenesDirectory(const Ludus::Engine::Persistence::ProjectContext& context)
+	std::filesystem::path ProjectRepository::GetScenesDirectory(const Ludus::Engine::Core::ProjectContext& context)
 	{
 		return Ludus::Engine::Persistence::Paths::ScenesDirectory(context.ProjectRootDirectory);
 	}
 
 	std::filesystem::path ProjectRepository::GetDefaultScenePath(
-		const Ludus::Engine::Persistence::ProjectContext& context,
+		const Ludus::Engine::Core::ProjectContext& context,
 		const std::string_view sceneName
 	)
 	{
 		return Ludus::Engine::Persistence::Paths::SceneFile(context.ProjectRootDirectory, sceneName);
 	}
 
-	ProjectContext ProjectRepository::CreateProject(std::string_view name, std::optional<std::filesystem::path> path)
+	Ludus::Engine::Core::ProjectContext ProjectRepository::CreateProject(std::string_view name, std::optional<std::filesystem::path> path)
 	{
-		const auto projectsRoot = path.value_or(Ludus::Engine::Persistence::Paths::ProjectsRoot());
+		const auto projectsRoot = path.value_or(
+			Ludus::Engine::Platform::Paths::LocalAppData() /
+			std::string(Ludus::Engine::Persistence::Paths::Constants::LudusDirectoryName) /
+			std::string(Ludus::Engine::Persistence::Paths::Constants::ProjectsDirectoryName)
+		);
 		std::filesystem::create_directories(projectsRoot);
 
 		const auto projectRoot = projectsRoot / std::string(name);
 		if (std::filesystem::exists(projectRoot))
 		{
-			throw std::runtime_error("Project name aleady exists for path: " + projectRoot.string());
+			throw std::runtime_error("Project name already exists for path: " + projectRoot.string());
 		}
 
-		Ludus::Engine::Persistence::Paths::EnsureProjectLayoutExists(projectRoot);
+		std::filesystem::create_directories(Ludus::Engine::Persistence::Paths::ScenesDirectory(projectRoot));
+		std::filesystem::create_directories(
+			Ludus::Engine::Persistence::Paths::AssetsDirectory(projectRoot) /
+			std::string(Ludus::Engine::Persistence::Paths::Constants::ScriptsDirectoryName) /
+			std::string(Ludus::Engine::Persistence::Paths::Constants::SourceDirectoryName)
+		);
 
 		Ludus::Engine::Core::Scene scene(m_Random.NextId(), "Sample Scene");
 		auto& ecs = scene.EntityComponentSystem;
@@ -60,10 +70,11 @@ namespace Ludus::Engine::Persistence
 		m_ScenePersistence->Save(scene, scenePath);
 
 		Ludus::Engine::Core::ProjectSceneReference sceneReference { scene.Handle, scene.Name, scenePath };
-		std::vector<Ludus::Engine::Core::ProjectSceneReference> references { sceneReference };
-		Ludus::Engine::Core::Project project(m_Version, references, scene.Handle);
+		std::vector<Ludus::Engine::Core::ProjectSceneReference> sceneReferences { sceneReference };
+		std::vector<Ludus::Engine::Core::ProjectScriptReference> scriptReferences { };
+		Ludus::Engine::Core::Project project(m_Version, sceneReferences, scriptReferences, scene.Handle);
 
-		const auto projectPath = projectRoot / (std::string(name) + ".lproj");
+		const auto projectPath = projectRoot / Ludus::Engine::Persistence::Paths::ProjectFile(name);
 		m_ProjectPersistence->Save(project, projectPath);
 
 		return {
@@ -73,7 +84,7 @@ namespace Ludus::Engine::Persistence
 		};
 	}
 
-	Ludus::Engine::Persistence::ProjectContext ProjectRepository::LoadProject(const std::filesystem::path& path)
+	Ludus::Engine::Core::ProjectContext ProjectRepository::LoadProject(const std::filesystem::path& path)
 	{
 		auto project = m_ProjectPersistence->Load(path);
 		return {
@@ -83,13 +94,13 @@ namespace Ludus::Engine::Persistence
 		};
 	}
 
-	void ProjectRepository::SaveProject(Ludus::Engine::Persistence::ProjectContext& context)
+	void ProjectRepository::SaveProject(Ludus::Engine::Core::ProjectContext& context)
 	{
 		m_ProjectPersistence->Save(context.Project, context.ProjectPath);
 	}
 
 	Ludus::Engine::Core::Scene ProjectRepository::LoadScene(
-		const Ludus::Engine::Persistence::ProjectContext& context,
+		const Ludus::Engine::Core::ProjectContext& context,
 		Ludus::Engine::Core::SceneHandle sceneHandle
 	)
 	{
@@ -116,7 +127,7 @@ namespace Ludus::Engine::Persistence
 	}
 
 	void ProjectRepository::SaveScene(
-		const Ludus::Engine::Persistence::ProjectContext& context,
+		const Ludus::Engine::Core::ProjectContext& context,
 		const Ludus::Engine::Core::Scene& scene,
 		Ludus::Engine::Core::SceneHandle sceneHandle
 	)
@@ -145,7 +156,7 @@ namespace Ludus::Engine::Persistence
 
 	void ProjectRepository::SaveSceneAs(
 		const std::filesystem::path& path,
-		Ludus::Engine::Persistence::ProjectContext& context,
+		Ludus::Engine::Core::ProjectContext& context,
 		const Ludus::Engine::Core::Scene& scene,
 		Ludus::Engine::Core::SceneHandle sceneHandle
 	)

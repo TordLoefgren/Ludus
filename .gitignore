@@ -72,6 +72,12 @@ x86/
 x64/
 x86/
 build/
+!Editor/Include/Ludus/Editor/Build/
+!Editor/Include/Ludus/Editor/Build/**
+!Editor/Source/Ludus/Editor/Build/
+!Editor/Source/Ludus/Editor/Build/**
+!Engine/Include/Ludus/Engine/Core/Build/
+!Engine/Include/Ludus/Engine/Core/Build/**
 bld/
 [Bb]in/
 [Oo]bj/

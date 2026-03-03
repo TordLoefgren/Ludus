@@ -25,7 +25,7 @@ namespace Ludus::Editor::Panels
 
 				if (auto openedFilePath = m_AssetBrowser.ConsumeOpenedFilePath(); openedFilePath.has_value())
 				{
-					if (openedFilePath->extension() == ".lscene")
+					if (openedFilePath->extension() == ".ludus.scene")
 					{
 						context.EditorContext.State.Commands.AddRequestCommand(
 							Ludus::Editor::Commands::RequestCommand::OpenScene { *openedFilePath }
@@ -38,7 +38,7 @@ namespace Ludus::Editor::Panels
 		return true;
 	}
 
-	void ProjectPanel::Refresh(std::optional< Ludus::Engine::Persistence::ProjectContext> projectContext)
+	void ProjectPanel::Refresh(std::optional< Ludus::Engine::Core::ProjectContext> projectContext)
 	{
 		if (!projectContext.has_value())
 		{

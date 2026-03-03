@@ -10,9 +10,15 @@ namespace Ludus::Engine::Components
 	struct Collider2DComponent;
 	struct DisplayNameComponent;
 	struct RigidBody2DComponent;
+	struct ScriptComponent;
 	struct Sprite2DComponent;
 	struct Text2DComponent;
 	struct Transform2DComponent;
+}
+
+namespace Ludus::Engine::Core
+{
+	struct ProjectContext;
 }
 
 namespace Ludus::Editor::Panels
@@ -25,6 +31,10 @@ namespace Ludus::Editor::Panels
 		static void DrawTransform2D(Ludus::Engine::Components::Transform2DComponent& component);
 		static void DrawCollider2D(Ludus::Engine::Components::Collider2DComponent& component);
 		static void DrawRigidBody2D(Ludus::Engine::Components::RigidBody2DComponent& component);
+		static void DrawScript(
+			Ludus::Engine::Components::ScriptComponent& component,
+			const Ludus::Engine::Core::ProjectContext& projectContext
+		);
 		static void DrawSprite2D(Ludus::Engine::Components::Sprite2DComponent& component);
 		static void DrawText2D(Ludus::Engine::Components::Text2DComponent& component);
 		static void DrawCamera2D(Ludus::Engine::Components::Camera2DComponent& component);

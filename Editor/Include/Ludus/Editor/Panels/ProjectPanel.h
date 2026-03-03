@@ -21,7 +21,7 @@ namespace Ludus::Editor::Panels
 		virtual bool* GetOpenFlag(Ludus::Editor::Panels::PanelContext& context) override { return &context.ActivePanelState.ShowProjectPanel; }
 		virtual bool UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
 
-		void Refresh(std::optional<Ludus::Engine::Persistence::ProjectContext> projectContext);
+		void Refresh(std::optional<Ludus::Engine::Core::ProjectContext> projectContext);
 
 		void Initialize(const std::filesystem::path& directory) { m_AssetBrowser.FromDirectory(directory); }
 		void Clear() { m_AssetBrowser.Clear(); }

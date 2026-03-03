@@ -1,0 +1,20 @@
+#include <Scripts.h>
+
+using namespace Ludus::Scripts;
+
+static void OnCreate(EntityId self, ScriptContext* context)
+{
+	context->Print("[CREATE] From SCRIPT_NAME");
+}
+
+static void OnDestroy(EntityId self, ScriptContext* context)
+{
+	context->Print("[DESTROY] From SCRIPT_NAME");
+}
+
+static void OnUpdate(EntityId self, float dt, ScriptContext* context)
+{
+	context->Print("[UPDATE] From SCRIPT_NAME");
+}
+
+LUDUS_DEFINE_SCRIPT(SCRIPT_NAME, &OnCreate, &OnDestroy, &OnUpdate);

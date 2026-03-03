@@ -1,6 +1,5 @@
 #pragma once
 
-#include <format>
 #include <string>
 
 #include <Ludus/Engine/Components/RigidBody2DComponent.h>
@@ -46,7 +45,7 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::Key { "Mass" });
 			writer.Emit(Token::Double { rigidBody.Mass });
 
-			const std::string type = std::format("{}", rigidBody.Type);
+			const std::string type = Ludus::Engine::Core::Enums::GetDisplayName(rigidBody.Type);
 			writer.Emit(Token::Key { "Type" });
 			writer.Emit(Token::String { type });
 
@@ -122,11 +121,11 @@ namespace Ludus::Engine::Serialization::Schemas
 			}
 			catch (const SerializationException& ex)
 			{
-				const auto error =
-					Ludus::Engine::Serialization::Core::WithContext(ex, "RigidBody2DComponentSchema::Deserialize");
-				return Ludus::Engine::Core::Expected<RigidBody, SerializationException>(
-					Ludus::Engine::Core::Unexpected<SerializationException>::Create(error)
+				const auto error = Ludus::Engine::Serialization::Core::WithContext(
+					ex, "RigidBody2DComponentSchema::Deserialize"
 				);
+
+				return Ludus::Engine::Core::Unexpected<SerializationException>::Create(error);
 			}
 		}
 	};

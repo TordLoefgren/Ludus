@@ -33,8 +33,9 @@ namespace Ludus::Engine::Core
 
 		std::vector<BuilderCommand> m_BuilderCommands;
 
-		bool m_HasDefaultRendering2D = false;
 		bool m_HasDefaultPhysics2D = false;
+		bool m_HasDefaultRendering2D = false;
+		bool m_HasDefaultScripting = false;
 
 	public:
 		static ApplicationBuilder Create() { return ApplicationBuilder { }; }
@@ -49,8 +50,9 @@ namespace Ludus::Engine::Core
 		ApplicationBuilder& WithPhysicsConfiguration(Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration);
 		ApplicationBuilder& WithWindowOptions(Ludus::Engine::Windowing::WindowOptions windowOptions);
 
-		ApplicationBuilder& UseDefaultRendering2D();
 		ApplicationBuilder& UseDefaultPhysics2D();
+		ApplicationBuilder& UseDefaultRendering2D();
+		ApplicationBuilder& UseDefaultScripting();
 
 		ApplicationBuilder& Configure(BuilderCommand command);
 
@@ -61,18 +63,13 @@ namespace Ludus::Engine::Core
 		{
 			auto capturedArgs = std::make_tuple(std::forward<TArgs>(args)...);
 
-			m_BuilderCommands.emplace_back(
-				[descriptor, capturedArgs = std::move(capturedArgs)](Ludus::Engine::Core::Application& application) mutable
+			m_BuilderCommands.emplace_back([descriptor, capturedArgs = std::move(capturedArgs)](Ludus::Engine::Core::Application& application) mutable
 			{
-				std::apply(
-					[&](auto&... unpackedArgs)
+				std::apply([&](auto&... unpackedArgs)
 				{
 					application.AddSystem<TSystem>(descriptor, unpackedArgs...);
-				},
-					capturedArgs
-				);
-			}
-			);
+				}, capturedArgs);
+			});
 
 			return *this;
 		}
@@ -82,18 +79,13 @@ namespace Ludus::Engine::Core
 		{
 			auto capturedArgs = std::make_tuple(std::forward<TArgs>(args)...);
 
-			m_BuilderCommands.emplace_back(
-				[capturedArgs = std::move(capturedArgs)](Ludus::Engine::Core::Application& application) mutable
+			m_BuilderCommands.emplace_back([capturedArgs = std::move(capturedArgs)](Ludus::Engine::Core::Application& application) mutable
 			{
-				std::apply(
-					[&](auto&... unpackedArgs)
+				std::apply([&](auto&... unpackedArgs)
 				{
 					application.AddFixedUpdateSystem<TSystem>(unpackedArgs...);
-				},
-					capturedArgs
-				);
-			}
-			);
+				}, capturedArgs);
+			});
 
 			return *this;
 		}
@@ -103,18 +95,13 @@ namespace Ludus::Engine::Core
 		{
 			auto capturedArgs = std::make_tuple(std::forward<TArgs>(args)...);
 
-			m_BuilderCommands.emplace_back(
-				[capturedArgs = std::move(capturedArgs)](Ludus::Engine::Core::Application& application) mutable
+			m_BuilderCommands.emplace_back([capturedArgs = std::move(capturedArgs)](Ludus::Engine::Core::Application& application) mutable
 			{
-				std::apply(
-					[&](auto&... unpackedArgs)
+				std::apply([&](auto&... unpackedArgs)
 				{
 					application.AddRenderSystem<TSystem>(unpackedArgs...);
-				},
-					capturedArgs
-				);
-			}
-			);
+				}, capturedArgs);
+			});
 
 			return *this;
 		}
@@ -124,18 +111,13 @@ namespace Ludus::Engine::Core
 		{
 			auto capturedArgs = std::make_tuple(std::forward<TArgs>(args)...);
 
-			m_BuilderCommands.emplace_back(
-				[capturedArgs = std::move(capturedArgs)](Ludus::Engine::Core::Application& application) mutable
+			m_BuilderCommands.emplace_back([capturedArgs = std::move(capturedArgs)](Ludus::Engine::Core::Application& application) mutable
 			{
-				std::apply(
-					[&](auto&... unpackedArgs)
+				std::apply([&](auto&... unpackedArgs)
 				{
 					application.AddUpdateSystem<TSystem>(unpackedArgs...);
-				},
-					capturedArgs
-				);
-			}
-			);
+				}, capturedArgs);
+			});
 
 			return *this;
 		}
@@ -145,12 +127,10 @@ namespace Ludus::Engine::Core
 		{
 			auto capturedResource = std::forward<T>(resource);
 
-			m_BuilderCommands.emplace_back(
-				[capturedResource = std::move(capturedResource)](Ludus::Engine::Core::Application& application) mutable
+			m_BuilderCommands.emplace_back([capturedResource = std::move(capturedResource)](Ludus::Engine::Core::Application& application) mutable
 			{
 				application.AddResource(capturedResource);
-			}
-			);
+			});
 
 			return *this;
 		}

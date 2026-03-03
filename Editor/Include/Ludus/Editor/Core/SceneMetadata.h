@@ -6,7 +6,7 @@
 
 namespace Ludus::Editor::Core
 {
-	struct EditorSceneMetadata
+	struct SceneMetadata
 	{
 		std::optional<std::filesystem::path> Path;
 		bool IsDirty = false;

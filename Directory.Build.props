@@ -16,13 +16,6 @@
     <VcpkgXUseBuiltInApplocalDeps>true</VcpkgXUseBuiltInApplocalDeps>
   </PropertyGroup>
 
-  <!-- Always expose vendored GLFW headers to all C++ projects (including Tests). -->
-  <ItemDefinitionGroup>
-    <ClCompile>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)Engine\Vendors\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-  </ItemDefinitionGroup>
-
   <!-- Fallback include/lib paths for vcpkg-managed packages like freetype/glfw3. -->
   <ItemDefinitionGroup Condition="'$(VcpkgLocalTripletDir)' != '' and Exists('$(VcpkgLocalTripletDir)include')">
     <ClCompile>

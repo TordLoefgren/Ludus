@@ -11,7 +11,7 @@ namespace Ludus::Editor::Panels
 	class HierarchyPanel final : public Ludus::Editor::Panels::IPanel
 	{
 	private:
-		Ludus::Engine::Core::Random m_Random { };
+		Ludus::Engine::Core::Random m_Random {};
 
 		void DrawSceneContextMenu(Ludus::Editor::Panels::PanelContext& context, Ludus::Engine::Core::Scene& scene);
 		void DrawEntityRow(Ludus::Editor::Panels::PanelContext& context, Ludus::Engine::Core::Scene& scene, Ludus::Engine::Core::EntityHandle entityHandle);

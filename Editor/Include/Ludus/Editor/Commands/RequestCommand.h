@@ -6,6 +6,7 @@
 #include <utility>
 #include <variant>
 
+#include <Ludus/Editor/Commands/EntityReference.h>
 #include <Ludus/Editor/Core/ExecutionMode.h>
 #include <Ludus/Engine/Core/Scene.h>
 
@@ -24,15 +25,17 @@ namespace Ludus::Editor::Commands
 
 		struct CreateProject { std::string Name; std::optional<std::filesystem::path> RootPath = std::nullopt; };
 		struct OpenProject { std::filesystem::path Path; };
-		struct SaveProject { };
 		struct CloseProject { };
+
+		struct CreateScript { EntityReference Entity; Ludus::Engine::Core::SceneHandle Scene; std::string Name; };
 
 		struct SetExecutionMode { Ludus::Editor::Core::ExecutionMode Mode; };
 
 		using Variant = std::variant<
 			AddViewport,
 			CreateScene, OpenScene, SaveScene, SaveSceneAs,
-			CreateProject, OpenProject, SaveProject, CloseProject,
+			CreateProject, OpenProject, CloseProject,
+			CreateScript,
 			SetExecutionMode
 		>;
 

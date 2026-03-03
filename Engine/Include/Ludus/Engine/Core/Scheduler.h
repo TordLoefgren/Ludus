@@ -18,7 +18,7 @@ namespace Ludus::Engine::Core
 	{
 		SystemContext& m_SystemContext;
 
-		explicit Scheduler(SystemContext& context) : m_SystemContext(context) {}
+		explicit Scheduler(SystemContext& context) : m_SystemContext(context) { }
 
 	private:
 		std::vector<std::unique_ptr<ISystem>> m_Systems;
@@ -27,19 +27,15 @@ namespace Ludus::Engine::Core
 		void SortPhase(SystemPhase phase)
 		{
 			auto& systems = m_SystemsByPhase[phase];
-			std::sort(
-				systems.begin(),
-				systems.end(),
-				[](const ScheduledSystem& a, const ScheduledSystem& b)
-				{
-					return a.Order < b.Order;
-				}
-			);
+			std::sort(systems.begin(), systems.end(), [](const ScheduledSystem& a, const ScheduledSystem& b)
+			{
+				return a.Order < b.Order;
+			});
 		}
 
 	public:
 
-		void AttachSystem(SystemDescriptor descriptor, std::unique_ptr<ISystem> system)
+		void AddSystem(SystemDescriptor descriptor, std::unique_ptr<ISystem> system)
 		{
 			auto* system_ptr = system.get();
 			m_Systems.push_back(std::move(system));
@@ -48,7 +44,7 @@ namespace Ludus::Engine::Core
 			SortPhase(descriptor.Phase);
 		}
 
-		void AttachSystem(std::initializer_list<SystemDescriptor> descriptors, std::unique_ptr<ISystem> system)
+		void AddSystem(std::initializer_list<SystemDescriptor> descriptors, std::unique_ptr<ISystem> system)
 		{
 			auto* system_ptr = system.get();
 			m_Systems.push_back(std::move(system));
@@ -129,19 +125,35 @@ namespace Ludus::Engine::Core
 
 					switch (phase)
 					{
-					case SystemPhase::FixedUpdate:
-						entry.System->FixedUpdate(time);
-						break;
-					case SystemPhase::Update:
-						entry.System->Update(time);
-						break;
-					case SystemPhase::Render:
-						entry.System->Render();
-						break;
-					default:
-						break;
+						case SystemPhase::FixedUpdate:
+							entry.System->FixedUpdate(time);
+							break;
+						case SystemPhase::Update:
+							entry.System->Update(time);
+							break;
+						case SystemPhase::Render:
+							entry.System->Render();
+							break;
+						default:
+							break;
 					}
 				}
+			}
+		}
+
+		void AttachSystems()
+		{
+			for (auto& system : m_Systems)
+			{
+				system->OnAttach(m_SystemContext);
+			}
+		}
+
+		void DetachSystems()
+		{
+			for (auto& system : m_Systems)
+			{
+				system->OnDetach();
 			}
 		}
 	};

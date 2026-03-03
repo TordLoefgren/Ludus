@@ -1,10 +1,9 @@
-#include <pch.h>
+#include "pch.h"
 
 #include <algorithm>
 #include <cmath>
 
 #include <Ludus/Editor/Core/Constants.h>
-#include <Ludus/Editor/Core/Utilities.h>
 #include <Ludus/Editor/Core/ViewportDisplayMode.h>
 #include <Ludus/Editor/Panels/ViewportPanel.h>
 #include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
@@ -169,15 +168,16 @@ namespace Ludus::Editor::Panels
 			| Ludus::UI::Flags::Window::NoScrollbar
 			| Ludus::UI::Flags::Window::NoScrollWithMouse;
 
-		Ludus::UI::Scope::StyleVarScope styleVar({ Ludus::UI::Scope::StyleVar::Vector(Ludus::UI::Scope::Variable::WindowPadding, {0.0f, 0.0f }) });
+		Ludus::UI::Scope::StyleVarScope styleVar({ Ludus::UI::Scope::StyleVar::Vector(Ludus::UI::Scope::Variable::WindowPadding, { 0.0f, 0.0f }) });
 
 		auto windowTitle = CreateUniqueWindowTitle(m_Title);
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, flags); window)
 		{
 			const auto availableWidth = Ludus::UI::Context::WindowContext::GetContentRegionAvailable().X;
 			Ludus::UI::Context::LayoutContext::SetNextItemWidth(availableWidth);
+
 			auto displayModeLabel = Ludus::UI::CreateLabel("Display Mode", "DisplayMode_Combo");
-			auto _ = Ludus::Editor::Core::Utilities::ComboEnum(displayModeLabel.c_str(), m_DisplayMode);
+			auto _ = Ludus::UI::Widgets::ComboEnum(displayModeLabel.c_str(), m_DisplayMode);
 
 			auto& registry = context.SystemContext.SceneRegistry;
 			auto& session = context.EditorContext.Session;
@@ -235,7 +235,7 @@ namespace Ludus::Editor::Panels
 				{
 					viewportPosition,
 					aspectSize
-				}
+			}
 			};
 
 			context.SystemContext.RenderViewRequests.Register(renderViewRequest);

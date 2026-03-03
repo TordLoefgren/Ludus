@@ -159,6 +159,37 @@ namespace Ludus::UI::Flags
 		AnyPopup = AnyPopupId | AnyPopupLevel,
 	};
 
+	enum class TabBar : uint32_t
+	{
+		None = 0,
+		Reorderable = 1 << 0,
+		AutoSelectNewTabs = 1 << 1,
+		TabListPopupButton = 1 << 2,
+		NoCloseWithMiddleMouseButton = 1 << 3,
+		NoTabListScrollingButtons = 1 << 4,
+		NoTooltip = 1 << 5,
+		DrawSelectedOverline = 1 << 6,
+		FittingPolicyMixed = 1 << 7,
+		FittingPolicyShrink = 1 << 8,
+		FittingPolicyScroll = 1 << 9,
+		FittingPolicyMask_ = FittingPolicyMixed | FittingPolicyShrink | FittingPolicyScroll,
+		FittingPolicyDefault_ = FittingPolicyMixed,
+	};
+
+	enum class TabItem : uint32_t
+	{
+		None = 0,
+		UnsavedDocument = 1 << 0,
+		SetSelected = 1 << 1,
+		NoCloseWithMiddleMouseButton = 1 << 2,
+		NoPushId = 1 << 3,
+		NoTooltip = 1 << 4,
+		NoReorder = 1 << 5,
+		Leading = 1 << 6,
+		Trailing = 1 << 7,
+		NoAssumedClosure = 1 << 8,
+	};
+
 	enum class Table : uint32_t
 	{
 		None = 0,

@@ -22,6 +22,7 @@ namespace Ludus::Engine::Serialization::Schemas
 		static constexpr std::string_view Camera2DString = "Camera2D";
 		static constexpr std::string_view Collider2DString = "Collider2D";
 		static constexpr std::string_view RigidBody2DString = "RigidBody2D";
+		static constexpr std::string_view ScriptString = "Script";
 		static constexpr std::string_view Sprite2DString = "Sprite2D";
 		static constexpr std::string_view Text2DString = "Text2D";
 		static constexpr std::string_view Transform2DString = "Transform2D";

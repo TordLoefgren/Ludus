@@ -26,6 +26,11 @@ namespace Ludus::Engine::Windowing
 		Window(WindowOptions options, Ludus::Engine::Events::EventBus& eventBus);
 		~Window();
 
+		Window(const Window&) = delete;
+		Window& operator=(const Window&) = delete;
+		Window(Window&&) = delete;
+		Window& operator=(Window&&) = delete;
+
 		void PollEvents();
 		void SwapBuffers();
 		void SetWindowShouldClose();

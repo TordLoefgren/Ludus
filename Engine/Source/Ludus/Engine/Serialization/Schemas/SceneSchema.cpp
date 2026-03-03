@@ -8,6 +8,7 @@
 #include <Ludus/Engine/Components/Collider2DComponent.h>
 #include <Ludus/Engine/Components/DisplayNameComponent.h>
 #include <Ludus/Engine/Components/RigidBody2DComponent.h>
+#include <Ludus/Engine/Components/ScriptComponent.h>
 #include <Ludus/Engine/Components/Sprite2DComponent.h>
 #include <Ludus/Engine/Components/Text2DComponent.h>
 #include <Ludus/Engine/Components/Transform2DComponent.h>
@@ -18,6 +19,7 @@
 #include <Ludus/Engine/Serialization/Schemas/DisplayNameComponentSchema.h>
 #include <Ludus/Engine/Serialization/Schemas/RigidBody2DComponentSchema.h>
 #include <Ludus/Engine/Serialization/Schemas/SceneSchema.h>
+#include <Ludus/Engine/Serialization/Schemas/ScriptComponentSchema.h>
 #include <Ludus/Engine/Serialization/Schemas/Sprite2DComponentSchema.h>
 #include <Ludus/Engine/Serialization/Schemas/Text2DComponentSchema.h>
 #include <Ludus/Engine/Serialization/Schemas/Transform2DComponentSchema.h>
@@ -33,6 +35,7 @@ namespace
 		std::optional<Ludus::Engine::Components::Collider2DComponent> Collider;
 		std::optional<Ludus::Engine::Components::DisplayNameComponent> DisplayName;
 		std::optional<Ludus::Engine::Components::RigidBody2DComponent> RigidBody;
+		std::optional<Ludus::Engine::Components::ScriptComponent> Script;
 		std::optional<Ludus::Engine::Components::Sprite2DComponent> Sprite;
 		std::optional<Ludus::Engine::Components::Text2DComponent> Text;
 		std::optional<Ludus::Engine::Components::Transform2DComponent> Transform;
@@ -119,6 +122,12 @@ namespace Ludus::Engine::Serialization::Schemas
 			{
 				writer.Emit(Token::Key { RigidBody2DString });
 				RigidBody2DComponentSchema::Serialize(writer, *rigidBody);
+			}
+
+			if (const auto* script = ecs.Scripts.TryGetByOwner(entity.Handle))
+			{
+				writer.Emit(Token::Key { ScriptString });
+				ScriptComponentSchema::Serialize(writer, *script);
 			}
 
 			if (const auto* sprite = ecs.Sprites.TryGetByOwner(entity.Handle))
@@ -218,6 +227,14 @@ namespace Ludus::Engine::Serialization::Schemas
 								}
 								return;
 							}
+							if (entityKey == ScriptString)
+							{
+								if (!TryReadComponent(reader, stagedComponents.Script, ScriptComponentSchema::Deserialize, "Script"))
+								{
+									entityValid = false;
+								}
+								return;
+							}
 							if (entityKey == Sprite2DString)
 							{
 								if (!TryReadComponent(reader, stagedComponents.Sprite, Sprite2DComponentSchema::Deserialize, "Sprite2D"))
@@ -267,6 +284,10 @@ namespace Ludus::Engine::Serialization::Schemas
 						{
 							entityValid = false;
 						}
+						if (stagedComponents.Script && stagedComponents.Script->OwnerHandle != entityHandle)
+						{
+							entityValid = false;
+						}
 						if (stagedComponents.Sprite && stagedComponents.Sprite->OwnerHandle != entityHandle)
 						{
 							entityValid = false;
@@ -307,6 +328,11 @@ namespace Ludus::Engine::Serialization::Schemas
 							scene.EntityComponentSystem.AttachRigidBody(stagedComponents.RigidBody.value());
 						}
 
+						if (stagedComponents.Script.has_value())
+						{
+							scene.EntityComponentSystem.AttachScript(stagedComponents.Script.value());
+						}
+
 						if (stagedComponents.Sprite.has_value())
 						{
 							scene.EntityComponentSystem.AttachSprite(stagedComponents.Sprite.value());
@@ -337,10 +363,11 @@ namespace Ludus::Engine::Serialization::Schemas
 		}
 		catch (const SerializationException& ex)
 		{
-			const auto error = Ludus::Engine::Serialization::Core::WithContext(ex, "SceneSchema::Deserialize");
-			return Ludus::Engine::Core::Expected<Scene, SerializationException>(
-				Ludus::Engine::Core::Unexpected<SerializationException>::Create(error)
+			const auto error = Ludus::Engine::Serialization::Core::WithContext(
+				ex, "SceneSchema::Deserialize"
 			);
+
+			return Ludus::Engine::Core::Unexpected<SerializationException>::Create(error);
 		}
 
 		return scene;

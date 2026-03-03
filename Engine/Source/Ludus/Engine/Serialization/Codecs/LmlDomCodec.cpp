@@ -75,6 +75,11 @@ namespace
 
 	bool ShouldQuoteString(std::string_view raw)
 	{
+		if (raw.empty())
+		{
+			return true;
+		}
+
 		if (raw == "null" || raw == "true" || raw == "false" || IsNumberLiteralForString(raw))
 		{
 			return true;

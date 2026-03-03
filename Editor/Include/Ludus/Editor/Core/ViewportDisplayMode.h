@@ -1,7 +1,6 @@
 #pragma once
 
 #include <array>
-#include <format>
 #include <string_view>
 
 #include <Ludus/Engine/Core/Enums.h>
@@ -33,15 +32,3 @@ struct Ludus::Engine::Core::Enums::GetValues<Ludus::Editor::Core::ViewportDispla
 		Ludus::Editor::Core::ViewportDisplayMode::Simulation
 	};
 };
-
-namespace std
-{
-	template <>
-	struct formatter<Ludus::Editor::Core::ViewportDisplayMode> : formatter<string_view>
-	{
-		auto format(const Ludus::Editor::Core::ViewportDisplayMode& mode, format_context& context) const
-		{
-			return formatter<string_view>::format(Ludus::Editor::Core::ToString(mode), context);
-		}
-	};
-}

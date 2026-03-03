@@ -12,6 +12,7 @@ namespace Ludus::Editor::Commands
 		{
 			CommandContext& Context;
 
+			void operator()(const UICommand::OpenAddScriptDialog& command) const { UI::Dialogs::OpenAddScriptDialog(command, Context); }
 			void operator()(const UICommand::OpenCreateProjectDialog& command) const { UI::Dialogs::OpenCreateProjectDialog(command, Context); }
 
 			template<typename T>

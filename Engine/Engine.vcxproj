@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -22,15 +22,18 @@
     <Text Include="Resources\Fonts\liberation-sans\SIL Open Font License.txt" />
     <Text Include="Vendors\glad\LICENSE.khrplatform.txt" />
     <Text Include="Vendors\glad\LICENSE.txt" />
-    <Text Include="Vendors\GLFW\LICENSE.txt" />
     <Text Include="Vendors\glm\CMakeLists.txt" />
     <Text Include="Vendors\glm\copying.txt" />
     <Text Include="Vendors\stb_image\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Ludus\Engine\Components\DisplayNameComponent.h" />
+    <ClInclude Include="Include\Ludus\Engine\Components\ScriptComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\ApplicationBuilder.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\ApplicationOptions.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\Build\Configuration.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\Build\Platform.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\ScriptRuntimeState.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\ExecutionFlags.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Expected.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\FlagSet.h" />
@@ -41,6 +44,7 @@
     <ClInclude Include="Include\Ludus\Engine\Core\RenderViewRequestRegistry.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Scene.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\SceneRegistry.h" />
+    <ClInclude Include="Include\Ludus\Engine\Core\Strings.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\SystemConstraints.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\SystemDescriptor.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Variants.h" />
@@ -105,6 +109,16 @@
     <ClInclude Include="Include\Ludus\Engine\Persistence\LmlScenePersistence.h" />
     <ClInclude Include="Include\Ludus\Engine\Persistence\Paths.h" />
     <ClInclude Include="Include\Ludus\Engine\Persistence\ProjectRepository.h" />
+    <ClInclude Include="Include\Ludus\Engine\Platform\PlatformException.h" />
+    <ClInclude Include="Include\Ludus\Engine\Platform\Process.h" />
+    <ClInclude Include="Include\Ludus\Engine\Platform\SharedLibrary.h" />
+    <ClInclude Include="Include\Ludus\Engine\Platform\Shell.h" />
+    <ClInclude Include="Include\Ludus\Engine\Scripting\API\Macros.h" />
+    <ClInclude Include="Include\Ludus\Engine\Scripting\API\Scripts\Scripts.h" />
+    <ClInclude Include="Include\Ludus\Engine\Scripting\API\Registry.h" />
+    <ClInclude Include="Include\Ludus\Engine\Scripting\ScriptRepository.h" />
+    <ClInclude Include="Include\Ludus\Engine\Scripting\ScriptInstanceState.h" />
+    <ClInclude Include="Include\Ludus\Engine\Scripting\API\Types.h" />
     <ClInclude Include="Include\Ludus\Engine\Serialization\Core\DomDocument.h" />
     <ClInclude Include="Include\Ludus\Engine\Serialization\Core\DomTokenStreamReader.h" />
     <ClInclude Include="Include\Ludus\Engine\Serialization\Core\DomTokenStreamWriter.h" />
@@ -119,6 +133,7 @@
     <ClInclude Include="Include\Ludus\Engine\Serialization\Schemas\DisplayNameComponentSchema.h" />
     <ClInclude Include="Include\Ludus\Engine\Serialization\Schemas\ProjectSchema.h" />
     <ClInclude Include="Include\Ludus\Engine\Serialization\Schemas\RigidBody2DComponentSchema.h" />
+    <ClInclude Include="Include\Ludus\Engine\Serialization\Schemas\ScriptComponentSchema.h" />
     <ClInclude Include="Include\Ludus\Engine\Serialization\Schemas\SceneSchema.h" />
     <ClInclude Include="Include\Ludus\Engine\Serialization\Schemas\Sprite2DComponentSchema.h" />
     <ClInclude Include="Include\Ludus\Engine\Serialization\Core\DomNode.h" />
@@ -179,11 +194,12 @@
     <ClInclude Include="Include\Ludus\Engine\Core\Scheduler.h" />
     <ClInclude Include="Include\Ludus\Engine\Windowing\WindowUserData.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderingPipeline2D.h" />
+    <ClInclude Include="Include\Ludus\Engine\Scripting\ScriptSystem.h" />
     <ClInclude Include="Source\Ludus\Engine\pch.h" />
+    <ClInclude Include="Source\Ludus\Engine\Platform\Windows\WinShellExecute.h" />
+    <ClInclude Include="Source\Ludus\Engine\Platform\Windows\WinText.h" />
     <ClInclude Include="Vendors\glad\include\glad\glad.h" />
     <ClInclude Include="Vendors\glad\include\KHR\khrplatform.h" />
-    <ClInclude Include="Vendors\GLFW\include\GLFW\glfw3.h" />
-    <ClInclude Include="Vendors\GLFW\include\GLFW\glfw3native.h" />
     <ClInclude Include="Vendors\glm\common.hpp" />
     <ClInclude Include="Vendors\glm\detail\compute_common.hpp" />
     <ClInclude Include="Vendors\glm\detail\compute_vector_decl.hpp" />
@@ -507,6 +523,11 @@
     <ClCompile Include="Source\Ludus\Engine\Graphics\VertexArrayObject.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\VertexBufferObject.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Math\Vector2D.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Platform\Windows\Process.Windows.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Platform\Windows\SharedLibrary.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Platform\Windows\Shell.Windows.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Platform\Windows\WinShellExecute.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Platform\Windows\WinText.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Windowing\Input.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Windowing\Window.cpp" />
     <ClCompile Include="Vendors\glad\src\glad.c">
@@ -740,7 +761,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -758,7 +779,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -775,7 +796,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Source\Ludus\Engine;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Source\Ludus\Engine;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
@@ -799,7 +820,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Vendors\GLFW\include;$(ProjectDir)Source\Ludus\Engine;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Source\Ludus\Engine;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
