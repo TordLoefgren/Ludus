@@ -1,7 +1,6 @@
 #pragma once
 
 #include <array>
-#include <format>
 #include <string_view>
 
 #include <Ludus/Engine/Core/Enums.h>
@@ -46,15 +45,3 @@ struct Ludus::Engine::Core::Enums::GetValues<Ludus::Engine::Graphics::Shape>
 		Ludus::Engine::Graphics::Shape::Quad
 	};
 };
-
-namespace std
-{
-	template <>
-	struct formatter<Ludus::Engine::Graphics::Shape> : formatter<string_view>
-	{
-		auto format(const Ludus::Engine::Graphics::Shape& shape, format_context& context) const
-		{
-			return formatter<string_view>::format(Ludus::Engine::Graphics::ToString(shape), context);
-		}
-	};
-}

@@ -13,7 +13,7 @@ namespace Ludus::Engine::Serialization::Core
 	struct DomTokenStreamReader final : public ITokenStreamReader
 	{
 	private:
-		enum EmitState
+		enum class EmitState
 		{
 			ArrayEnd, ArrayStart, Element, Key, ObjectEnd, ObjectStart, Value,
 		};

@@ -5,7 +5,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include <Ludus/Editor/Core/EditorSceneMetadata.h>
+#include <Ludus/Editor/Core/ProjectMetadata.h>
+#include <Ludus/Editor/Core/SceneMetadata.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Debug/Debug.h>
 
@@ -14,8 +15,9 @@ namespace Ludus::Editor::Core
 	struct EditorSession
 	{
 	private:
-		std::unordered_map<Ludus::Engine::Core::SceneHandle, EditorSceneMetadata> m_SceneMetadata;
+		std::unordered_map<Ludus::Engine::Core::SceneHandle, SceneMetadata> m_SceneMetadata;
 		std::optional<Ludus::Engine::Core::SceneHandle> m_ActiveScene;
+		ProjectMetadata m_ProjectMetadata;
 
 	public:
 		bool HasMetadata(Ludus::Engine::Core::SceneHandle handle) const
@@ -23,26 +25,26 @@ namespace Ludus::Editor::Core
 			return m_SceneMetadata.contains(handle);
 		}
 
-		EditorSceneMetadata* TryGetMetadata(Ludus::Engine::Core::SceneHandle handle)
+		SceneMetadata* TryGetMetadata(Ludus::Engine::Core::SceneHandle handle)
 		{
 			auto iter = m_SceneMetadata.find(handle);
 			return iter == m_SceneMetadata.end() ? nullptr : &iter->second;
 		}
 
-		const EditorSceneMetadata* TryGetMetadata(Ludus::Engine::Core::SceneHandle handle) const
+		const SceneMetadata* TryGetMetadata(Ludus::Engine::Core::SceneHandle handle) const
 		{
 			auto iter = m_SceneMetadata.find(handle);
 			return iter == m_SceneMetadata.end() ? nullptr : &iter->second;
 		}
 
-		EditorSceneMetadata& GetMetadata(Ludus::Engine::Core::SceneHandle handle)
+		SceneMetadata& GetMetadata(Ludus::Engine::Core::SceneHandle handle)
 		{
 			auto* metadata = TryGetMetadata(handle);
 			LUDUS_ASSERT(metadata != nullptr, "Missing editor metadata for scene.");
 			return *metadata;
 		}
 
-		void EnsureMetadata(Ludus::Engine::Core::SceneHandle handle, EditorSceneMetadata metadata = {})
+		void EnsureMetadata(Ludus::Engine::Core::SceneHandle handle, SceneMetadata metadata = {})
 		{
 			m_SceneMetadata.try_emplace(handle, std::move(metadata));
 			if (!m_ActiveScene.has_value())
@@ -115,6 +117,16 @@ namespace Ludus::Editor::Core
 			metadata.Path = std::move(path);
 		}
 
+		bool IsProjectDirty() const
+		{
+			return m_ProjectMetadata.IsDirty;
+		}
+
+		void MarkProjectDirty(bool dirty = true)
+		{
+			m_ProjectMetadata.IsDirty = dirty;
+		}
+
 		std::vector<Ludus::Engine::Core::SceneHandle> GetOpenInHierarchyHandles() const
 		{
 			std::vector<Ludus::Engine::Core::SceneHandle> result;
@@ -135,6 +147,7 @@ namespace Ludus::Editor::Core
 		{
 			m_SceneMetadata.clear();
 			m_ActiveScene.reset();
+			m_ProjectMetadata = {};
 		}
 	};
 }

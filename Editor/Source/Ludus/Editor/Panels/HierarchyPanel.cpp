@@ -19,6 +19,7 @@
 #include <Ludus/UI/Icons/FontAwesome.h>
 #include <Ludus/UI/Labels.h>
 #include <Ludus/UI/Scope/ComboScope.h>
+#include <Ludus/UI/Scope/DisabledScope.h>
 #include <Ludus/UI/Scope/MenuScope.h>
 #include <Ludus/UI/Scope/PopupScope.h>
 #include <Ludus/UI/Scope/TreeNodeScope.h>
@@ -95,6 +96,14 @@ namespace Ludus::Editor::Panels
 					isComponentAdded = true;
 				}
 
+				if (!ecs.Scripts.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Script"))
+				{
+					Commands::EnqueueUI(context.EditorContext, Commands::UICommand::OpenAddScriptDialog {
+						.Entity = entityHandle, .Scene = sceneHandle
+						});
+					// The added component will be selected later as part of the command chain.
+				}
+
 				if (!ecs.Sprites.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Sprite 2D"))
 				{
 					Commands::EnqueueEdit(context.EditorContext, Commands::EditCommand::AddComponent<Component::Sprite2DComponent> {
@@ -113,7 +122,7 @@ namespace Ludus::Editor::Panels
 
 				if (isComponentAdded)
 				{
-					Commands::EnqueueEdit(context.EditorContext, Commands::EditCommand::SelectEntity { entityHandle });
+					Commands::EnqueueEdit(context.EditorContext, Commands::EditCommand::SelectEntity { .Entity = entityHandle });
 				}
 			}
 		}
@@ -173,7 +182,7 @@ namespace Ludus::Editor::Panels
 
 			if (Ludus::UI::Scope::MenuScope menu("Add sprite"); menu)
 			{
-				Ludus::Engine::Graphics::Shape shape {};
+				Ludus::Engine::Graphics::Shape shape { };
 				std::string name;
 				bool hasSprite = false;
 

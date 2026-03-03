@@ -1,4 +1,4 @@
-#include <pch.h>
+#include "pch.h"
 
 #include <functional>
 #include <memory>
@@ -12,6 +12,7 @@
 #include <Ludus/Engine/Graphics/RenderingSystem2D.h>
 #include <Ludus/Engine/Graphics/RenderViewSystem.h>
 #include <Ludus/Engine/Physics/Core/PhysicsSystem2D.h>
+#include <Ludus/Engine/Scripting/ScriptSystem.h>
 
 namespace Ludus::Engine::Core
 {
@@ -82,12 +83,37 @@ namespace Ludus::Engine::Core
 		return *this;
 	}
 
+	ApplicationBuilder& ApplicationBuilder::UseDefaultPhysics2D()
+	{
+		if (!m_HasDefaultPhysics2D)
+		{
+			m_BuilderCommands.emplace_back([](Ludus::Engine::Core::Application& application)
+			{
+				// A physics context will already have been created when this build command is invoked.
+				auto& physicsConfiguration = application.GetPhysicsConfiguration();
+				auto physicsSystem = std::make_unique<Ludus::Engine::Physics::Core::PhysicsSystem2D>(physicsConfiguration);
+				auto constraints = Ludus::Engine::Core::SystemConstraints::Create()
+					.RequireAllOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::PhysicsEnabled))
+					.RequireAnyOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::PhysicsEnabled) | Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::SimulationEnabled));
+
+				application.AddSystem({ SystemPhase::FixedUpdate, SystemPhaseOrder::Before, constraints }, std::move(physicsSystem));
+			});
+
+			m_HasDefaultPhysics2D = true;
+		}
+		else
+		{
+			LUDUS_LOG_WARN("Invalid operation: Cannot add default physics system more than once.");
+		}
+
+		return *this;
+	}
+
 	ApplicationBuilder& ApplicationBuilder::UseDefaultRendering2D()
 	{
 		if (!m_HasDefaultRendering2D)
 		{
-			m_BuilderCommands.emplace_back(
-				[renderingOptions = m_RenderingOptions, renderViewConfiguration = m_RenderViewConfiguration](Ludus::Engine::Core::Application& application)
+			m_BuilderCommands.emplace_back([renderingOptions = m_RenderingOptions, renderViewConfiguration = m_RenderViewConfiguration](Ludus::Engine::Core::Application& application)
 			{
 				auto renderViewSystem = std::make_unique<Ludus::Engine::Graphics::RenderViewSystem>(renderViewConfiguration);
 				auto constraints = Ludus::Engine::Core::SystemConstraints::Create()
@@ -99,8 +125,7 @@ namespace Ludus::Engine::Core
 				auto renderingSystem = std::make_unique<Ludus::Engine::Graphics::RenderingSystem2D>(renderingOptions, renderingConfiguration);
 
 				application.AddSystem({ SystemPhase::Render, SystemPhaseOrder::Before }, std::move(renderingSystem));
-			}
-			);
+			});
 
 			m_HasDefaultRendering2D = true;
 		}
@@ -112,29 +137,39 @@ namespace Ludus::Engine::Core
 		return *this;
 	}
 
-	ApplicationBuilder& ApplicationBuilder::UseDefaultPhysics2D()
+	ApplicationBuilder& ApplicationBuilder::UseDefaultScripting()
 	{
-		if (!m_HasDefaultPhysics2D)
+		if (!m_HasDefaultScripting)
 		{
-			m_BuilderCommands.emplace_back(
-				[](Ludus::Engine::Core::Application& application)
+			m_BuilderCommands.emplace_back([](Ludus::Engine::Core::Application& application)
 			{
-				// A physics context will already have been created when this build command is invoked.
-				auto& physicsConfiguration = application.GetPhysicsConfiguration();
-				auto physicsSystem = std::make_unique<Ludus::Engine::Physics::Core::PhysicsSystem2D>(physicsConfiguration);
 				auto constraints = Ludus::Engine::Core::SystemConstraints::Create()
-					.RequireAllOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::PhysicsEnabled))
-					.RequireAnyOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::PhysicsEnabled) | Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::SimulationEnabled));
+					.RequireAllOf(
+						Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::ScriptingEnabled) |
+						Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::SimulationEnabled)
+					);
 
-				application.AddSystem({ SystemPhase::FixedUpdate, SystemPhaseOrder::Before, constraints }, std::move(physicsSystem));
-			}
-			);
+				auto scriptingSystem = std::make_unique<Ludus::Engine::Scripting::ScriptSystem>();
 
-			m_HasDefaultPhysics2D = true;
+				application.AddSystem(
+					{
+						SystemPhase::Update,
+						SystemPhaseOrder::Before,
+						constraints,
+						[](const Ludus::Engine::Core::SystemContext& context)
+						{
+							return context.ExecutionFlags.HasAny(Ludus::Engine::Core::ExecutionFlags::ScriptingEnabled);
+						}
+					},
+					std::move(scriptingSystem)
+				);
+			});
+
+			m_HasDefaultScripting = true;
 		}
 		else
 		{
-			LUDUS_LOG_WARN("Invalid operation: Cannot add default physics system more than once.");
+			LUDUS_LOG_WARN("Invalid operation: Cannot add default scripting system more than once.");
 		}
 
 		return *this;

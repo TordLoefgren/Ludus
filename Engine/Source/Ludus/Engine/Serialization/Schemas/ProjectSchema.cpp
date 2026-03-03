@@ -12,6 +12,7 @@ namespace Ludus::Engine::Serialization::Schemas
 {
 	using Token = Ludus::Engine::Serialization::Core::Token;
 	using ProjectSceneReference = Ludus::Engine::Core::ProjectSceneReference;
+	using ProjectScriptReference = Ludus::Engine::Core::ProjectScriptReference;
 
 	void ProjectSchema::Serialize(ITokenStreamWriter& writer, const Project& project)
 	{
@@ -39,6 +40,21 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::String { scene.Name });
 			writer.Emit(Token::Key { "Path" });
 			writer.Emit(Token::String { scene.Path.generic_string().c_str() });
+			writer.Emit(Token::EndObject { });
+		}
+
+		writer.Emit(Token::EndArray { });
+
+		writer.Emit(Token::Key { "Scripts" });
+		writer.Emit(Token::StartArray { });
+
+		for (const auto& script : project.Scripts)
+		{
+			writer.Emit(Token::StartObject { });
+			writer.Emit(Token::Key { "Handle" });
+			writer.Emit(Token::Uint { script.Handle });
+			writer.Emit(Token::Key { "Name" });
+			writer.Emit(Token::String { script.Name });
 			writer.Emit(Token::EndObject { });
 		}
 
@@ -150,6 +166,45 @@ namespace Ludus::Engine::Serialization::Schemas
 					project.ActiveSceneHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
 					return;
 				}
+				if (key == "Scripts")
+				{
+					Ludus::Engine::Serialization::Core::ConsumeAs<Token::StartArray>(reader);
+
+					while (!Ludus::Engine::Serialization::Core::Is<Token::EndArray>(reader.Peek()))
+					{
+						ProjectScriptReference script;
+						bool hasHandle = false;
+						bool hasName = false;
+
+						Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view scriptKey)
+						{
+							if (scriptKey == "Handle")
+							{
+								script.Handle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
+								hasHandle = true;
+								return;
+							}
+							if (scriptKey == "Name")
+							{
+								script.Name = std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
+								hasName = true;
+								return;
+							}
+
+							Ludus::Engine::Serialization::Core::SkipValue(reader);
+						});
+
+						if (!hasHandle || !hasName)
+						{
+							throw SerializationException("Project script entry is incomplete.");
+						}
+
+						project.Scripts.emplace_back(std::move(script));
+					}
+
+					Ludus::Engine::Serialization::Core::ConsumeAs<Token::EndArray>(reader);
+					return;
+				}
 
 				Ludus::Engine::Serialization::Core::SkipValue(reader);
 			});
@@ -163,10 +218,11 @@ namespace Ludus::Engine::Serialization::Schemas
 		}
 		catch (const SerializationException& ex)
 		{
-			const auto error = Ludus::Engine::Serialization::Core::WithContext(ex, "ProjectSchema::Deserialize");
-			return Ludus::Engine::Core::Expected<Project, SerializationException>(
-				Ludus::Engine::Core::Unexpected<SerializationException>::Create(error)
+			const auto error = Ludus::Engine::Serialization::Core::WithContext(
+				ex, "ProjectSchema::Deserialize"
 			);
+
+			return Ludus::Engine::Core::Unexpected<SerializationException>::Create(error);
 		}
 	}
 }

@@ -66,6 +66,7 @@ namespace Ludus::Engine::Core
 			*m_SceneRegistry,
 			*m_Window,
 			*m_RenderPresentationSettings,
+			applicationOptions.ScriptRuntime,
 			std::make_shared<Ludus::Engine::Graphics::RenderTarget>(windowOptions.StartupWidth, windowOptions.StartupHeight),
 			m_PhysicsConfiguration ? m_PhysicsConfiguration->QueryCache.get() : nullptr
 		),
@@ -96,18 +97,18 @@ namespace Ludus::Engine::Core
 
 	void Application::AddSystem(SystemDescriptor info, std::unique_ptr<ISystem> system)
 	{
-		system->OnAttach(m_SystemContext);
-		m_Scheduler->AttachSystem(info, std::move(system));
+		m_Scheduler->AddSystem(info, std::move(system));
 	}
 
 	void Application::AddSystem(std::initializer_list<SystemDescriptor> info, std::unique_ptr<ISystem> system)
 	{
-		system->OnAttach(m_SystemContext);
-		m_Scheduler->AttachSystem(info, std::move(system));
+		m_Scheduler->AddSystem(info, std::move(system));
 	}
 
 	void Application::Run()
 	{
+		m_Scheduler->AttachSystems();
+
 		while (!m_Window->WindowShouldClose())
 		{
 			const auto simulationEnabled = m_SystemContext.ExecutionFlags.HasAny(Ludus::Engine::Core::ExecutionFlags::SimulationEnabled);
@@ -136,6 +137,8 @@ namespace Ludus::Engine::Core
 
 			m_Window->SwapBuffers();
 		}
+
+		m_Scheduler->DetachSystems();
 	}
 
 	void Application::SubscribeToEvents()

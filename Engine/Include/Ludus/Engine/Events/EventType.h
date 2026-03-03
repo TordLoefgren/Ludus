@@ -1,6 +1,5 @@
 #pragma once
 
-#include <format>
 #include <string_view>
 
 namespace Ludus::Engine::Events
@@ -46,16 +45,4 @@ namespace Ludus::Engine::Events
 			default:									return "Unknown";
 		}
 	}
-}
-
-namespace std
-{
-	template <>
-	struct formatter<Ludus::Engine::Events::EventType> : formatter<string_view>
-	{
-		auto format(const Ludus::Engine::Events::EventType& type, format_context& context) const
-		{
-			return formatter<string_view>::format(Ludus::Engine::Events::ToString(type), context);
-		}
-	};
 }

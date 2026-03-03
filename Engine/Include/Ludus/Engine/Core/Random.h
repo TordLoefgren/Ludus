@@ -55,7 +55,7 @@ namespace Ludus::Engine::Core
 		/// <param name="max">The maximum value.</param>
 		/// <returns>A random unsigned integer.</returns>
 		/// <exception cref="std::invalid_argument">Thrown if min &gt;= max.</exception>
-		uint64_t NextUint64(const uint64_t min, const uint64_t max);
+		uint64_t NextUint64(const uint64_t min = 1u, const uint64_t max = std::numeric_limits<uint64_t>::max());
 
 		/// <summary>
 		/// Computes a random float in the range specified by min and max.

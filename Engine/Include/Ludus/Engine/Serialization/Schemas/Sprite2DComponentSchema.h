@@ -1,6 +1,5 @@
 #pragma once
 
-#include <format>
 #include <string>
 
 #include <Ludus/Engine/Components/Sprite2DComponent.h>
@@ -29,7 +28,7 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::Key { "OwnerHandle" });
 			writer.Emit(Token::Uint { sprite.OwnerHandle });
 
-			const std::string shape = std::format("{}", sprite.Shape);
+			const std::string shape = Ludus::Engine::Core::Enums::GetDisplayName(sprite.Shape);
 			writer.Emit(Token::Key { "Shape" });
 			writer.Emit(Token::String { shape });
 
@@ -129,11 +128,11 @@ namespace Ludus::Engine::Serialization::Schemas
 			}
 			catch (const SerializationException& ex)
 			{
-				const auto error =
-					Ludus::Engine::Serialization::Core::WithContext(ex, "Sprite2DComponentSchema::Deserialize");
-				return Ludus::Engine::Core::Expected<Sprite, SerializationException>(
-					Ludus::Engine::Core::Unexpected<SerializationException>::Create(error)
+				const auto error = Ludus::Engine::Serialization::Core::WithContext(
+					ex, "Sprite2DComponentSchema::Deserialize"
 				);
+
+				return Ludus::Engine::Core::Unexpected<SerializationException>::Create(error);
 			}
 		}
 	};

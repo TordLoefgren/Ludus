@@ -20,11 +20,11 @@ Notes:
 
 ### 2) GLFW
 - Component: GLFW 3
-- Location: `Engine/Vendors/GLFW`
+- Source: vcpkg dependency (`vcpkg.json`)
 - Upstream: https://www.glfw.org/
+- vcpkg port: https://github.com/microsoft/vcpkg/tree/master/ports/glfw3
 - License: zlib/libpng-style license
-- Local license text: Header notice in `Engine/Vendors/GLFW/include/GLFW/glfw3.h`
-- Local copied license file: `Engine/Vendors/GLFW/LICENSE.txt`
+- Local build source: resolved from vcpkg at build time (not vendored in this repository)
 
 ### 3) GLAD and Khronos Header
 - Component: glad OpenGL loader (generated)

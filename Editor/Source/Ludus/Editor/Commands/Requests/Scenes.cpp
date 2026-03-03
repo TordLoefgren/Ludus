@@ -11,7 +11,7 @@
 #include <Ludus/Editor/Commands/EditCommand.h>
 #include <Ludus/Editor/Commands/Requests/Scenes.h>
 #include <Ludus/Editor/Core/EditorContext.h>
-#include <Ludus/Editor/Core/EditorSceneMetadata.h>
+#include <Ludus/Editor/Core/SceneMetadata.h>
 #include <Ludus/Editor/Panels/PanelRegistry.h>
 #include <Ludus/Editor/Panels/ProjectPanel.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
@@ -78,6 +78,35 @@ namespace
 
 		return count == 0 ? baseName : std::format("{} ({})", baseName, count + 1);
 	}
+
+	bool EnsureProjectScriptReferences(
+		const Ludus::Engine::Core::Scene& scene,
+		Ludus::Engine::Core::ProjectContext& projectContext
+	)
+	{
+		bool hasChanges = false;
+		const auto scripts = scene.EntityComponentSystem.Scripts.View();
+		for (const auto& script : scripts)
+		{
+			hasChanges = projectContext.AddOrUpdateScriptReference(script.Handle, script.Name) || hasChanges;
+		}
+
+		return hasChanges;
+	}
+
+	bool EnsureProjectActiveScene(
+		Ludus::Engine::Core::ProjectContext& projectContext,
+		Ludus::Engine::Core::SceneHandle sceneHandle
+	)
+	{
+		if (projectContext.Project.ActiveSceneHandle == sceneHandle)
+		{
+			return false;
+		}
+
+		projectContext.Project.ActiveSceneHandle = sceneHandle;
+		return true;
+	}
 }
 
 namespace Ludus::Editor::Commands::Requests::Scenes
@@ -89,7 +118,7 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 
 		context.EditorContext.Session.EnsureMetadata(
 			handle,
-			Ludus::Editor::Core::EditorSceneMetadata {
+			Ludus::Editor::Core::SceneMetadata {
 				.Path = std::nullopt,
 				.IsDirty = true,
 				.IsOpenInHierarchy = true,
@@ -128,7 +157,7 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 		{
 			session.EnsureMetadata(
 				*knownHandle,
-				Ludus::Editor::Core::EditorSceneMetadata {
+				Ludus::Editor::Core::SceneMetadata {
 					.Path = command.Path,
 					.IsDirty = false
 				}
@@ -144,7 +173,7 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 		{
 			session.EnsureMetadata(
 				handle,
-				Ludus::Editor::Core::EditorSceneMetadata {
+				Ludus::Editor::Core::SceneMetadata {
 					.Path = command.Path,
 					.IsDirty = false
 				}
@@ -157,7 +186,7 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 
 		editorContext.Session.EnsureMetadata(
 			handle,
-			Ludus::Editor::Core::EditorSceneMetadata {
+			Ludus::Editor::Core::SceneMetadata {
 				.Path = command.Path,
 				.IsDirty = false
 			}
@@ -186,13 +215,32 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 		auto& sceneRegistry = systemContext.SceneRegistry;
 		auto& scene = sceneRegistry.GetScene(command.Handle);
 
+		if (EnsureProjectActiveScene(projectContext, command.Handle))
+		{
+			editorContext.Session.MarkProjectDirty();
+		}
+
+		const bool hasScriptReferenceChanges = EnsureProjectScriptReferences(scene, projectContext);
+		if (hasScriptReferenceChanges)
+		{
+			editorContext.Session.MarkProjectDirty();
+		}
+
 		if (!projectContext.HasSceneReference(command.Handle))
 		{
 			auto path = systemContext.ProjectRepository.GetDefaultScenePath(projectContext, scene.Name);
 
-			projectContext.AddOrUpdateSceneReference(command.Handle, scene.Name, path);
+			const bool hasSceneReferenceChange = projectContext.AddOrUpdateSceneReference(command.Handle, scene.Name, path);
+			if (hasSceneReferenceChange)
+			{
+				editorContext.Session.MarkProjectDirty();
+			}
 
-			systemContext.ProjectRepository.SaveProject(projectContext);
+			if (editorContext.Session.IsProjectDirty())
+			{
+				systemContext.ProjectRepository.SaveProject(projectContext);
+				editorContext.Session.MarkProjectDirty(false);
+			}
 			systemContext.ProjectRepository.SaveScene(scene, path);
 
 			editorContext.Session.SetPath(command.Handle, path);
@@ -200,6 +248,12 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 
 			RefreshProjectPanel(context);
 			return;
+		}
+
+		if (editorContext.Session.IsProjectDirty())
+		{
+			systemContext.ProjectRepository.SaveProject(projectContext);
+			editorContext.Session.MarkProjectDirty(false);
 		}
 
 		systemContext.ProjectRepository.SaveScene(projectContext, scene, command.Handle);
@@ -224,7 +278,14 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 		}
 
 		const auto& scene = systemContext.SceneRegistry.GetScene(command.Handle);
+
+		if (EnsureProjectActiveScene(systemContext.ProjectContext.value(), command.Handle))
+		{
+			editorContext.Session.MarkProjectDirty();
+		}
+
 		systemContext.ProjectRepository.SaveSceneAs(command.Path, systemContext.ProjectContext.value(), scene, command.Handle);
+		editorContext.Session.MarkProjectDirty(false);
 		editorContext.Session.SetPath(command.Handle, command.Path);
 		editorContext.Session.MarkDirty(command.Handle, false);
 

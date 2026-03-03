@@ -75,11 +75,11 @@ namespace Ludus::Engine::Serialization::Schemas
 			}
 			catch (const SerializationException& ex)
 			{
-				const auto error =
-					Ludus::Engine::Serialization::Core::WithContext(ex, "Camera2DComponentSchema::Deserialize");
-				return Ludus::Engine::Core::Expected<Camera, SerializationException>(
-					Ludus::Engine::Core::Unexpected<SerializationException>::Create(error)
+				const auto error = Ludus::Engine::Serialization::Core::WithContext(
+					ex, "Camera2DComponentSchema::Deserialize"
 				);
+
+				return Ludus::Engine::Core::Unexpected<SerializationException>::Create(error);
 			}
 		}
 

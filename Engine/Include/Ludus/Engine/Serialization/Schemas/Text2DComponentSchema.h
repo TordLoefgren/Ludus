@@ -1,6 +1,5 @@
 #pragma once
 
-#include <format>
 #include <string>
 
 #include <Ludus/Engine/Components/Text2DComponent.h>
@@ -48,7 +47,7 @@ namespace Ludus::Engine::Serialization::Schemas
 				writer.Emit(Token::EndObject { });
 			}
 
-			const std::string horizontalAlignment = std::format("{}", text.HorizontalAlignment);
+			const std::string horizontalAlignment = Ludus::Engine::Core::Enums::GetDisplayName(text.HorizontalAlignment);
 			writer.Emit(Token::Key { "HorizontalAlignment" });
 			writer.Emit(Token::String { horizontalAlignment });
 
@@ -129,11 +128,11 @@ namespace Ludus::Engine::Serialization::Schemas
 			}
 			catch (const SerializationException& ex)
 			{
-				const auto error =
-					Ludus::Engine::Serialization::Core::WithContext(ex, "Text2DComponentSchema::Deserialize");
-				return Ludus::Engine::Core::Expected<Text, SerializationException>(
-					Ludus::Engine::Core::Unexpected<SerializationException>::Create(error)
+				const auto error = Ludus::Engine::Serialization::Core::WithContext(
+					ex, "Text2DComponentSchema::Deserialize"
 				);
+
+				return Ludus::Engine::Core::Unexpected<SerializationException>::Create(error);
 			}
 		}
 	};

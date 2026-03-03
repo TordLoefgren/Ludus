@@ -44,6 +44,12 @@ namespace Ludus::Editor::Commands::Edit::Components
 	};
 
 	template <>
+	struct RegistrySelector<Ludus::Engine::Components::ScriptComponent>
+	{
+		static auto& Get(Ludus::Engine::Core::EntityComponentSystem& ecs) { return ecs.Scripts; }
+	};
+
+	template <>
 	struct RegistrySelector<Ludus::Engine::Components::Sprite2DComponent>
 	{
 		static auto& Get(Ludus::Engine::Core::EntityComponentSystem& ecs) { return ecs.Sprites; }

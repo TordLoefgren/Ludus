@@ -1,12 +1,12 @@
 #include "pch.h"
 
-#include <format>
 #include <unordered_map>
 #include <vector>
 
+#include <Ludus/Engine/Core/Enums.h>
 #include <Ludus/Engine/Debug/Debug.h>
-#include <Ludus/Engine/Events/EventBus.h>
 #include <Ludus/Engine/Events/Event.h>
+#include <Ludus/Engine/Events/EventBus.h>
 #include <Ludus/Engine/Events/EventHandler.h>
 
 namespace Ludus::Engine::Events
@@ -68,7 +68,11 @@ namespace Ludus::Engine::Events
 			if (iter == m_EventHandlers.end())
 			{
 				// If no handlers are present, discard the event.
-				LUDUS_LOG_WARN(std::format("The event bus discarded an event, as no handlers of type {} was present.", type));
+				LUDUS_LOG_WARN(
+					"The event bus discarded an event, as no handlers of type " +
+					std::string(Ludus::Engine::Core::Enums::GetDisplayName(type)) +
+					" was present."
+				);
 				queue.clear();
 
 				continue;

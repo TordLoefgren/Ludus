@@ -1,15 +1,19 @@
 #include "pch.h"
 
 #include <string>
+#include <string_view>
 
+#include <Ludus/Editor/Build/IScriptBuildPipeline.h>
 #include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/UICommand.h>
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Core/ExecutionMode.h>
 #include <Ludus/Editor/Panels/DockPanel.h>
+#include <Ludus/Editor/Persistence/Paths.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Platform/Modals.h>
+#include <Ludus/Engine/Platform/Process.h>
 #include <Ludus/UI/Context/DockingContext.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/PopupContext.h>
@@ -56,7 +60,7 @@ namespace Ludus::Editor::Panels
 						std::string path;
 						if (Ludus::Engine::Platform::Modals::OpenFileDialog(
 							path,
-							"lscene",
+							"ludus.scene",
 							Ludus::Engine::Persistence::Paths::ScenesDirectory(context.SystemContext.ProjectContext.value().ProjectRootDirectory)
 						))
 						{
@@ -88,7 +92,7 @@ namespace Ludus::Editor::Panels
 						std::string path;
 						if (Ludus::Engine::Platform::Modals::SaveFileDialog(
 							path,
-							"lscene",
+							"ludus.scene",
 							Ludus::Engine::Persistence::Paths::ScenesDirectory(context.SystemContext.ProjectContext.value().ProjectRootDirectory)
 						))
 						{
@@ -110,8 +114,8 @@ namespace Ludus::Editor::Panels
 					std::string path;
 					if (Ludus::Engine::Platform::Modals::OpenFileDialog(
 						path,
-						"lproj",
-						Ludus::Engine::Persistence::Paths::ProjectsRoot()
+						"ludus.app",
+						Ludus::Editor::Persistence::Paths::ProjectsRoot()
 					))
 					{
 						context.EditorContext.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::OpenProject { path });
@@ -120,13 +124,6 @@ namespace Ludus::Editor::Panels
 
 				{
 					Ludus::UI::Scope::DisabledScope disabled(!context.SystemContext.HasProjectContext());
-
-					if (Ludus::UI::Widgets::MenuItem("Save Project"))
-					{
-						context.EditorContext.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveProject { });
-					}
-
-					Ludus::UI::Context::LayoutContext::Separator();
 
 					if (Ludus::UI::Widgets::MenuItem("Close Project"))
 					{
@@ -156,6 +153,15 @@ namespace Ludus::Editor::Panels
 			// Assets.
 			if (Ludus::UI::Scope::MenuScope assetsMenu("Assets"); assetsMenu)
 			{
+				if (Ludus::UI::Widgets::MenuItem("Show All Projects"))
+				{
+					Ludus::Engine::Platform::Paths::OpenFolder(
+						Ludus::Editor::Persistence::Paths::ProjectsRoot()
+					);
+				}
+
+				Ludus::UI::Context::LayoutContext::Separator();
+
 				Ludus::UI::Scope::DisabledScope disabled(!context.SystemContext.HasProjectContext());
 
 				if (Ludus::UI::Widgets::MenuItem("Show in Explorer"))
@@ -163,6 +169,28 @@ namespace Ludus::Editor::Panels
 					Ludus::Engine::Platform::Paths::OpenFolder(
 						Ludus::Engine::Persistence::Paths::AssetsDirectory(context.SystemContext.ProjectContext->ProjectRootDirectory)
 					);
+				}
+			}
+
+			if (Ludus::UI::Scope::MenuScope buildMenu("Build"); buildMenu)
+			{
+				Ludus::UI::Scope::DisabledScope disabled(!context.SystemContext.HasProjectContext());
+
+				auto& build = context.EditorContext.Build;
+
+				if (Ludus::UI::Widgets::MenuItem("Build"))
+				{
+					build.Build(context.SystemContext.ProjectContext.value());
+				}
+
+				if (Ludus::UI::Widgets::MenuItem("Rebuild"))
+				{
+					build.Rebuild(context.SystemContext.ProjectContext.value());
+				}
+
+				if (Ludus::UI::Widgets::MenuItem("Clean"))
+				{
+					build.Clean(context.SystemContext.ProjectContext.value());
 				}
 			}
 
@@ -209,9 +237,9 @@ namespace Ludus::Editor::Panels
 			if (isActive)
 			{
 				Ludus::UI::Scope::StyleColorScope colorScope({
-					{ Ludus::UI::Scope::Color::Button,        activeColor },
+					{ Ludus::UI::Scope::Color::Button, activeColor },
 					{ Ludus::UI::Scope::Color::ButtonHovered, activeColor },
-					{ Ludus::UI::Scope::Color::ButtonActive,  activeColor },
+					{ Ludus::UI::Scope::Color::ButtonActive, activeColor },
 					});
 				if (Ludus::UI::Widgets::Button(label.c_str(), { buttonWidth, buttonWidth }))
 				{

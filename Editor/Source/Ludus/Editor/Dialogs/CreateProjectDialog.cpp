@@ -60,22 +60,22 @@ namespace Ludus::Editor::Dialogs
 
 	void CreateProjectDialog::Resolve(const Outcome& outcome, Ludus::Editor::Commands::CommandSet& out)
 	{
-		std::visit([&](auto&& o)
+		std::visit([&](auto&& value)
 		{
-			using O = std::decay_t<decltype(o)>;
+			using Alt = std::decay_t<decltype(value)>;
 
-			if constexpr (std::is_same_v<O, typename Outcome::None>)
+			if constexpr (std::is_same_v<Alt, typename Outcome::None>)
 			{
 				// Do nothing.
 			}
-			else if constexpr (std::is_same_v<O, typename Outcome::Cancelled>)
+			else if constexpr (std::is_same_v<Alt, typename Outcome::Cancelled>)
 			{
 				// Do nothing.
 			}
-			else if constexpr (std::is_same_v<O, typename Outcome::Confirmed>)
+			else if constexpr (std::is_same_v<Alt, typename Outcome::Confirmed>)
 			{
 				out.RequestCommands.emplace_back(
-					Ludus::Editor::Commands::RequestCommand::CreateProject { o.Payload }
+					Ludus::Editor::Commands::RequestCommand::CreateProject { value.Payload }
 				);
 			}
 		}, outcome.Data);

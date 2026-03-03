@@ -4,6 +4,7 @@
 #include <optional>
 
 #include <Ludus/Engine/Core/ProjectContext.h>
+#include <Ludus/Engine/Core/ScriptRuntimeState.h>
 
 #pragma region Forward Declarations
 
@@ -52,7 +53,7 @@ namespace Ludus::Engine::Core
 		Ludus::Engine::Events::EventBus& EventBus;
 		Ludus::Engine::Core::FlagSet& ExecutionFlags;
 		Ludus::Engine::Windowing::Input& Input;
-		std::optional<Ludus::Engine::Persistence::ProjectContext> ProjectContext;
+		std::optional<Ludus::Engine::Core::ProjectContext> ProjectContext;
 		Ludus::Engine::Persistence::ProjectRepository& ProjectRepository;
 		Ludus::Engine::Core::ResourceRegistry& Resources;
 		Ludus::Engine::Core::RenderViewRequestRegistry& RenderViewRequests;
@@ -60,6 +61,7 @@ namespace Ludus::Engine::Core
 		Ludus::Engine::Core::SceneRegistry& SceneRegistry;
 		Ludus::Engine::Windowing::Window& Window;
 		Ludus::Engine::Graphics::RenderPresentationSettings& RenderPresentation;
+		Ludus::Engine::Core::ScriptRuntimeState ScriptRuntime;
 
 		std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> WindowRenderTarget = nullptr;
 		Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* PhysicsQueries = nullptr;
@@ -75,6 +77,7 @@ namespace Ludus::Engine::Core
 			Ludus::Engine::Core::SceneRegistry& SceneRegistry,
 			Ludus::Engine::Windowing::Window& window,
 			Ludus::Engine::Graphics::RenderPresentationSettings& renderPresentation,
+			Ludus::Engine::Core::ScriptRuntimeState scriptRuntime = Ludus::Engine::Core::ScriptRuntimeState(),
 			std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> windowRenderTarget = nullptr,
 			Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* queries = nullptr
 		);

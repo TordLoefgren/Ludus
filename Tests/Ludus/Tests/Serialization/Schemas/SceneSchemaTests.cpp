@@ -109,6 +109,7 @@ namespace Ludus::Tests::Serialization::Schemas
 			scene.EntityComponentSystem.AttachCollider(handle);
 			scene.EntityComponentSystem.AttachDisplayName(handle);
 			scene.EntityComponentSystem.AttachRigidBody(handle);
+			scene.EntityComponentSystem.AttachScript(handle);
 			scene.EntityComponentSystem.AttachSprite(handle);
 			scene.EntityComponentSystem.AttachText(handle);
 			scene.EntityComponentSystem.AttachTransform(handle);
@@ -136,6 +137,7 @@ namespace Ludus::Tests::Serialization::Schemas
 			AssertContainsComponent(entityObject, "Collider2D");
 			AssertContainsComponent(entityObject, "DisplayName");
 			AssertContainsComponent(entityObject, "RigidBody2D");
+			AssertContainsComponent(entityObject, "Script");
 			AssertContainsComponent(entityObject, "Sprite2D");
 			AssertContainsComponent(entityObject, "Text2D");
 			AssertContainsComponent(entityObject, "Transform2D");
@@ -201,7 +203,10 @@ namespace Ludus::Tests::Serialization::Schemas
 		scene.EntityComponentSystem.AttachText(handle6);
 
 		const auto handle7 = scene.EntityComponentSystem.AddEntity();
-		scene.EntityComponentSystem.AttachTransform(handle7);
+		scene.EntityComponentSystem.AttachScript(handle7);
+
+		const auto handle8 = scene.EntityComponentSystem.AddEntity();
+		scene.EntityComponentSystem.AttachTransform(handle8);
 
 		SceneSchema::Serialize(writer, scene);
 		DomTokenStreamReader reader(document);
@@ -219,7 +224,8 @@ namespace Ludus::Tests::Serialization::Schemas
 		ASSERT_TRUE(loadedEcs.RigidBodies.ContainsOwner(handle4));
 		ASSERT_TRUE(loadedEcs.Sprites.ContainsOwner(handle5));
 		ASSERT_TRUE(loadedEcs.Texts.ContainsOwner(handle6));
-		ASSERT_TRUE(loadedEcs.Transforms.ContainsOwner(handle7));
+		ASSERT_TRUE(loadedEcs.Scripts.ContainsOwner(handle7));
+		ASSERT_TRUE(loadedEcs.Transforms.ContainsOwner(handle8));
 	}
 
 	TEST(SceneSchema, RoundTrip_PreservesEntitiesAndComponents_When_SavedAndLoaded)

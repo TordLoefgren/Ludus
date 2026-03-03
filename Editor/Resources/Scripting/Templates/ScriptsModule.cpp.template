@@ -1,0 +1,13 @@
+#include <Scripts.h>
+
+using namespace Ludus::Scripts;
+
+// <LUDUS_AUTOGEN_DECLARE>
+// </LUDUS_AUTOGEN_DECLARE>
+
+extern "C" __declspec(dllexport)
+void RegisterScripts(Registry* registry)
+{
+// <LUDUS_AUTOGEN_ADD>
+// </LUDUS_AUTOGEN_ADD>
+}

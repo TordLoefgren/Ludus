@@ -83,11 +83,11 @@ namespace Ludus::Engine::Serialization::Schemas
 			}
 			catch (const SerializationException& ex)
 			{
-				const auto error =
-					Ludus::Engine::Serialization::Core::WithContext(ex, "Collider2DComponentSchema::Deserialize");
-				return Ludus::Engine::Core::Expected<Collider, SerializationException>(
-					Ludus::Engine::Core::Unexpected<SerializationException>::Create(error)
+				const auto error = Ludus::Engine::Serialization::Core::WithContext(
+					ex, "Collider2DComponentSchema::Deserialize"
 				);
+
+				return Ludus::Engine::Core::Unexpected<SerializationException>::Create(error);
 			}
 		}
 	};

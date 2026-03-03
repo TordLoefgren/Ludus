@@ -27,7 +27,7 @@ namespace Ludus::Engine::Core
 	{
 	private:
 		struct UnexpectTag { };
-		static constexpr UnexpectTag Tag {};
+		static constexpr UnexpectTag Tag { };
 
 		union ExpectedData
 		{
@@ -58,8 +58,8 @@ namespace Ludus::Engine::Core
 
 		Expected(const T& t) : m_Data(t), m_HasValue(true) { }
 		Expected(T&& t) : m_Data(std::move(t)), m_HasValue(true) { }
-		explicit Expected(const Unexpected<E>& e) : m_Data(Tag, e.Error), m_HasValue(false) { }
-		explicit Expected(Unexpected<E>&& e) : m_Data(Tag, std::move(e.Error)), m_HasValue(false) { }
+		Expected(const Unexpected<E>& e) : m_Data(Tag, e.Error), m_HasValue(false) { }
+		Expected(Unexpected<E>&& e) : m_Data(Tag, std::move(e.Error)), m_HasValue(false) { }
 
 		Expected(const Expected&) = delete;
 		Expected& operator=(const Expected&) = delete;

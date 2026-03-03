@@ -19,12 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Ludus\Editor\Build\BuildManager.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\CommandManager.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Build\MSBuildScriptPipeline.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Scripts.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\UI\Dialogs.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Edit\Entities.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Edit\Selection.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\ExecutionManager.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\SelectionManager.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Dialogs\AddScriptDialog.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Dialogs\CreateProjectDialog.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\RequestCommand.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\UICommand.cpp" />
@@ -56,6 +60,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\Editor\Build\BuildCommand.h" />
+    <ClInclude Include="Include\Ludus\Editor\Build\BuildManager.h" />
+    <ClInclude Include="Include\Ludus\Editor\Build\IScriptBuildPipeline.h" />
+    <ClInclude Include="Include\Ludus\Editor\Build\ScriptBuildSettings.h" />
+    <ClInclude Include="Include\Ludus\Editor\Build\BuildTarget.h" />
+    <ClInclude Include="Include\Ludus\Editor\Build\MSBuildScriptPipeline.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\CommandManager.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\CommandSet.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\CommandContext.h" />
@@ -68,6 +78,7 @@
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Panels.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Projects.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Scenes.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Scripts.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\UICommand.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\UI\Dialogs.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ActivePanelState.h" />
@@ -84,8 +95,11 @@
     <ClInclude Include="Include\Ludus\Editor\Core\EditorApplicationBuilder.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorGridRenderPass.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ExecutionMode.h" />
-    <ClInclude Include="Include\Ludus\Editor\Core\EditorSceneMetadata.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\ProjectMetadata.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\SceneMetadata.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ViewportDisplayMode.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\Workspace.h" />
+    <ClInclude Include="Include\Ludus\Editor\Dialogs\AddScriptDialog.h" />
     <ClInclude Include="Include\Ludus\Editor\Dialogs\CreateProjectDialog.h" />
     <ClInclude Include="Include\Ludus\Editor\Dialogs\DialogManager.h" />
     <ClInclude Include="Include\Ludus\Editor\Dialogs\DialogOutcome.h" />
@@ -94,17 +108,22 @@
     <ClInclude Include="Include\Ludus\Editor\Core\Constants.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\DockPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\IPanel.h" />
-    <ClInclude Include="Include\Ludus\Editor\Core\Utilities.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\ConsolePanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\ImGuiDemoPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\InspectorPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\ViewportPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\HierarchyPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\ProjectPanel.h" />
+    <ClInclude Include="Include\Ludus\Editor\Persistence\Paths.h" />
     <ClInclude Include="Source\Ludus\Editor\pch.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\LudusIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Scripting\Templates\Script.cpp.template" />
+    <None Include="Resources\Scripting\Templates\ScriptsModule.cpp.template" />
+    <None Include="Resources\Scripting\Templates\Scripts.vcxproj.template" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -166,6 +185,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+    <LocalDebuggerEnvironment>PATH=$(VcpkgInstalledDir)$(VcpkgTriplet)\debug\bin;$(VcpkgInstalledDir)$(VcpkgTriplet)\bin;%PATH%</LocalDebuggerEnvironment>
+    <LocalDebuggerMergeEnvironment>true</LocalDebuggerMergeEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
@@ -174,6 +195,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+    <LocalDebuggerEnvironment>PATH=$(VcpkgInstalledDir)$(VcpkgTriplet)\bin;$(VcpkgInstalledDir)$(VcpkgTriplet)\debug\bin;%PATH%</LocalDebuggerEnvironment>
+    <LocalDebuggerMergeEnvironment>true</LocalDebuggerMergeEnvironment>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -181,7 +204,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -201,7 +224,7 @@ xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"</Co
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(SolutionDir)UI\Vendors;$(ProjectDir)Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -219,7 +242,7 @@ xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"</Co
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(ProjectDir)Source\Ludus\Editor;$(ProjectDir)Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(ProjectDir)Source\Ludus\Editor;$(ProjectDir)Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -229,18 +252,13 @@ xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"</Co
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;UI.lib</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022;$(SolutionDir)UI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(SolutionDir)UI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"
 xcopy /y /e /i /d  "$(SolutionDir)UI\Resources\*"  "$(OutDir)Resources\"
 xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"
-if /I "$(Configuration)"=="Debug" (
-  xcopy /y /d  "$(VcpkgInstalledDir)$(VcpkgTriplet)\debug\bin\*.dll"  "$(OutDir)"
-) else (
-  xcopy /y /d  "$(VcpkgInstalledDir)$(VcpkgTriplet)\bin\*.dll"  "$(OutDir)"
-)
-xcopy /y  "$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"</Command>
+</Command>
     </PostBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
@@ -254,7 +272,7 @@ xcopy /y  "$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"<
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\GLFW\include;$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(ProjectDir)Source\Ludus\Editor;$(ProjectDir)Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Engine\Vendors\glad\include;$(SolutionDir)Engine\Include;$(SolutionDir)Engine\Vendors;$(SolutionDir)UI\Include;$(ProjectDir)Source\Ludus\Editor;$(ProjectDir)Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -264,23 +282,28 @@ xcopy /y  "$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"<
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>glfw3dll.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;UI.lib</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022;$(SolutionDir)UI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(SolutionDir)UI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /e /i /d  "$(SolutionDir)Engine\Resources\*"  "$(OutDir)Resources\"
 xcopy /y /e /i /d  "$(SolutionDir)UI\Resources\*"  "$(OutDir)Resources\"
 xcopy /y /e /i /d  "$(SolutionDir)Editor\Resources\*"  "$(OutDir)Resources\"
-if /I "$(Configuration)"=="Debug" (
-  xcopy /y /d  "$(VcpkgInstalledDir)$(VcpkgTriplet)\debug\bin\*.dll"  "$(OutDir)"
-) else (
-  xcopy /y /d  "$(VcpkgInstalledDir)$(VcpkgTriplet)\bin\*.dll"  "$(OutDir)"
-)
-xcopy /y  "$(SolutionDir)Engine\Vendors\GLFW\lib-vc2022\glfw3.dll"  "$(OutDir)"</Command>
+</Command>
     </PostBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
     </ProjectReference>
   </ItemDefinitionGroup>
+  <Target Name="CopyVcpkgRuntimeDlls" AfterTargets="Build" Condition="'$(ConfigurationType)' == 'Application' and '$(Platform)' == 'x64'">
+    <PropertyGroup>
+      <VcpkgRuntimeBinDir Condition="'$(Configuration)' == 'Debug'">$(VcpkgInstalledDir)$(VcpkgTriplet)\debug\bin\</VcpkgRuntimeBinDir>
+      <VcpkgRuntimeBinDir Condition="'$(Configuration)' != 'Debug'">$(VcpkgInstalledDir)$(VcpkgTriplet)\bin\</VcpkgRuntimeBinDir>
+    </PropertyGroup>
+    <ItemGroup Condition="Exists('$(VcpkgRuntimeBinDir)')">
+      <VcpkgRuntimeDlls Include="$(VcpkgRuntimeBinDir)*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(VcpkgRuntimeDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" UseHardlinksIfPossible="false" Condition="'@(VcpkgRuntimeDlls)' != ''" />
+  </Target>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

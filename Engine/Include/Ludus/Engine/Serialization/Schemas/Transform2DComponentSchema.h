@@ -124,11 +124,11 @@ namespace Ludus::Engine::Serialization::Schemas
 			}
 			catch (const SerializationException& ex)
 			{
-				const auto error =
-					Ludus::Engine::Serialization::Core::WithContext(ex, "Transform2DComponentSchema::Deserialize");
-				return Ludus::Engine::Core::Expected<Transform, SerializationException>(
-					Ludus::Engine::Core::Unexpected<SerializationException>::Create(error)
+				const auto error = Ludus::Engine::Serialization::Core::WithContext(
+					ex, "Transform2DComponentSchema::Deserialize"
 				);
+
+				return Ludus::Engine::Core::Unexpected<SerializationException>::Create(error);
 			}
 		}
 	};

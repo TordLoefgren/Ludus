@@ -7,6 +7,7 @@
 #include <Ludus/Engine/Components/Collider2DComponent.h>
 #include <Ludus/Engine/Components/DisplayNameComponent.h>
 #include <Ludus/Engine/Components/RigidBody2DComponent.h>
+#include <Ludus/Engine/Components/ScriptComponent.h>
 #include <Ludus/Engine/Components/Sprite2DComponent.h>
 #include <Ludus/Engine/Components/Text2DComponent.h>
 #include <Ludus/Engine/Components/Transform2DComponent.h>
@@ -32,13 +33,14 @@ namespace Ludus::Engine::Core
 		friend struct Ludus::Engine::Serialization::Schemas::SceneSchema;
 
 	public:
-		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Camera2DComponent> Cameras;
-		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Collider2DComponent> Colliders;
-		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::DisplayNameComponent> DisplayNames;
-		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::RigidBody2DComponent> RigidBodies;
-		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Sprite2DComponent> Sprites;
-		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Text2DComponent> Texts;
-		Ludus::Engine::Core::ComponentRegistry <Ludus::Engine::Components::Transform2DComponent> Transforms;
+		Ludus::Engine::Core::ComponentRegistry<Ludus::Engine::Components::Camera2DComponent> Cameras;
+		Ludus::Engine::Core::ComponentRegistry<Ludus::Engine::Components::Collider2DComponent> Colliders;
+		Ludus::Engine::Core::ComponentRegistry<Ludus::Engine::Components::DisplayNameComponent> DisplayNames;
+		Ludus::Engine::Core::ComponentRegistry<Ludus::Engine::Components::RigidBody2DComponent> RigidBodies;
+		Ludus::Engine::Core::ComponentRegistry<Ludus::Engine::Components::ScriptComponent> Scripts;
+		Ludus::Engine::Core::ComponentRegistry<Ludus::Engine::Components::Sprite2DComponent> Sprites;
+		Ludus::Engine::Core::ComponentRegistry<Ludus::Engine::Components::Text2DComponent> Texts;
+		Ludus::Engine::Core::ComponentRegistry<Ludus::Engine::Components::Transform2DComponent> Transforms;
 
 		EntityComponentSystem() = default;
 		EntityComponentSystem(const EntityComponentSystem&) = delete;
@@ -57,6 +59,7 @@ namespace Ludus::Engine::Core
 			Colliders.RemoveByOwner(handle);
 			DisplayNames.RemoveByOwner(handle);
 			RigidBodies.RemoveByOwner(handle);
+			Scripts.RemoveByOwner(handle);
 			Sprites.RemoveByOwner(handle);
 			Texts.RemoveByOwner(handle);
 			Transforms.RemoveByOwner(handle);
@@ -102,6 +105,13 @@ namespace Ludus::Engine::Core
 		}
 
 		void AttachRigidBody(Ludus::Engine::Components::RigidBody2DComponent component) { RigidBodies.Add(component); }
+
+		void AttachScript(EntityHandle ownerHandle, Ludus::Engine::Components::ScriptHandle handle, std::string_view name)
+		{
+			Scripts.Add(ownerHandle, name, handle);
+		}
+
+		void AttachScript(Ludus::Engine::Components::ScriptComponent component) { Scripts.Add(component); }
 
 		void AttachSprite(
 			EntityHandle handle,

@@ -9,7 +9,7 @@
 namespace Ludus::Engine::Core
 {
 	Random::Random()
-		: m_MT(std::mt19937_64 { std::random_device { }() })
+		: m_MT(std::random_device { }())
 	{ }
 
 	Random::Random(std::uint32_t seed)
@@ -43,7 +43,7 @@ namespace Ludus::Engine::Core
 		return dist(m_MT);
 	}
 
-	uint64_t Random::NextUint64(uint64_t min = 1u, uint64_t max = UINT64_MAX)
+	uint64_t Random::NextUint64(uint64_t min, uint64_t max)
 	{
 		if (min >= max)
 			throw std::invalid_argument("The minimum value must be less than the maximum value.");

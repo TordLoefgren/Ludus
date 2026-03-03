@@ -9,16 +9,19 @@ namespace Ludus::Editor::Dialogs
 {
 	struct CreateProjectDialog
 	{
+	private:
 		bool IsOpen = true;
 		bool JustOpened = true;
-		std::string Name;
 		std::string Error;
 
+		std::string Name;
+
 		using Outcome = DialogOutcome<std::string>;
+
+	public:
 
 		Outcome Draw();
 		void Resolve(const Outcome& outcome, Ludus::Editor::Commands::CommandSet& out);
 		bool ShouldClose(const Outcome&) const;
 	};
 }
-

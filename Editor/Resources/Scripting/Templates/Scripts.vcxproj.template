@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<ItemGroup Label="ProjectConfigurations">
+		<ProjectConfiguration Include="Debug|x64">
+			<Configuration>Debug</Configuration>
+			<Platform>x64</Platform>
+		</ProjectConfiguration>
+		<ProjectConfiguration Include="Release|x64">
+			<Configuration>Release</Configuration>
+			<Platform>x64</Platform>
+		</ProjectConfiguration>
+	</ItemGroup>
+
+	<PropertyGroup Label="Globals">
+		<VCProjectVersion>17.0</VCProjectVersion>
+		<ProjectGuid>{d4a99667-4e18-4ef8-8e4e-f2fd78091d57}</ProjectGuid>
+		<RootNamespace>Scripts</RootNamespace>
+		<WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+	</PropertyGroup>
+
+	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+		<ConfigurationType>DynamicLibrary</ConfigurationType>
+		<UseDebugLibraries>true</UseDebugLibraries>
+		<PlatformToolset>v143</PlatformToolset>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+		<ConfigurationType>DynamicLibrary</ConfigurationType>
+		<UseDebugLibraries>false</UseDebugLibraries>
+		<PlatformToolset>v143</PlatformToolset>
+		<WholeProgramOptimization>true</WholeProgramOptimization>
+	</PropertyGroup>
+
+	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+
+	<PropertyGroup Label="UserMacros" />
+
+	<!-- Deterministic build outputs -->
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<OutDir>${LUDUS_SCRIPT_OUT_DIR}\$(Platform)\$(Configuration)\</OutDir>
+		<IntDir>${LUDUS_SCRIPT_INT_DIR}\$(Platform)\$(Configuration)\</IntDir>
+		<TargetName>${LUDUS_TARGET_NAME}</TargetName>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<OutDir>${LUDUS_SCRIPT_OUT_DIR}\$(Platform)\$(Configuration)\</OutDir>
+		<IntDir>${LUDUS_SCRIPT_INT_DIR}\$(Platform)\$(Configuration)\</IntDir>
+		<TargetName>${LUDUS_TARGET_NAME}</TargetName>
+	</PropertyGroup>
+
+	<!-- Files -->
+	<ItemGroup>
+		<ClCompile Include="ScriptsModule.cpp" />
+
+<!-- <LUDUS_AUTOGEN_SOURCES> -->
+<!-- </LUDUS_AUTOGEN_SOURCES> -->
+		
+	</ItemGroup>
+
+	<!-- Common compile settings -->
+	<ItemDefinitionGroup>
+		<ClCompile>
+			<LanguageStandard>stdcpp20</LanguageStandard>
+			<ConformanceMode>true</ConformanceMode>
+			<PrecompiledHeader>NotUsing</PrecompiledHeader>
+			<MultiProcessorCompilation>true</MultiProcessorCompilation>
+			<AdditionalIncludeDirectories>${LUDUS_SCRIPTS_INCLUDE_DIR};%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+			<WarningLevel>Level3</WarningLevel>
+			<SDLCheck>true</SDLCheck>
+		</ClCompile>
+		<Link>
+			<GenerateDebugInformation>true</GenerateDebugInformation>
+			<EnableUAC>false</EnableUAC>
+		</Link>
+	</ItemDefinitionGroup>
+
+	<!-- Debug/Release specifics -->
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<ClCompile>
+			<PreprocessorDefinitions>_DEBUG;SCRIPT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+		</ClCompile>
+	</ItemDefinitionGroup>
+
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<ClCompile>
+			<PreprocessorDefinitions>NDEBUG;SCRIPT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+			<FunctionLevelLinking>true</FunctionLevelLinking>
+			<IntrinsicFunctions>true</IntrinsicFunctions>
+		</ClCompile>
+	</ItemDefinitionGroup>
+
+	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+
+</Project>

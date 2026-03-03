@@ -6,18 +6,22 @@
 #include <variant>
 
 #include <Ludus/Editor/Commands/CommandSet.h>
+#include <Ludus/Editor/Dialogs/AddScriptDialog.h>
 #include <Ludus/Editor/Dialogs/CreateProjectDialog.h>
 
 namespace Ludus::Editor::Dialogs
 {
-	using ActiveDialog = std::variant<std::monostate, CreateProjectDialog>;
+	using ActiveDialog = std::variant<std::monostate, AddScriptDialog, CreateProjectDialog>;
 
 	struct DialogManager
 	{
 		ActiveDialog Active;
 
 		template<typename TDialog>
-		void Open() { Active = TDialog { }; }
+		void Open() { Active = TDialog {}; }
+
+		template<typename TDialog>
+		void Open(TDialog dialog) { Active = std::move(dialog); }
 
 		static void VisitDialog(std::monostate&, Ludus::Editor::Commands::CommandSet& out, bool& hasOut, bool& close)
 		{

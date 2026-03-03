@@ -11,6 +11,8 @@
 #include <filesystem>
 #include <string_view>
 
+#include "WinText.h"
+
 // Windows classic samples - Common File Dialogs.
 // https://github.com/microsoft/Windows-classic-samples/blob/main/Samples/Win7Samples/winui/shell/appplatform/commonfiledialog/CommonFileDialogApp.cpp
 // See also
@@ -19,14 +21,13 @@
 namespace Ludus::Engine::Platform::Modals
 {
 	static constexpr std::array<COMDLG_FILTERSPEC, 6> fileTypes =
-	{ {
-		{ L"Word Document (*.doc)",          L"*.doc" },
-		{ L"Web Page (*.htm; *.html)",       L"*.htm;*.html" },
-		{ L"Text Document (*.txt)",          L"*.txt" },
-		{ L"Ludus Project File (*.lproj)",   L"*.lproj" },
-		{ L"Ludus Scene File (*.lscene)",   L"*.lscene" },
-		{ L"All Documents (*.*)",            L"*.*" }
-	} };
+	{ { { L"Word Document (*.doc)", L"*.doc" },
+		{ L"Web Page (*.htm; *.html)", L"*.htm;*.html" },
+		{ L"Text Document (*.txt)", L"*.txt" },
+		{ L"Ludus Project File (*.ludus.app)", L"*.ludus.app" },
+		{ L"Ludus Scene File (*.ludus.scene)", L"*.ludus.scene" },
+		{ L"All Documents (*.*)", L"*.*" } }
+	};
 
 	static constexpr UINT INDEX_WORDDOC = 1;
 	static constexpr UINT INDEX_WEBPAGE = 2;
@@ -54,61 +55,17 @@ namespace Ludus::Engine::Platform::Modals
 		{
 			return INDEX_TEXTDOC;
 		}
-		if (extension == "lproj")
+		if (extension == "ludus.app")
 		{
 			return INDEX_LUDUSPROJ;
 		}
-		if (extension == "lscene")
+		if (extension == "ludus.scene")
 		{
 			return INDEX_LUDUSSCENE;
 		}
 
 		// Fallback to project file.
 		return INDEX_LUDUSPROJ;
-	}
-
-	// Inspiration from Geeks For Geeks implementation.
-	// https://www.geeksforgeeks.org/cpp/convert-lpcwstr-to-std_string-in-cpp/
-	static std::wstring Utf8ToWide(std::string_view string)
-	{
-		if (string.empty())
-		{
-			return {};
-		}
-
-		auto length = MultiByteToWideChar(CP_UTF8, 0, string.data(), static_cast<int>(string.size()), nullptr, 0);
-		if (length <= 0)
-		{
-			return {};
-		}
-
-		std::wstring out(static_cast<size_t>(length), L'\0');
-		MultiByteToWideChar(CP_UTF8, 0, string.data(), static_cast<int>(string.size()), out.data(), length);
-
-		return out;
-	}
-
-	static std::string WideToUtf8(const wchar_t* wideString)
-	{
-		if (!wideString || *wideString == L'\0')
-		{
-			return {};
-		}
-
-		int len = WideCharToMultiByte(CP_UTF8, 0, wideString, -1, nullptr, 0, nullptr, nullptr);
-		if (len <= 0)
-		{
-			return {};
-		}
-
-		// Length includes the null terminator.
-		std::string out(static_cast<size_t>(len), '\0');
-		WideCharToMultiByte(CP_UTF8, 0, wideString, -1, out.data(), len, nullptr, nullptr);
-
-		// Remove null terminator.
-		out.pop_back();
-
-		return out;
 	}
 
 	static bool SetDialogStartupFolder(IFileDialog* dialog, std::string_view folderUtf8)
@@ -118,7 +75,7 @@ namespace Ludus::Engine::Platform::Modals
 			return false;
 		}
 
-		std::wstring folderW = Utf8ToWide(folderUtf8);
+		std::wstring folderW = Ludus::Engine::Platform::Windows::Detail::Utf8ToWide(folderUtf8);
 		if (folderW.empty())
 		{
 			return false;
@@ -142,9 +99,9 @@ namespace Ludus::Engine::Platform::Modals
 	{
 		bool isFileSelected = false;
 
-		IFileDialog* openDialog = NULL;
+		IFileDialog* openDialog = nullptr;
 		auto hr = CoCreateInstance(CLSID_FileOpenDialog,
-			NULL,
+			nullptr,
 			CLSCTX_INPROC_SERVER,
 			IID_PPV_ARGS(&openDialog)
 		);
@@ -174,7 +131,7 @@ namespace Ludus::Engine::Platform::Modals
 						hr = openDialog->SetFileTypeIndex(filterIndex);
 						if (SUCCEEDED(hr))
 						{
-							auto defaultExtensionWide = Utf8ToWide(defaultExtension);
+							auto defaultExtensionWide = Ludus::Engine::Platform::Windows::Detail::Utf8ToWide(defaultExtension);
 							if (!defaultExtensionWide.empty())
 							{
 								hr = openDialog->SetDefaultExtension(defaultExtensionWide.c_str());
@@ -183,7 +140,7 @@ namespace Ludus::Engine::Platform::Modals
 							if (SUCCEEDED(hr))
 							{
 								// Show the dialog
-								hr = openDialog->Show(NULL);
+								hr = openDialog->Show(nullptr);
 								if (SUCCEEDED(hr))
 								{
 									// Get the result object from clicking the "Open" button.
@@ -191,11 +148,11 @@ namespace Ludus::Engine::Platform::Modals
 									hr = openDialog->GetResult(&psiResult);
 									if (SUCCEEDED(hr))
 									{
-										PWSTR allocatedPathWide = NULL;
+										PWSTR allocatedPathWide = nullptr;
 										hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &allocatedPathWide);
 										if (SUCCEEDED(hr))
 										{
-											filenameOut = WideToUtf8(allocatedPathWide);
+											filenameOut = Ludus::Engine::Platform::Windows::Detail::WideToUtf8(allocatedPathWide);
 											isFileSelected = true;
 
 											CoTaskMemFree(allocatedPathWide);
@@ -260,7 +217,7 @@ namespace Ludus::Engine::Platform::Modals
 						hr = saveDialog->SetFileTypeIndex(filterIndex);
 						if (SUCCEEDED(hr))
 						{
-							std::wstring defExtW = Utf8ToWide(defaultExtension);
+							std::wstring defExtW = Ludus::Engine::Platform::Windows::Detail::Utf8ToWide(defaultExtension);
 							if (!defExtW.empty())
 							{
 								hr = saveDialog->SetDefaultExtension(defExtW.c_str());
@@ -270,7 +227,7 @@ namespace Ludus::Engine::Platform::Modals
 							{
 								if (defaultFileName.has_value() && !defaultFileName->empty())
 								{
-									std::wstring fileNameWide = Utf8ToWide(*defaultFileName);
+									std::wstring fileNameWide = Ludus::Engine::Platform::Windows::Detail::Utf8ToWide(*defaultFileName);
 									saveDialog->SetFileName(fileNameWide.c_str());
 								}
 
@@ -289,7 +246,7 @@ namespace Ludus::Engine::Platform::Modals
 										hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &allocatedPathWide);
 										if (SUCCEEDED(hr) && allocatedPathWide)
 										{
-											filenameOut = WideToUtf8(allocatedPathWide);
+											filenameOut = Ludus::Engine::Platform::Windows::Detail::WideToUtf8(allocatedPathWide);
 											isFileSelected = true;
 
 											CoTaskMemFree(allocatedPathWide);

@@ -53,7 +53,8 @@ namespace Ludus::Editor::Core
 			.WithPhysicsConfiguration(std::move(m_PhysicsConfiguration))
 			.WithWindowOptions(m_WindowOptions)
 			.UseDefaultPhysics2D()
-			.UseDefaultRendering2D();
+			.UseDefaultRendering2D()
+			.UseDefaultScripting();
 
 		return *this;
 	}

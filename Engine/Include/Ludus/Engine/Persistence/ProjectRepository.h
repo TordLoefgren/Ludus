@@ -31,15 +31,17 @@ namespace Ludus::Engine::Persistence
 			std::unique_ptr<Ludus::Engine::Persistence::IScenePersistence> scenePersistence
 		);
 
-		std::filesystem::path GetScenesDirectory(const Ludus::Engine::Persistence::ProjectContext& context);
-		std::filesystem::path GetDefaultScenePath(const Ludus::Engine::Persistence::ProjectContext& context, std::string_view sceneName);
-		ProjectContext CreateProject(std::string_view name, std::optional<std::filesystem::path> path = std::nullopt);
-		Ludus::Engine::Persistence::ProjectContext LoadProject(const std::filesystem::path& path);
-		void SaveProject(Ludus::Engine::Persistence::ProjectContext& context);
-		Ludus::Engine::Core::Scene LoadScene(const Ludus::Engine::Persistence::ProjectContext& context, Ludus::Engine::Core::SceneHandle sceneHandle);
+		std::filesystem::path GetScenesDirectory(const Ludus::Engine::Core::ProjectContext& context);
+		std::filesystem::path GetDefaultScenePath(const Ludus::Engine::Core::ProjectContext& context, std::string_view sceneName);
+
+		Ludus::Engine::Core::ProjectContext CreateProject(std::string_view name, std::optional<std::filesystem::path> path = std::nullopt);
+		Ludus::Engine::Core::ProjectContext LoadProject(const std::filesystem::path& path);
+		void SaveProject(Ludus::Engine::Core::ProjectContext& context);
+
+		Ludus::Engine::Core::Scene LoadScene(const Ludus::Engine::Core::ProjectContext& context, Ludus::Engine::Core::SceneHandle sceneHandle);
 		Ludus::Engine::Core::Scene LoadScene(const std::filesystem::path& path);
-		void SaveScene(const Ludus::Engine::Persistence::ProjectContext& context, const Ludus::Engine::Core::Scene& scene, Ludus::Engine::Core::SceneHandle sceneHandle);
+		void SaveScene(const Ludus::Engine::Core::ProjectContext& context, const Ludus::Engine::Core::Scene& scene, Ludus::Engine::Core::SceneHandle sceneHandle);
 		void SaveScene(const Ludus::Engine::Core::Scene& scene, const std::filesystem::path& path);
-		void SaveSceneAs(const std::filesystem::path& path, Ludus::Engine::Persistence::ProjectContext& context, const Ludus::Engine::Core::Scene& scene, Ludus::Engine::Core::SceneHandle sceneHandle);
+		void SaveSceneAs(const std::filesystem::path& path, Ludus::Engine::Core::ProjectContext& context, const Ludus::Engine::Core::Scene& scene, Ludus::Engine::Core::SceneHandle sceneHandle);
 	};
 }
