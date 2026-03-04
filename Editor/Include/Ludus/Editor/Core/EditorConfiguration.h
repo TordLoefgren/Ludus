@@ -13,6 +13,7 @@
 #include <Ludus/Editor/Panels/IPanel.h>
 #include <Ludus/Editor/Panels/ProjectPanel.h>
 #include <Ludus/Editor/Panels/ViewportPanel.h>
+#include <Ludus/Editor/Panels/WelcomePanel.h>
 
 namespace Ludus::Editor::Core
 {
@@ -26,6 +27,7 @@ namespace Ludus::Editor::Core
 		{
 			EditorConfiguration options;
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::DockPanel>(); });
+			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::WelcomePanel>(); });
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ImGuiDemoPanel>(); });
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::HierarchyPanel>(); });
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::InspectorPanel>(); });

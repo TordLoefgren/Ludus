@@ -34,6 +34,7 @@ namespace Ludus::Editor::Panels
 
 		Ludus::Engine::Math::Vector2D GetViewportAspectSize(float targetAspectRatio);
 		Ludus::Engine::Math::Vector2D GetViewportAspectOffset(Ludus::Engine::Math::Vector2D aspectSize);
+
 		float ResolveTargetAspectRatio(const Ludus::Engine::Graphics::RenderPresentationSettings& renderPresentationSettings) const;
 		Ludus::Engine::Math::Size<int> ResolveRenderTargetSize(
 			Ludus::Editor::Panels::PanelContext& context,

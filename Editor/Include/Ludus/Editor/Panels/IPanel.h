@@ -5,6 +5,7 @@
 #include <string>
 #include <string_view>
 
+#include <Ludus/Editor/Core/EditorMode.h>
 #include <Ludus/Editor/Panels/PanelContext.h>
 
 namespace Ludus::Editor::Panels
@@ -40,6 +41,11 @@ namespace Ludus::Editor::Panels
 			}
 
 			return active;
+		}
+
+		virtual bool IsAvailable(PanelContext& context)
+		{
+			return context.EditorContext.State.Mode == Ludus::Editor::Core::EditorMode::Workspace;
 		}
 
 	protected:

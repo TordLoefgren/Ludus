@@ -1,5 +1,10 @@
 #pragma once
 
+#include <string>
+
+#include <Ludus/Engine/Graphics/Color.h>
+#include <Ludus/Engine/Math/Vector2D.h>
+
 namespace Ludus::UI::Context::LayoutContext
 {
 	void AlignTextToFramePadding();
@@ -9,4 +14,14 @@ namespace Ludus::UI::Context::LayoutContext
 	void SetNextItemWidth(float width);
 
 	void Separator();
+
+	float CalculateItemWidth();
+
+	Ludus::Engine::Math::Vector2D CalculateTextSize(std::string text);
+
+	void DrawRect(
+		const Ludus::Engine::Math::Vector2D& position,
+		const Ludus::Engine::Math::Vector2D& size,
+		const Ludus::Engine::Graphics::Color color
+	);
 }

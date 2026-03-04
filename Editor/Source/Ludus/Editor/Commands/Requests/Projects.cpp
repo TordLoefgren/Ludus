@@ -5,6 +5,7 @@
 #include <Ludus/Editor/Commands/EditCommand.h>
 #include <Ludus/Editor/Commands/Requests/Projects.h>
 #include <Ludus/Editor/Core/EditorContext.h>
+#include <Ludus/Editor/Core/EditorMode.h>
 #include <Ludus/Editor/Core/SceneMetadata.h>
 #include <Ludus/Editor/Panels/PanelRegistry.h>
 #include <Ludus/Editor/Panels/ProjectPanel.h>
@@ -66,9 +67,8 @@ namespace Ludus::Editor::Commands::Requests::Projects
 
 		RefreshProjectPanel(context);
 
-		systemContext.Window.SetTitle(command.Name + " - Ludus Editor");
-
 		LUDUS_LOG_INFO("Created new Ludus project: " + systemContext.ProjectContext.value().ProjectPath.string());
+		context.SetEditorMode(Ludus::Editor::Core::EditorMode::Workspace, command.Name + " - Ludus Editor");
 	}
 
 	void OpenProject(const RequestCommand::OpenProject& command, CommandContext& context)
@@ -96,9 +96,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 
 		RefreshProjectPanel(context);
 
-		systemContext.Window.SetTitle(
-			systemContext.ProjectContext.value().ProjectPath.stem().string() + " - Ludus Editor"
-		);
+		context.SetEditorMode(Ludus::Editor::Core::EditorMode::Workspace);
 	}
 
 	void CloseProject(const RequestCommand::CloseProject& command, CommandContext& context)
@@ -116,6 +114,6 @@ namespace Ludus::Editor::Commands::Requests::Projects
 		context.EditorContext.State.Commands.AddEditCommand(Ludus::Editor::Commands::EditCommand::ClearSelection { });
 
 		RefreshProjectPanel(context);
-		systemContext.Window.SetTitle("Ludus Editor");
+		context.SetEditorMode(Ludus::Editor::Core::EditorMode::Startup);
 	}
 }
