@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <vector>
 
+#include <Ludus/Editor/Core/EditorMode.h>
 #include <Ludus/Editor/Panels/IPanel.h>
 
 namespace Ludus::Editor::Panels

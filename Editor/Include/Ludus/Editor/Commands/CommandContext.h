@@ -1,5 +1,12 @@
 #pragma once
 
+#include <string_view>
+
+namespace Ludus::Editor::Core
+{
+	enum class EditorMode;
+}
+
 namespace Ludus::Editor::Core
 {
 	struct EditorContext;
@@ -22,5 +29,7 @@ namespace Ludus::Editor::Commands
 		Ludus::Editor::Core::EditorContext& EditorContext;
 		Ludus::Engine::Core::SystemContext& SystemContext;
 		Ludus::Editor::Panels::PanelRegistry& Panels;
+
+		void SetEditorMode(Ludus::Editor::Core::EditorMode mode, std::string_view windowTitleOverride = "");
 	};
 }

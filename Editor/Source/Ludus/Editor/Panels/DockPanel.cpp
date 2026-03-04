@@ -241,6 +241,7 @@ namespace Ludus::Editor::Panels
 					{ Ludus::UI::Scope::Color::ButtonHovered, activeColor },
 					{ Ludus::UI::Scope::Color::ButtonActive, activeColor },
 					});
+
 				if (Ludus::UI::Widgets::Button(label.c_str(), { buttonWidth, buttonWidth }))
 				{
 					onClick();

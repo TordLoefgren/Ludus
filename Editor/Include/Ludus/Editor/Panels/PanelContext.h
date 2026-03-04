@@ -2,6 +2,7 @@
 
 #include <Ludus/Editor/Core/ActivePanelState.h>
 #include <Ludus/Editor/Core/EditorContext.h>
+#include <Ludus/Editor/Core/EditorMode.h>
 #include <Ludus/Engine/Core/SystemContext.h>
 
 namespace Ludus::Editor::Panels

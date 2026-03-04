@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Ludus\Editor\Build\BuildManager.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\CommandManager.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\CommandContext.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Build\MSBuildScriptPipeline.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Scripts.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\UI\Dialogs.cpp" />
@@ -46,6 +47,7 @@
     <ClCompile Include="Source\Ludus\Editor\Panels\ImGuiDemoPanel.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\InspectorPanel.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\ViewportPanel.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Panels\WelcomePanel.cpp" />
     <ClCompile Include="Source\Ludus\Editor\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -114,7 +116,9 @@
     <ClInclude Include="Include\Ludus\Editor\Panels\ViewportPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\HierarchyPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\ProjectPanel.h" />
+    <ClInclude Include="Include\Ludus\Editor\Panels\WelcomePanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Persistence\Paths.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorMode.h" />
     <ClInclude Include="Source\Ludus\Editor\pch.h" />
   </ItemGroup>
   <ItemGroup>

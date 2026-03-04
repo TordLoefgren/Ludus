@@ -14,7 +14,12 @@ namespace Ludus::Editor::Core
 	namespace
 	{
 		template<typename TCommand>
-		void DelegateCommands(std::vector<TCommand>& stateCommands, EditorContext& editorContext, Ludus::Engine::Core::SystemContext& systemContext, Ludus::Editor::Panels::PanelRegistry& panelRegistry)
+		void DelegateCommands(
+			std::vector<TCommand>& stateCommands,
+			EditorContext& editorContext,
+			Ludus::Engine::Core::SystemContext& systemContext,
+			Ludus::Editor::Panels::PanelRegistry& panelRegistry
+		)
 		{
 			std::vector<TCommand> commands;
 			commands.swap(stateCommands);
@@ -34,17 +39,32 @@ namespace Ludus::Editor::Core
 
 	void EditorSystem::DelegateUICommands()
 	{
-		DelegateCommands<Ludus::Editor::Commands::UICommand>(m_EditorContext.State.Commands.PendingCommands.UICommands, m_EditorContext, *m_SystemContext, m_PanelRegistry);
+		DelegateCommands<Ludus::Editor::Commands::UICommand>(
+			m_EditorContext.State.Commands.PendingCommands.UICommands,
+			m_EditorContext,
+			*m_SystemContext,
+			m_PanelRegistry
+		);
 	}
 
 	void EditorSystem::DelegateEditCommands()
 	{
-		DelegateCommands<Ludus::Editor::Commands::EditCommand>(m_EditorContext.State.Commands.PendingCommands.EditCommands, m_EditorContext, *m_SystemContext, m_PanelRegistry);
+		DelegateCommands<Ludus::Editor::Commands::EditCommand>(
+			m_EditorContext.State.Commands.PendingCommands.EditCommands,
+			m_EditorContext,
+			*m_SystemContext,
+			m_PanelRegistry
+		);
 	}
 
 	void EditorSystem::DelegateRequestCommands()
 	{
-		DelegateCommands<Ludus::Editor::Commands::RequestCommand>(m_EditorContext.State.Commands.PendingCommands.RequestCommands, m_EditorContext, *m_SystemContext, m_PanelRegistry);
+		DelegateCommands<Ludus::Editor::Commands::RequestCommand>(
+			m_EditorContext.State.Commands.PendingCommands.RequestCommands,
+			m_EditorContext,
+			*m_SystemContext,
+			m_PanelRegistry
+		);
 	}
 
 	void Ludus::Editor::Core::EditorSystem::OnAttachImpl()
@@ -68,6 +88,11 @@ namespace Ludus::Editor::Core
 
 		for (const auto& panel : m_PanelRegistry.View())
 		{
+			if (!panel->IsAvailable(context))
+			{
+				continue;
+			}
+
 			if (!panel->Update(context))
 			{
 				m_PanelRegistry.ScheduleRemove(panel->GetHandle());
