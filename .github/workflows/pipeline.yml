@@ -71,10 +71,17 @@ jobs:
         shell: cmd
         run: nuget restore Ludus.sln
 
-      - name: Build tests (MSBuild + vcpkg manifest)
+      - name: Build test projects (MSBuild + vcpkg manifest)
         shell: cmd
         run: |
-          msbuild .\Tests\Tests.vcxproj /m ^
+          msbuild .\EngineTests\EngineTests.vcxproj /m ^
+            /p:Configuration=%Configuration% /p:Platform=%Platform% ^
+            /p:VcpkgEnableManifest=true ^
+            /p:VcpkgManifestRoot="%GITHUB_WORKSPACE%" ^
+            /p:VcpkgRoot="%VCPKG_ROOT%" ^
+            /p:VcpkgTriplet=%VCPKG_DEFAULT_TRIPLET% ^
+            /p:VcpkgInstalledDir="%VCPKG_INSTALLED_DIR%"
+          msbuild .\EditorTests\EditorTests.vcxproj /m ^
             /p:Configuration=%Configuration% /p:Platform=%Platform% ^
             /p:VcpkgEnableManifest=true ^
             /p:VcpkgManifestRoot="%GITHUB_WORKSPACE%" ^
@@ -82,23 +89,32 @@ jobs:
             /p:VcpkgTriplet=%VCPKG_DEFAULT_TRIPLET% ^
             /p:VcpkgInstalledDir="%VCPKG_INSTALLED_DIR%"
 
-      - name: Run GoogleTests
+      - name: Run EngineTests
         shell: cmd
         run: |
           setlocal enabledelayedexpansion
-          set "EXE="
-          for /f "delims=" %%F in ('dir /s /b "Tests.exe"') do (
-            set "EXE=%%F"
-            set "EXEDIR=%%~dpF"
-            goto runit
+          set "EXE=.\EngineTests\bin\%Platform%\%Configuration%\EngineTests.exe"
+          set "RESULTS=.\EngineTests\bin\%Platform%\%Configuration%\TestResults"
+          if not exist "!EXE!" (
+            echo EngineTests.exe not found at !EXE!
+            exit /b 1
           )
-          echo Tests.exe not found
-          exit /b 1
-
-          :runit
-          set "RESULTS=!EXEDIR!TestResults"
           if not exist "!RESULTS!" mkdir "!RESULTS!"
-          "!EXE!" --gtest_output=xml:"!RESULTS!\gtest.xml"
+          "!EXE!" --gtest_output=xml:"!RESULTS!\enginetests.xml"
+          exit /b !errorlevel!
+
+      - name: Run EditorTests
+        shell: cmd
+        run: |
+          setlocal enabledelayedexpansion
+          set "EXE=.\EditorTests\bin\%Platform%\%Configuration%\EditorTests.exe"
+          set "RESULTS=.\EditorTests\bin\%Platform%\%Configuration%\TestResults"
+          if not exist "!EXE!" (
+            echo EditorTests.exe not found at !EXE!
+            exit /b 1
+          )
+          if not exist "!RESULTS!" mkdir "!RESULTS!"
+          "!EXE!" --gtest_output=xml:"!RESULTS!\editortests.xml"
           exit /b !errorlevel!
 
       - name: Publish Ludus Unit Tests

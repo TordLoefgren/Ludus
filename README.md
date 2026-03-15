@@ -59,10 +59,11 @@ Current content includes:
 - Automated tests for core engine and serialization behavior.
 
 ```text
-Engine/   -> Runtime code
-Editor/   -> Editor application
-UI/       -> Shared UI layer
-Tests/    -> Automated tests
+Engine/		-> Runtime code
+Editor/		-> Editor application
+UI/		-> Shared UI layer
+EngineTests/	-> Engine-focused automated tests
+EditorTests/	-> Editor-focused automated tests
 ```
 
 Current editor snapshot:
@@ -127,13 +128,15 @@ setx VCPKG_DEFAULT_TRIPLET "x64-windows"
 Option 1 (Visual Studio):
 - Open `Ludus.sln`
 - Select `Debug|x64` (or `Release|x64`)
-- Build the `Tests` project
+- Build `EngineTests` and/or `EditorTests`
 - Run tests from Test Explorer
 
 Option 2 (command line):
 ```powershell
-msbuild .\Tests\Tests.vcxproj /m /p:Configuration=Debug /p:Platform=x64
-.\Tests\bin\x64\Debug\Tests.exe
+msbuild .\EngineTests\EngineTests.vcxproj /m /p:Configuration=Debug /p:Platform=x64
+msbuild .\EditorTests\EditorTests.vcxproj /m /p:Configuration=Debug /p:Platform=x64
+.\EngineTests\bin\x64\Debug\EngineTests.exe
+.\EditorTests\bin\x64\Debug\EditorTests.exe
 ```
 
 ## Inspiration & References
