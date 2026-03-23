@@ -12,7 +12,8 @@ namespace Ludus::Engine::Core
 		PhysicsEnabled = 1 << 0,
 		RenderingEnabled = 1 << 1,
 		ScriptingEnabled = 1 << 2,
-		SimulationEnabled = 1 << 3
+		SimulationEnabled = 1 << 3,
+		SimulationSessionEnabled = 1 << 4
 	};
 
 	constexpr uint32_t DefaultExecutionMask =
@@ -20,5 +21,6 @@ namespace Ludus::Engine::Core
 		Ludus::Engine::Core::Mask(ExecutionFlags::PhysicsEnabled) |
 		Ludus::Engine::Core::Mask(ExecutionFlags::RenderingEnabled) |
 		Ludus::Engine::Core::Mask(ExecutionFlags::ScriptingEnabled) |
-		Ludus::Engine::Core::Mask(ExecutionFlags::SimulationEnabled);
+		Ludus::Engine::Core::Mask(ExecutionFlags::SimulationEnabled) |
+		Ludus::Engine::Core::Mask(ExecutionFlags::SimulationSessionEnabled);
 }

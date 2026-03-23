@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include <utility>
+
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Graphics/Font.h>
 #include <Ludus/Engine/Graphics/Texture.h>
@@ -37,9 +39,9 @@ namespace Ludus::Engine::Graphics
 
 	const Glyph* Font::GetGlyph(const char character)
 	{
-		if (auto it = m_GlyphMap.find(character); it != m_GlyphMap.end())
+		if (auto iter = m_GlyphMap.find(character); iter != m_GlyphMap.end())
 		{
-			return &it->second;
+			return &iter->second;
 		}
 
 		if (FT_Load_Char(m_Face, character, FT_LOAD_RENDER))
@@ -63,8 +65,8 @@ namespace Ludus::Engine::Graphics
 			static_cast<int>(slot->advance.x),
 		};
 
-		auto [it, _] = m_GlyphMap.emplace(character, std::move(glyph));
-		return &it->second;
+		auto [iter, _] = m_GlyphMap.emplace(character, std::move(glyph));
+		return &iter->second;
 	}
 
 	float Font::MeasureTextWidth(std::string_view text)

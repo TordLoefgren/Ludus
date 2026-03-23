@@ -14,7 +14,7 @@ namespace Ludus::Editor::Commands
 	private:
 		struct TempEntityBinding
 		{
-			Ludus::Engine::Core::EntityHandle Handle {};
+			Ludus::Engine::Core::EntityHandle Handle { };
 			std::uint64_t LastSeenFrame = 0;
 		};
 

@@ -1,23 +1,33 @@
 #include "pch.h"
 
-#include <memory>
-
+#include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 #include <Ludus/Editor/Commands/Requests/Panels.h>
-#include <Ludus/Editor/Core/EditorContext.h>
 #include <Ludus/Editor/Panels/PanelRegistry.h>
 #include <Ludus/Editor/Panels/ViewportPanel.h>
-#include <Ludus/Engine/Core/SystemContext.h>
 
 namespace Ludus::Editor::Commands::Requests::Panels
 {
-	void AddViewport(const RequestCommand::AddViewport& command, CommandContext& context)
+	void AddViewport(ProjectSessionCommandContext& context)
 	{
-		context.Panels.Register(std::make_unique<Ludus::Editor::Panels::ViewportPanel>());
+		context.PanelRegistry.Register(std::make_unique<Ludus::Editor::Panels::ViewportPanel>());
 	}
 
-	void SetExecutionMode(const RequestCommand::SetExecutionMode& command, CommandContext& context)
+	void SetExecutionMode(const RequestCommand::SetExecutionMode& command, ProjectSessionCommandContext& context)
 	{
-		context.EditorContext.State.Execution.ExecutionMode = command.Mode;
-		context.EditorContext.State.Execution.Apply(context.SystemContext, command.Mode);
+		switch (command.Mode)
+		{
+			case Ludus::Editor::Core::ExecutionMode::Start:
+				context.ProjectSession.StartSimulation(context.HostContext);
+				break;
+			case Ludus::Editor::Core::ExecutionMode::Stop:
+				context.ProjectSession.StopSimulation(context.HostContext);
+				break;
+			case Ludus::Editor::Core::ExecutionMode::Pause:
+				context.ProjectSession.PauseSimulation(context.HostContext);
+				break;
+		}
+
+		context.Shell.State.Execution.ExecutionMode = command.Mode;
+		context.Shell.State.Execution.Apply(context.HostContext.GetExecutionFlags(), command.Mode);
 	}
 }

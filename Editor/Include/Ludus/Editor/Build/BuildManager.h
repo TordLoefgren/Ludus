@@ -9,7 +9,6 @@
 #include <Ludus/Editor/Build/IScriptBuildPipeline.h>
 #include <Ludus/Editor/Build/ScriptBuildSettings.h>
 #include <Ludus/Engine/Core/Build/Configuration.h>
-#include <Ludus/Engine/Core/ProjectContext.h>
 
 namespace Ludus::Editor::Build
 {
@@ -19,7 +18,7 @@ namespace Ludus::Editor::Build
 		std::unique_ptr<IScriptBuildPipeline> m_Scripts;
 
 		void RunScriptBuildCommand(
-			const Ludus::Engine::Core::ProjectContext& context,
+			const std::filesystem::path& projectRoot,
 			Ludus::Engine::Core::Build::Configuration configuration,
 			BuildCommand command
 		);
@@ -31,29 +30,29 @@ namespace Ludus::Editor::Build
 		void Initialize();
 
 		void EnsureScriptProject(
-			const Ludus::Engine::Core::ProjectContext& context,
+			const std::filesystem::path& projectRoot,
 			std::optional<ScriptBuildSettings> settings = std::nullopt
 		);
 
 		void CreateScript(
-			Ludus::Engine::Core::ProjectContext& context,
+			const std::filesystem::path& projectRoot,
 			std::string_view name
 		);
 
 		void Build(
-			const Ludus::Engine::Core::ProjectContext& context,
+			const std::filesystem::path& projectRoot,
 			Ludus::Engine::Core::Build::Configuration configuration = Ludus::Engine::Core::Build::Configuration::Debug,
 			BuildTarget target = BuildTarget::Scripts
 		);
 
 		void Clean(
-			const Ludus::Engine::Core::ProjectContext& context,
+			const std::filesystem::path& projectRoot,
 			Ludus::Engine::Core::Build::Configuration configuration = Ludus::Engine::Core::Build::Configuration::Debug,
 			BuildTarget target = BuildTarget::Scripts
 		);
 
 		void Rebuild(
-			const Ludus::Engine::Core::ProjectContext& context,
+			const std::filesystem::path& projectRoot,
 			Ludus::Engine::Core::Build::Configuration configuration = Ludus::Engine::Core::Build::Configuration::Debug,
 			BuildTarget target = BuildTarget::Scripts
 		);

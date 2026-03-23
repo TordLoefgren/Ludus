@@ -1,9 +1,14 @@
 #pragma once
 
-#include <Ludus/Editor/Commands/CommandContext.h>
 #include <Ludus/Editor/Commands/RequestCommand.h>
+
+namespace Ludus::Editor::Commands
+{
+	struct ProjectSessionCommandContext;
+}
 
 namespace Ludus::Editor::Commands::Requests::Scripts
 {
-	void CreateScript(const RequestCommand::CreateScript& command, CommandContext& context);
+	void CreateScript(const RequestCommand::CreateScript& command, ProjectSessionCommandContext& context);
+	void BuildScript(const RequestCommand::BuildScript& command, ProjectSessionCommandContext& context);
 }

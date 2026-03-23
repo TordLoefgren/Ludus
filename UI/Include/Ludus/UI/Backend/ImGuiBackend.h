@@ -4,7 +4,7 @@ struct GLFWwindow;
 
 namespace Ludus::UI::Backend
 {
-	class ImGuiBackend
+	struct ImGuiBackend
 	{
 	public:
 		void Initialize(GLFWwindow* window);

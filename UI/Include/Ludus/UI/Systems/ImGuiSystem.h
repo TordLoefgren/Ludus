@@ -1,20 +1,25 @@
 #pragma once
 
-#include <Ludus/Engine/Core/ISystem.h>
+#include <Ludus/Engine/Runtime/ISystem.h>
 #include <Ludus/UI/Backend/ImGuiBackend.h>
+
+struct GLFWwindow;
 
 namespace Ludus::UI::Systems
 {
-	class ImGuiSystem final : public Ludus::Engine::Core::ISystem
+	class ImGuiSystem final : public Ludus::Engine::Runtime::ISystem
 	{
 	private:
-		Ludus::UI::Backend::ImGuiBackend m_Backend { };
+		GLFWwindow* m_Window;
+		Ludus::UI::Backend::ImGuiBackend m_Backend;
 
 	public:
+		ImGuiSystem(GLFWwindow* window);
+
 		virtual void OnAttachImpl() override;
 		virtual void OnDetachImpl() override;
 
-		virtual void UpdateImpl(float deltaTime) override;
-		virtual void RenderImpl() override;
+		virtual void BeginFrameImpl() override;
+		virtual void EndFrameImpl() override;
 	};
 }

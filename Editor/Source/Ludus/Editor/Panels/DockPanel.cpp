@@ -1,9 +1,9 @@
 #include "pch.h"
 
+#include <filesystem>
 #include <string>
 #include <string_view>
 
-#include <Ludus/Editor/Build/IScriptBuildPipeline.h>
 #include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/UICommand.h>
 #include <Ludus/Editor/Core/Constants.h>
@@ -35,36 +35,31 @@
 
 namespace Ludus::Editor::Panels
 {
-	void DockPanel::DrawMenuBar(Ludus::Editor::Panels::PanelContext& context)
+	void DockPanel::DrawMenuBar(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
 		if (Ludus::UI::Scope::MenuBarScope menuBar; menuBar)
 		{
+			const auto projectRoot = context.ProjectSession.GetProjectRoot();
+
 			if (Ludus::UI::Scope::MenuScope fileMenu("File"); fileMenu)
 			{
 				// File -> Scene logic.
 				{
-					Ludus::UI::Scope::DisabledScope disabled(!context.SystemContext.HasProjectContext());
-
 					if (Ludus::UI::Widgets::MenuItem("New Scene"))
 					{
-						context.EditorContext.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::CreateScene());
+						context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::CreateScene());
 					}
 
 					if (Ludus::UI::Widgets::MenuItem("Open Scene"))
 					{
-						if (!context.SystemContext.ProjectContext.has_value())
-						{
-							return;
-						}
-
-						std::string path;
+						std::filesystem::path path;
 						if (Ludus::Engine::Platform::Modals::OpenFileDialog(
 							path,
 							"ludus.scene",
-							Ludus::Engine::Persistence::Paths::ScenesDirectory(context.SystemContext.ProjectContext.value().ProjectRootDirectory)
+							Ludus::Engine::Persistence::Paths::ScenesDirectory(projectRoot)
 						))
 						{
-							context.EditorContext.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::OpenScene { path });
+							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::OpenScene { path });
 						}
 					}
 
@@ -72,31 +67,48 @@ namespace Ludus::Editor::Panels
 
 					if (Ludus::UI::Widgets::MenuItem("Save"))
 					{
-						const auto activeHandle = context.EditorContext.Session.GetActiveScene();
-						if (!activeHandle.has_value() || !context.SystemContext.SceneRegistry.Contains(activeHandle.value()))
+						const auto activeHandle = context.ProjectSession.EditorState.ActiveSceneHandle;
+						if (!context.ProjectSession.GetSceneRegistry().Contains(activeHandle))
 						{
 							return;
 						}
 
-						context.EditorContext.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveScene { activeHandle.value() });
+						if (context.ProjectSession.ActiveSceneHasSavePath())
+						{
+							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveScene { .SceneHandle = activeHandle });
+						}
+						else
+						{
+							std::filesystem::path path;
+							if (Ludus::Engine::Platform::Modals::SaveFileDialog(
+								path,
+								"ludus.scene",
+								Ludus::Engine::Persistence::Paths::ScenesDirectory(projectRoot),
+								"Untitled"
+							))
+							{
+								context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveSceneAs { .SceneHandle = activeHandle, .Path = path });
+							}
+						}
 					}
 
 					if (Ludus::UI::Widgets::MenuItem("Save As"))
 					{
-						const auto activeHandle = context.EditorContext.Session.GetActiveScene();
-						if (!activeHandle.has_value() || !context.SystemContext.SceneRegistry.Contains(activeHandle.value()))
+						const auto activeHandle = context.ProjectSession.EditorState.ActiveSceneHandle;
+						if (!context.ProjectSession.GetSceneRegistry().Contains(activeHandle))
 						{
 							return;
 						}
 
-						std::string path;
+						std::filesystem::path path;
 						if (Ludus::Engine::Platform::Modals::SaveFileDialog(
 							path,
 							"ludus.scene",
-							Ludus::Engine::Persistence::Paths::ScenesDirectory(context.SystemContext.ProjectContext.value().ProjectRootDirectory)
+							Ludus::Engine::Persistence::Paths::ScenesDirectory(projectRoot),
+							"Untitled"
 						))
 						{
-							context.EditorContext.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveSceneAs { activeHandle.value(), path });
+							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveSceneAs { .SceneHandle = activeHandle, .Path = path });
 						}
 					}
 				}
@@ -106,29 +118,25 @@ namespace Ludus::Editor::Panels
 				// File -> Project logic.
 				if (Ludus::UI::Widgets::MenuItem("New Project"))
 				{
-					context.EditorContext.State.Commands.AddUICommand(Ludus::Editor::Commands::UICommand::OpenCreateProjectDialog { });
+					context.Shell.State.Commands.AddUICommand(Ludus::Editor::Commands::UICommand::OpenCreateProjectDialog { });
 				}
 
 				if (Ludus::UI::Widgets::MenuItem("Open Project"))
 				{
-					std::string path;
+					std::filesystem::path path;
 					if (Ludus::Engine::Platform::Modals::OpenFileDialog(
 						path,
-						"ludus.app",
+						"ludus.project",
 						Ludus::Editor::Persistence::Paths::ProjectsRoot()
 					))
 					{
-						context.EditorContext.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::OpenProject { path });
+						context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::OpenProject { path });
 					}
 				}
 
+				if (Ludus::UI::Widgets::MenuItem("Close Project"))
 				{
-					Ludus::UI::Scope::DisabledScope disabled(!context.SystemContext.HasProjectContext());
-
-					if (Ludus::UI::Widgets::MenuItem("Close Project"))
-					{
-						context.EditorContext.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::CloseProject { });
-					}
+					context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::CloseProject { });
 				}
 			}
 
@@ -162,35 +170,33 @@ namespace Ludus::Editor::Panels
 
 				Ludus::UI::Context::LayoutContext::Separator();
 
-				Ludus::UI::Scope::DisabledScope disabled(!context.SystemContext.HasProjectContext());
-
 				if (Ludus::UI::Widgets::MenuItem("Show in Explorer"))
 				{
 					Ludus::Engine::Platform::Paths::OpenFolder(
-						Ludus::Engine::Persistence::Paths::AssetsDirectory(context.SystemContext.ProjectContext->ProjectRootDirectory)
+						Ludus::Engine::Persistence::Paths::AssetsDirectory(projectRoot)
 					);
 				}
 			}
 
 			if (Ludus::UI::Scope::MenuScope buildMenu("Build"); buildMenu)
 			{
-				Ludus::UI::Scope::DisabledScope disabled(!context.SystemContext.HasProjectContext());
-
-				auto& build = context.EditorContext.Build;
+				Ludus::UI::Scope::DisabledScope disabledScope(
+					context.Shell.State.Execution.ExecutionMode != Ludus::Editor::Core::ExecutionMode::Stop
+				);
 
 				if (Ludus::UI::Widgets::MenuItem("Build"))
 				{
-					build.Build(context.SystemContext.ProjectContext.value());
+					context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::BuildScript { Ludus::Editor::Build::BuildCommand::Build });
 				}
 
 				if (Ludus::UI::Widgets::MenuItem("Rebuild"))
 				{
-					build.Rebuild(context.SystemContext.ProjectContext.value());
+					context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::BuildScript { Ludus::Editor::Build::BuildCommand::Rebuild });
 				}
 
 				if (Ludus::UI::Widgets::MenuItem("Clean"))
 				{
-					build.Clean(context.SystemContext.ProjectContext.value());
+					context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::BuildScript { Ludus::Editor::Build::BuildCommand::Clean });
 				}
 			}
 
@@ -199,25 +205,25 @@ namespace Ludus::Editor::Panels
 			{
 				if (Ludus::UI::Widgets::MenuItem("Add viewport"))
 				{
-					context.EditorContext.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::AddViewport { });
+					context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::AddViewport { });
 				}
 
 				if (Ludus::UI::Scope::MenuScope panelsMenu("Panels"); panelsMenu)
 				{
-					Ludus::UI::Widgets::Checkbox("Console", &context.ActivePanelState.ShowConsolePanel);
-					Ludus::UI::Widgets::Checkbox("Hierarchy", &context.ActivePanelState.ShowHierarchyPanel);
-					Ludus::UI::Widgets::Checkbox("ImGuiDemo", &context.ActivePanelState.ShowImGuiDemoPanel);
-					Ludus::UI::Widgets::Checkbox("Inspector", &context.ActivePanelState.ShowInspectorPanel);
-					Ludus::UI::Widgets::Checkbox("Project", &context.ActivePanelState.ShowProjectPanel);
+					Ludus::UI::Widgets::Checkbox("Console", &context.Shell.State.ActivePanelState.ShowConsolePanel);
+					Ludus::UI::Widgets::Checkbox("Hierarchy", &context.Shell.State.ActivePanelState.ShowHierarchyPanel);
+					Ludus::UI::Widgets::Checkbox("ImGuiDemo", &context.Shell.State.ActivePanelState.ShowImGuiDemoPanel);
+					Ludus::UI::Widgets::Checkbox("Inspector", &context.Shell.State.ActivePanelState.ShowInspectorPanel);
+					Ludus::UI::Widgets::Checkbox("Content", &context.Shell.State.ActivePanelState.ShowContentPanel);
 				}
 			}
 		}
 	}
 
-	void DockPanel::DrawToolBar(Ludus::Editor::Panels::PanelContext& context)
+	void DockPanel::DrawToolBar(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
-		const auto buttonWidth = 30.0f;
-		const auto spacing = 6.0f;
+		const auto buttonWidth = Ludus::Editor::Core::Constants::ToolbarButtonExtent;
+		const auto spacing = Ludus::Editor::Core::Constants::StandardInlineSpacing;
 		const auto buttonCount = 3;
 
 		const auto totalWidth = buttonCount * buttonWidth + (buttonCount - 1) * spacing;
@@ -260,7 +266,7 @@ namespace Ludus::Editor::Panels
 			return false;
 		};
 
-		auto& mode = context.EditorContext.State.Execution.ExecutionMode;
+		auto& mode = context.Shell.State.Execution.ExecutionMode;
 		const bool isRunning = (mode != Ludus::Editor::Core::ExecutionMode::Stop);
 		const bool isPaused = (mode == Ludus::Editor::Core::ExecutionMode::Pause);
 
@@ -275,7 +281,7 @@ namespace Ludus::Editor::Panels
 				? Ludus::Editor::Core::ExecutionMode::Stop
 				: Ludus::Editor::Core::ExecutionMode::Start;
 
-			context.EditorContext.State.Commands.AddRequestCommand(
+			context.Shell.State.Commands.AddRequestCommand(
 				Ludus::Editor::Commands::RequestCommand::SetExecutionMode { next }
 			);
 		});
@@ -288,13 +294,13 @@ namespace Ludus::Editor::Panels
 				? Ludus::Editor::Core::ExecutionMode::Start   // Resume.
 				: Ludus::Editor::Core::ExecutionMode::Pause;
 
-			context.EditorContext.State.Commands.AddRequestCommand(
+			context.Shell.State.Commands.AddRequestCommand(
 				Ludus::Editor::Commands::RequestCommand::SetExecutionMode { next }
 			);
 		});
 	}
 
-	bool DockPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
+	bool DockPanel::UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
 		const auto viewport = Ludus::UI::Context::ViewportContext::GetMainViewport();
 		Ludus::UI::Context::WindowContext::SetNextWindowPosition(viewport.WorkPosition);

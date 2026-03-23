@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <optional>
 
 #include <Ludus/Engine/Core/Scene.h>
@@ -15,7 +14,7 @@ namespace Ludus::Engine::Graphics
 	{
 		Ludus::Engine::Graphics::Camera2D Camera;
 		std::optional<Ludus::Engine::Core::SceneHandle> SceneHandle;
-		std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> Target;
+		Ludus::Engine::Graphics::RenderTarget* Target = nullptr;
 		Ludus::Engine::Math::Rect ViewportRect;
 		Ludus::Engine::Graphics::CameraSource CameraSource = Ludus::Engine::Graphics::CameraSource::None;
 	};

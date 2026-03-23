@@ -18,7 +18,7 @@ namespace Ludus::Editor::Dialogs
 		ActiveDialog Active;
 
 		template<typename TDialog>
-		void Open() { Active = TDialog {}; }
+		void Open() { Active = TDialog { }; }
 
 		template<typename TDialog>
 		void Open(TDialog dialog) { Active = std::move(dialog); }
@@ -56,7 +56,7 @@ namespace Ludus::Editor::Dialogs
 
 			if (close)
 			{
-				Active = std::monostate {};
+				Active = std::monostate { };
 			}
 
 			if (hasOut)

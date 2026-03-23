@@ -19,18 +19,12 @@
 #include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/Engine/Physics/Core/BodyType.h>
 
-namespace Ludus::Engine::Serialization::Schemas { struct SceneSchema; }
-
 namespace Ludus::Engine::Core
 {
 	struct EntityComponentSystem
 	{
 	private:
 		Ludus::Engine::Core::EntityRegistry m_Entities;
-
-		void AddEntityWithHandle(EntityHandle handle) { m_Entities.AddEntity(handle); }
-
-		friend struct Ludus::Engine::Serialization::Schemas::SceneSchema;
 
 	public:
 		Ludus::Engine::Core::ComponentRegistry<Ludus::Engine::Components::Camera2DComponent> Cameras;
@@ -47,6 +41,11 @@ namespace Ludus::Engine::Core
 		EntityComponentSystem& operator=(const EntityComponentSystem&) = delete;
 		EntityComponentSystem(EntityComponentSystem&&) noexcept = default;
 		EntityComponentSystem& operator=(EntityComponentSystem&&) noexcept = default;
+
+		void RestoreEntity(EntityHandle handle)
+		{
+			m_Entities.AddEntity(handle);
+		}
 
 		EntityHandle AddEntity()
 		{

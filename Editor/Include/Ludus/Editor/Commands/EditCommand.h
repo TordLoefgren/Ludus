@@ -20,11 +20,12 @@
 
 namespace Ludus::Editor::Commands
 {
-	struct CommandContext;
+	struct ProjectSessionCommandContext;
 
 	struct EditCommand
 	{
-		// Component commands.
+
+#pragma region Component Commands
 
 		using EntityHandle = Ludus::Engine::Core::EntityHandle;
 		using SceneHandle = Ludus::Engine::Core::SceneHandle;
@@ -40,24 +41,30 @@ namespace Ludus::Editor::Commands
 		struct UseDefault { };
 
 		template<typename TComponent>
-		struct AddComponent { EntityReference Entity { }; SceneHandle Scene; std::variant<UseDefault, TComponent> Init { UseDefault { } }; };
+		struct AddComponent { EntityReference EntityReference { }; SceneHandle SceneHandle; std::variant<UseDefault, TComponent> Init { UseDefault { } }; };
 
 		template<typename TComponent>
-		struct RemoveComponent { EntityReference Entity; SceneHandle Scene; };
+		struct RemoveComponent { EntityReference EntityReference; SceneHandle SceneHandle; };
 
 		template<typename TComponent>
-		struct UpdateComponent { EntityReference Entity; SceneHandle Scene; TComponent Before; TComponent After; };
+		struct UpdateComponent { EntityReference EntityReference; SceneHandle SceneHandle; TComponent Before; TComponent After; };
 
-		// Entity commands.
+#pragma endregion
 
-		struct AddEntity { EntityReference Entity; SceneHandle Scene; };
-		struct RemoveEntity { EntityReference Entity; SceneHandle Scene; };
+#pragma region Entity Commands
 
-		// Selection commands. 
+		struct AddEntity { EntityReference EntityReference; SceneHandle SceneHandle; };
+		struct RemoveEntity { EntityReference EntityReference; SceneHandle SceneHandle; };
 
-		struct SelectEntity { EntityReference Entity; };
-		struct DeselectEntity { EntityReference Entity; };
+#pragma endregion
+
+#pragma region Selection Commands
+
+		struct SelectEntity { EntityReference EntityReference; };
+		struct DeselectEntity { EntityReference EntityReference; };
 		struct ClearSelection { };
+
+#pragma endregion
 
 		using Variant = std::variant<
 			AddComponent<Camera2DComponent>, AddComponent<Collider2DComponent>, AddComponent<DisplayNameComponent>, AddComponent<RigidBody2DComponent>,
@@ -80,5 +87,5 @@ namespace Ludus::Editor::Commands
 		EditCommand(T value) : Data(std::move(value)) { }
 	};
 
-	void Execute(const EditCommand& command, CommandContext& context);
+	void Execute(const EditCommand& command, ProjectSessionCommandContext& context);
 }

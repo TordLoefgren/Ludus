@@ -113,9 +113,9 @@ namespace Ludus::Engine::Core
 
 		bool RemoveScene(Ludus::Engine::Core::SceneHandle handle)
 		{
-			if (auto it = m_HandleToIndex.find(handle); it != m_HandleToIndex.end())
+			if (auto iter = m_HandleToIndex.find(handle); iter != m_HandleToIndex.end())
 			{
-				RemoveAndReorderIndices(it->second);
+				RemoveAndReorderIndices(iter->second);
 
 				return true;
 			}

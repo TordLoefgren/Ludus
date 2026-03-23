@@ -5,9 +5,9 @@ namespace Ludus::Editor::Core
 	struct ActivePanelState
 	{
 		bool ShowConsolePanel = true;
+		bool ShowContentPanel = true;
 		bool ShowHierarchyPanel = true;
 		bool ShowInspectorPanel = true;
 		bool ShowImGuiDemoPanel = true;
-		bool ShowProjectPanel = true;
 	};
 }

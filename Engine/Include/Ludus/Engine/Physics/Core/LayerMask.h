@@ -126,10 +126,10 @@ namespace Ludus::Engine::Physics::Core
 
 		static int NameToLayerIndex(const std::string& layerName)
 		{
-			auto it = s_NameToIndex.find(layerName);
-			if (it != s_NameToIndex.end())
+			auto iter = s_NameToIndex.find(layerName);
+			if (iter != s_NameToIndex.end())
 			{
-				return static_cast<int>(it->second);
+				return static_cast<int>(iter->second);
 			}
 
 			return -1;
@@ -137,10 +137,10 @@ namespace Ludus::Engine::Physics::Core
 
 		static const LayerMask NameToLayer(const std::string& layerName)
 		{
-			auto it = s_NameToIndex.find(layerName);
-			if (it != s_NameToIndex.end())
+			auto iter = s_NameToIndex.find(layerName);
+			if (iter != s_NameToIndex.end())
 			{
-				return LayerMask(1u << it->second);
+				return LayerMask(1u << iter->second);
 			}
 			else
 			{
@@ -150,10 +150,10 @@ namespace Ludus::Engine::Physics::Core
 
 		static std::string LayerIndexToName(const LayerIndex layerIndex)
 		{
-			auto it = s_IndexToName.find(layerIndex);
-			if (it != s_IndexToName.end())
+			auto iter = s_IndexToName.find(layerIndex);
+			if (iter != s_IndexToName.end())
 			{
-				return it->second;
+				return iter->second;
 			}
 
 			return "";

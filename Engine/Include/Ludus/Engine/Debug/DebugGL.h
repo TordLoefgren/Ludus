@@ -2,6 +2,7 @@
 
 #include <string>
 #include <tuple>
+#include <utility>
 
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Graphics/GL.h>
@@ -56,7 +57,7 @@ namespace Ludus::Engine::Debug
 
 	using CallbackParams = std::tuple<GLenum, GLenum, GLuint, GLenum, std::string>;
 
-	inline CallbackParams g_LastGLCallbackParams {};
+	inline CallbackParams g_LastGLCallbackParams { };
 
 	inline void APIENTRY ErrorMessageCallback(
 		GLenum source,

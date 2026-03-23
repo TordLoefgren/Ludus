@@ -7,6 +7,7 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 #include <variant>
 
 #include <Ludus/Engine/Serialization/Codecs/LmlDomCodec.h>
@@ -613,7 +614,7 @@ namespace
 			std::string_view line = Input.substr(lineStart + indent, lineLimit - (lineStart + indent));
 			if (!line.empty() && line.front() == '-')
 			{
-				std::string_view value = {};
+				std::string_view value = { };
 				if (line.size() >= 2 && line[1] == ' ')
 				{
 					value = line.substr(2);
@@ -623,7 +624,7 @@ namespace
 					value = line.substr(1);
 				}
 				value = trimView(value);
-				return LineToken { LineKind::ListItem, indent, {}, value };
+				return LineToken { LineKind::ListItem, indent, { }, value };
 			}
 
 			bool inQuotes = false;
@@ -657,7 +658,7 @@ namespace
 			if (colonPos == std::string_view::npos)
 			{
 				std::string_view keyOnly = trimView(line);
-				return LineToken { LineKind::KeyOnly, indent, keyOnly, {} };
+				return LineToken { LineKind::KeyOnly, indent, keyOnly, { } };
 			}
 
 			std::string_view key = trimView(line.substr(0, colonPos));
@@ -670,7 +671,7 @@ namespace
 
 			if (value.empty())
 			{
-				return LineToken { LineKind::KeyOnly, indent, key, {} };
+				return LineToken { LineKind::KeyOnly, indent, key, { } };
 			}
 			return LineToken { LineKind::KeyValue, indent, key, value };
 		}
@@ -678,7 +679,7 @@ namespace
 		std::string_view Input;
 		size_t Offset = 0;
 		bool HasPeek = false;
-		LineToken PeekToken {};
+		LineToken PeekToken { };
 	};
 
 	struct Parser
@@ -696,7 +697,7 @@ namespace
 			}
 			if (first.Kind == LineKind::Empty && !LexerInstance.HasMore())
 			{
-				return DomNode { DomObject {} };
+				return DomNode { DomObject { } };
 			}
 			if (first.Indent != 0)
 			{
@@ -821,7 +822,7 @@ namespace
 				}
 				LexerInstance.Read();
 			}
-			return LineToken {};
+			return LineToken { };
 		}
 
 		DomNode ReadDocumentObject(size_t expectedIndent)
@@ -872,11 +873,11 @@ namespace
 			raw = TrimView(raw);
 			if (raw == "{}")
 			{
-				return DomNode { DomObject {} };
+				return DomNode { DomObject { } };
 			}
 			if (raw == "[]")
 			{
-				return DomNode { DomArray {} };
+				return DomNode { DomArray { } };
 			}
 			if (!raw.empty() && raw.front() == '{' && raw.back() == '}')
 			{
@@ -1078,7 +1079,7 @@ namespace
 
 			if (raw.empty())
 			{
-				return DomValue { std::string {} };
+				return DomValue { std::string { } };
 			}
 
 			if (raw.front() == '"' && raw.back() != '"')
@@ -1123,7 +1124,7 @@ namespace
 
 			if (raw == "null")
 			{
-				return DomValue { std::monostate {} };
+				return DomValue { std::monostate { } };
 			}
 			if (raw == "true")
 			{

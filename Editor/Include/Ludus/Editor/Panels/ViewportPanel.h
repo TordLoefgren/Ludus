@@ -1,12 +1,12 @@
 #pragma once
 
-#include <memory>
 #include <optional>
 #include <string>
 
+#include <Ludus/Editor/Core/ProjectSessionContext.h>
 #include <Ludus/Editor/Core/ViewportDisplayMode.h>
 #include <Ludus/Editor/Panels/IPanel.h>
-#include <Ludus/Editor/Panels/PanelContext.h>
+#include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Graphics/Camera2D.h>
 #include <Ludus/Engine/Graphics/RenderPresentationSettings.h>
 #include <Ludus/Engine/Graphics/RenderTarget.h>
@@ -24,7 +24,7 @@ namespace Ludus::Editor::Panels
 
 		std::string m_Title;
 		Ludus::Engine::Graphics::Camera2D m_Camera;
-		std::shared_ptr<Ludus::Engine::Graphics::RenderTarget> m_Target;
+		std::optional<Ludus::Engine::Graphics::RenderTarget> m_Target;
 		Ludus::Engine::Math::Size<int> m_PreviousTargetSize;
 		Ludus::Editor::Core::ViewportDisplayMode m_DisplayMode;
 		std::optional<Ludus::Engine::Core::SceneHandle> m_SelectedSceneHandle = std::nullopt;
@@ -37,12 +37,12 @@ namespace Ludus::Editor::Panels
 
 		float ResolveTargetAspectRatio(const Ludus::Engine::Graphics::RenderPresentationSettings& renderPresentationSettings) const;
 		Ludus::Engine::Math::Size<int> ResolveRenderTargetSize(
-			Ludus::Editor::Panels::PanelContext& context,
+			Ludus::Editor::Core::ProjectSessionContext& context,
 			const Ludus::Engine::Graphics::RenderPresentationSettings& renderPresentationSettings,
 			Ludus::Engine::Math::Vector2D viewportDisplaySize
 		) const;
 
-		void HandleInput(Ludus::Editor::Panels::PanelContext& context);
+		void HandleInput(Ludus::Editor::Core::ProjectSessionContext& context);
 
 	public:
 		ViewportPanel(
@@ -50,6 +50,6 @@ namespace Ludus::Editor::Panels
 			Ludus::Editor::Core::ViewportDisplayMode displayMode = Ludus::Editor::Core::ViewportDisplayMode::Editor
 		);
 
-		virtual bool UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
+		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) override;
 	};
 }

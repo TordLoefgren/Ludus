@@ -84,6 +84,11 @@ namespace Ludus::Engine::FileSystem
 		return fileNames;
 	}
 
+	std::string ToPortablePathString(const std::filesystem::path& path)
+	{
+		return path.lexically_normal().generic_string();
+	}
+
 	bool ArePathsEqual(const std::filesystem::path& left, const std::filesystem::path& right)
 	{
 		std::error_code errorCode;

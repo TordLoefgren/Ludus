@@ -1,11 +1,7 @@
 #pragma once
 
 #include <Ludus/Editor/Core/ExecutionMode.h>
-
-namespace Ludus::Engine::Core
-{
-	struct SystemContext;
-}
+#include <Ludus/Engine/Core/FlagSet.h>
 
 namespace Ludus::Editor::Core
 {
@@ -14,6 +10,6 @@ namespace Ludus::Editor::Core
 	public:
 		Ludus::Editor::Core::ExecutionMode ExecutionMode = ExecutionMode::Stop;
 
-		void Apply(Ludus::Engine::Core::SystemContext& context, Ludus::Editor::Core::ExecutionMode mode);
+		void Apply(Ludus::Engine::Core::FlagSet& executionFlags, Ludus::Editor::Core::ExecutionMode mode);
 	};
 }

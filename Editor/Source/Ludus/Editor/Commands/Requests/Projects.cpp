@@ -1,119 +1,146 @@
 #include "pch.h"
 
-#include <utility>
+#include <filesystem>
 
-#include <Ludus/Editor/Commands/EditCommand.h>
+#include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 #include <Ludus/Editor/Commands/Requests/Projects.h>
-#include <Ludus/Editor/Core/EditorContext.h>
-#include <Ludus/Editor/Core/EditorMode.h>
-#include <Ludus/Editor/Core/SceneMetadata.h>
-#include <Ludus/Editor/Panels/PanelRegistry.h>
-#include <Ludus/Editor/Panels/ProjectPanel.h>
+#include <Ludus/Editor/Commands/StartupCommandContext.h>
+#include <Ludus/Editor/Core/PendingProjectTransition.h>
+#include <Ludus/Editor/Core/ProjectTemplates.h>
+#include <Ludus/Editor/Panels/PanelHelpers.h>
+#include <Ludus/Editor/Persistence/IProjectManifestPersistence.h>
 #include <Ludus/Editor/Persistence/Paths.h>
-#include <Ludus/Engine/Core/SceneRegistry.h>
-#include <Ludus/Engine/Core/SystemContext.h>
-#include <Ludus/Engine/Debug/Debug.h>
-#include <Ludus/Engine/Persistence/ProjectRepository.h>
-#include <Ludus/Engine/Windowing/Window.h>
-
-namespace
-{
-	void RefreshProjectPanel(Ludus::Editor::Commands::CommandContext& context)
-	{
-		auto* projectPanel = context.Panels.TryGet<Ludus::Editor::Panels::ProjectPanel>();
-		if (!projectPanel)
-		{
-			return;
-		}
-
-		projectPanel->Refresh(context.SystemContext.ProjectContext);
-	}
-}
+#include <Ludus/Engine/Persistence/IRuntimeManifestPersistence.h>
+#include <Ludus/Engine/Persistence/IScenePersistence.h>
 
 namespace Ludus::Editor::Commands::Requests::Projects
 {
-	void CreateProject(const RequestCommand::CreateProject& command, CommandContext& context)
+	namespace
 	{
-		const auto projectsRoot = command.RootPath.value_or(Ludus::Editor::Persistence::Paths::ProjectsRoot());
-		const auto projectRoot = projectsRoot / std::string(command.Name);
-		if (std::filesystem::exists(projectRoot))
+		void CreateProject(
+			const std::filesystem::path& projectRoot,
+			std::string_view projectName,
+			Ludus::Editor::Core::PendingProjectTransition& pendingProjectTransition,
+			Ludus::Engine::Persistence::IScenePersistence& scenePersistence,
+			Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence,
+			Ludus::Editor::Persistence::IProjectManifestPersistence& projectManifestPersistence
+		)
 		{
-			LUDUS_LOG_WARN("Project name already exists for path: " + projectRoot.string());
-			return;
+			Ludus::Editor::Persistence::Paths::EnsureProjectLayoutExists(projectRoot);
+
+			// Create default scene.
+			const auto scene = Ludus::Editor::Core::ProjectTemplates::CreateDefaultScene();
+			const auto scenePath = Ludus::Engine::Persistence::Paths::SceneFile(projectRoot, scene.Name);
+			scenePersistence.Save(
+				scene,
+				scenePath
+			);
+
+			// Create runtime manifest.
+			const auto runtimeManifest = Ludus::Engine::Runtime::RuntimeManifest::Create(
+				scene.Handle,
+				{ { scene.Handle, scene.Name, scenePath } },
+				{ }
+			);
+			const auto runtimeManifestPath = Ludus::Engine::Persistence::Paths::RuntimeManifestFile(projectRoot, projectName);
+			runtimeManifestPersistence.Save(
+				runtimeManifest,
+				runtimeManifestPath
+			);
+
+			// Create project manifest.
+			const auto projectManifest = Ludus::Editor::Core::ProjectManifest::Create(
+				projectRoot,
+				runtimeManifestPath
+			);
+			projectManifestPersistence.Save(
+				projectManifest,
+				Ludus::Editor::Persistence::Paths::ProjectManifestFile(projectRoot, projectName)
+			);
+
+			// Set pending project.
+			pendingProjectTransition = Ludus::Editor::Core::PendingProjectTransition::OpenProject({ projectManifest });
 		}
-
-		auto& systemContext = context.SystemContext;
-		auto& registry = systemContext.SceneRegistry;
-		auto& session = context.EditorContext.Session;
-
-		registry.Clear();
-		session.Clear();
-		context.EditorContext.State.Commands.AddEditCommand(Ludus::Editor::Commands::EditCommand::ClearSelection { });
-
-		auto projectContext = systemContext.ProjectRepository.CreateProject(command.Name, command.RootPath);
-		systemContext.ProjectContext = std::move(projectContext);
-
-		const auto activeHandle = systemContext.ProjectContext->Project.ActiveSceneHandle;
-		auto scene = systemContext.ProjectRepository.LoadScene(systemContext.ProjectContext.value(), activeHandle);
-
-		LUDUS_ASSERT(scene.Handle == activeHandle, "Loaded scene handle does not match project ActiveSceneHandle.");
-		(void)registry.AddScene(std::move(scene));
-
-		auto path = systemContext.ProjectContext.value().FindScenePath(activeHandle);
-		session.EnsureMetadata(activeHandle, Ludus::Editor::Core::SceneMetadata { .Path = path, .IsDirty = false });
-		session.SetActiveScene(activeHandle);
-
-		context.EditorContext.Build.EnsureScriptProject(systemContext.ProjectContext.value());
-
-		RefreshProjectPanel(context);
-
-		LUDUS_LOG_INFO("Created new Ludus project: " + systemContext.ProjectContext.value().ProjectPath.string());
-		context.SetEditorMode(Ludus::Editor::Core::EditorMode::Workspace, command.Name + " - Ludus Editor");
 	}
 
-	void OpenProject(const RequestCommand::OpenProject& command, CommandContext& context)
+	void CreateProject(const RequestCommand::CreateProject& command, StartupCommandContext& context)
 	{
-		auto& systemContext = context.SystemContext;
-		auto& registry = systemContext.SceneRegistry;
-		auto& session = context.EditorContext.Session;
+		Ludus::Editor::Persistence::Paths::EnsureProjectsRootExists();
+		const auto projectRoot = Ludus::Editor::Persistence::Paths::ProjectRoot(command.Name);
+		CreateProject(
+			projectRoot,
+			command.Name,
+			context.Shell.State.PendingProjectTransition,
+			context.ScenePersistence,
+			context.RuntimeManifestPersistence,
+			context.ProjectManifestPersistence
+		);
 
-		registry.Clear();
-		session.Clear();
-		context.EditorContext.State.Commands.AddEditCommand(Ludus::Editor::Commands::EditCommand::ClearSelection { });
-
-		auto projectContext = systemContext.ProjectRepository.LoadProject(command.Path);
-		systemContext.ProjectContext = std::move(projectContext);
-
-		const auto activeHandle = systemContext.ProjectContext->Project.ActiveSceneHandle;
-		auto scene = systemContext.ProjectRepository.LoadScene(*systemContext.ProjectContext, activeHandle);
-
-		LUDUS_ASSERT(scene.Handle == activeHandle, "Loaded scene handle does not match project ActiveSceneHandle.");
-		(void)registry.AddScene(std::move(scene));
-
-		auto path = systemContext.ProjectContext.value().FindScenePath(activeHandle);
-		session.EnsureMetadata(activeHandle, Ludus::Editor::Core::SceneMetadata { .Path = path, .IsDirty = false });
-		session.SetActiveScene(activeHandle);
-
-		RefreshProjectPanel(context);
-
-		context.SetEditorMode(Ludus::Editor::Core::EditorMode::Workspace);
+		Ludus::Editor::Panels::RefreshContentPanel(projectRoot, context.PanelRegistry);
 	}
 
-	void CloseProject(const RequestCommand::CloseProject& command, CommandContext& context)
+	void CreateProjectAs(const RequestCommand::CreateProjectAs& command, StartupCommandContext& context)
 	{
-		auto& systemContext = context.SystemContext;
-		if (!systemContext.HasProjectContext())
-		{
-			LUDUS_LOG_WARN("Cannot close project. No project context exists.");
-			return;
-		}
+		CreateProject(
+			command.ProjectRoot,
+			command.Name,
+			context.Shell.State.PendingProjectTransition,
+			context.ScenePersistence,
+			context.RuntimeManifestPersistence,
+			context.ProjectManifestPersistence
+		);
 
-		systemContext.ProjectContext.reset();
-		systemContext.SceneRegistry.Clear();
-		context.EditorContext.Session.Clear();
-		context.EditorContext.State.Commands.AddEditCommand(Ludus::Editor::Commands::EditCommand::ClearSelection { });
+		Ludus::Editor::Panels::RefreshContentPanel(command.ProjectRoot, context.PanelRegistry);
+	}
 
-		RefreshProjectPanel(context);
-		context.SetEditorMode(Ludus::Editor::Core::EditorMode::Startup);
+	void OpenProject(const RequestCommand::OpenProject& command, StartupCommandContext& context)
+	{
+		auto projectManifest = context.ProjectManifestPersistence.Load(command.Path);
+		context.Shell.State.PendingProjectTransition = Ludus::Editor::Core::PendingProjectTransition::OpenProject({ projectManifest });
+
+		Ludus::Editor::Panels::RefreshContentPanel(projectManifest.ProjectRoot, context.PanelRegistry);
+	}
+
+	void CreateProject(const RequestCommand::CreateProject& command, ProjectSessionCommandContext& context)
+	{
+		Ludus::Editor::Persistence::Paths::EnsureProjectsRootExists();
+		const auto projectRoot = Ludus::Editor::Persistence::Paths::ProjectRoot(command.Name);
+		CreateProject(
+			projectRoot,
+			command.Name,
+			context.Shell.State.PendingProjectTransition,
+			context.ScenePersistence,
+			context.RuntimeManifestPersistence,
+			context.ProjectManifestPersistence
+		);
+	}
+
+	void CreateProjectAs(const RequestCommand::CreateProjectAs& command, ProjectSessionCommandContext& context)
+	{
+		CreateProject(
+			command.ProjectRoot,
+			command.Name,
+			context.Shell.State.PendingProjectTransition,
+			context.ScenePersistence,
+			context.RuntimeManifestPersistence,
+			context.ProjectManifestPersistence
+		);
+
+		Ludus::Editor::Panels::RefreshContentPanel(command.ProjectRoot, context.PanelRegistry);
+	}
+
+	void OpenProject(const RequestCommand::OpenProject& command, ProjectSessionCommandContext& context)
+	{
+		auto projectManifest = context.ProjectManifestPersistence.Load(command.Path);
+		context.Shell.State.PendingProjectTransition = Ludus::Editor::Core::PendingProjectTransition::OpenProject({ projectManifest });
+
+		Ludus::Editor::Panels::RefreshContentPanel(projectManifest.ProjectRoot, context.PanelRegistry);
+	}
+
+	void CloseProject(ProjectSessionCommandContext& context)
+	{
+		context.Shell.State.PendingProjectTransition = Ludus::Editor::Core::PendingProjectTransition::CloseProject();
+
+		Ludus::Editor::Panels::ClearConsolePanel(context.PanelRegistry);
 	}
 }

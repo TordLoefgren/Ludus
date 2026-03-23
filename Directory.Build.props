@@ -16,6 +16,12 @@
     <VcpkgXUseBuiltInApplocalDeps>true</VcpkgXUseBuiltInApplocalDeps>
   </PropertyGroup>
 
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
   <!-- Fallback include/lib paths for vcpkg-managed packages like freetype/glfw3. -->
   <ItemDefinitionGroup Condition="'$(VcpkgLocalTripletDir)' != '' and Exists('$(VcpkgLocalTripletDir)include')">
     <ClCompile>

@@ -1,15 +1,15 @@
 #pragma once
 
+#include <Ludus/Editor/Core/ProjectSessionContext.h>
 #include <Ludus/Editor/Panels/IPanel.h>
-#include <Ludus/Editor/Panels/PanelContext.h>
 
 namespace Ludus::Editor::Panels
 {
 	class ImGuiDemoPanel final : public Ludus::Editor::Panels::IPanel
 	{
 	public:
-		virtual bool* GetOpenFlag(Ludus::Editor::Panels::PanelContext& context) override { return &context.ActivePanelState.ShowImGuiDemoPanel; }
+		virtual bool* GetOpenFlag(Ludus::Editor::Core::ProjectSessionContext& context) override { return &context.Shell.State.ActivePanelState.ShowImGuiDemoPanel; }
 
-		virtual bool UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
+		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) override;
 	};
 }

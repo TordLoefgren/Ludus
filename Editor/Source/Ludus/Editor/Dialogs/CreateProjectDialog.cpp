@@ -2,7 +2,9 @@
 
 #include <type_traits>
 
+#include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Dialogs/CreateProjectDialog.h>
+#include <Ludus/Editor/Persistence/Paths.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/PopupContext.h>
 #include <Ludus/UI/Labels.h>
@@ -25,6 +27,9 @@ namespace Ludus::Editor::Dialogs
 
 		if (Ludus::UI::Scope::PopupModalScope dialogScope(popupLabel.c_str(), &IsOpen, Ludus::UI::Flags::Window::AlwaysAutoResize); dialogScope)
 		{
+			const auto projectDirectory = Ludus::Editor::Persistence::Paths::ProjectRoot(Name);
+			DestinationPreview = projectDirectory.string();
+
 			Ludus::UI::Widgets::TextUnformatted("Please write a project name:");
 			Ludus::UI::Widgets::InputText("##NewProjectName", Name);
 
@@ -33,21 +38,27 @@ namespace Ludus::Editor::Dialogs
 				Ludus::UI::Widgets::TextUnformatted(Error.c_str());
 			}
 
-			if (Ludus::UI::Widgets::Button("Create"))
+			if (Ludus::UI::Widgets::Button("Create", Ludus::Editor::Core::Constants::ModalActionButtonSize))
 			{
-				if (!Name.empty())
+				Error = Ludus::Editor::Persistence::Paths::ValidateProjectName(Name);
+				if (Error.empty())
+				{
+					Error = Ludus::Editor::Persistence::Paths::ValidateProjectDirectory(projectDirectory);
+				}
+
+				if (Error.empty())
 				{
 					IsOpen = false;
 					return Outcome::Confirm(Name);
 				}
-				Error = "Name must not be empty.";
 			}
 
-			Ludus::UI::Context::LayoutContext::SameLine(0.0f, 6.0f);
+			Ludus::UI::Context::LayoutContext::SameLine(0.0f, Ludus::Editor::Core::Constants::StandardInlineSpacing);
 
-			if (Ludus::UI::Widgets::Button("Cancel"))
+			if (Ludus::UI::Widgets::Button("Cancel", Ludus::Editor::Core::Constants::ModalActionButtonSize))
 			{
 				Name.clear();
+				DestinationPreview.clear();
 				IsOpen = false;
 				return Outcome::Cancel();
 			}

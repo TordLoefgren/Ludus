@@ -21,25 +21,19 @@ namespace Ludus::Engine::Core
 			m_RenderViews.push_back(renderView);
 		}
 
-		void RegisterFullscreen(std::optional<SceneHandle> sceneHandle, const Ludus::Engine::Graphics::Camera2D& camera, const std::shared_ptr<Ludus::Engine::Graphics::RenderTarget>& target)
+		void RegisterFullscreen(std::optional<SceneHandle> sceneHandle, const Ludus::Engine::Graphics::Camera2D& camera, Ludus::Engine::Graphics::RenderTarget& target)
 		{
-			if (!target)
-			{
-				LUDUS_LOG_WARN("No render target to register with fullscreen.");
-				return;
-			}
-
-			auto [width, height] = target->Framebuffer.GetSize();
+			const auto [width, height] = target.Framebuffer.GetSize();
 
 			Ludus::Engine::Graphics::RenderView2D renderView {
 				.Camera = camera,
 				.SceneHandle = sceneHandle,
-				.Target = target,
+				.Target = &target,
 				.ViewportRect = Ludus::Engine::Math::Rect
 				{
 					{ 0.0f, 0.0f },
-					{ static_cast<float>(width), static_cast<float>(height) }
-				}
+				{ static_cast<float>(width), static_cast<float>(height) }
+			}
 			};
 
 			Register(renderView);

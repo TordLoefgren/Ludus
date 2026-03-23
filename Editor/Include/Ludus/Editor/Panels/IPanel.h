@@ -6,7 +6,7 @@
 #include <string_view>
 
 #include <Ludus/Editor/Core/EditorMode.h>
-#include <Ludus/Editor/Panels/PanelContext.h>
+#include <Ludus/Editor/Core/ProjectSessionContext.h>
 
 namespace Ludus::Editor::Panels
 {
@@ -19,7 +19,7 @@ namespace Ludus::Editor::Panels
 
 		PanelHandle GetHandle() const { return m_Handle; }
 
-		bool Update(PanelContext& context)
+		bool Update(Ludus::Editor::Core::ProjectSessionContext& context)
 		{
 			// Singleton panels can use this hook to be toggled on and off.
 			auto* external = GetOpenFlag(context);
@@ -43,9 +43,9 @@ namespace Ludus::Editor::Panels
 			return active;
 		}
 
-		virtual bool IsAvailable(PanelContext& context)
+		virtual bool IsAvailable(Ludus::Editor::Core::ProjectSessionContext& context)
 		{
-			return context.EditorContext.State.Mode == Ludus::Editor::Core::EditorMode::Workspace;
+			return context.Shell.State.Mode == Ludus::Editor::Core::EditorMode::Session;
 		}
 
 	protected:
@@ -54,9 +54,9 @@ namespace Ludus::Editor::Panels
 		PanelHandle m_Handle = s_NextHandle++;
 		bool m_Open = true;
 
-		virtual bool* GetOpenFlag(PanelContext&) { return nullptr; }
+		virtual bool* GetOpenFlag(Ludus::Editor::Core::ProjectSessionContext& context) { return nullptr; }
 
-		virtual bool UpdateImpl(PanelContext& context) = 0;
+		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) = 0;
 
 		std::string CreateWindowTitle(std::string_view visibleTitle)
 		{

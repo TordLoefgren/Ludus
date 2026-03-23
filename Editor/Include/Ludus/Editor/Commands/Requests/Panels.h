@@ -1,10 +1,14 @@
 #pragma once
 
-#include <Ludus/Editor/Commands/CommandContext.h>
 #include <Ludus/Editor/Commands/RequestCommand.h>
+
+namespace Ludus::Editor::Commands
+{
+	struct ProjectSessionCommandContext;
+}
 
 namespace Ludus::Editor::Commands::Requests::Panels
 {
-	void AddViewport(const RequestCommand::AddViewport& command, CommandContext& context);
-	void SetExecutionMode(const RequestCommand::SetExecutionMode& command, CommandContext& context);
+	void AddViewport(ProjectSessionCommandContext& context);
+	void SetExecutionMode(const RequestCommand::SetExecutionMode& command, ProjectSessionCommandContext& context);
 }

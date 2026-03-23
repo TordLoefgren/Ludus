@@ -2,9 +2,14 @@
 
 #include <string>
 #include <type_traits>
+#include <unordered_map>
 #include <vector>
 
+#include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Dialogs/AddScriptDialog.h>
+#include <Ludus/Editor/Persistence/Paths.h>
+#include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/PopupContext.h>
 #include <Ludus/UI/Context/WindowContext.h>
@@ -19,6 +24,18 @@
 
 namespace Ludus::Editor::Dialogs
 {
+	AddScriptDialog::AddScriptDialog(
+		Ludus::Engine::Core::EntityHandle entityHandle,
+		Ludus::Engine::Core::SceneHandle sceneHandle,
+		std::vector<std::string> scriptNames,
+		std::unordered_map<std::string, Ludus::Engine::Components::ScriptHandle> scriptHandlesByName
+	) :
+		EntityHandle(entityHandle),
+		SceneHandle(sceneHandle),
+		ScriptNames(std::move(scriptNames)),
+		ScriptHandlesByName(std::move(scriptHandlesByName))
+	{ }
+
 	AddScriptDialog::Outcome AddScriptDialog::Draw()
 	{
 		const auto popupLabel = Ludus::UI::CreateLabel("Add Script", "Add Script");
@@ -39,7 +56,7 @@ namespace Ludus::Editor::Dialogs
 			JustOpened = false;
 		}
 
-		Ludus::UI::Context::WindowContext::SetNextWindowSize({ 400.0f, 140.0f });
+		Ludus::UI::Context::WindowContext::SetNextWindowSize(Ludus::Editor::Core::Constants::AddScriptDialogSize);
 
 		if (Ludus::UI::Scope::PopupModalScope dialogScope(popupLabel.c_str(), &IsOpen); dialogScope)
 		{
@@ -51,11 +68,17 @@ namespace Ludus::Editor::Dialogs
 
 					Ludus::UI::Widgets::TextUnformatted("Create");
 					Ludus::UI::Widgets::InputText("##CreateName", CreateName);
+
+					if (!Error.empty())
+					{
+						Ludus::UI::Widgets::TextUnformatted(Error.c_str());
+					}
 				}
 
 				if (Ludus::UI::Scope::TabItemScope selectTabItemScope("Select##Select_TabItem", nullptr); selectTabItemScope)
 				{
 					ActiveTab = AddScriptTab::Select;
+					Error.clear();
 
 					auto currentIndex = -1;
 					auto names = Ludus::UI::Widgets::GetCStringItems(ScriptNames, [](const std::string& item)
@@ -99,16 +122,30 @@ namespace Ludus::Editor::Dialogs
 					ActiveTab == AddScriptTab::Select && SelectName == "None"
 				);
 
-				if (Ludus::UI::Widgets::Button("Create"))
+				if (Ludus::UI::Widgets::Button("Create", Ludus::Editor::Core::Constants::ModalActionButtonSize))
 				{
+					if (ActiveTab == AddScriptTab::Create)
+					{
+						Error = Ludus::Editor::Persistence::Paths::ValidateScriptName(CreateName);
+						if (Error.empty() && ScriptHandlesByName.find(CreateName) != ScriptHandlesByName.end())
+						{
+							Error = "Script already exists.";
+						}
+
+						if (!Error.empty())
+						{
+							return Outcome::NoneState();
+						}
+					}
+
 					IsOpen = false;
 					return Outcome::Confirm(ActiveTab == AddScriptTab::Create ? CreateName : SelectName);
 				}
 			}
 
-			Ludus::UI::Context::LayoutContext::SameLine(0.0f, 6.0f);
+			Ludus::UI::Context::LayoutContext::SameLine(0.0f, Ludus::Editor::Core::Constants::StandardInlineSpacing);
 
-			if (Ludus::UI::Widgets::Button("Cancel"))
+			if (Ludus::UI::Widgets::Button("Cancel", Ludus::Editor::Core::Constants::ModalActionButtonSize))
 			{
 				CreateName.clear();
 				SelectName.clear();
@@ -143,7 +180,7 @@ namespace Ludus::Editor::Dialogs
 				if (ActiveTab == AddScriptTab::Create)
 				{
 					out.RequestCommands.emplace_back(
-						Ludus::Editor::Commands::RequestCommand::CreateScript { Entity, Scene, value.Payload }
+						Ludus::Editor::Commands::RequestCommand::CreateScript { EntityHandle, SceneHandle, value.Payload }
 					);
 					return;
 				}
@@ -156,7 +193,7 @@ namespace Ludus::Editor::Dialogs
 
 				out.EditCommands.emplace_back(
 					Ludus::Editor::Commands::EditCommand::AddComponent<Ludus::Engine::Components::ScriptComponent> {
-					.Entity = Entity, .Scene = Scene, .Init = Ludus::Engine::Components::ScriptComponent { value.Payload, handle->second }
+					.EntityReference = EntityHandle, .SceneHandle = SceneHandle, .Init = Ludus::Engine::Components::ScriptComponent { value.Payload, handle->second }
 				});
 			}
 		}, outcome.Data);

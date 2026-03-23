@@ -38,39 +38,39 @@ namespace Ludus::Engine::Serialization::Core
 	{
 		std::visit(Overloaded
 			{
-			[&](const Token::StartObject&)
-				{
-					auto* node = AttachNode(m_Document.MakeObjectNode());
-					m_NodeStack.push_back(node);
-				},
+				[&](const Token::StartObject&)
+		{
+			auto* node = AttachNode(m_Document.MakeObjectNode());
+			m_NodeStack.push_back(node);
+		},
 			[&](const Token::EndObject&)
-				{
-					LUDUS_ASSERT(!m_NodeStack.empty(), "EndObject requires an active object.");
-					LUDUS_ASSERT(std::holds_alternative<DomObject>(m_NodeStack.back()->NodeData), "EndObject must close an object.");
-					LUDUS_ASSERT(!m_PendingKey.has_value(), "EndObject cannot close with a pending key.");
-					m_NodeStack.pop_back();
-				},
+		{
+			LUDUS_ASSERT(!m_NodeStack.empty(), "EndObject requires an active object.");
+			LUDUS_ASSERT(std::holds_alternative<DomObject>(m_NodeStack.back()->NodeData), "EndObject must close an object.");
+			LUDUS_ASSERT(!m_PendingKey.has_value(), "EndObject cannot close with a pending key.");
+			m_NodeStack.pop_back();
+		},
 
 			[&](const Token::StartArray&)
-				{
-					auto* node = AttachNode(m_Document.MakeArrayNode());
-					m_NodeStack.push_back(node);
-				},
+		{
+			auto* node = AttachNode(m_Document.MakeArrayNode());
+			m_NodeStack.push_back(node);
+		},
 			[&](const Token::EndArray&)
-				{
-					LUDUS_ASSERT(!m_NodeStack.empty(), "EndArray requires an active array.");
-					LUDUS_ASSERT(std::holds_alternative<DomArray>(m_NodeStack.back()->NodeData), "EndArray must close an array.");
-					m_NodeStack.pop_back();
-				},
+		{
+			LUDUS_ASSERT(!m_NodeStack.empty(), "EndArray requires an active array.");
+			LUDUS_ASSERT(std::holds_alternative<DomArray>(m_NodeStack.back()->NodeData), "EndArray must close an array.");
+			m_NodeStack.pop_back();
+		},
 
 			[&](const Token::Key& value)
-				{
-					LUDUS_ASSERT(!m_NodeStack.empty(), "Key requires an active object.");
-					LUDUS_ASSERT(std::holds_alternative<DomObject>(m_NodeStack.back()->NodeData), "Key must be used inside an object.");
-					LUDUS_ASSERT(!m_PendingKey.has_value(), "Cannot emit a key without consuming the previous key.");
-					m_PendingKey = std::string(value.Data);
-				},
-			[&](const Token::Null&) { AttachNode(m_Document.MakeValueNode(std::monostate{})); },
+		{
+			LUDUS_ASSERT(!m_NodeStack.empty(), "Key requires an active object.");
+			LUDUS_ASSERT(std::holds_alternative<DomObject>(m_NodeStack.back()->NodeData), "Key must be used inside an object.");
+			LUDUS_ASSERT(!m_PendingKey.has_value(), "Cannot emit a key without consuming the previous key.");
+			m_PendingKey = std::string(value.Data);
+		},
+			[&](const Token::Null&) { AttachNode(m_Document.MakeValueNode(std::monostate { })); },
 
 			[&](const Token::Bool& value) { AttachNode(m_Document.MakeValueNode(value.Data)); },
 			[&](const Token::Double& value) { AttachNode(m_Document.MakeValueNode(value.Data)); },

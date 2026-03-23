@@ -6,21 +6,26 @@
 #include <vector>
 
 #include <Ludus/Engine/Core/Entity.h>
-#include <Ludus/Engine/Core/ISystem.h>
-#include <Ludus/Engine/Core/ProjectContext.h>
-#include <Ludus/Engine/Core/SystemContext.h>
+#include <Ludus/Engine/Core/ExecutionFlags.h>
+#include <Ludus/Engine/Core/Mask.h>
 #include <Ludus/Engine/Debug/Debug.h>
+#include <Ludus/Engine/Runtime/IHostContext.h>
+#include <Ludus/Engine/Runtime/ISystem.h>
+#include <Ludus/Engine/Runtime/RuntimeEnvironment.h>
 #include <Ludus/Engine/Scripting/API/Types.h>
 #include <Ludus/Engine/Scripting/ScriptInstanceState.h>
 #include <Ludus/Engine/Scripting/ScriptRepository.h>
 
 namespace Ludus::Engine::Scripting
 {
-	class ScriptSystem final : public Ludus::Engine::Core::ISystem
+	class ScriptSystem final : public Ludus::Engine::Runtime::ISystem
 	{
 	private:
 		ScriptRepository m_ScriptRepository;
 		std::vector<ScriptInstanceState> m_InstanceStates;
+		Ludus::Engine::Runtime::IHostContext& m_HostContext;
+		const Ludus::Engine::Runtime::RuntimeEnvironment& m_RuntimeEnvironment;
+		Ludus::Engine::Core::SceneRegistry& m_SceneRegistry;
 
 		uint64_t m_FrameCounter = 0;
 		bool m_IsModuleLoaded = false;
@@ -47,16 +52,15 @@ namespace Ludus::Engine::Scripting
 
 		bool LoadModule()
 		{
-			if (m_IsModuleLoaded || !m_SystemContext->HasProjectContext())
+			if (m_IsModuleLoaded)
 			{
 				return false;
 			}
 
-			const auto projectRootDirectory = m_SystemContext->ProjectContext.value().ProjectRootDirectory;
 			m_IsModuleLoaded = m_ScriptRepository.LoadScriptModule(
-				projectRootDirectory,
-				m_SystemContext->ScriptRuntime.Platform,
-				m_SystemContext->ScriptRuntime.Configuration
+				m_RuntimeEnvironment.RuntimeRootDirectory,
+				m_RuntimeEnvironment.ScriptModulePlatform,
+				m_RuntimeEnvironment.ScriptModuleConfiguration
 			);
 
 			// The module might already have been loaded, in which case we return whether the module was loaded this frame.
@@ -96,7 +100,16 @@ namespace Ludus::Engine::Scripting
 		};
 
 	public:
-		ScriptSystem() = default;
+		ScriptSystem(
+			Ludus::Engine::Runtime::IHostContext& hostContext,
+			const Ludus::Engine::Runtime::RuntimeEnvironment& environment,
+			Ludus::Engine::Core::SceneRegistry& sceneRegistry
+		) :
+			m_HostContext(hostContext),
+			m_RuntimeEnvironment(environment),
+			m_SceneRegistry(sceneRegistry)
+		{ }
+
 		~ScriptSystem() = default;
 
 	protected:
@@ -174,9 +187,14 @@ namespace Ludus::Engine::Scripting
 				return;
 			}
 
+			if (!m_HostContext.GetExecutionFlags().HasAny(Ludus::Engine::Core::ExecutionFlags::SimulationEnabled))
+			{
+				return;
+			}
+
 			const auto currentFrame = ++m_FrameCounter;
 
-			for (auto& scene : m_SystemContext->SceneRegistry.ViewMutable())
+			for (auto& scene : m_SceneRegistry.ViewMutable())
 			{
 				for (auto& script : scene.EntityComponentSystem.Scripts.ViewMutable())
 				{

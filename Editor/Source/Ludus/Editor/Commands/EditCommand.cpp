@@ -1,9 +1,9 @@
 #include "pch.h"
 
-#include <Ludus/Editor/Commands/CommandContext.h>
 #include <Ludus/Editor/Commands/Edit/Components.h>
 #include <Ludus/Editor/Commands/Edit/Entities.h>
 #include <Ludus/Editor/Commands/Edit/Selection.h>
+#include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 #include <Ludus/Engine/Core/Variants.h>
 
 namespace Ludus::Editor::Commands
@@ -12,7 +12,7 @@ namespace Ludus::Editor::Commands
 	{
 		struct EditCommandVisitor
 		{
-			CommandContext& Context;
+			ProjectSessionCommandContext& Context;
 
 			template<typename TComponent>
 			void operator()(const EditCommand::AddComponent<TComponent>& command) const { Edit::Components::AddComponent(command, Context); }
@@ -38,7 +38,7 @@ namespace Ludus::Editor::Commands
 		};
 	}
 
-	void Execute(const EditCommand& command, CommandContext& context)
+	void Execute(const EditCommand& command, ProjectSessionCommandContext& context)
 	{
 		std::visit(EditCommandVisitor { context }, command.Data);
 	}

@@ -2,5 +2,5 @@
 
 namespace Ludus::Editor::Core
 {
-	enum class EditorMode { Startup, Workspace };
+	enum class EditorMode { Startup, Session };
 }

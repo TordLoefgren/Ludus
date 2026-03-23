@@ -82,9 +82,9 @@ namespace Ludus::Engine::Core
 
 		bool DestroyEntity(EntityHandle handle)
 		{
-			if (auto it = m_HandleToIndex.find(handle); it != m_HandleToIndex.end())
+			if (auto iter = m_HandleToIndex.find(handle); iter != m_HandleToIndex.end())
 			{
-				RemoveAndReorderIndices(it->second);
+				RemoveAndReorderIndices(iter->second);
 
 				return true;
 			}
@@ -94,9 +94,9 @@ namespace Ludus::Engine::Core
 
 		Entity* TryGet(EntityHandle handle)
 		{
-			if (auto handleIter = m_HandleToIndex.find(handle); handleIter != m_HandleToIndex.end())
+			if (auto iter = m_HandleToIndex.find(handle); iter != m_HandleToIndex.end())
 			{
-				return &m_Data[handleIter->second];
+				return &m_Data[iter->second];
 			}
 
 			return nullptr;
@@ -104,9 +104,9 @@ namespace Ludus::Engine::Core
 
 		const Entity* TryGet(EntityHandle handle) const
 		{
-			if (auto handleIter = m_HandleToIndex.find(handle); handleIter != m_HandleToIndex.end())
+			if (auto iter = m_HandleToIndex.find(handle); iter != m_HandleToIndex.end())
 			{
-				return &m_Data[handleIter->second];
+				return &m_Data[iter->second];
 			}
 
 			return nullptr;

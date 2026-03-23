@@ -1,47 +1,69 @@
 #pragma once
 
 #include <optional>
+#include <utility>
 
-#include <Ludus/Engine/Core/ISystem.h>
 #include <Ludus/Engine/Core/RenderViewRegistry.h>
 #include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
-#include <Ludus/Engine/Core/SystemContext.h>
 #include <Ludus/Engine/Graphics/Camera2D.h>
 #include <Ludus/Engine/Graphics/CameraSource.h>
+#include <Ludus/Engine/Graphics/RenderTarget.h>
 #include <Ludus/Engine/Graphics/RenderView2D.h>
 #include <Ludus/Engine/Graphics/RenderViewConfiguration.h>
 #include <Ludus/Engine/Graphics/RenderViewRequest2D.h>
-#include <Ludus/Engine/Windowing/Window.h>
+#include <Ludus/Engine/Runtime/IHostContext.h>
+#include <Ludus/Engine/Runtime/ISystem.h>
 
 namespace Ludus::Engine::Graphics
 {
-	class RenderViewSystem final : public Ludus::Engine::Core::ISystem
+	class RenderViewSystem final : public Ludus::Engine::Runtime::ISystem
 	{
 	private:
+		Ludus::Engine::Runtime::IHostContext& m_HostContext;
 		Ludus::Engine::Graphics::RenderViewConfiguration m_RenderViewConfiguration;
+		Ludus::Engine::Core::RenderViewRegistry& m_RenderViewRegistry;
+		Ludus::Engine::Core::RenderViewRequestRegistry& m_RenderViewRequestRegistry;
+		Ludus::Engine::Core::SceneRegistry& m_SceneRegistry;
 
 	public:
-		RenderViewSystem(Ludus::Engine::Graphics::RenderViewConfiguration renderViewConfiguration = Ludus::Engine::Graphics::RenderViewConfiguration())
-			: m_RenderViewConfiguration(renderViewConfiguration)
+		RenderViewSystem(
+			Ludus::Engine::Runtime::IHostContext& hostContext,
+			Ludus::Engine::Graphics::RenderViewConfiguration renderViewConfiguration,
+			Ludus::Engine::Core::RenderViewRegistry& renderViewRegistry,
+			Ludus::Engine::Core::RenderViewRequestRegistry& renderViewRequestRegistry,
+			Ludus::Engine::Core::SceneRegistry& sceneRegistry
+		) :
+			m_HostContext(hostContext),
+			m_RenderViewConfiguration(std::move(renderViewConfiguration)),
+			m_RenderViewRegistry(renderViewRegistry),
+			m_RenderViewRequestRegistry(renderViewRequestRegistry),
+			m_SceneRegistry(sceneRegistry)
 		{ }
 
 		~RenderViewSystem() = default;
 
 	protected:
+		virtual void BeginFrameImpl() override
+		{
+			m_RenderViewRegistry.Clear();
+			m_RenderViewRequestRegistry.Clear();
+		}
+
 		virtual void RenderImpl() override
 		{
 			// Pull render view requests.
-			auto renderRequests = m_SystemContext->RenderViewRequests.View();
+			auto renderRequests = m_RenderViewRequestRegistry.View();
 			if (renderRequests.empty())
 			{
 				// Check configuration.
 				if (m_RenderViewConfiguration.EnableDefaultViewFallback)
 				{
-					const auto [framebufferWidth, framebufferHeight] = m_SystemContext->Window.GetFramebufferSize();
+					const auto [framebufferWidth, framebufferHeight] = m_HostContext.GetFramebufferSize();
 					auto camera = CreateDefaultCamera(framebufferWidth, framebufferHeight);
 
-					m_SystemContext->RenderViews.RegisterFullscreen(std::nullopt, camera, m_SystemContext->WindowRenderTarget);
+					auto& windowRenderTarget = m_HostContext.GetMainRenderTarget();
+					m_RenderViewRegistry.RegisterFullscreen(std::nullopt, camera, windowRenderTarget);
 				}
 
 				return;
@@ -57,8 +79,8 @@ namespace Ludus::Engine::Graphics
 				}
 
 				// Push render views.
-				auto resolvedRequest = ResolveRequest(*m_SystemContext, request);
-				m_SystemContext->RenderViews.Register(std::move(resolvedRequest));
+				auto resolvedRequest = ResolveRequest(m_SceneRegistry, request);
+				m_RenderViewRegistry.Register(std::move(resolvedRequest));
 			}
 		}
 
@@ -66,14 +88,14 @@ namespace Ludus::Engine::Graphics
 		{
 			Camera2D camera;
 			camera.SetViewport(targetWidth, targetHeight);
-			camera.SetPosition({ 0,0 });
+			camera.SetPosition({ 0, 0 });
 			camera.SetRotation(0);
 			camera.SetOrthographicSize(10);
 
 			return camera;
 		}
 
-		static RenderView2D ResolveRequest(Ludus::Engine::Core::SystemContext& context, const RenderViewRequest2D& request)
+		static RenderView2D ResolveRequest(Ludus::Engine::Core::SceneRegistry& sceneRegistry, const RenderViewRequest2D& request)
 		{
 			auto [targetWidth, targetHeight] = request.Target->Framebuffer.GetSize();
 
@@ -95,7 +117,7 @@ namespace Ludus::Engine::Graphics
 			// Resolve camera from scene -> Scene primary camera view.
 			if (request.SceneHandle.has_value())
 			{
-				auto* scene = context.SceneRegistry.TryGetScene(request.SceneHandle.value());
+				auto* scene = sceneRegistry.TryGetScene(request.SceneHandle.value());
 				if (scene)
 				{
 					if (auto primaryCamera = scene->TryGetPrimaryCamera2D(); primaryCamera.has_value())

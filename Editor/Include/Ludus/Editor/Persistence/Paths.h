@@ -5,6 +5,11 @@
 #include <string>
 #include <string_view>
 
+#include <Ludus/Engine/Core/Build/Configuration.h>
+#include <Ludus/Engine/Core/Build/OperatingSystem.h>
+#include <Ludus/Engine/Core/Build/Platform.h>
+#include <Ludus/Engine/Core/Enums.h>
+#include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Platform/Paths.h>
 
 namespace Ludus::Editor::Persistence::Paths
@@ -13,22 +18,22 @@ namespace Ludus::Editor::Persistence::Paths
 	{
 		inline constexpr std::string_view LudusDirectoryName = "Ludus";
 		inline constexpr std::string_view ProjectsDirectoryName = "Projects";
-		inline constexpr std::string_view AssetsDirectoryName = "Assets";
-		inline constexpr std::string_view ScenesDirectoryName = "Scenes";
-		inline constexpr std::string_view ScriptsDirectoryName = "Scripts";
 		inline constexpr std::string_view SourceDirectoryName = "Source";
-		inline constexpr std::string_view BuildDirectoryName = "Build";
-		inline constexpr std::string_view BinDirectoryName = "Bin";
 		inline constexpr std::string_view ObjDirectoryName = "Obj";
+		inline constexpr std::string_view ProjectFileExtension = ".ludus.project";
 
 		inline constexpr std::string_view EngineDirectoryName = "Engine";
 		inline constexpr std::string_view IncludeDirectoryName = "Include";
-		inline constexpr std::string_view ScriptingDirectoryName = "Scripting";
+		inline constexpr std::string_view LudusIncludeDirectoryName = "Ludus";
+		inline constexpr std::string_view EngineIncludeDirectoryName = "Engine";
+		inline constexpr std::string_view ScriptingIncludeDirectoryName = "Scripting";
 		inline constexpr std::string_view ApiDirectoryName = "API";
 		inline constexpr std::string_view ResourcesDirectoryName = "Resources";
+		inline constexpr std::string_view ScriptingResourcesDirectoryName = "Scripting";
 		inline constexpr std::string_view TemplatesDirectoryName = "Templates";
 
 		inline constexpr std::string_view ScriptTargetName = "Scripts";
+		inline constexpr std::string_view InvalidFileNameCharacters = "<>:\"/\\|?*";
 	}
 
 	inline std::filesystem::path LudusRoot()
@@ -46,30 +51,144 @@ namespace Ludus::Editor::Persistence::Paths
 		return ProjectsRoot() / std::string(projectName);
 	}
 
+	inline std::string ValidateProjectName(std::string_view projectName)
+	{
+		if (projectName.empty())
+		{
+			return "Name must not be empty.";
+		}
+
+		if (projectName.find_first_of(Constants::InvalidFileNameCharacters) != std::string_view::npos)
+		{
+			return "Name contains invalid path characters.";
+		}
+
+		return { };
+	}
+
+	inline std::string ValidateScriptName(std::string_view scriptName)
+	{
+		if (scriptName.empty())
+		{
+			return "Name must not be empty.";
+		}
+
+		if (scriptName.find_first_of(Constants::InvalidFileNameCharacters) != std::string_view::npos)
+		{
+			return "Name contains invalid path characters.";
+		}
+
+		return { };
+	}
+
+	inline std::string ValidateProjectDirectory(const std::filesystem::path& projectDirectory)
+	{
+		if (projectDirectory.empty())
+		{
+			return "Project directory is invalid.";
+		}
+
+		std::error_code errorCode;
+		const auto parentDirectory = projectDirectory.parent_path();
+		if (parentDirectory.empty())
+		{
+			return "Project directory is invalid.";
+		}
+
+		std::filesystem::create_directories(parentDirectory, errorCode);
+		if (errorCode)
+		{
+			return "Project directory is not accessible.";
+		}
+
+		if (std::filesystem::exists(projectDirectory, errorCode))
+		{
+			if (errorCode)
+			{
+				return "Project directory could not be validated.";
+			}
+
+			return "Project directory already exists.";
+		}
+
+		return { };
+	}
+
+	inline std::filesystem::path ProjectManifestFile(std::string_view projectName)
+	{
+		return std::string(projectName) + std::string(Constants::ProjectFileExtension);
+	}
+
+	inline std::filesystem::path ProjectManifestFile(const std::filesystem::path& projectRoot, std::string_view projectName)
+	{
+		return projectRoot / ProjectManifestFile(projectName);
+	}
+
+	inline std::filesystem::path BinDirectory(const std::filesystem::path& projectRoot)
+	{
+		return Ludus::Engine::Persistence::Paths::BinDirectory(projectRoot);
+	}
+
+	inline std::filesystem::path ObjDirectory(const std::filesystem::path& projectRoot)
+	{
+		return projectRoot / std::string(Constants::ObjDirectoryName);
+	}
+
+	inline std::filesystem::path BuildsDirectory(const std::filesystem::path& projectRoot)
+	{
+		return Ludus::Engine::Persistence::Paths::BuildsDirectory(projectRoot);
+	}
+
+	inline std::filesystem::path BuildOutputDirectory(
+		const std::filesystem::path& projectRoot,
+		const Ludus::Engine::Core::Build::OperatingSystem operatingSystem = Ludus::Engine::Core::Build::OperatingSystem::Windows,
+		const Ludus::Engine::Core::Build::Platform platform = Ludus::Engine::Core::Build::Platform::WindowsX64,
+		const Ludus::Engine::Core::Build::Configuration configuration = Ludus::Engine::Core::Build::Configuration::Debug
+	)
+	{
+		return Ludus::Engine::Persistence::Paths::BuildOutputDirectory(
+			projectRoot,
+			operatingSystem,
+			platform,
+			configuration
+		);
+	}
+
 	inline std::filesystem::path ScriptsSourceDirectory(const std::filesystem::path& projectRoot)
 	{
 		return projectRoot /
-			std::string(Constants::AssetsDirectoryName) /
-			std::string(Constants::ScriptsDirectoryName) /
+			std::string(Ludus::Engine::Persistence::Paths::Constants::ScriptsDirectoryName) /
 			std::string(Constants::SourceDirectoryName);
-	}
-
-	inline std::filesystem::path ScriptsBuildDirectory(const std::filesystem::path& projectRoot)
-	{
-		return projectRoot /
-			std::string(Constants::AssetsDirectoryName) /
-			std::string(Constants::ScriptsDirectoryName) /
-			std::string(Constants::BuildDirectoryName);
 	}
 
 	inline std::filesystem::path ScriptsBinDirectory(const std::filesystem::path& projectRoot)
 	{
-		return ScriptsBuildDirectory(projectRoot) / std::string(Constants::BinDirectoryName);
+		return Ludus::Engine::Persistence::Paths::ScriptsBinDirectory(projectRoot);
+	}
+
+	inline std::filesystem::path ScriptsBinDirectory(
+		const std::filesystem::path& projectRoot,
+		const Ludus::Engine::Core::Build::Platform platform,
+		const Ludus::Engine::Core::Build::Configuration configuration
+	)
+	{
+		return Ludus::Engine::Persistence::Paths::ScriptsBinDirectory(projectRoot, platform, configuration);
 	}
 
 	inline std::filesystem::path ScriptsObjDirectory(const std::filesystem::path& projectRoot)
 	{
-		return ScriptsBuildDirectory(projectRoot) / std::string(Constants::ObjDirectoryName);
+		return ObjDirectory(projectRoot) / std::string(Ludus::Engine::Persistence::Paths::Constants::ScriptsDirectoryName);
+	}
+
+	inline std::filesystem::path ScriptsObjDirectory(
+		const std::filesystem::path& projectRoot,
+		const Ludus::Engine::Core::Build::Platform platform,
+		const Ludus::Engine::Core::Build::Configuration configuration
+	)
+	{
+		return ScriptsObjDirectory(projectRoot) /
+			std::string(Ludus::Engine::Core::Enums::GetDisplayName(platform)) /
+			std::string(Ludus::Engine::Core::Enums::GetDisplayName(configuration));
 	}
 
 	inline std::filesystem::path ScriptSourceFile(const std::filesystem::path& projectRoot, std::string_view scriptName)
@@ -87,27 +206,38 @@ namespace Ludus::Editor::Persistence::Paths
 		return ScriptsSourceDirectory(projectRoot) / "Scripts.vcxproj";
 	}
 
-	inline std::filesystem::path ScenesDirectory(const std::filesystem::path& projectRoot)
-	{
-		return projectRoot /
-			std::string(Constants::AssetsDirectoryName) /
-			std::string(Constants::ScenesDirectoryName);
-	}
-
 	inline void EnsureProjectsRootExists()
 	{
 		std::filesystem::create_directories(ProjectsRoot());
 	}
 
-	inline void EnsureProjectScriptsLayoutExists(const std::filesystem::path& projectRoot)
+	inline void EnsureProjectRootExists(const std::filesystem::path& projectRoot)
+	{
+		std::filesystem::create_directories(projectRoot);
+	}
+
+	inline void EnsureProjectScriptsSourceLayoutExists(const std::filesystem::path& projectRoot)
 	{
 		std::filesystem::create_directories(ScriptsSourceDirectory(projectRoot));
 	}
 
+	inline void EnsureProjectScriptsBuildLayoutExists(const std::filesystem::path& projectRoot)
+	{
+		std::filesystem::create_directories(ScriptsBinDirectory(projectRoot));
+		std::filesystem::create_directories(ScriptsObjDirectory(projectRoot));
+	}
+
+	inline void EnsureProjectScriptsLayoutExists(const std::filesystem::path& projectRoot)
+	{
+		EnsureProjectScriptsSourceLayoutExists(projectRoot);
+		EnsureProjectScriptsBuildLayoutExists(projectRoot);
+	}
+
 	inline void EnsureProjectLayoutExists(const std::filesystem::path& projectRoot)
 	{
-		std::filesystem::create_directories(ScenesDirectory(projectRoot));
-		EnsureProjectScriptsLayoutExists(projectRoot);
+		EnsureProjectRootExists(projectRoot);
+		std::filesystem::create_directories(Ludus::Engine::Persistence::Paths::AssetsDirectory(projectRoot));
+		std::filesystem::create_directories(Ludus::Engine::Persistence::Paths::ScenesDirectory(projectRoot));
 	}
 
 	inline std::filesystem::path FindAncestorWithEngineInclude(std::filesystem::path startPath)
@@ -127,7 +257,7 @@ namespace Ludus::Editor::Persistence::Paths
 
 	inline std::filesystem::path ResolveEngineIncludeDir()
 	{
-		const auto executableDirectory = Ludus::Engine::Platform::Paths::GetExecutablePath();
+		const auto executableDirectory = Ludus::Engine::Platform::Paths::GetExecutablePath().parent_path();
 		auto root = FindAncestorWithEngineInclude(executableDirectory);
 
 		if (root.empty())
@@ -140,10 +270,12 @@ namespace Ludus::Editor::Persistence::Paths
 
 	inline std::filesystem::path EngineScriptingApiScriptsIncludeDir()
 	{
-		return ResolveEngineIncludeDir() /
-			std::string(Constants::LudusDirectoryName) /
-			std::string(Constants::EngineDirectoryName) /
-			std::string(Constants::ScriptingDirectoryName) /
+		const auto engineIncludeDirectory = ResolveEngineIncludeDir();
+
+		return engineIncludeDirectory /
+			std::string(Constants::LudusIncludeDirectoryName) /
+			std::string(Constants::EngineIncludeDirectoryName) /
+			std::string(Constants::ScriptingIncludeDirectoryName) /
 			std::string(Constants::ApiDirectoryName) /
 			std::string(Constants::ScriptTargetName);
 	}
@@ -152,7 +284,7 @@ namespace Ludus::Editor::Persistence::Paths
 	{
 		const auto runtimeTemplateRoot = std::filesystem::current_path() /
 			std::string(Constants::ResourcesDirectoryName) /
-			std::string(Constants::ScriptingDirectoryName) /
+			std::string(Constants::ScriptingResourcesDirectoryName) /
 			std::string(Constants::TemplatesDirectoryName);
 
 		if (std::filesystem::exists(runtimeTemplateRoot))
@@ -163,7 +295,7 @@ namespace Ludus::Editor::Persistence::Paths
 		const auto devTemplateRoot = std::filesystem::path(__FILE__).parent_path() /
 			".." / ".." / ".." / ".." /
 			std::string(Constants::ResourcesDirectoryName) /
-			std::string(Constants::ScriptingDirectoryName) /
+			std::string(Constants::ScriptingResourcesDirectoryName) /
 			std::string(Constants::TemplatesDirectoryName);
 
 		if (std::filesystem::exists(devTemplateRoot))

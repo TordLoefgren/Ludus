@@ -5,9 +5,13 @@
 
 namespace Ludus::UI::Systems
 {
+	ImGuiSystem::ImGuiSystem(GLFWwindow* window)
+		: m_Window(window), m_Backend()
+	{ }
+
 	void ImGuiSystem::OnAttachImpl()
 	{
-		m_Backend.Initialize(m_SystemContext->Window.GetHandle());
+		m_Backend.Initialize(m_Window);
 	}
 
 	void ImGuiSystem::OnDetachImpl()
@@ -15,12 +19,12 @@ namespace Ludus::UI::Systems
 		m_Backend.Shutdown();
 	}
 
-	void ImGuiSystem::UpdateImpl(float deltaTime)
+	void ImGuiSystem::BeginFrameImpl()
 	{
 		m_Backend.Begin();
 	}
 
-	void ImGuiSystem::RenderImpl()
+	void ImGuiSystem::EndFrameImpl()
 	{
 		m_Backend.End();
 	}

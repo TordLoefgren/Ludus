@@ -4,19 +4,20 @@
 
 namespace Ludus::Engine::Core::Build
 {
+	// In order to avoid macro redefitions for X64 we prepend "Windows" to it.
 	enum class Platform
 	{
-		X64
+		WindowsX64
 	};
 
 	inline constexpr std::string_view ToString(Platform platform)
 	{
 		switch (platform)
 		{
-			case Platform::X64:
+			case Platform::WindowsX64:
 				return "x64";
 			default:
-				return "x64";
+				return "Unknown";
 		}
 	}
 }

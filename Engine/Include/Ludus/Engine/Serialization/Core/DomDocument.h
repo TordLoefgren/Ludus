@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #include <Ludus/Engine/Serialization/Core/DomNode.h>
 
@@ -13,8 +14,8 @@ namespace Ludus::Engine::Serialization::Core
 
 		DomNode* GetRoot() const { return m_Root.get(); }
 
-		DomNodePtr MakeObjectNode() { return std::make_unique<DomNode>(DomNode { DomObject {} }); }
-		DomNodePtr MakeArrayNode() { return std::make_unique<DomNode>(DomNode { DomArray {} }); }
+		DomNodePtr MakeObjectNode() { return std::make_unique<DomNode>(DomNode { DomObject { } }); }
+		DomNodePtr MakeArrayNode() { return std::make_unique<DomNode>(DomNode { DomArray { } }); }
 		DomNodePtr MakeValueNode(DomValue value) { return std::make_unique<DomNode>(DomNode { std::move(value) }); }
 
 		DomNode* SetRoot(DomNodePtr node)

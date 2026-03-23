@@ -21,7 +21,7 @@ namespace Ludus::UI::Backend
 		Ludus::UI::Backend::AddMergedIconFont(io, "Resources/Fonts/font-awesome/fa-solid-900.ttf", sizePixels, glyphMinAdvanceX, iconGlyphOffsetY);
 
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
-		ImGui_ImplOpenGL3_Init();
+		ImGui_ImplOpenGL3_Init("#version 450 core");
 	}
 
 	void ImGuiBackend::Shutdown()
