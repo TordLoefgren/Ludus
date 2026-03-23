@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include <Ludus/Engine/Graphics/IRenderPass.h>
@@ -42,6 +43,7 @@ namespace Ludus::Engine::Graphics
 		void AddPass(std::unique_ptr<Ludus::Engine::Graphics::IRenderPass> renderPass)
 		{
 			m_RenderPasses.push_back(std::move(renderPass));
+			SortPasses();
 		}
 
 		const std::vector<std::unique_ptr<Ludus::Engine::Graphics::IRenderPass>>& GetRenderPasses() const

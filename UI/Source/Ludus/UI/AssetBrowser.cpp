@@ -4,6 +4,7 @@
 #include <cctype>
 #include <filesystem>
 #include <functional>
+#include <utility>
 
 #include <Ludus/UI/AssetBrowser.h>
 #include <Ludus/UI/Icons/FontAwesome.h>
@@ -201,17 +202,12 @@ namespace Ludus::UI
 	{
 		auto normalizePath = [](std::filesystem::path value)
 		{
-			std::string asString = value.lexically_normal().make_preferred().string();
-			std::transform(
-				asString.begin(),
-				asString.end(),
-				asString.begin(),
-				[](unsigned char character) { return static_cast<char>(std::tolower(character)); }
-			);
-			return asString;
+			value = std::filesystem::absolute(value).lexically_normal();
+			value.make_preferred();
+			return value;
 		};
 
-		const std::string targetPath = normalizePath(path);
+		const auto targetPath = normalizePath(path);
 		std::vector<int> currentIndices;
 
 		std::function<bool(const std::vector<Entry>&)> findPath = [&](const std::vector<Entry>& entries)
@@ -220,7 +216,10 @@ namespace Ludus::UI
 			{
 				currentIndices.push_back(static_cast<int>(i));
 				const auto& entry = entries[i];
-				if (normalizePath(entry.Path) == targetPath)
+				const auto entryPath = normalizePath(entry.Path);
+
+				std::error_code errorCode;
+				if (entryPath == targetPath || std::filesystem::equivalent(entryPath, targetPath, errorCode))
 				{
 					return true;
 				}

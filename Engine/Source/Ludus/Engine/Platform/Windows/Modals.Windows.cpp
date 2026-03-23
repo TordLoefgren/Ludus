@@ -20,20 +20,16 @@
 
 namespace Ludus::Engine::Platform::Modals
 {
-	static constexpr std::array<COMDLG_FILTERSPEC, 6> fileTypes =
-	{ { { L"Word Document (*.doc)", L"*.doc" },
-		{ L"Web Page (*.htm; *.html)", L"*.htm;*.html" },
-		{ L"Text Document (*.txt)", L"*.txt" },
-		{ L"Ludus Project File (*.ludus.app)", L"*.ludus.app" },
+	static constexpr std::array<COMDLG_FILTERSPEC, 4> fileTypes =
+	{ { { L"Ludus Project File (*.ludus.project)", L"*.ludus.project" },
+		{ L"Ludus Runtime File (*.ludus.runtime)", L"*.ludus.runtime" },
 		{ L"Ludus Scene File (*.ludus.scene)", L"*.ludus.scene" },
-		{ L"All Documents (*.*)", L"*.*" } }
+		{ L"All Files (*.*)", L"*.*" } }
 	};
 
-	static constexpr UINT INDEX_WORDDOC = 1;
-	static constexpr UINT INDEX_WEBPAGE = 2;
-	static constexpr UINT INDEX_TEXTDOC = 3;
-	static constexpr UINT INDEX_LUDUSPROJ = 4;
-	static constexpr UINT INDEX_LUDUSSCENE = 5;
+	static constexpr UINT INDEX_LUDUSPROJECT = 1;
+	static constexpr UINT INDEX_LUDUSRUNTIME = 2;
+	static constexpr UINT INDEX_LUDUSSCENE = 3;
 
 	static UINT FileTypeIndexFromExtension(std::string_view extension)
 	{
@@ -43,21 +39,13 @@ namespace Ludus::Engine::Platform::Modals
 			extension.remove_prefix(1);
 		}
 
-		if (extension == "doc")
+		if (extension == "ludus.project")
 		{
-			return INDEX_WORDDOC;
+			return INDEX_LUDUSPROJECT;
 		}
-		if (extension == "htm" || extension == "html")
+		if (extension == "ludus.runtime")
 		{
-			return INDEX_WEBPAGE;
-		}
-		if (extension == "txt")
-		{
-			return INDEX_TEXTDOC;
-		}
-		if (extension == "ludus.app")
-		{
-			return INDEX_LUDUSPROJ;
+			return INDEX_LUDUSRUNTIME;
 		}
 		if (extension == "ludus.scene")
 		{
@@ -65,24 +53,26 @@ namespace Ludus::Engine::Platform::Modals
 		}
 
 		// Fallback to project file.
-		return INDEX_LUDUSPROJ;
+		return INDEX_LUDUSPROJECT;
 	}
 
-	static bool SetDialogStartupFolder(IFileDialog* dialog, std::string_view folderUtf8)
+	static bool SetDialogStartupFolder(IFileDialog* dialog, const std::filesystem::path& folderPath)
 	{
-		if (!dialog || folderUtf8.empty())
+		if (!dialog || folderPath.empty())
 		{
 			return false;
 		}
 
-		std::wstring folderW = Ludus::Engine::Platform::Windows::Detail::Utf8ToWide(folderUtf8);
-		if (folderW.empty())
+		std::filesystem::path absolutePath = std::filesystem::absolute(folderPath);
+		std::wstring folderWide = absolutePath.wstring();
+		if (folderWide.empty())
 		{
 			return false;
 		}
+
 
 		IShellItem* folderItem = nullptr;
-		auto hr = SHCreateItemFromParsingName(folderW.c_str(), nullptr, IID_PPV_ARGS(&folderItem));
+		auto hr = SHCreateItemFromParsingName(folderWide.c_str(), nullptr, IID_PPV_ARGS(&folderItem));
 		if (FAILED(hr) || !folderItem)
 		{
 			return false;
@@ -95,7 +85,7 @@ namespace Ludus::Engine::Platform::Modals
 	}
 
 
-	bool OpenFileDialog(std::string& filenameOut, std::string_view defaultExtension, std::optional<std::filesystem::path> defaultStartupPath = std::nullopt)
+	bool OpenFileDialog(std::filesystem::path& filenameOut, std::string_view defaultExtension, std::optional<std::filesystem::path> defaultStartupPath = std::nullopt)
 	{
 		bool isFileSelected = false;
 
@@ -118,7 +108,7 @@ namespace Ludus::Engine::Platform::Modals
 
 				if (defaultStartupPath.has_value())
 				{
-					SetDialogStartupFolder(openDialog, defaultStartupPath.value().string());
+					SetDialogStartupFolder(openDialog, defaultStartupPath.value());
 				}
 
 				if (SUCCEEDED(hr))
@@ -152,7 +142,7 @@ namespace Ludus::Engine::Platform::Modals
 										hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &allocatedPathWide);
 										if (SUCCEEDED(hr))
 										{
-											filenameOut = Ludus::Engine::Platform::Windows::Detail::WideToUtf8(allocatedPathWide);
+											filenameOut = std::filesystem::path(allocatedPathWide);
 											isFileSelected = true;
 
 											CoTaskMemFree(allocatedPathWide);
@@ -176,7 +166,7 @@ namespace Ludus::Engine::Platform::Modals
 	}
 
 	bool SaveFileDialog(
-		std::string& filenameOut,
+		std::filesystem::path& filenameOut,
 		std::string_view defaultExtension,
 		std::optional<std::filesystem::path> defaultStartupPath = std::nullopt,
 		std::optional<std::string_view> defaultFileName = std::nullopt
@@ -205,7 +195,7 @@ namespace Ludus::Engine::Platform::Modals
 
 				if (defaultStartupPath.has_value())
 				{
-					SetDialogStartupFolder(saveDialog, defaultStartupPath.value().string());
+					SetDialogStartupFolder(saveDialog, defaultStartupPath.value());
 				}
 
 				if (SUCCEEDED(hr))
@@ -234,7 +224,8 @@ namespace Ludus::Engine::Platform::Modals
 								hr = saveDialog->Show(nullptr);
 								if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED))
 								{
-									LUDUS_ASSERT(false, "User cancellation not implemented.");
+									saveDialog->Release();
+									return false;
 								}
 								else if (SUCCEEDED(hr))
 								{
@@ -246,7 +237,7 @@ namespace Ludus::Engine::Platform::Modals
 										hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &allocatedPathWide);
 										if (SUCCEEDED(hr) && allocatedPathWide)
 										{
-											filenameOut = Ludus::Engine::Platform::Windows::Detail::WideToUtf8(allocatedPathWide);
+											filenameOut = std::filesystem::path(allocatedPathWide);
 											isFileSelected = true;
 
 											CoTaskMemFree(allocatedPathWide);

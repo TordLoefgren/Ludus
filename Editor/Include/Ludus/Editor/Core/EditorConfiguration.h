@@ -6,14 +6,13 @@
 
 #include <Ludus/Editor/Core/ViewportDisplayMode.h>
 #include <Ludus/Editor/Panels/ConsolePanel.h>
+#include <Ludus/Editor/Panels/ContentPanel.h>
 #include <Ludus/Editor/Panels/DockPanel.h>
 #include <Ludus/Editor/Panels/HierarchyPanel.h>
 #include <Ludus/Editor/Panels/ImGuiDemoPanel.h>
 #include <Ludus/Editor/Panels/InspectorPanel.h>
 #include <Ludus/Editor/Panels/IPanel.h>
-#include <Ludus/Editor/Panels/ProjectPanel.h>
 #include <Ludus/Editor/Panels/ViewportPanel.h>
-#include <Ludus/Editor/Panels/WelcomePanel.h>
 
 namespace Ludus::Editor::Core
 {
@@ -27,12 +26,11 @@ namespace Ludus::Editor::Core
 		{
 			EditorConfiguration options;
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::DockPanel>(); });
-			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::WelcomePanel>(); });
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ImGuiDemoPanel>(); });
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::HierarchyPanel>(); });
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::InspectorPanel>(); });
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ConsolePanel>(); });
-			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ProjectPanel>(); });
+			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ContentPanel>(); });
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ViewportPanel>("Viewport", Ludus::Editor::Core::ViewportDisplayMode::Simulation); });
 			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ViewportPanel>("Viewport", Ludus::Editor::Core::ViewportDisplayMode::Editor); });
 

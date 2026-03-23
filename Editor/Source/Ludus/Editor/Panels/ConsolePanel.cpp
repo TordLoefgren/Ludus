@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <format>
+#include <utility>
 
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Panels/ConsolePanel.h>
@@ -10,7 +11,7 @@
 
 namespace Ludus::Editor::Panels
 {
-	bool ConsolePanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
+	bool ConsolePanel::UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
 		const auto flags = Ludus::Editor::Core::Constants::PanelFlags | Ludus::UI::Flags::Window::HorizontalScrollbar;
 		auto windowTitle = CreateWindowTitle("Console");
@@ -77,5 +78,11 @@ namespace Ludus::Editor::Panels
 			entry.Tag,
 			entry.Message
 		);
+	}
+
+	void ConsolePanel::Clear()
+	{
+		m_AggregateText.clear();
+		m_TextToIndex.clear();
 	}
 }

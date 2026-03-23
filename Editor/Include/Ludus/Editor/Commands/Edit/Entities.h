@@ -4,11 +4,11 @@
 
 namespace Ludus::Editor::Commands
 {
-	struct CommandContext;
+	struct ProjectSessionCommandContext;
 }
 
 namespace Ludus::Editor::Commands::Edit::Entities
 {
-	void AddEntity(const EditCommand::AddEntity& command, CommandContext& context);
-	void RemoveEntity(const EditCommand::RemoveEntity& command, CommandContext& context);
+	void AddEntity(const EditCommand::AddEntity& command, ProjectSessionCommandContext& context);
+	void RemoveEntity(const EditCommand::RemoveEntity& command, ProjectSessionCommandContext& context);
 }

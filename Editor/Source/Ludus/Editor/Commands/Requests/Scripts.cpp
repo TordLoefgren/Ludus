@@ -1,45 +1,83 @@
 #include "pch.h"
 
-#include <utility>
+#include <filesystem>
+#include <stdexcept>
 
 #include <Ludus/Editor/Commands/EditCommand.h>
-#include <Ludus/Editor/Commands/Requests/Projects.h>
-#include <Ludus/Editor/Core/EditorContext.h>
-#include <Ludus/Engine/Core/SystemContext.h>
+#include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
+#include <Ludus/Editor/Commands/Requests/Scripts.h>
+#include <Ludus/Editor/Panels/PanelHelpers.h>
+#include <Ludus/Editor/Persistence/Paths.h>
 #include <Ludus/Engine/Debug/Debug.h>
-#include <Ludus/Engine/Persistence/ProjectRepository.h>
 
 namespace Ludus::Editor::Commands::Requests::Scripts
 {
-	void CreateScript(const RequestCommand::CreateScript& command, CommandContext& context)
+	void CreateScript(const RequestCommand::CreateScript& command, ProjectSessionCommandContext& context)
 	{
-		auto& systemContext = context.SystemContext;
-		if (!systemContext.HasProjectContext())
+		const auto projectRoot = context.ProjectSession.GetProjectRoot();
+		const auto scriptSourcePath = Ludus::Editor::Persistence::Paths::ScriptSourceFile(projectRoot, command.Name);
+
+		if (context.ProjectSession.HasPersistenceScriptReference(command.Name))
 		{
-			LUDUS_LOG_WARN("Cannot create script. No project context exists.");
-			return;
+			throw std::runtime_error("Script already exists in the runtime manifest: " + command.Name);
 		}
 
-		auto& projectContext = systemContext.ProjectContext.value();
-
-		auto& build = context.EditorContext.Build;
-		build.EnsureScriptProject(projectContext);
-		build.CreateScript(projectContext, command.Name);
-
-		// Persist script references to project immediately.
-		systemContext.ProjectRepository.SaveProject(projectContext);
-		context.EditorContext.Session.MarkProjectDirty(false);
-
-		const auto handle = projectContext.TryFindScriptHandleByName(command.Name);
-		if (!handle.has_value())
+		if (std::filesystem::exists(scriptSourcePath))
 		{
-			LUDUS_LOG_WARN("Failed to resolve script handle for script: " + command.Name);
-			return;
+			throw std::runtime_error("Script source file already exists: " + scriptSourcePath.string());
 		}
 
-		context.EditorContext.State.Commands.AddEditCommand(
+		const auto handle = context.ProjectSession.AllocatePersistenceScriptHandle();
+		auto& runtimeManifest = context.ProjectSession.GetPersistenceRuntimeManifest();
+		context.ProjectSession.AddOrUpdatePersistenceScriptReference(handle, command.Name);
+		context.RuntimeManifestPersistence.Save(runtimeManifest, context.ProjectSession.ProjectManifest.RuntimeManifestPath);
+
+		auto& build = context.Shell.Build;
+
+		try
+		{
+			build.CreateScript(projectRoot, command.Name);
+		}
+		catch (...)
+		{
+			// Make sure to roll back persistence in case of exceptions.
+			context.ProjectSession.RemovePersistenceScriptReference(handle);
+			context.RuntimeManifestPersistence.Save(runtimeManifest, context.ProjectSession.ProjectManifest.RuntimeManifestPath);
+			Ludus::Editor::Panels::RefreshContentPanel(projectRoot, context.PanelRegistry);
+
+			throw;
+		}
+
+		context.Shell.State.Commands.AddEditCommand(
 			Ludus::Editor::Commands::EditCommand::AddComponent<Ludus::Engine::Components::ScriptComponent> {
-			.Entity = command.Entity, .Scene = command.Scene, .Init = Ludus::Engine::Components::ScriptComponent { command.Name, handle.value() }
+			.EntityReference = command.EntityReference,
+				.SceneHandle = command.SceneHandle,
+				.Init = Ludus::Engine::Components::ScriptComponent { command.Name, handle }
 		});
+
+		Ludus::Editor::Panels::RefreshContentPanel(projectRoot, context.PanelRegistry);
+	}
+
+	void BuildScript(const RequestCommand::BuildScript& command, ProjectSessionCommandContext& context)
+	{
+		LUDUS_ASSERT(!context.ProjectSession.IsSimulating(), "Scripts cannot be built while the simulation session is active.");
+
+		const auto projectRoot = context.ProjectSession.GetProjectRoot();
+		auto& build = context.Shell.Build;
+
+		switch (command.BuildCommand)
+		{
+			case Ludus::Editor::Build::BuildCommand::Build:
+				build.Build(projectRoot);
+				break;
+			case Ludus::Editor::Build::BuildCommand::Rebuild:
+				build.Rebuild(projectRoot);
+				break;
+			case Ludus::Editor::Build::BuildCommand::Clean:
+				build.Clean(projectRoot);
+				break;
+		}
+
+		Ludus::Editor::Panels::RefreshContentPanel(projectRoot, context.PanelRegistry);
 	}
 }

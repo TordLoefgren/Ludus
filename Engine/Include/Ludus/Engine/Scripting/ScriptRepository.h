@@ -45,9 +45,9 @@ namespace Ludus::Engine::Scripting
 	public:
 		const ScriptDefinition* TryFindDefinition(const std::string& name) const
 		{
-			if (auto it = m_Scripts.find(name); it != m_Scripts.end())
+			if (auto iter = m_Scripts.find(name); iter != m_Scripts.end())
 			{
-				return it->second;
+				return iter->second;
 			}
 
 			return nullptr;

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include <Ludus/Editor/Commands/CommandSet.h>
@@ -24,8 +25,8 @@ namespace Ludus::Editor::Dialogs
 		std::string SelectName;
 		AddScriptTab ActiveTab = AddScriptTab::Create;
 
-		Ludus::Engine::Core::EntityHandle Entity;
-		Ludus::Engine::Core::SceneHandle Scene;
+		Ludus::Engine::Core::EntityHandle EntityHandle;
+		Ludus::Engine::Core::SceneHandle SceneHandle;
 		std::vector<std::string> ScriptNames;
 		std::unordered_map<std::string, Ludus::Engine::Components::ScriptHandle> ScriptHandlesByName;
 
@@ -33,16 +34,11 @@ namespace Ludus::Editor::Dialogs
 
 	public:
 		AddScriptDialog(
-			Ludus::Engine::Core::EntityHandle entity,
-			Ludus::Engine::Core::SceneHandle scene,
+			Ludus::Engine::Core::EntityHandle entityHandle,
+			Ludus::Engine::Core::SceneHandle sceneHandle,
 			std::vector<std::string> scriptNames,
 			std::unordered_map<std::string, Ludus::Engine::Components::ScriptHandle> scriptHandlesByName
-		) :
-			Entity(entity),
-			Scene(scene),
-			ScriptNames(std::move(scriptNames)),
-			ScriptHandlesByName(std::move(scriptHandlesByName))
-		{ }
+		);
 
 		Outcome Draw();
 		void Resolve(const Outcome& outcome, Ludus::Editor::Commands::CommandSet& out);

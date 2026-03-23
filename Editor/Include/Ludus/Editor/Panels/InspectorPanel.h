@@ -1,7 +1,9 @@
 #pragma once
 
+#include <vector>
+
+#include <Ludus/Editor/Core/ProjectSessionContext.h>
 #include <Ludus/Editor/Panels/IPanel.h>
-#include <Ludus/Editor/Panels/PanelContext.h>
 #include <Ludus/Engine/Core/Entity.h>
 
 namespace Ludus::Engine::Components
@@ -16,9 +18,9 @@ namespace Ludus::Engine::Components
 	struct Transform2DComponent;
 }
 
-namespace Ludus::Engine::Core
+namespace Ludus::Engine::Runtime
 {
-	struct ProjectContext;
+	struct ScriptReference;
 }
 
 namespace Ludus::Editor::Panels
@@ -27,21 +29,21 @@ namespace Ludus::Editor::Panels
 	{
 	private:
 		static void DrawEntityHandle(Ludus::Engine::Core::EntityHandle handle);
-		static void DrawDisplayName(Ludus::Engine::Components::DisplayNameComponent& component);
-		static void DrawTransform2D(Ludus::Engine::Components::Transform2DComponent& component);
-		static void DrawCollider2D(Ludus::Engine::Components::Collider2DComponent& component);
-		static void DrawRigidBody2D(Ludus::Engine::Components::RigidBody2DComponent& component);
-		static void DrawScript(
+		static bool DrawDisplayName(Ludus::Engine::Components::DisplayNameComponent& component);
+		static bool DrawTransform2D(Ludus::Engine::Components::Transform2DComponent& component);
+		static bool DrawCollider2D(Ludus::Engine::Components::Collider2DComponent& component);
+		static bool DrawRigidBody2D(Ludus::Engine::Components::RigidBody2DComponent& component);
+		static bool DrawScript(
 			Ludus::Engine::Components::ScriptComponent& component,
-			const Ludus::Engine::Core::ProjectContext& projectContext
+			const std::vector<Ludus::Engine::Runtime::ScriptReference>& scriptReferences
 		);
-		static void DrawSprite2D(Ludus::Engine::Components::Sprite2DComponent& component);
-		static void DrawText2D(Ludus::Engine::Components::Text2DComponent& component);
-		static void DrawCamera2D(Ludus::Engine::Components::Camera2DComponent& component);
+		static bool DrawSprite2D(Ludus::Engine::Components::Sprite2DComponent& component);
+		static bool DrawText2D(Ludus::Engine::Components::Text2DComponent& component);
+		static bool DrawCamera2D(Ludus::Engine::Components::Camera2DComponent& component);
 
 	public:
-		virtual bool* GetOpenFlag(Ludus::Editor::Panels::PanelContext& context) override { return &context.ActivePanelState.ShowInspectorPanel; }
+		virtual bool* GetOpenFlag(Ludus::Editor::Core::ProjectSessionContext& context) override { return &context.Shell.State.ActivePanelState.ShowInspectorPanel; }
 
-		virtual bool UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
+		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) override;
 	};
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Ludus/Engine/Core/EntityComponentSystem.h>
-#include <Ludus/Engine/Core/ISystem.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Physics/Broadphase/IBroadphase2D.h>
 #include <Ludus/Engine/Physics/Broadphase/NaiveBroadphase2D.h>
@@ -11,12 +10,14 @@
 #include <Ludus/Engine/Physics/Narrowphase/INarrowphase2D.h>
 #include <Ludus/Engine/Physics/Narrowphase/NaiveNarrowphase2D.h>
 #include <Ludus/Engine/Physics/Queries/IPhysicsQueryCache2D.h>
+#include <Ludus/Engine/Runtime/ISystem.h>
 
 namespace Ludus::Engine::Physics::Core
 {
-	class PhysicsSystem2D final : public Ludus::Engine::Core::ISystem
+	class PhysicsSystem2D final : public Ludus::Engine::Runtime::ISystem
 	{
 	private:
+		Ludus::Engine::Core::SceneRegistry& m_SceneRegistry;
 		PhysicsWorld2D m_PhysicsWorld;
 		PhysicsPipeline2D m_PhysicsPipeline;
 		int m_SubSteps;
@@ -24,8 +25,12 @@ namespace Ludus::Engine::Physics::Core
 		Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* m_Queries = nullptr;
 
 	public:
-		PhysicsSystem2D(PhysicsConfiguration2D& physicsConfiguration)
-			: m_PhysicsWorld(),
+		PhysicsSystem2D(
+			PhysicsConfiguration2D& physicsConfiguration,
+			Ludus::Engine::Core::SceneRegistry& sceneRegistry
+		) :
+			m_SceneRegistry(sceneRegistry),
+			m_PhysicsWorld(),
 			m_PhysicsPipeline(
 				*physicsConfiguration.Broadphase,
 				*physicsConfiguration.Narrowphase,
@@ -70,7 +75,7 @@ namespace Ludus::Engine::Physics::Core
 
 		virtual void FixedUpdateImpl(float fixedTime) override
 		{
-			for (auto& scene : m_SystemContext->SceneRegistry.ViewMutable())
+			for (auto& scene : m_SceneRegistry.ViewMutable())
 			{
 				PullEntityComponents(scene.EntityComponentSystem);
 				m_PhysicsPipeline.Step(m_PhysicsWorld, *m_Queries, fixedTime, m_SubSteps);

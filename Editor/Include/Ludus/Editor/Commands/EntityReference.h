@@ -10,7 +10,7 @@ namespace Ludus::Editor::Commands
 {
 	struct TempReference
 	{
-		std::uint64_t Value {};
+		std::uint64_t Value { };
 
 		bool operator==(const TempReference&) const = default;
 	};

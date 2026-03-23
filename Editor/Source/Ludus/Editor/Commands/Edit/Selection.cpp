@@ -1,25 +1,24 @@
 #include "pch.h"
 
-#include <Ludus/Editor/Commands/CommandContext.h>
 #include <Ludus/Editor/Commands/Edit/Selection.h>
-#include <Ludus/Editor/Core/EditorContext.h>
+#include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 
 namespace Ludus::Editor::Commands::Edit::Selection
 {
-	void SelectEntity(const EditCommand::SelectEntity& command, CommandContext& context)
+	void SelectEntity(const EditCommand::SelectEntity& command, ProjectSessionCommandContext& context)
 	{
-		const auto entity = context.EditorContext.State.Commands.ResolveEntity(command.Entity);
-		context.EditorContext.State.Selection.SelectEntity(entity);
+		const auto entity = context.Shell.State.Commands.ResolveEntity(command.EntityReference);
+		context.ProjectSession.EditorState.Selection.SelectEntity(entity);
 	}
 
-	void DeselectEntity(const EditCommand::DeselectEntity& command, CommandContext& context)
+	void DeselectEntity(const EditCommand::DeselectEntity& command, ProjectSessionCommandContext& context)
 	{
-		const auto entity = context.EditorContext.State.Commands.ResolveEntity(command.Entity);
-		context.EditorContext.State.Selection.DeselectEntity(entity);
+		const auto entity = context.Shell.State.Commands.ResolveEntity(command.EntityReference);
+		context.ProjectSession.EditorState.Selection.DeselectEntity(entity);
 	}
 
-	void ClearSelection(const EditCommand::ClearSelection& command, CommandContext& context)
+	void ClearSelection(const EditCommand::ClearSelection& command, ProjectSessionCommandContext& context)
 	{
-		context.EditorContext.State.Selection.ClearSelection();
+		context.ProjectSession.EditorState.Selection.ClearSelection();
 	}
 }

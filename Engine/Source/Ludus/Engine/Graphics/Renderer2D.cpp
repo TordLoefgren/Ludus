@@ -9,10 +9,10 @@ namespace Ludus::Engine::Graphics
 #pragma region Constructor / Destructor
 
 	static const glm::vec4 UnitQuad[4] = {
-		{-0.5f, -0.5f, 0.0f, 1.0f},
-		{ 0.5f, -0.5f, 0.0f, 1.0f},
-		{ 0.5f,  0.5f, 0.0f, 1.0f},
-		{-0.5f,  0.5f, 0.0f, 1.0f}
+		{ -0.5f, -0.5f, 0.0f, 1.0f },
+		{ 0.5f, -0.5f, 0.0f, 1.0f },
+		{ 0.5f, 0.5f, 0.0f, 1.0f },
+		{ -0.5f, 0.5f, 0.0f, 1.0f }
 	};
 
 	Renderer2D::Renderer2D(
@@ -24,7 +24,7 @@ namespace Ludus::Engine::Graphics
 		m_VertexBuffer(VertexBufferObject(maxQuads * 4)),
 		m_ElementBuffer(ElementBufferObject(maxQuads * 6)),
 		m_Shader(shader),
-		m_State {},
+		m_State { },
 		m_MaxQuads(maxQuads),
 		m_Textures(maxTextures, nullptr),
 		m_MaxTextures(maxTextures),
@@ -94,7 +94,7 @@ namespace Ludus::Engine::Graphics
 			local[i] = glm::vec2(UnitQuad[i].x, UnitQuad[i].y);
 		}
 
-		glm::vec2 uv[4] = { {0,0}, {1,0}, {1,1}, {0,1} };
+		glm::vec2 uv[4] = { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } };
 		if (flipU)
 		{
 			for (auto& t : uv)
@@ -212,8 +212,8 @@ namespace Ludus::Engine::Graphics
 		auto [r, g, b, a] = color;
 		auto textureSlot = 0;
 
-		m_State.m_LineVertices[m_State.m_LineVertexCursor + 0] = { { x1, y1 }, { 0.0f, 0.0f }, { r, g, b, a }, { 0.0f, 0.0f }, 0, textureSlot };
-		m_State.m_LineVertices[m_State.m_LineVertexCursor + 1] = { { x2, y2 }, { 0.0f, 0.0f }, { r, g, b, a }, { 1.0f, 0.0f }, 0, textureSlot };
+		m_State.m_LineVertices[m_State.m_LineVertexCursor + 0] = { { x1, y1 }, { 0.0f, 0.0f }, { r, g, b, a }, { 0.0f, 0.0f }, 0, 0, textureSlot };
+		m_State.m_LineVertices[m_State.m_LineVertexCursor + 1] = { { x2, y2 }, { 0.0f, 0.0f }, { r, g, b, a }, { 1.0f, 0.0f }, 0, 0, textureSlot };
 
 		m_State.m_LineVertexCursor += 2;
 	}

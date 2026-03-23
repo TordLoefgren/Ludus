@@ -4,11 +4,14 @@
 
 namespace Ludus::Editor::Commands
 {
-	struct CommandContext;
+	struct StartupCommandContext;
+	struct ProjectSessionCommandContext;
 }
 
 namespace Ludus::Editor::Commands::UI::Dialogs
 {
-	void OpenAddScriptDialog(const UICommand::OpenAddScriptDialog& command, CommandContext& context);
-	void OpenCreateProjectDialog(const UICommand::OpenCreateProjectDialog& command, CommandContext& context);
+	void OpenAddScriptDialog(const UICommand::OpenAddScriptDialog& command, ProjectSessionCommandContext& context);
+	void OpenCreateProjectDialog(ProjectSessionCommandContext& context);
+
+	void OpenCreateProjectDialog(StartupCommandContext& context);
 }

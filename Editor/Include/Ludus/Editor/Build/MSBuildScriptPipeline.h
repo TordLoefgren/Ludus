@@ -8,15 +8,12 @@
 #include <Ludus/Editor/Build/IScriptBuildPipeline.h>
 #include <Ludus/Editor/Build/ScriptBuildSettings.h>
 #include <Ludus/Engine/Core/Build/Configuration.h>
-#include <Ludus/Engine/Core/ProjectContext.h>
-#include <Ludus/Engine/Core/Random.h>
 
 namespace Ludus::Editor::Build
 {
 	struct MSBuildScriptPipeline final : public IScriptBuildPipeline
 	{
 	private:
-		Ludus::Engine::Core::Random m_Random { };
 		std::optional<std::filesystem::path> m_MSBuildPath;
 
 		std::optional<std::filesystem::path> LocateMSBuild();
@@ -26,13 +23,13 @@ namespace Ludus::Editor::Build
 			const std::filesystem::path& destinationPath
 		) const;
 
-		void AddScript(std::string_view name, const Ludus::Engine::Core::ProjectContext& context);
-		void AddScriptsModuleReference(std::string_view name, const Ludus::Engine::Core::ProjectContext& context);
-		void AddScriptsProjectReference(std::string_view name, const Ludus::Engine::Core::ProjectContext& context);
-		void EnsureBuildFiles(const Ludus::Engine::Core::ProjectContext& context);
+		void AddScript(std::string_view name, const std::filesystem::path& projectRoot);
+		void AddScriptsModuleReference(std::string_view name, const std::filesystem::path& projectRoot);
+		void AddScriptsProjectReference(std::string_view name, const std::filesystem::path& projectRoot);
+		void EnsureBuildFiles(const std::filesystem::path& projectRoot);
 
 		void SetScriptProjectCompilationSettings(
-			const Ludus::Engine::Core::ProjectContext& context,
+			const std::filesystem::path& projectRoot,
 			const ScriptBuildSettings& settings
 		);
 
@@ -40,18 +37,18 @@ namespace Ludus::Editor::Build
 		void Initialize();
 
 		virtual void RunBuild(
-			const Ludus::Engine::Core::ProjectContext& context,
+			const std::filesystem::path& projectRoot,
 			Ludus::Engine::Core::Build::Configuration configuration,
 			BuildCommand command
 		) override;
 
 		virtual void EnsureScriptProject(
-			const Ludus::Engine::Core::ProjectContext& context,
+			const std::filesystem::path& projectRoot,
 			const ScriptBuildSettings& settings
 		) override;
 
 		virtual void CreateScript(
-			Ludus::Engine::Core::ProjectContext& context,
+			const std::filesystem::path& projectRoot,
 			std::string_view name
 		) override;
 	};

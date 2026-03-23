@@ -4,8 +4,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include <Ludus/Editor/Core/ProjectSessionContext.h>
 #include <Ludus/Editor/Panels/IPanel.h>
-#include <Ludus/Editor/Panels/PanelContext.h>
 #include <Ludus/Engine/Debug/Debug.h>
 
 namespace Ludus::Editor::Panels
@@ -19,15 +19,16 @@ namespace Ludus::Editor::Panels
 			size_t Count;
 		};
 
-	private:
-		std::string FormatEntry(const Ludus::Engine::Debug::LogEntry& entry);
-
-	public:
 		std::vector<AggregateText> m_AggregateText;
 		std::unordered_map<std::string, size_t> m_TextToIndex;
 
-		virtual bool* GetOpenFlag(Ludus::Editor::Panels::PanelContext& context) override { return &context.ActivePanelState.ShowConsolePanel; }
+		std::string FormatEntry(const Ludus::Engine::Debug::LogEntry& entry);
 
-		virtual bool UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
+	public:
+		virtual bool* GetOpenFlag(Ludus::Editor::Core::ProjectSessionContext& context) override { return &context.Shell.State.ActivePanelState.ShowConsolePanel; }
+
+		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) override;
+
+		void Clear();
 	};
 }

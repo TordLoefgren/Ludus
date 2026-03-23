@@ -1,0 +1,231 @@
+#include "pch.h"
+
+#include <filesystem>
+#include <string>
+#include <string_view>
+#include <utility>
+
+#include <Ludus/Engine/FileSystem/FileSystem.h>
+#include <Ludus/Engine/Runtime/RuntimeManifest.h>
+#include <Ludus/Engine/Serialization/Core/TokenRead.h>
+#include <Ludus/Engine/Serialization/Schemas/RuntimeManifestSchema.h>
+
+namespace Ludus::Engine::Serialization::Schemas
+{
+	using Token = Ludus::Engine::Serialization::Core::Token;
+	using SceneReference = Ludus::Engine::Runtime::SceneReference;
+	using ScriptReference = Ludus::Engine::Runtime::ScriptReference;
+
+	void RuntimeManifestSchema::Serialize(ITokenStreamWriter& writer, const RuntimeManifest& runtimeManifest)
+	{
+		writer.Emit(Token::StartObject { });
+
+		writer.Emit(Token::Key { "Version" });
+		writer.Emit(Token::StartObject { });
+		writer.Emit(Token::Key { "Major" });
+		writer.Emit(Token::Uint { runtimeManifest.Version.Major });
+		writer.Emit(Token::Key { "Minor" });
+		writer.Emit(Token::Uint { runtimeManifest.Version.Minor });
+		writer.Emit(Token::Key { "Patch" });
+		writer.Emit(Token::Uint { runtimeManifest.Version.Patch });
+		writer.Emit(Token::EndObject { });
+
+		writer.Emit(Token::Key { "EntrySceneHandle" });
+		writer.Emit(Token::Uint { runtimeManifest.EntrySceneHandle });
+
+		writer.Emit(Token::Key { "Scenes" });
+		writer.Emit(Token::StartArray { });
+
+		for (const auto& scene : runtimeManifest.Scenes)
+		{
+			writer.Emit(Token::StartObject { });
+			writer.Emit(Token::Key { "Handle" });
+			writer.Emit(Token::Uint { scene.Handle });
+			writer.Emit(Token::Key { "Name" });
+			writer.Emit(Token::String { scene.Name });
+			writer.Emit(Token::Key { "Path" });
+			writer.Emit(Token::String { Ludus::Engine::FileSystem::ToPortablePathString(scene.Path) });
+			writer.Emit(Token::EndObject { });
+		}
+
+		writer.Emit(Token::EndArray { });
+
+		writer.Emit(Token::Key { "Scripts" });
+		writer.Emit(Token::StartArray { });
+
+		for (const auto& script : runtimeManifest.Scripts)
+		{
+			writer.Emit(Token::StartObject { });
+			writer.Emit(Token::Key { "Handle" });
+			writer.Emit(Token::Uint { script.Handle });
+			writer.Emit(Token::Key { "Name" });
+			writer.Emit(Token::String { script.Name });
+			writer.Emit(Token::EndObject { });
+		}
+
+		writer.Emit(Token::EndArray { });
+
+		writer.Emit(Token::EndObject { });
+	}
+
+	Ludus::Engine::Core::Expected<RuntimeManifest, SerializationException> RuntimeManifestSchema::Deserialize(ITokenStreamReader& reader)
+	{
+		RuntimeManifest runtimeManifest;
+
+		try
+		{
+			bool hasVersion = false;
+
+			Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
+			{
+				if (key == "Version")
+				{
+					bool hasMajor = false;
+					bool hasMinor = false;
+					bool hasPatch = false;
+
+					Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view versionKey)
+					{
+						if (versionKey == "Major")
+						{
+							runtimeManifest.Version.Major = Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader);
+							hasMajor = true;
+							return;
+						}
+						if (versionKey == "Minor")
+						{
+							runtimeManifest.Version.Minor = Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader);
+							hasMinor = true;
+							return;
+						}
+						if (versionKey == "Patch")
+						{
+							runtimeManifest.Version.Patch = Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader);
+							hasPatch = true;
+							return;
+						}
+
+						Ludus::Engine::Serialization::Core::SkipValue(reader);
+					});
+
+					if (!hasMajor || !hasMinor || !hasPatch)
+					{
+						throw SerializationException("RuntimeManifest version is incomplete.");
+					}
+
+					hasVersion = true;
+					return;
+				}
+				if (key == "Scenes")
+				{
+					Ludus::Engine::Serialization::Core::ConsumeAs<Token::StartArray>(reader);
+
+					while (!Ludus::Engine::Serialization::Core::Is<Token::EndArray>(reader.Peek()))
+					{
+						SceneReference scene;
+						bool hasHandle = false;
+						bool hasName = false;
+						bool hasPath = false;
+
+						Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view sceneKey)
+						{
+							if (sceneKey == "Handle")
+							{
+								scene.Handle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
+								hasHandle = true;
+								return;
+							}
+							if (sceneKey == "Name")
+							{
+								scene.Name = std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
+								hasName = true;
+								return;
+							}
+							if (sceneKey == "Path")
+							{
+								scene.Path = std::filesystem::path(
+									std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data)
+								);
+								hasPath = true;
+								return;
+							}
+
+							Ludus::Engine::Serialization::Core::SkipValue(reader);
+						});
+
+						if (!hasHandle || !hasName || !hasPath)
+						{
+							throw SerializationException("RuntimeManifest scene entry is incomplete.");
+						}
+
+						runtimeManifest.Scenes.emplace_back(std::move(scene));
+					}
+
+					Ludus::Engine::Serialization::Core::ConsumeAs<Token::EndArray>(reader);
+					return;
+				}
+				if (key == "EntrySceneHandle")
+				{
+					runtimeManifest.EntrySceneHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
+					return;
+				}
+				if (key == "Scripts")
+				{
+					Ludus::Engine::Serialization::Core::ConsumeAs<Token::StartArray>(reader);
+
+					while (!Ludus::Engine::Serialization::Core::Is<Token::EndArray>(reader.Peek()))
+					{
+						ScriptReference script;
+						bool hasHandle = false;
+						bool hasName = false;
+
+						Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view scriptKey)
+						{
+							if (scriptKey == "Handle")
+							{
+								script.Handle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
+								hasHandle = true;
+								return;
+							}
+							if (scriptKey == "Name")
+							{
+								script.Name = std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
+								hasName = true;
+								return;
+							}
+
+							Ludus::Engine::Serialization::Core::SkipValue(reader);
+						});
+
+						if (!hasHandle || !hasName)
+						{
+							throw SerializationException("RuntimeManifest script entry is incomplete.");
+						}
+
+						runtimeManifest.Scripts.emplace_back(std::move(script));
+					}
+
+					Ludus::Engine::Serialization::Core::ConsumeAs<Token::EndArray>(reader);
+					return;
+				}
+
+				Ludus::Engine::Serialization::Core::SkipValue(reader);
+			});
+
+			if (!hasVersion)
+			{
+				throw SerializationException("RuntimeManifest version not found.");
+			}
+
+			return runtimeManifest;
+		}
+		catch (const SerializationException& ex)
+		{
+			const auto error = Ludus::Engine::Serialization::Core::WithContext(
+				ex, "RuntimeManifestSchema::Deserialize"
+			);
+
+			return Ludus::Engine::Core::Unexpected<SerializationException>::Create(error);
+		}
+	}
+}

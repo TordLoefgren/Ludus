@@ -4,6 +4,7 @@
 #include <memory>
 #include <optional>
 #include <string_view>
+#include <utility>
 
 #include <Ludus/Editor/Build/BuildManager.h>
 #include <Ludus/Editor/Build/BuildTarget.h>
@@ -11,7 +12,6 @@
 #include <Ludus/Editor/Build/MSBuildScriptPipeline.h>
 #include <Ludus/Editor/Build/ScriptBuildSettings.h>
 #include <Ludus/Editor/Persistence/Paths.h>
-#include <Ludus/Engine/Core/ProjectContext.h>
 
 namespace Ludus::Editor::Build
 {
@@ -37,7 +37,7 @@ namespace Ludus::Editor::Build
 	}
 
 	void BuildManager::EnsureScriptProject(
-		const Ludus::Engine::Core::ProjectContext& context,
+		const std::filesystem::path& projectRoot,
 		std::optional<ScriptBuildSettings> settings
 	)
 	{
@@ -45,40 +45,40 @@ namespace Ludus::Editor::Build
 		{
 			settings = {
 				Ludus::Editor::Persistence::Paths::EngineScriptingApiScriptsIncludeDir(),
-				Ludus::Editor::Persistence::Paths::ScriptsBinDirectory(context.ProjectRootDirectory),
-				Ludus::Editor::Persistence::Paths::ScriptsObjDirectory(context.ProjectRootDirectory),
+				Ludus::Editor::Persistence::Paths::ScriptsBinDirectory(projectRoot),
+				Ludus::Editor::Persistence::Paths::ScriptsObjDirectory(projectRoot),
 				std::string(Ludus::Editor::Persistence::Paths::Constants::ScriptTargetName)
 			};
 		}
 
-		m_Scripts->EnsureScriptProject(context, settings.value());
+		m_Scripts->EnsureScriptProject(projectRoot, settings.value());
 	}
 
 	void BuildManager::RunScriptBuildCommand(
-		const Ludus::Engine::Core::ProjectContext& context,
+		const std::filesystem::path& projectRoot,
 		Ludus::Engine::Core::Build::Configuration configuration,
 		BuildCommand command
 	)
 	{
-		EnsureScriptProject(context);
-		m_Scripts->RunBuild(context, configuration, command);
+		EnsureScriptProject(projectRoot);
+		m_Scripts->RunBuild(projectRoot, configuration, command);
 	}
 
-	void BuildManager::CreateScript(Ludus::Engine::Core::ProjectContext& context, std::string_view name)
+	void BuildManager::CreateScript(const std::filesystem::path& projectRoot, std::string_view name)
 	{
-		EnsureScriptProject(context);
-		m_Scripts->CreateScript(context, name);
+		EnsureScriptProject(projectRoot);
+		m_Scripts->CreateScript(projectRoot, name);
 	}
 
 	void BuildManager::Build(
-		const Ludus::Engine::Core::ProjectContext& context,
+		const std::filesystem::path& projectRoot,
 		Ludus::Engine::Core::Build::Configuration configuration,
 		BuildTarget target
 	)
 	{
 		if (target == BuildTarget::Scripts)
 		{
-			RunScriptBuildCommand(context, configuration, BuildCommand::Build);
+			RunScriptBuildCommand(projectRoot, configuration, BuildCommand::Build);
 		}
 		else
 		{
@@ -87,7 +87,7 @@ namespace Ludus::Editor::Build
 	}
 
 	void BuildManager::Clean(
-		const Ludus::Engine::Core::ProjectContext& context,
+		const std::filesystem::path& projectRoot,
 		Ludus::Engine::Core::Build::Configuration configuration,
 		BuildTarget target
 	)
@@ -95,7 +95,7 @@ namespace Ludus::Editor::Build
 		switch (target)
 		{
 			case BuildTarget::Scripts:
-				RunScriptBuildCommand(context, configuration, BuildCommand::Clean);
+				RunScriptBuildCommand(projectRoot, configuration, BuildCommand::Clean);
 				break;
 			default:
 				throw std::runtime_error("Unknown build target.");
@@ -103,14 +103,14 @@ namespace Ludus::Editor::Build
 	}
 
 	void BuildManager::Rebuild(
-		const Ludus::Engine::Core::ProjectContext& context,
+		const std::filesystem::path& projectRoot,
 		Ludus::Engine::Core::Build::Configuration configuration,
 		BuildTarget target
 	)
 	{
 		if (target == BuildTarget::Scripts)
 		{
-			RunScriptBuildCommand(context, configuration, BuildCommand::Rebuild);
+			RunScriptBuildCommand(projectRoot, configuration, BuildCommand::Rebuild);
 		}
 		else
 		{

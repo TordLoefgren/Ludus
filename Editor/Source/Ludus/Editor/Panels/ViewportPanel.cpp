@@ -35,7 +35,7 @@ namespace Ludus::Editor::Panels
 	)
 		: m_Title(title),
 		m_Camera(),
-		m_Target(nullptr),
+		m_Target(std::nullopt),
 		m_PreviousTargetSize(),
 		m_DisplayMode(displayMode)
 	{ }
@@ -67,7 +67,7 @@ namespace Ludus::Editor::Panels
 	}
 
 	Ludus::Engine::Math::Size<int> ViewportPanel::ResolveRenderTargetSize(
-		Ludus::Editor::Panels::PanelContext& context,
+		Ludus::Editor::Core::ProjectSessionContext& context,
 		const Ludus::Engine::Graphics::RenderPresentationSettings& renderPresentationSettings,
 		Ludus::Engine::Math::Vector2D viewportDisplaySize
 	) const
@@ -78,8 +78,8 @@ namespace Ludus::Editor::Panels
 			return fixedResolution;
 		}
 
-		const auto [framebufferWidth, framebufferHeight] = context.SystemContext.Window.GetFramebufferSize();
-		const auto [windowWidth, windowHeight] = context.SystemContext.Window.GetWindowSize();
+		const auto [framebufferWidth, framebufferHeight] = context.HostContext.GetFramebufferSize();
+		const auto [windowWidth, windowHeight] = context.HostContext.GetWindowSize();
 
 		const auto scaleX = static_cast<float>(framebufferWidth) / static_cast<float>(std::max(1, windowWidth));
 		const auto scaleY = static_cast<float>(framebufferHeight) / static_cast<float>(std::max(1, windowHeight));
@@ -98,7 +98,7 @@ namespace Ludus::Editor::Panels
 		return offset;
 	}
 
-	void ViewportPanel::HandleInput(Ludus::Editor::Panels::PanelContext& context)
+	void ViewportPanel::HandleInput(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
 		const auto isMouseHovering = Ludus::UI::Context::InputContext::IsItemHovered();
 		if (!isMouseHovering && !m_IsCameraPanning)
@@ -106,7 +106,7 @@ namespace Ludus::Editor::Panels
 			return;
 		}
 
-		auto& input = context.SystemContext.Input;
+		auto& input = context.HostContext.GetInput();
 
 		// Failsafe in the event that the mouse button up event is not caught.
 		const auto rightMouseButtonPressed = input.GetMouseButton(Ludus::Engine::Windowing::MouseButton::Right);
@@ -162,7 +162,7 @@ namespace Ludus::Editor::Panels
 		}
 	}
 
-	bool ViewportPanel::UpdateImpl(Ludus::Editor::Panels::PanelContext& context)
+	bool ViewportPanel::UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
 		const auto flags = Ludus::Editor::Core::Constants::PanelFlags
 			| Ludus::UI::Flags::Window::NoScrollbar
@@ -179,16 +179,15 @@ namespace Ludus::Editor::Panels
 			auto displayModeLabel = Ludus::UI::CreateLabel("Display Mode", "DisplayMode_Combo");
 			auto _ = Ludus::UI::Widgets::ComboEnum(displayModeLabel.c_str(), m_DisplayMode);
 
-			auto& registry = context.SystemContext.SceneRegistry;
-			auto& session = context.EditorContext.Session;
+			auto& registry = context.ProjectSession.GetSceneRegistry();
 
-			auto active = session.GetActiveScene();
+			auto active = context.ProjectSession.EditorState.ActiveSceneHandle;
 			if (!m_SelectedSceneHandle.has_value() || !registry.Contains(m_SelectedSceneHandle.value()))
 			{
 				m_SelectedSceneHandle = active;
 			}
 
-			const auto& renderPresentationSettings = context.SystemContext.RenderPresentation;
+			const auto& renderPresentationSettings = context.ProjectSession.GetRenderPresentationSettings();
 			const auto targetAspectRatio = ResolveTargetAspectRatio(renderPresentationSettings);
 			const auto aspectSize = GetViewportAspectSize(targetAspectRatio);
 			const auto desiredSize = ResolveRenderTargetSize(context, renderPresentationSettings, aspectSize);
@@ -200,7 +199,7 @@ namespace Ludus::Editor::Panels
 
 			if (!m_Target)
 			{
-				m_Target = std::make_shared<Ludus::Engine::Graphics::RenderTarget>(m_Title, desiredSize.Width, desiredSize.Height);
+				m_Target = Ludus::Engine::Graphics::RenderTarget::Create(m_Title, desiredSize.Width, desiredSize.Height);
 				m_PreviousTargetSize = desiredSize;
 			}
 
@@ -230,7 +229,7 @@ namespace Ludus::Editor::Panels
 			Ludus::Engine::Graphics::RenderViewRequest2D renderViewRequest {
 				.Camera = camera,
 				.SceneHandle = m_SelectedSceneHandle,
-				.Target = m_Target,
+				.Target = &*m_Target,
 				.ViewportRect = Ludus::Engine::Math::Rect
 				{
 					viewportPosition,
@@ -238,7 +237,7 @@ namespace Ludus::Editor::Panels
 			}
 			};
 
-			context.SystemContext.RenderViewRequests.Register(renderViewRequest);
+			context.ProjectSession.GetRenderViewRequestRegistry().Register(renderViewRequest);
 		}
 
 		return m_Open;

@@ -1,12 +1,10 @@
 #include "pch.h"
 
-#include <Ludus/Editor/Build/MSBuildScriptPipeline.h>
-
 #include <algorithm>
-#include <cstdint>
 #include <stdexcept>
 #include <string>
 
+#include <Ludus/Editor/Build/MSBuildScriptPipeline.h>
 #include <Ludus/Editor/Persistence/Paths.h>
 #include <Ludus/Engine/Core/Build/Configuration.h>
 #include <Ludus/Engine/Core/Build/Platform.h>
@@ -49,6 +47,34 @@ namespace
 		static constexpr std::string_view RebuildCommand = "Rebuild";
 		static constexpr std::string_view CleanCommand = "Clean";
 	};
+
+	void RemoveProjectScriptsBuildLayout(const std::filesystem::path& projectRoot)
+	{
+		std::error_code errorCode;
+		std::filesystem::remove_all(Ludus::Editor::Persistence::Paths::ScriptsBinDirectory(projectRoot), errorCode);
+		if (errorCode)
+		{
+			throw std::runtime_error("Failed to remove scripts bin directory: " + errorCode.message());
+		}
+
+		std::filesystem::remove_all(Ludus::Editor::Persistence::Paths::ScriptsObjDirectory(projectRoot), errorCode);
+		if (errorCode)
+		{
+			throw std::runtime_error("Failed to remove scripts obj directory: " + errorCode.message());
+		}
+
+		std::filesystem::remove(Ludus::Editor::Persistence::Paths::BinDirectory(projectRoot), errorCode);
+		if (errorCode)
+		{
+			throw std::runtime_error("Failed to remove bin directory: " + errorCode.message());
+		}
+
+		std::filesystem::remove(Ludus::Editor::Persistence::Paths::ObjDirectory(projectRoot), errorCode);
+		if (errorCode)
+		{
+			throw std::runtime_error("Failed to remove obj directory: " + errorCode.message());
+		}
+	}
 }
 
 namespace Ludus::Editor::Build
@@ -145,10 +171,10 @@ namespace Ludus::Editor::Build
 		Ludus::Engine::FileSystem::WriteAllText(destinationPath, text);
 	}
 
-	void MSBuildScriptPipeline::AddScript(std::string_view name, const Ludus::Engine::Core::ProjectContext& context)
+	void MSBuildScriptPipeline::AddScript(std::string_view name, const std::filesystem::path& projectRoot)
 	{
 		const auto templateRoot = Ludus::Editor::Persistence::Paths::ScriptTemplatesDirectory();
-		const auto scriptSourceDirectory = Ludus::Editor::Persistence::Paths::ScriptsSourceDirectory(context.ProjectRootDirectory);
+		const auto scriptSourceDirectory = Ludus::Editor::Persistence::Paths::ScriptsSourceDirectory(projectRoot);
 		const auto destinationPath = scriptSourceDirectory / (std::string(name) + std::string(Constants::ScriptCppExtension));
 
 		if (std::filesystem::exists(destinationPath))
@@ -163,9 +189,9 @@ namespace Ludus::Editor::Build
 		Ludus::Engine::FileSystem::WriteAllText(destinationPath, text);
 	}
 
-	void MSBuildScriptPipeline::AddScriptsModuleReference(std::string_view name, const Ludus::Engine::Core::ProjectContext& context)
+	void MSBuildScriptPipeline::AddScriptsModuleReference(std::string_view name, const std::filesystem::path& projectRoot)
 	{
-		const auto scriptModulePath = Ludus::Editor::Persistence::Paths::ScriptsModuleFile(context.ProjectRootDirectory);
+		const auto scriptModulePath = Ludus::Editor::Persistence::Paths::ScriptsModuleFile(projectRoot);
 		auto text = Ludus::Engine::FileSystem::ReadAllText(scriptModulePath);
 
 		Ludus::Engine::Core::Strings::UpsertLineInRegion(
@@ -187,10 +213,10 @@ namespace Ludus::Editor::Build
 
 	void MSBuildScriptPipeline::AddScriptsProjectReference(
 		std::string_view name,
-		const Ludus::Engine::Core::ProjectContext& context
+		const std::filesystem::path& projectRoot
 	)
 	{
-		const auto projectPath = Ludus::Editor::Persistence::Paths::ScriptsProjectFile(context.ProjectRootDirectory);
+		const auto projectPath = Ludus::Editor::Persistence::Paths::ScriptsProjectFile(projectRoot);
 		auto text = Ludus::Engine::FileSystem::ReadAllText(projectPath);
 
 		Ludus::Engine::Core::Strings::UpsertLineInRegion(
@@ -203,12 +229,12 @@ namespace Ludus::Editor::Build
 		Ludus::Engine::FileSystem::WriteAllText(projectPath, text);
 	}
 
-	void MSBuildScriptPipeline::EnsureBuildFiles(const Ludus::Engine::Core::ProjectContext& context)
+	void MSBuildScriptPipeline::EnsureBuildFiles(const std::filesystem::path& projectRoot)
 	{
-		Ludus::Editor::Persistence::Paths::EnsureProjectScriptsLayoutExists(context.ProjectRootDirectory);
+		Ludus::Editor::Persistence::Paths::EnsureProjectScriptsSourceLayoutExists(projectRoot);
 
 		const auto templateRoot = Ludus::Editor::Persistence::Paths::ScriptTemplatesDirectory();
-		const auto scriptSourceDirectory = Ludus::Editor::Persistence::Paths::ScriptsSourceDirectory(context.ProjectRootDirectory);
+		const auto scriptSourceDirectory = Ludus::Editor::Persistence::Paths::ScriptsSourceDirectory(projectRoot);
 
 		CopyTemplateToDestinationIfMissing(
 			templateRoot,
@@ -223,10 +249,12 @@ namespace Ludus::Editor::Build
 		);
 	}
 
-	void MSBuildScriptPipeline::SetScriptProjectCompilationSettings(const Ludus::Engine::Core::ProjectContext& context, const ScriptBuildSettings& settings
+	void MSBuildScriptPipeline::SetScriptProjectCompilationSettings(
+		const std::filesystem::path& projectRoot,
+		const ScriptBuildSettings& settings
 	)
 	{
-		const auto projectPath = Ludus::Editor::Persistence::Paths::ScriptsProjectFile(context.ProjectRootDirectory);
+		const auto projectPath = Ludus::Editor::Persistence::Paths::ScriptsProjectFile(projectRoot);
 		auto text = Ludus::Engine::FileSystem::ReadAllText(projectPath);
 
 		if (text.find("${") == std::string::npos)
@@ -234,9 +262,9 @@ namespace Ludus::Editor::Build
 			return;
 		}
 
-		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::IncludeDirectoryToken, settings.IncludeDirectory.string());
-		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::OutDirectoryToken, settings.OutDirectory.string());
-		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::IntermediateDirectoryToken, settings.InDirectory.string());
+		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::IncludeDirectoryToken, Ludus::Engine::FileSystem::ToPortablePathString(settings.IncludeDirectory));
+		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::OutDirectoryToken, Ludus::Engine::FileSystem::ToPortablePathString(settings.OutDirectory));
+		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::IntermediateDirectoryToken, Ludus::Engine::FileSystem::ToPortablePathString(settings.InDirectory));
 		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::TargetNameToken, settings.TargetName);
 
 		if (text.find("${") != std::string::npos)
@@ -248,26 +276,31 @@ namespace Ludus::Editor::Build
 	}
 
 	void MSBuildScriptPipeline::RunBuild(
-		const Ludus::Engine::Core::ProjectContext& context,
+		const std::filesystem::path& projectRoot,
 		Ludus::Engine::Core::Build::Configuration configuration,
 		BuildCommand command
 	)
 	{
+		if (command == BuildCommand::Build || command == BuildCommand::Rebuild)
+		{
+			Ludus::Editor::Persistence::Paths::EnsureProjectScriptsBuildLayoutExists(projectRoot);
+		}
+
 		if (!m_MSBuildPath.has_value())
 		{
 			throw std::runtime_error("MSBuild path not found.");
 		}
 
-		const auto projectPath = Ludus::Editor::Persistence::Paths::ScriptsProjectFile(context.ProjectRootDirectory);
+		const auto projectPath = Ludus::Editor::Persistence::Paths::ScriptsProjectFile(projectRoot);
 
 		const auto configurationStr = Ludus::Engine::Core::Enums::GetDisplayName(configuration);
-		const auto platformStr = Ludus::Engine::Core::Enums::GetDisplayName(Ludus::Engine::Core::Build::Platform::X64);
+		const auto platformStr = Ludus::Engine::Core::Enums::GetDisplayName(Ludus::Engine::Core::Build::Platform::WindowsX64);
 		const auto commandStr = command == BuildCommand::Build
 			? Constants::BuildCommand
 			: command == BuildCommand::Rebuild ? Constants::RebuildCommand : Constants::CleanCommand;
 
 		std::string args =
-			"\"" + projectPath.string() + "\" "
+			"\"" + Ludus::Engine::FileSystem::ToPortablePathString(projectPath) + "\" "
 			"/m "
 			"/t:" + std::string(commandStr) + " "
 			"/p:Configuration=" + std::string(configurationStr) + " "
@@ -291,41 +324,29 @@ namespace Ludus::Editor::Build
 
 			return;
 		}
+
+		if (command == BuildCommand::Clean)
+		{
+			RemoveProjectScriptsBuildLayout(projectRoot);
+		}
 	}
 
 	void MSBuildScriptPipeline::EnsureScriptProject(
-		const Ludus::Engine::Core::ProjectContext& context,
+		const std::filesystem::path& projectRoot,
 		const ScriptBuildSettings& settings
 	)
 	{
-		EnsureBuildFiles(context);
-		SetScriptProjectCompilationSettings(context, settings);
+		EnsureBuildFiles(projectRoot);
+		SetScriptProjectCompilationSettings(projectRoot, settings);
 	}
 
 	void MSBuildScriptPipeline::CreateScript(
-		Ludus::Engine::Core::ProjectContext& context,
+		const std::filesystem::path& projectRoot,
 		std::string_view name
 	)
 	{
-		AddScript(name, context);
-		AddScriptsModuleReference(name, context);
-		AddScriptsProjectReference(name, context);
-
-		for (const auto& reference : context.Project.Scripts)
-		{
-			if (reference.Name == name)
-			{
-				context.AddOrUpdateScriptReference(reference.Handle, std::string(name));
-				return;
-			}
-		}
-
-		auto handle = m_Random.NextId();
-		while (context.HasScriptReference(handle))
-		{
-			handle = m_Random.NextId();
-		}
-
-		context.AddOrUpdateScriptReference(handle, std::string(name));
+		AddScript(name, projectRoot);
+		AddScriptsModuleReference(name, projectRoot);
+		AddScriptsProjectReference(name, projectRoot);
 	}
 }

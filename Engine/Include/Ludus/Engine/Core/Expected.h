@@ -3,6 +3,8 @@
 #include <type_traits>
 #include <utility>
 
+#include <Ludus/Engine/Debug/Debug.h>
+
 namespace Ludus::Engine::Core
 {
 	// Lightweight implmentation of the C++23 std::expected and std::unexpected class templates.

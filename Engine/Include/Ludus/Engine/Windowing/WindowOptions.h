@@ -18,8 +18,14 @@ namespace Ludus::Engine::Windowing
 
 		WindowOptions() = default;
 
-		WindowOptions(int startupWidth, int startupHeight, std::string title, bool isResizeable = true, std::string iconPath = "")
-			: StartupWidth(startupWidth),
+		WindowOptions(
+			int startupWidth,
+			int startupHeight,
+			std::string title,
+			bool isResizeable = true,
+			std::string iconPath = ""
+		) :
+			StartupWidth(startupWidth),
 			StartupHeight(startupHeight),
 			Title(std::move(title)),
 			IconPath(std::move(iconPath)),

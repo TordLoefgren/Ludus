@@ -1,30 +1,46 @@
 #include "pch.h"
 
 #include <memory>
-#include <variant>
+#include <utility>
 
-#include <Ludus/Editor/Commands/CommandContext.h>
 #include <Ludus/Editor/Commands/EditCommand.h>
+#include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 #include <Ludus/Editor/Commands/RequestCommand.h>
+#include <Ludus/Editor/Commands/StartupCommandContext.h>
 #include <Ludus/Editor/Commands/UICommand.h>
 #include <Ludus/Editor/Core/EditorSystem.h>
+#include <Ludus/Editor/Core/WelcomeWindow.h>
+#include <Ludus/Engine/Persistence/Paths.h>
+#include <Ludus/Engine/Runtime/IHostContext.h>
+#include <Ludus/Engine/Runtime/RuntimeInstanceBuilder.h>
 
 namespace Ludus::Editor::Core
 {
 	namespace
 	{
 		template<typename TCommand>
-		void DelegateCommands(
+		void DelegateProjectSessionCommands(
 			std::vector<TCommand>& stateCommands,
-			EditorContext& editorContext,
-			Ludus::Engine::Core::SystemContext& systemContext,
-			Ludus::Editor::Panels::PanelRegistry& panelRegistry
+			Ludus::Editor::Commands::ProjectSessionCommandContext context
 		)
 		{
 			std::vector<TCommand> commands;
 			commands.swap(stateCommands);
 
-			Ludus::Editor::Commands::CommandContext context { editorContext, systemContext, panelRegistry };
+			for (const auto& command : commands)
+			{
+				Ludus::Editor::Commands::Execute(command, context);
+			}
+		}
+
+		template<typename TCommand>
+		void DelegateStartupCommands(
+			std::vector<TCommand>& stateCommands,
+			Ludus::Editor::Commands::StartupCommandContext context
+		)
+		{
+			std::vector<TCommand> commands;
+			commands.swap(stateCommands);
 
 			for (const auto& command : commands)
 			{
@@ -33,58 +49,145 @@ namespace Ludus::Editor::Core
 		}
 	}
 
-	EditorSystem::EditorSystem(Ludus::Editor::Core::EditorConfiguration editorOptions)
-		: m_EditorContext(), m_EditorConfiguration(editorOptions), m_PanelRegistry()
+	EditorSystem::EditorSystem(
+		Ludus::Engine::Runtime::IHostContext& hostContext,
+		Ludus::Editor::Core::EditorConfiguration editorOptions
+	) :
+		m_EditorConfiguration(std::move(editorOptions)),
+		m_HostContext(hostContext),
+		m_ScenePersistence(),
+		m_RuntimeManifestPersistence(),
+		m_ProjectManifestPersistence(),
+		m_ProjectSessionLoader(
+			m_ScenePersistence,
+			m_RuntimeManifestPersistence,
+			m_ProjectManifestPersistence
+		),
+		m_Session(
+			m_HostContext,
+			m_Shell,
+			m_ProjectSessionLoader
+		),
+		m_PanelRegistry(),
+		m_WelcomeWindow()
 	{ }
+
+	Ludus::Editor::Commands::StartupCommandContext EditorSystem::CreateStartupCommandContext()
+	{
+		return {
+			.Shell = m_Shell,
+			.HostContext = m_HostContext,
+			.ScenePersistence = m_ScenePersistence,
+			.RuntimeManifestPersistence = m_RuntimeManifestPersistence,
+			.ProjectManifestPersistence = m_ProjectManifestPersistence,
+			.PanelRegistry = m_PanelRegistry
+		};
+	}
+
+	Ludus::Editor::Commands::ProjectSessionCommandContext EditorSystem::CreateProjectSessionCommandContext()
+	{
+		LUDUS_ASSERT(m_ProjectSession.has_value(), "Project session context requires an active project.");
+
+		return {
+			.Shell = m_Shell,
+			.ProjectSession = m_ProjectSession.value(),
+			.HostContext = m_HostContext,
+			.ScenePersistence = m_ScenePersistence,
+			.RuntimeManifestPersistence = m_RuntimeManifestPersistence,
+			.ProjectManifestPersistence = m_ProjectManifestPersistence,
+			.PanelRegistry = m_PanelRegistry
+		};
+	}
 
 	void EditorSystem::DelegateUICommands()
 	{
-		DelegateCommands<Ludus::Editor::Commands::UICommand>(
-			m_EditorContext.State.Commands.PendingCommands.UICommands,
-			m_EditorContext,
-			*m_SystemContext,
-			m_PanelRegistry
+		if (m_ProjectSession.has_value())
+		{
+			auto context = CreateProjectSessionCommandContext();
+
+			DelegateProjectSessionCommands<Ludus::Editor::Commands::UICommand>(
+				m_Shell.State.Commands.PendingCommands.UICommands,
+				context
+			);
+
+			return;
+		}
+
+		auto context = CreateStartupCommandContext();
+
+		DelegateStartupCommands<Ludus::Editor::Commands::UICommand>(
+			m_Shell.State.Commands.PendingCommands.UICommands,
+			context
 		);
 	}
 
 	void EditorSystem::DelegateEditCommands()
 	{
-		DelegateCommands<Ludus::Editor::Commands::EditCommand>(
-			m_EditorContext.State.Commands.PendingCommands.EditCommands,
-			m_EditorContext,
-			*m_SystemContext,
-			m_PanelRegistry
+		if (m_ProjectSession.has_value())
+		{
+			auto context = CreateProjectSessionCommandContext();
+
+			DelegateProjectSessionCommands<Ludus::Editor::Commands::EditCommand>(
+				m_Shell.State.Commands.PendingCommands.EditCommands,
+				context
+			);
+
+			return;
+		}
+
+		LUDUS_ASSERT(
+			m_Shell.State.Commands.PendingCommands.EditCommands.empty(),
+			"Edit commands cannot execute without an open project."
 		);
 	}
 
 	void EditorSystem::DelegateRequestCommands()
 	{
-		DelegateCommands<Ludus::Editor::Commands::RequestCommand>(
-			m_EditorContext.State.Commands.PendingCommands.RequestCommands,
-			m_EditorContext,
-			*m_SystemContext,
-			m_PanelRegistry
+		if (m_ProjectSession.has_value())
+		{
+			auto context = CreateProjectSessionCommandContext();
+
+			DelegateProjectSessionCommands<Ludus::Editor::Commands::RequestCommand>(
+				m_Shell.State.Commands.PendingCommands.RequestCommands,
+				context
+			);
+
+			return;
+		}
+
+		auto context = CreateStartupCommandContext();
+
+		DelegateStartupCommands<Ludus::Editor::Commands::RequestCommand>(
+			m_Shell.State.Commands.PendingCommands.RequestCommands,
+			context
 		);
 	}
 
-	void Ludus::Editor::Core::EditorSystem::OnAttachImpl()
+	void EditorSystem::FlushCommands()
 	{
-		for (const auto& factoryMethod : m_EditorConfiguration.PanelFactories)
+		DelegateUICommands();
+		DelegateEditCommands();
+		DelegateRequestCommands();
+	}
+
+	void EditorSystem::UpdateDialogs()
+	{
+		if (auto commands = m_Shell.State.Dialogs.Update())
 		{
-			m_PanelRegistry.Register(factoryMethod());
+			m_Shell.State.Commands.EnqueueCommands(std::move(commands.value()));
 		}
 	}
 
-	void Ludus::Editor::Core::EditorSystem::OnDetachImpl()
+	void EditorSystem::UpdatePanels()
 	{
-		m_PanelRegistry.Clear();
-	}
+		LUDUS_ASSERT(m_ProjectSession.has_value(), "Panel updates require an active project session.");
 
-	void Ludus::Editor::Core::EditorSystem::UpdateImpl(float deltaTime)
-	{
-		DelegateUICommands();
-
-		Ludus::Editor::Panels::PanelContext context { *m_SystemContext, m_EditorContext, m_ActivePanelState, deltaTime };
+		Ludus::Editor::Core::ProjectSessionContext context {
+			.Shell = m_Shell,
+			.ProjectSession = m_ProjectSession.value(),
+			.HostContext = m_HostContext,
+			.PanelRegistry = m_PanelRegistry
+		};
 
 		for (const auto& panel : m_PanelRegistry.View())
 		{
@@ -100,15 +203,66 @@ namespace Ludus::Editor::Core
 		}
 
 		m_PanelRegistry.ApplyRemovals();
+	}
 
-		if (auto commands = m_EditorContext.State.Dialogs.Update())
+	void Ludus::Editor::Core::EditorSystem::OnAttachImpl()
+	{
+		for (const auto& factoryMethod : m_EditorConfiguration.PanelFactories)
 		{
-			m_EditorContext.State.Commands.EnqueueCommands(std::move(commands.value()));
+			m_PanelRegistry.Register(factoryMethod());
+		}
+	}
+
+	void Ludus::Editor::Core::EditorSystem::OnDetachImpl()
+	{
+		m_PanelRegistry.Clear();
+	}
+
+	void EditorSystem::UpdateStartup()
+	{
+		if (auto commands = m_WelcomeWindow.Update())
+		{
+			m_Shell.State.Commands.EnqueueCommands(std::move(commands.value()));
 		}
 
-		DelegateEditCommands();
-		DelegateRequestCommands();
+		FlushCommands();
+		UpdateDialogs();
+		FlushCommands();
+	}
 
-		m_EditorContext.State.Commands.ClearEntityReferences();
+	void EditorSystem::UpdateProjectSession()
+	{
+		if (!m_ProjectSession.has_value())
+		{
+			throw std::runtime_error("No active project session available.");
+		}
+
+		// Resolve transition-based commands.
+		FlushCommands();
+
+		// Update panels and resolve commands.
+		UpdatePanels();
+		FlushCommands();
+
+		// Update dialogs and resolve commands.
+		UpdateDialogs();
+		FlushCommands();
+
+		m_Shell.State.Commands.ClearEntityReferences();
+	}
+
+	void Ludus::Editor::Core::EditorSystem::UpdateImpl(float deltaTime)
+	{
+		(void)deltaTime;
+
+		m_Session.ApplyTransitions(m_Shell.State.PendingProjectTransition, m_ProjectSession);
+
+		if (m_Shell.State.Mode == Ludus::Editor::Core::EditorMode::Startup)
+		{
+			UpdateStartup();
+			return;
+		}
+
+		UpdateProjectSession();
 	}
 }

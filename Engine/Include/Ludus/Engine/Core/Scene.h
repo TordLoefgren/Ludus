@@ -32,6 +32,58 @@ namespace Ludus::Engine::Core
 		Scene(Scene&&) noexcept = default;
 		Scene& operator=(Scene&&) noexcept = default;
 
+		static Scene Clone(const Scene& source)
+		{
+			auto clone = Scene(source.Handle, source.Name);
+
+			for (const auto& entity : source.EntityComponentSystem.View())
+			{
+				clone.EntityComponentSystem.RestoreEntity(entity.Handle);
+			}
+
+			for (const auto& component : source.EntityComponentSystem.Cameras.View())
+			{
+				clone.EntityComponentSystem.AttachCamera(component);
+			}
+
+			for (const auto& component : source.EntityComponentSystem.Colliders.View())
+			{
+				clone.EntityComponentSystem.AttachCollider(component);
+			}
+
+			for (const auto& component : source.EntityComponentSystem.DisplayNames.View())
+			{
+				clone.EntityComponentSystem.AttachDisplayName(component);
+			}
+
+			for (const auto& component : source.EntityComponentSystem.RigidBodies.View())
+			{
+				clone.EntityComponentSystem.AttachRigidBody(component);
+			}
+
+			for (const auto& component : source.EntityComponentSystem.Scripts.View())
+			{
+				clone.EntityComponentSystem.AttachScript(component);
+			}
+
+			for (const auto& component : source.EntityComponentSystem.Sprites.View())
+			{
+				clone.EntityComponentSystem.AttachSprite(component);
+			}
+
+			for (const auto& component : source.EntityComponentSystem.Texts.View())
+			{
+				clone.EntityComponentSystem.AttachText(component);
+			}
+
+			for (const auto& component : source.EntityComponentSystem.Transforms.View())
+			{
+				clone.EntityComponentSystem.AttachTransform(component);
+			}
+
+			return clone;
+		}
+
 		Ludus::Engine::Components::Camera2DComponent* TryGetPrimaryCameraComponent()
 		{
 			auto cameras = EntityComponentSystem.Cameras.ViewMutable();
@@ -60,16 +112,16 @@ namespace Ludus::Engine::Core
 				return nullptr;
 			}
 
-			auto* primaryCamera = &cameras.front();
+			auto* primaryCameraPtr = &cameras.front();
 			for (auto& camera : cameras)
 			{
-				if (camera.Priority > primaryCamera->Priority)
+				if (camera.Priority > primaryCameraPtr->Priority)
 				{
-					primaryCamera = &camera;
+					primaryCameraPtr = &camera;
 				}
 			}
 
-			return primaryCamera;
+			return primaryCameraPtr;
 		}
 
 		struct PrimaryCamera2D
@@ -80,19 +132,19 @@ namespace Ludus::Engine::Core
 
 		std::optional<PrimaryCamera2D> TryGetPrimaryCamera2D()
 		{
-			auto* cam = TryGetPrimaryCameraComponent();
-			if (!cam)
+			auto* cameraPtr = TryGetPrimaryCameraComponent();
+			if (!cameraPtr)
 			{
 				return std::nullopt;
 			}
 
-			auto* transformPtr = EntityComponentSystem.Transforms.TryGetByOwnerMutable(cam->OwnerHandle);
+			auto* transformPtr = EntityComponentSystem.Transforms.TryGetByOwnerMutable(cameraPtr->OwnerHandle);
 			if (!transformPtr)
 			{
 				return std::nullopt;
 			}
 
-			return PrimaryCamera2D { *cam, *transformPtr };
+			return PrimaryCamera2D { *cameraPtr, *transformPtr };
 		}
 	};
 }

@@ -1,14 +1,13 @@
 #pragma once
 
 #include <type_traits>
+#include <utility>
 #include <variant>
 
-#include <Ludus/Editor/Commands/CommandContext.h>
 #include <Ludus/Editor/Commands/EditCommand.h>
-#include <Ludus/Editor/Core/EditorContext.h>
+#include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 #include <Ludus/Engine/Core/EntityComponentSystem.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
-#include <Ludus/Engine/Core/SystemContext.h>
 #include <Ludus/Engine/Debug/Debug.h>
 
 namespace Ludus::Editor::Commands::Edit::Components
@@ -76,16 +75,16 @@ namespace Ludus::Editor::Commands::Edit::Components
 #pragma endregion
 
 	template<typename TComponent>
-	void AddComponent(const EditCommand::AddComponent<TComponent>& command, CommandContext& context)
+	void AddComponent(const EditCommand::AddComponent<TComponent>& command, ProjectSessionCommandContext& context)
 	{
-		auto* scene = context.SystemContext.SceneRegistry.TryGetScene(command.Scene);
+		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneHandle);
 		if (!scene)
 		{
 			return;
 		}
 
 		auto& registry = RegistryFor<TComponent>(scene->EntityComponentSystem);
-		const auto owner = context.EditorContext.State.Commands.ResolveEntity(command.Entity);
+		const auto owner = context.Shell.State.Commands.ResolveEntity(command.EntityReference);
 
 		std::visit([&](auto&& value)
 		{
@@ -102,39 +101,45 @@ namespace Ludus::Editor::Commands::Edit::Components
 				registry.Add(std::move(component));
 			}
 		}, command.Init);
+
+		context.ProjectSession.MarkSceneDirty();
 	}
 
 	template<typename TComponent>
-	void RemoveComponent(const EditCommand::RemoveComponent<TComponent>& command, CommandContext& context)
+	void RemoveComponent(const EditCommand::RemoveComponent<TComponent>& command, ProjectSessionCommandContext& context)
 	{
-		auto* scene = context.SystemContext.SceneRegistry.TryGetScene(command.Scene);
+		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneHandle);
 		if (!scene)
 		{
 			return;
 		}
 
 		auto& registry = RegistryFor<TComponent>(scene->EntityComponentSystem);
-		const auto owner = context.EditorContext.State.Commands.ResolveEntity(command.Entity);
+		const auto owner = context.Shell.State.Commands.ResolveEntity(command.EntityReference);
 
 		registry.RemoveByOwner(owner);
+
+		context.ProjectSession.MarkSceneDirty();
 	}
 
 	template<typename TComponent>
-	void UpdateComponent(const EditCommand::UpdateComponent<TComponent>& command, CommandContext& context)
+	void UpdateComponent(const EditCommand::UpdateComponent<TComponent>& command, ProjectSessionCommandContext& context)
 	{
-		auto* scene = context.SystemContext.SceneRegistry.TryGetScene(command.Scene);
+		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneHandle);
 		if (!scene)
 		{
 			return;
 		}
 
 		auto& registry = RegistryFor<TComponent>(scene->EntityComponentSystem);
-		const auto owner = context.EditorContext.State.Commands.ResolveEntity(command.Entity);
+		const auto owner = context.Shell.State.Commands.ResolveEntity(command.EntityReference);
 
 		auto after = command.After;
 		after.OwnerHandle = owner;
 
 		registry.RemoveByOwner(owner);
 		registry.Add(after);
+
+		context.ProjectSession.MarkSceneDirty();
 	}
 }

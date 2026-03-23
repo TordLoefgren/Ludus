@@ -1,7 +1,7 @@
 #pragma once
 
+#include <Ludus/Editor/Core/ProjectSessionContext.h>
 #include <Ludus/Editor/Panels/IPanel.h>
-#include <Ludus/Editor/Panels/PanelContext.h>
 #include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Random.h>
 #include <Ludus/Engine/Core/Scene.h>
@@ -13,13 +13,13 @@ namespace Ludus::Editor::Panels
 	private:
 		Ludus::Engine::Core::Random m_Random { };
 
-		void DrawSceneContextMenu(Ludus::Editor::Panels::PanelContext& context, Ludus::Engine::Core::Scene& scene);
-		void DrawEntityRow(Ludus::Editor::Panels::PanelContext& context, Ludus::Engine::Core::Scene& scene, Ludus::Engine::Core::EntityHandle entityHandle);
-		void DrawSceneRow(Ludus::Editor::Panels::PanelContext& context, Ludus::Engine::Core::Scene& scene);
+		void DrawSceneContextMenu(Ludus::Editor::Core::ProjectSessionContext& context, Ludus::Engine::Core::Scene& scene);
+		void DrawEntityRow(Ludus::Editor::Core::ProjectSessionContext& context, Ludus::Engine::Core::Scene& scene, Ludus::Engine::Core::EntityHandle entityHandle);
+		void DrawSceneRow(Ludus::Editor::Core::ProjectSessionContext& context, Ludus::Engine::Core::Scene& scene);
 
 	public:
-		virtual bool* GetOpenFlag(Ludus::Editor::Panels::PanelContext& context) override { return &context.ActivePanelState.ShowHierarchyPanel; }
+		virtual bool* GetOpenFlag(Ludus::Editor::Core::ProjectSessionContext& context) override { return &context.Shell.State.ActivePanelState.ShowHierarchyPanel; }
 
-		virtual bool UpdateImpl(Ludus::Editor::Panels::PanelContext& context) override;
+		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) override;
 	};
 }

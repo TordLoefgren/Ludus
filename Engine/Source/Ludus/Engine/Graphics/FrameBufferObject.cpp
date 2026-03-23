@@ -34,6 +34,45 @@ namespace Ludus::Engine::Graphics
 		}
 	}
 
+	FramebufferObject::FramebufferObject(FramebufferObject&& other) noexcept
+		: m_Handle(other.m_Handle),
+		m_ColorTextureHandle(other.m_ColorTextureHandle),
+		m_Width(other.m_Width),
+		m_Height(other.m_Height),
+		m_IsDefault(other.m_IsDefault)
+	{
+		other.m_Handle = 0;
+		other.m_ColorTextureHandle = 0;
+		other.m_Width = 0;
+		other.m_Height = 0;
+		other.m_IsDefault = false;
+	}
+
+	FramebufferObject& FramebufferObject::operator=(FramebufferObject&& other) noexcept
+	{
+		if (this != &other)
+		{
+			if (m_Handle)
+			{
+				glDeleteFramebuffers(1, &m_Handle);
+			}
+
+			m_Handle = other.m_Handle;
+			m_ColorTextureHandle = other.m_ColorTextureHandle;
+			m_Width = other.m_Width;
+			m_Height = other.m_Height;
+			m_IsDefault = other.m_IsDefault;
+
+			other.m_Handle = 0;
+			other.m_ColorTextureHandle = 0;
+			other.m_Width = 0;
+			other.m_Height = 0;
+			other.m_IsDefault = false;
+		}
+
+		return *this;
+	}
+
 	FramebufferObject FramebufferObject::Default(int width, int height)
 	{
 		FramebufferObject framebuffer;

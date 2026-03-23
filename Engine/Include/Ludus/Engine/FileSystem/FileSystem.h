@@ -28,6 +28,7 @@ namespace Ludus::Engine::FileSystem
 
 	std::vector<std::filesystem::path> GetFilePaths(const std::filesystem::path& path);
 	std::vector<std::string> GetFileNames(const std::filesystem::path& path);
+	std::string ToPortablePathString(const std::filesystem::path& path);
 
 	bool ArePathsEqual(const std::filesystem::path& left, const std::filesystem::path& right);
 

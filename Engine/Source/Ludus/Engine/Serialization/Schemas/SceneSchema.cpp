@@ -3,6 +3,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include <Ludus/Engine/Components/Camera2DComponent.h>
 #include <Ludus/Engine/Components/Collider2DComponent.h>
@@ -306,7 +307,7 @@ namespace Ludus::Engine::Serialization::Schemas
 							continue;
 						}
 
-						scene.EntityComponentSystem.AddEntityWithHandle(entityHandle);
+						scene.EntityComponentSystem.RestoreEntity(entityHandle);
 
 						if (stagedComponents.Camera.has_value())
 						{

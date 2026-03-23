@@ -4,12 +4,12 @@
 
 namespace Ludus::Editor::Commands
 {
-	struct CommandContext;
+	struct ProjectSessionCommandContext;
 }
 
 namespace Ludus::Editor::Commands::Edit::Selection
 {
-	void SelectEntity(const EditCommand::SelectEntity& command, CommandContext& context);
-	void DeselectEntity(const EditCommand::DeselectEntity& command, CommandContext& context);
-	void ClearSelection(const EditCommand::ClearSelection& command, CommandContext& context);
+	void SelectEntity(const EditCommand::SelectEntity& command, ProjectSessionCommandContext& context);
+	void DeselectEntity(const EditCommand::DeselectEntity& command, ProjectSessionCommandContext& context);
+	void ClearSelection(const EditCommand::ClearSelection& command, ProjectSessionCommandContext& context);
 }

@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <span>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include <Ludus/Engine/Core/Entity.h>
@@ -66,9 +67,9 @@ namespace Ludus::Engine::Core
 
 		bool RemoveByOwner(EntityHandle ownerHandle)
 		{
-			if (auto it = m_OwnerHandleToIndex.find(ownerHandle); it != m_OwnerHandleToIndex.end())
+			if (auto iter = m_OwnerHandleToIndex.find(ownerHandle); iter != m_OwnerHandleToIndex.end())
 			{
-				RemoveAndReorderIndices(it->second);
+				RemoveAndReorderIndices(iter->second);
 				return true;
 			}
 
@@ -81,9 +82,9 @@ namespace Ludus::Engine::Core
 
 		const T* TryGetByOwner(EntityHandle ownerHandle) const
 		{
-			if (auto handleIter = m_OwnerHandleToIndex.find(ownerHandle); handleIter != m_OwnerHandleToIndex.end())
+			if (auto iter = m_OwnerHandleToIndex.find(ownerHandle); iter != m_OwnerHandleToIndex.end())
 			{
-				return &m_Data[handleIter->second];
+				return &m_Data[iter->second];
 			}
 
 			return nullptr;
@@ -91,9 +92,9 @@ namespace Ludus::Engine::Core
 
 		T* TryGetByOwnerMutable(EntityHandle ownerHandle)
 		{
-			if (auto handleIter = m_OwnerHandleToIndex.find(ownerHandle); handleIter != m_OwnerHandleToIndex.end())
+			if (auto iter = m_OwnerHandleToIndex.find(ownerHandle); iter != m_OwnerHandleToIndex.end())
 			{
-				return &m_Data[handleIter->second];
+				return &m_Data[iter->second];
 			}
 
 			return nullptr;

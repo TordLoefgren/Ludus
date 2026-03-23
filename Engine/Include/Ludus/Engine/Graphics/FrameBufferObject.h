@@ -18,6 +18,13 @@ namespace Ludus::Engine::Graphics
 		FramebufferObject(unsigned int textureHandle, int width, int height);
 		~FramebufferObject();
 
+		FramebufferObject(const FramebufferObject&) = delete;
+		FramebufferObject& operator=(const FramebufferObject&) = delete;
+
+		// Transfers ownership of the GL framebuffer handle without copying it.
+		FramebufferObject(FramebufferObject&& other) noexcept;
+		FramebufferObject& operator=(FramebufferObject&& other) noexcept;
+
 		static FramebufferObject Default(int width, int height);
 
 		void Bind() const;
@@ -29,5 +36,6 @@ namespace Ludus::Engine::Graphics
 		int GetHeight() { return m_Height; }
 
 		Ludus::Engine::Math::Size<int> GetSize() { return { m_Width, m_Height }; }
+		const Ludus::Engine::Math::Size<int> GetSize() const { return { m_Width, m_Height }; }
 	};
 }

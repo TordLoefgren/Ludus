@@ -6,6 +6,6 @@ namespace Ludus::Engine::Graphics
 {
 	struct RenderingOptions
 	{
-		Color ClearColor = Colors::White;
+		Color ClearColor = Colors::DarkGray;
 	};
 }

@@ -112,7 +112,10 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Ludus\EditorTests\Persistence\LmlProjectManifestPersistenceTests.cpp" />
+    <ClCompile Include="Ludus\EditorTests\Persistence\PathsTests.cpp" />
     <ClCompile Include="Ludus\EditorTests\SmokeTests.cpp" />
+    <ClCompile Include="Ludus\EditorTests\Serialization\Schemas\ProjectManifestSchemaTests.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -121,8 +124,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Engine\Engine.vcxproj">
-      <Project>{e5222f19-54e2-431b-b8a5-67dc31e554e1}</Project>
+    <ProjectReference Include="..\Editor\Editor.vcxproj">
+      <Project>{32938f13-7b2f-491c-aaeb-5b6f61a2769b}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

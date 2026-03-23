@@ -31,7 +31,7 @@ namespace Ludus::Engine::Graphics
 				return;
 			}
 
-			const auto* scene = context.SystemContext->SceneRegistry.TryGetScene(context.RenderView.SceneHandle.value());
+			const auto* scene = context.SceneRegistry.TryGetScene(context.RenderView.SceneHandle.value());
 			if (!scene)
 			{
 				return;

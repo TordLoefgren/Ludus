@@ -19,7 +19,7 @@ namespace Ludus::Engine::Core::Build
 			case Configuration::Release:
 				return "Release";
 			default:
-				return "Debug";
+				return "Unknown";
 		}
 	}
 }

@@ -2,18 +2,16 @@
 
 #include <type_traits>
 
-#include <Ludus/Editor/Commands/CommandContext.h>
 #include <Ludus/Editor/Commands/Edit/Entities.h>
-#include <Ludus/Editor/Core/EditorContext.h>
+#include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
-#include <Ludus/Engine/Core/SystemContext.h>
 #include <Ludus/Engine/Debug/Debug.h>
 
 namespace Ludus::Editor::Commands::Edit::Entities
 {
-	void AddEntity(const EditCommand::AddEntity& command, CommandContext& context)
+	void AddEntity(const EditCommand::AddEntity& command, ProjectSessionCommandContext& context)
 	{
-		auto* scene = context.SystemContext.SceneRegistry.TryGetScene(command.Scene);
+		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneHandle);
 		if (!scene)
 		{
 			return;
@@ -30,20 +28,24 @@ namespace Ludus::Editor::Commands::Edit::Entities
 			}
 			else
 			{
-				context.EditorContext.State.Commands.BindEntityReference(value.Temp, handle);
+				context.Shell.State.Commands.BindEntityReference(value.Temp, handle);
 			}
-		}, command.Entity.Value);
+		}, command.EntityReference.Value);
+
+		context.ProjectSession.MarkSceneDirty();
 	}
 
-	void RemoveEntity(const EditCommand::RemoveEntity& command, CommandContext& context)
+	void RemoveEntity(const EditCommand::RemoveEntity& command, ProjectSessionCommandContext& context)
 	{
-		auto* scene = context.SystemContext.SceneRegistry.TryGetScene(command.Scene);
+		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneHandle);
 		if (!scene)
 		{
 			return;
 		}
 
-		const auto handle = context.EditorContext.State.Commands.ResolveEntity(command.Entity);
+		const auto handle = context.Shell.State.Commands.ResolveEntity(command.EntityReference);
 		scene->EntityComponentSystem.DestroyEntity(handle);
+
+		context.ProjectSession.MarkSceneDirty();
 	}
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <utility>
 
 #include <Ludus/Engine/Core/Entity.h>
 
@@ -9,7 +10,7 @@ namespace Ludus::Engine::Components
 	struct DisplayNameComponent
 	{
 	public:
-		Ludus::Engine::Core::EntityHandle OwnerHandle {};
+		Ludus::Engine::Core::EntityHandle OwnerHandle { };
 		std::string Value = "";
 
 		DisplayNameComponent() = default;

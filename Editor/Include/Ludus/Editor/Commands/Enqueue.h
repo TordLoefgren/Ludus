@@ -3,46 +3,46 @@
 #include <type_traits>
 #include <utility>
 
+#include <Ludus/Editor/Commands/CommandManager.h>
 #include <Ludus/Editor/Commands/EditCommand.h>
 #include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/UICommand.h>
-#include <Ludus/Editor/Core/EditorContext.h>
 
 namespace Ludus::Editor::Commands
 {
-	inline void EnqueueEdit(Ludus::Editor::Core::EditorContext& editorContext, EditCommand command)
+	inline void EnqueueEdit(CommandManager& commands, EditCommand command)
 	{
-		editorContext.State.Commands.AddEditCommand(std::move(command));
+		commands.AddEditCommand(std::move(command));
 	}
 
 	template<typename TCommand>
 		requires (!std::is_same_v<std::remove_cvref_t<TCommand>, EditCommand>)
-	inline void EnqueueEdit(Ludus::Editor::Core::EditorContext& editorContext, TCommand&& command)
+	inline void EnqueueEdit(CommandManager& commands, TCommand&& command)
 	{
-		EnqueueEdit(editorContext, EditCommand { std::forward<TCommand>(command) });
+		EnqueueEdit(commands, EditCommand { std::forward<TCommand>(command) });
 	}
 
-	inline void EnqueueRequest(Ludus::Editor::Core::EditorContext& editorContext, RequestCommand command)
+	inline void EnqueueRequest(CommandManager& commands, RequestCommand command)
 	{
-		editorContext.State.Commands.AddRequestCommand(std::move(command));
+		commands.AddRequestCommand(std::move(command));
 	}
 
 	template<typename TCommand>
 		requires (!std::is_same_v<std::remove_cvref_t<TCommand>, RequestCommand>)
-	inline void EnqueueRequest(Ludus::Editor::Core::EditorContext& editorContext, TCommand&& command)
+	inline void EnqueueRequest(CommandManager& commands, TCommand&& command)
 	{
-		EnqueueRequest(editorContext, RequestCommand { std::forward<TCommand>(command) });
+		EnqueueRequest(commands, RequestCommand { std::forward<TCommand>(command) });
 	}
 
-	inline void EnqueueUI(Ludus::Editor::Core::EditorContext& editorContext, UICommand command)
+	inline void EnqueueUI(CommandManager& commands, UICommand command)
 	{
-		editorContext.State.Commands.AddUICommand(std::move(command));
+		commands.AddUICommand(std::move(command));
 	}
 
 	template<typename TCommand>
 		requires (!std::is_same_v<std::remove_cvref_t<TCommand>, UICommand>)
-	inline void EnqueueUI(Ludus::Editor::Core::EditorContext& editorContext, TCommand&& command)
+	inline void EnqueueUI(CommandManager& commands, TCommand&& command)
 	{
-		EnqueueUI(editorContext, UICommand { std::forward<TCommand>(command) });
+		EnqueueUI(commands, UICommand { std::forward<TCommand>(command) });
 	}
 }
