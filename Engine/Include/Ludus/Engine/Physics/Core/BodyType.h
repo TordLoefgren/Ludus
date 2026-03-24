@@ -2,6 +2,7 @@
 
 #include <array>
 #include <format>
+#include <stdexcept>
 #include <string_view>
 
 #include <Ludus/Engine/Core/Enums.h>
@@ -37,7 +38,7 @@ namespace Ludus::Engine::Physics::Core
 			case BodyType::Dynamic:		return "Dynamic";
 			case BodyType::Kinematic:	return "Kinematic";
 			case BodyType::Static:		return "Static";
-			default:					return "Unknown";
+			default:					throw std::runtime_error("Unexpected enum.");
 		}
 	}
 

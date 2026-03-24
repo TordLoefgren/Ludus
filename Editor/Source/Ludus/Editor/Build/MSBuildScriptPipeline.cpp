@@ -4,10 +4,10 @@
 #include <stdexcept>
 #include <string>
 
+#include <Ludus/Editor/Build/BuildConfiguration.h>
+#include <Ludus/Editor/Build/BuildPlatform.h>
 #include <Ludus/Editor/Build/MSBuildScriptPipeline.h>
 #include <Ludus/Editor/Persistence/Paths.h>
-#include <Ludus/Engine/Core/Build/Configuration.h>
-#include <Ludus/Engine/Core/Build/Platform.h>
 #include <Ludus/Engine/Core/Enums.h>
 #include <Ludus/Engine/Core/Strings.h>
 #include <Ludus/Engine/FileSystem/FileSystem.h>
@@ -277,7 +277,7 @@ namespace Ludus::Editor::Build
 
 	void MSBuildScriptPipeline::RunBuild(
 		const std::filesystem::path& projectRoot,
-		Ludus::Engine::Core::Build::Configuration configuration,
+		BuildConfiguration configuration,
 		BuildCommand command
 	)
 	{
@@ -294,7 +294,7 @@ namespace Ludus::Editor::Build
 		const auto projectPath = Ludus::Editor::Persistence::Paths::ScriptsProjectFile(projectRoot);
 
 		const auto configurationStr = Ludus::Engine::Core::Enums::GetDisplayName(configuration);
-		const auto platformStr = Ludus::Engine::Core::Enums::GetDisplayName(Ludus::Engine::Core::Build::Platform::WindowsX64);
+		const auto platformStr = Ludus::Engine::Core::Enums::GetDisplayName(BuildPlatform::WindowsX64);
 		const auto commandStr = command == BuildCommand::Build
 			? Constants::BuildCommand
 			: command == BuildCommand::Rebuild ? Constants::RebuildCommand : Constants::CleanCommand;

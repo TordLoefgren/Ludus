@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <stdexcept>
 #include <string_view>
 
 #include <Ludus/Engine/Core/Enums.h>
@@ -19,7 +20,7 @@ namespace Ludus::Editor::Core
 		{
 			case ViewportDisplayMode::Editor:		return "Editor";
 			case ViewportDisplayMode::Simulation:	return "Simulation";
-			default:								return "Unknown";
+			default:								throw std::runtime_error("Unexpected enum.");
 		}
 	}
 }

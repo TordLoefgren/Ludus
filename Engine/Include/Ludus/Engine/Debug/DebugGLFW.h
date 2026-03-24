@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdexcept>
 #include <string>
 
 #include <GLFW/glfw3.h>
@@ -11,7 +12,7 @@ namespace Ludus::Engine::Debug::DebugGLFW
 
 #if !defined(NDEBUG)
 
-	inline constexpr const char* GLFWErrorCode(int code) noexcept
+	inline constexpr const char* GLFWErrorCode(int code)
 	{
 		switch (code)
 		{
@@ -25,7 +26,7 @@ namespace Ludus::Engine::Debug::DebugGLFW
 			case GLFW_PLATFORM_ERROR:       return "PLATFORM_ERROR";
 			case GLFW_FORMAT_UNAVAILABLE:   return "FORMAT_UNAVAILABLE";
 			case GLFW_NO_WINDOW_CONTEXT:    return "NO_WINDOW_CONTEXT";
-			default:                        return "UNKNOWN";
+			default:                        throw std::runtime_error("Unexpected enum.");
 		}
 	}
 

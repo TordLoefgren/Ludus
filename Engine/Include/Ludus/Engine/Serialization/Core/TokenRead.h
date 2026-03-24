@@ -45,7 +45,7 @@ namespace Ludus::Engine::Serialization::Core
 		if constexpr (std::is_same_v<T, Token::Uint>) return "Uint";
 		if constexpr (std::is_same_v<T, Token::Double>) return "Double";
 		if constexpr (std::is_same_v<T, Token::String>) return "String";
-		return "Unknown";
+		throw std::runtime_error("Unexpected enum.");
 	}
 
 	inline SerializationException WithContext(const SerializationException& ex, std::string_view context)

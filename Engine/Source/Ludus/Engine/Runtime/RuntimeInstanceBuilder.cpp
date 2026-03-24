@@ -230,8 +230,8 @@ namespace Ludus::Engine::Runtime
 
 				auto scriptingSystem = std::make_unique<Ludus::Engine::Scripting::ScriptSystem>(
 					runtime.GetHostContext(),
-					runtime.GetRuntimeEnvironment(),
-					runtime.GetSceneRegistry()
+					runtime.GetSceneRegistry(),
+					runtime.GetRuntimeEnvironment().ScriptModulePath
 				);
 
 				runtime.AddSystem(

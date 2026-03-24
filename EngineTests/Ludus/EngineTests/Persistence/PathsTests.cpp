@@ -2,9 +2,6 @@
 
 #include <filesystem>
 
-#include <Ludus/Engine/Core/Build/Configuration.h>
-#include <Ludus/Engine/Core/Build/OperatingSystem.h>
-#include <Ludus/Engine/Core/Build/Platform.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 
 namespace Ludus::EngineTests::Persistence
@@ -71,36 +68,27 @@ namespace Ludus::EngineTests::Persistence
 		ASSERT_EQ(path, runtimeRootDirectory / "Scenes" / "MainMenu.ludus.scene");
 	}
 
+	TEST(Paths, ScriptsDirectory_Should_ReturnScriptsPath)
+	{
+		// Arrange.
+		const auto runtimeRootDirectory = std::filesystem::path("C:/Projects/Sandbox");
+
+		// Act.
+		const auto path = Ludus::Engine::Persistence::Paths::ScriptsDirectory(runtimeRootDirectory);
+
+		// Assert.
+		ASSERT_EQ(path, runtimeRootDirectory / "Scripts");
+	}
+
 	TEST(Paths, ScriptsDllFile_Should_ReturnScriptsDllPath)
 	{
 		// Arrange.
 		const auto runtimeRootDirectory = std::filesystem::path("C:/Projects/Sandbox");
 
 		// Act.
-		const auto path = Ludus::Engine::Persistence::Paths::ScriptsDllFile(
-			runtimeRootDirectory,
-			Ludus::Engine::Core::Build::Platform::WindowsX64,
-			Ludus::Engine::Core::Build::Configuration::Debug
-		);
+		const auto path = Ludus::Engine::Persistence::Paths::ScriptsDllFile(runtimeRootDirectory);
 
 		// Assert.
-		ASSERT_EQ(path, runtimeRootDirectory / "Bin" / "Scripts" / "x64" / "Debug" / "Scripts.dll");
-	}
-
-	TEST(Paths, BuildOutputDirectory_Should_ReturnBuildOutputPath)
-	{
-		// Arrange.
-		const auto runtimeRootDirectory = std::filesystem::path("C:/Projects/Sandbox");
-
-		// Act.
-		const auto path = Ludus::Engine::Persistence::Paths::BuildOutputDirectory(
-			runtimeRootDirectory,
-			Ludus::Engine::Core::Build::OperatingSystem::Windows,
-			Ludus::Engine::Core::Build::Platform::WindowsX64,
-			Ludus::Engine::Core::Build::Configuration::Release
-		);
-
-		// Assert.
-		ASSERT_EQ(path, runtimeRootDirectory / "Builds" / "Windows" / "x64" / "Release");
+		ASSERT_EQ(path, runtimeRootDirectory / "Scripts" / "Scripts.dll");
 	}
 }

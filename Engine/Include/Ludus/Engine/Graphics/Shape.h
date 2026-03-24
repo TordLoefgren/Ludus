@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <stdexcept>
 #include <string_view>
 
 #include <Ludus/Engine/Core/Enums.h>
@@ -15,7 +16,7 @@ namespace Ludus::Engine::Graphics
 		{
 			case Shape::Circle:	return "Circle";
 			case Shape::Quad:	return "Quad";
-			default:			return "Unknown";
+			default:			throw std::runtime_error("Unexpected enum.");
 		}
 	}
 

@@ -47,7 +47,7 @@ namespace Ludus::Editor::Build
 				Ludus::Editor::Persistence::Paths::EngineScriptingApiScriptsIncludeDir(),
 				Ludus::Editor::Persistence::Paths::ScriptsBinDirectory(projectRoot),
 				Ludus::Editor::Persistence::Paths::ScriptsObjDirectory(projectRoot),
-				std::string(Ludus::Editor::Persistence::Paths::Constants::ScriptTargetName)
+				std::string(Ludus::Editor::Persistence::Paths::Constants::ScriptsTarget)
 			};
 		}
 
@@ -56,7 +56,7 @@ namespace Ludus::Editor::Build
 
 	void BuildManager::RunScriptBuildCommand(
 		const std::filesystem::path& projectRoot,
-		Ludus::Engine::Core::Build::Configuration configuration,
+		BuildConfiguration configuration,
 		BuildCommand command
 	)
 	{
@@ -72,7 +72,7 @@ namespace Ludus::Editor::Build
 
 	void BuildManager::Build(
 		const std::filesystem::path& projectRoot,
-		Ludus::Engine::Core::Build::Configuration configuration,
+		BuildConfiguration configuration,
 		BuildTarget target
 	)
 	{
@@ -88,7 +88,7 @@ namespace Ludus::Editor::Build
 
 	void BuildManager::Clean(
 		const std::filesystem::path& projectRoot,
-		Ludus::Engine::Core::Build::Configuration configuration,
+		BuildConfiguration configuration,
 		BuildTarget target
 	)
 	{
@@ -104,7 +104,7 @@ namespace Ludus::Editor::Build
 
 	void BuildManager::Rebuild(
 		const std::filesystem::path& projectRoot,
-		Ludus::Engine::Core::Build::Configuration configuration,
+		BuildConfiguration configuration,
 		BuildTarget target
 	)
 	{
