@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdexcept>
 #include <string_view>
 
 namespace Ludus::Engine::Events
@@ -42,7 +43,7 @@ namespace Ludus::Engine::Events
 			case EventType::WindowPositionEvent:		return "WindowPositionEvent";
 			case EventType::WindowRefreshEvent:			return "WindowRefreshEvent";
 			case EventType::WindowSizeEvent:			return "WindowSizeEvent";
-			default:									return "Unknown";
+			default:									throw std::runtime_error("Unexpected enum.");
 		}
 	}
 }

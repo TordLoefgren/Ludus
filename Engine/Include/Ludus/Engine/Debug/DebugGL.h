@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdexcept>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -12,7 +13,7 @@ namespace Ludus::Engine::Debug
 
 #if !defined(NDEBUG)
 
-	inline constexpr const char* GLSourceName(GLenum source) noexcept
+	inline constexpr const char* GLSourceName(GLenum source)
 	{
 		switch (source)
 		{
@@ -22,11 +23,11 @@ namespace Ludus::Engine::Debug
 			case GL_DEBUG_SOURCE_THIRD_PARTY:     return "3RD";
 			case GL_DEBUG_SOURCE_APPLICATION:     return "APP";
 			case GL_DEBUG_SOURCE_OTHER:           return "OTHER";
-			default:                              return "UNKNOWN";
+			default:                              throw std::runtime_error("Unexpected enum.");
 		}
 	}
 
-	inline constexpr const char* GLTypeName(GLenum type) noexcept
+	inline constexpr const char* GLTypeName(GLenum type)
 	{
 		switch (type)
 		{
@@ -39,7 +40,7 @@ namespace Ludus::Engine::Debug
 			case GL_DEBUG_TYPE_PUSH_GROUP:          return "PUSH";
 			case GL_DEBUG_TYPE_POP_GROUP:           return "POP";
 			case GL_DEBUG_TYPE_OTHER:               return "OTHER";
-			default:                                return "UNKNOWN";
+			default:                                throw std::runtime_error("Unexpected enum.");
 		}
 	}
 

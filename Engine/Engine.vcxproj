@@ -33,9 +33,6 @@
     <ClInclude Include="Include\Ludus\Engine\Runtime\RuntimeManifest.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\RuntimeEnvironment.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\RuntimeOptions.h" />
-    <ClInclude Include="Include\Ludus\Engine\Core\Build\Configuration.h" />
-    <ClInclude Include="Include\Ludus\Engine\Core\Build\OperatingSystem.h" />
-    <ClInclude Include="Include\Ludus\Engine\Core\Build\Platform.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\ExecutionFlags.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Expected.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\FlagSet.h" />

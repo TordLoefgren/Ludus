@@ -4,10 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-#include <Ludus/Engine/Core/Build/Configuration.h>
-#include <Ludus/Engine/Core/Build/Platform.h>
 #include <Ludus/Engine/Debug/Debug.h>
-#include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Platform/SharedLibrary.h>
 #include <Ludus/Engine/Scripting/API/Registry.h>
 #include <Ludus/Engine/Scripting/API/Types.h>
@@ -54,29 +51,26 @@ namespace Ludus::Engine::Scripting
 		}
 
 		bool LoadScriptModule(
-			const std::filesystem::path& path,
-			Ludus::Engine::Core::Build::Platform platform,
-			Ludus::Engine::Core::Build::Configuration configuration
+			const std::filesystem::path& scriptModulePath
 		)
 		{
-			if (!std::filesystem::exists(path))
+			if (!std::filesystem::exists(scriptModulePath))
 			{
-				LUDUS_LOG_ERROR("Path not found: " + path.string());
+				LUDUS_LOG_ERROR("Script module path not found: " + scriptModulePath.string());
 				return false;
 			}
 
-			const auto dllPath = Ludus::Engine::Persistence::Paths::ScriptsDllFile(path, platform, configuration);
-			m_Handle = Ludus::Engine::Platform::LoadSharedLibrary(dllPath);
+			m_Handle = Ludus::Engine::Platform::LoadSharedLibrary(scriptModulePath);
 			if (!m_Handle.NativeHandle)
 			{
-				LUDUS_LOG_ERROR("Failed to load script DLL: " + dllPath.string());
+				LUDUS_LOG_ERROR("Failed to load script DLL: " + scriptModulePath.string());
 				return false;
 			}
 
 			auto* symbol = Ludus::Engine::Platform::GetSharedLibrarySymbol(m_Handle, API::RegisterSymbolName);
 			if (!symbol)
 			{
-				LUDUS_LOG_ERROR("RegisterScripts symbol not found in: " + dllPath.string());
+				LUDUS_LOG_ERROR("RegisterScripts symbol not found in: " + scriptModulePath.string());
 
 				Ludus::Engine::Platform::UnloadSharedLibrary(m_Handle);
 				m_Handle = { };
@@ -87,7 +81,7 @@ namespace Ludus::Engine::Scripting
 			const auto registerScriptsFn = reinterpret_cast<RegisterScriptsFn>(symbol);
 			if (!registerScriptsFn)
 			{
-				LUDUS_LOG_ERROR("RegisterScripts symbol not found in: " + dllPath.string());
+				LUDUS_LOG_ERROR("RegisterScripts symbol not found in: " + scriptModulePath.string());
 
 				Ludus::Engine::Platform::UnloadSharedLibrary(m_Handle);
 				m_Handle = { };

@@ -11,7 +11,6 @@
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Runtime/IHostContext.h>
 #include <Ludus/Engine/Runtime/ISystem.h>
-#include <Ludus/Engine/Runtime/RuntimeEnvironment.h>
 #include <Ludus/Engine/Scripting/API/Types.h>
 #include <Ludus/Engine/Scripting/ScriptInstanceState.h>
 #include <Ludus/Engine/Scripting/ScriptRepository.h>
@@ -21,14 +20,13 @@ namespace Ludus::Engine::Scripting
 	class ScriptSystem final : public Ludus::Engine::Runtime::ISystem
 	{
 	private:
-		ScriptRepository m_ScriptRepository;
-		std::vector<ScriptInstanceState> m_InstanceStates;
-		Ludus::Engine::Runtime::IHostContext& m_HostContext;
-		const Ludus::Engine::Runtime::RuntimeEnvironment& m_RuntimeEnvironment;
-		Ludus::Engine::Core::SceneRegistry& m_SceneRegistry;
-
 		uint64_t m_FrameCounter = 0;
+		Ludus::Engine::Runtime::IHostContext& m_HostContext;
+		std::vector<ScriptInstanceState> m_InstanceStates;
 		bool m_IsModuleLoaded = false;
+		std::filesystem::path m_ScriptModulePath;
+		ScriptRepository m_ScriptRepository;
+		Ludus::Engine::Core::SceneRegistry& m_SceneRegistry;
 
 		void DestroyInstance(const ScriptInstanceState& state)
 		{
@@ -57,11 +55,7 @@ namespace Ludus::Engine::Scripting
 				return false;
 			}
 
-			m_IsModuleLoaded = m_ScriptRepository.LoadScriptModule(
-				m_RuntimeEnvironment.RuntimeRootDirectory,
-				m_RuntimeEnvironment.ScriptModulePlatform,
-				m_RuntimeEnvironment.ScriptModuleConfiguration
-			);
+			m_IsModuleLoaded = m_ScriptRepository.LoadScriptModule(m_ScriptModulePath);
 
 			// The module might already have been loaded, in which case we return whether the module was loaded this frame.
 			return m_IsModuleLoaded;
@@ -102,12 +96,12 @@ namespace Ludus::Engine::Scripting
 	public:
 		ScriptSystem(
 			Ludus::Engine::Runtime::IHostContext& hostContext,
-			const Ludus::Engine::Runtime::RuntimeEnvironment& environment,
-			Ludus::Engine::Core::SceneRegistry& sceneRegistry
+			Ludus::Engine::Core::SceneRegistry& sceneRegistry,
+			const std::filesystem::path& scriptModulePath
 		) :
 			m_HostContext(hostContext),
-			m_RuntimeEnvironment(environment),
-			m_SceneRegistry(sceneRegistry)
+			m_SceneRegistry(sceneRegistry),
+			m_ScriptModulePath(scriptModulePath)
 		{ }
 
 		~ScriptSystem() = default;

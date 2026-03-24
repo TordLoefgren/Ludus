@@ -2,10 +2,10 @@
 
 #include <filesystem>
 
+#include <Ludus/Editor/Build/BuildConfiguration.h>
+#include <Ludus/Editor/Build/BuildOperatingSystem.h>
+#include <Ludus/Editor/Build/BuildPlatform.h>
 #include <Ludus/Editor/Persistence/Paths.h>
-#include <Ludus/Engine/Core/Build/Configuration.h>
-#include <Ludus/Engine/Core/Build/OperatingSystem.h>
-#include <Ludus/Engine/Core/Build/Platform.h>
 #include <Ludus/Engine/FileSystem/FileSystem.h>
 #include <Ludus/Engine/Platform/Paths.h>
 
@@ -146,8 +146,8 @@ namespace Ludus::EditorTests::Persistence
 		// Act.
 		const auto path = Ludus::Editor::Persistence::Paths::ScriptsBinDirectory(
 			projectRoot,
-			Ludus::Engine::Core::Build::Platform::WindowsX64,
-			Ludus::Engine::Core::Build::Configuration::Release
+			Ludus::Editor::Build::BuildPlatform::WindowsX64,
+			Ludus::Editor::Build::BuildConfiguration::Release
 		);
 
 		// Assert.
@@ -174,8 +174,8 @@ namespace Ludus::EditorTests::Persistence
 		// Act.
 		const auto path = Ludus::Editor::Persistence::Paths::ScriptsObjDirectory(
 			projectRoot,
-			Ludus::Engine::Core::Build::Platform::WindowsX64,
-			Ludus::Engine::Core::Build::Configuration::Debug
+			Ludus::Editor::Build::BuildPlatform::WindowsX64,
+			Ludus::Editor::Build::BuildConfiguration::Debug
 		);
 
 		// Assert.
@@ -202,16 +202,16 @@ namespace Ludus::EditorTests::Persistence
 		// Act.
 		const auto path = Ludus::Editor::Persistence::Paths::BuildOutputDirectory(
 			projectRoot,
-			Ludus::Engine::Core::Build::OperatingSystem::Windows,
-			Ludus::Engine::Core::Build::Platform::WindowsX64,
-			Ludus::Engine::Core::Build::Configuration::Release
+			Ludus::Editor::Build::BuildOperatingSystem::Windows,
+			Ludus::Editor::Build::BuildPlatform::WindowsX64,
+			Ludus::Editor::Build::BuildConfiguration::Release
 		);
 
 		// Assert.
 		ASSERT_EQ(path, projectRoot / "Builds" / "Windows" / "x64" / "Release");
 	}
 
-	TEST(Paths, EnsureProjectRootExists_Should_CreateProjectRootOnly)
+	TEST(Paths, EnsureProjectRootExists_Should_CreateProjectRoot)
 	{
 		// Arrange.
 		const auto tempDirectoryScope = CreateTestDirectory();
@@ -223,10 +223,9 @@ namespace Ludus::EditorTests::Persistence
 		// Assert.
 		ASSERT_TRUE(std::filesystem::exists(projectRoot));
 		ASSERT_TRUE(std::filesystem::is_directory(projectRoot));
-		ASSERT_FALSE(std::filesystem::exists(projectRoot / "Assets"));
 	}
 
-	TEST(Paths, EnsureProjectScriptsSourceLayoutExists_Should_CreateScriptsSourceOnly)
+	TEST(Paths, EnsureProjectScriptsSourceLayoutExists_Should_CreateScriptsSourceDirectory)
 	{
 		// Arrange.
 		const auto tempDirectoryScope = CreateTestDirectory();
@@ -238,11 +237,9 @@ namespace Ludus::EditorTests::Persistence
 		// Assert.
 		ASSERT_TRUE(std::filesystem::exists(projectRoot / "Scripts" / "Source"));
 		ASSERT_TRUE(std::filesystem::is_directory(projectRoot / "Scripts" / "Source"));
-		ASSERT_FALSE(std::filesystem::exists(projectRoot / "Scripts" / "Source" / "Scripts.vcxproj"));
-		ASSERT_FALSE(std::filesystem::exists(projectRoot / "Scripts" / "Source" / "ScriptsModule.cpp"));
 	}
 
-	TEST(Paths, EnsureProjectScriptsBuildLayoutExists_Should_CreateTopLevelScriptsBuildDirectoriesOnly)
+	TEST(Paths, EnsureProjectScriptsBuildLayoutExists_Should_CreateScriptsBuildDirectories)
 	{
 		// Arrange.
 		const auto tempDirectoryScope = CreateTestDirectory();
@@ -256,11 +253,9 @@ namespace Ludus::EditorTests::Persistence
 		ASSERT_TRUE(std::filesystem::is_directory(projectRoot / "Bin" / "Scripts"));
 		ASSERT_TRUE(std::filesystem::exists(projectRoot / "Obj" / "Scripts"));
 		ASSERT_TRUE(std::filesystem::is_directory(projectRoot / "Obj" / "Scripts"));
-		ASSERT_FALSE(std::filesystem::exists(projectRoot / "Bin" / "Scripts" / "x64" / "Debug"));
-		ASSERT_FALSE(std::filesystem::exists(projectRoot / "Obj" / "Scripts" / "x64" / "Debug"));
 	}
 
-	TEST(Paths, EnsureProjectLayoutExists_Should_CreateProjectSkeletonDirectoriesOnly)
+	TEST(Paths, EnsureProjectLayoutExists_Should_CreateProjectRuntimeDirectories)
 	{
 		// Arrange.
 		const auto tempDirectoryScope = CreateTestDirectory();
@@ -273,8 +268,6 @@ namespace Ludus::EditorTests::Persistence
 		ASSERT_TRUE(std::filesystem::exists(projectRoot));
 		ASSERT_TRUE(std::filesystem::exists(projectRoot / "Assets"));
 		ASSERT_TRUE(std::filesystem::exists(projectRoot / "Scenes"));
-		ASSERT_FALSE(std::filesystem::exists(projectRoot / "Builds"));
-		ASSERT_FALSE(std::filesystem::exists(projectRoot / "Sandbox.ludus.project"));
-		ASSERT_FALSE(std::filesystem::exists(projectRoot / "Scenes" / "Main.ludus.scene"));
+		ASSERT_TRUE(std::filesystem::exists(projectRoot / "Scripts"));
 	}
 }

@@ -11,10 +11,12 @@
 #include <Ludus/Editor/Core/PendingProjectTransition.h>
 #include <Ludus/Editor/Core/ProjectManifest.h>
 #include <Ludus/Editor/Core/ProjectSession.h>
+#include <Ludus/Editor/Persistence/Paths.h>
 #include <Ludus/Editor/Persistence/ProjectSessionLoader.h>
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Runtime/IHostContext.h>
 #include <Ludus/Engine/Runtime/RuntimeInstanceBuilder.h>
+#include <Ludus/Engine/Runtime/RuntimeManifest.h>
 
 namespace Ludus::Editor::Core
 {
@@ -37,6 +39,7 @@ namespace Ludus::Editor::Core
 
 		Ludus::Editor::Core::ProjectSession CreateProjectSession(
 			Ludus::Engine::Runtime::IHostContext& hostContext,
+			Ludus::Engine::Runtime::RuntimeEnvironment runtimeEnvironment,
 			Ludus::Engine::Runtime::RuntimeManifest runtimeManifest,
 			Ludus::Editor::Core::ProjectManifest projectManifest,
 			Ludus::Engine::Core::Scene entryScene
@@ -54,7 +57,7 @@ namespace Ludus::Editor::Core
 				.UseDefaultRendering2D()
 				.UseDefaultScripting()
 				.WithRuntimeManifest(std::move(runtimeManifest))
-				.WithRuntimeEnvironment({ projectManifest.ProjectRoot })
+				.WithRuntimeEnvironment(std::move(runtimeEnvironment))
 				.WithEntryScene(std::move(entryScene))
 				.Build(hostContext);
 
@@ -70,10 +73,18 @@ namespace Ludus::Editor::Core
 		Ludus::Editor::Core::ProjectManifest projectManifest
 	)
 	{
+		auto runtimeEnvironment = Ludus::Engine::Runtime::RuntimeEnvironment
+		{
+			.RuntimeRootDirectory = projectManifest.ProjectRoot,
+			.RuntimeManifestPath = projectManifest.RuntimeManifestPath,
+			.ScriptModulePath = Ludus::Editor::Persistence::Paths::ScriptsDllFile(projectManifest.ProjectRoot)
+		};
+
 		auto loadedProject = m_ProjectSessionLoader.Load(std::move(projectManifest));
 
 		auto projectSession = CreateProjectSession(
 			m_HostContext,
+			std::move(runtimeEnvironment),
 			std::move(loadedProject.RuntimeManifest),
 			std::move(loadedProject.ProjectManifest),
 			std::move(loadedProject.EntryScene)

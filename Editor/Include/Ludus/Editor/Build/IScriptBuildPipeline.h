@@ -4,8 +4,8 @@
 #include <string_view>
 
 #include <Ludus/Editor/Build/BuildCommand.h>
+#include <Ludus/Editor/Build/BuildConfiguration.h>
 #include <Ludus/Editor/Build/ScriptBuildSettings.h>
-#include <Ludus/Engine/Core/Build/Configuration.h>
 
 namespace Ludus::Editor::Build
 {
@@ -17,7 +17,7 @@ namespace Ludus::Editor::Build
 
 		virtual void RunBuild(
 			const std::filesystem::path& projectRoot,
-			Ludus::Engine::Core::Build::Configuration configuration = Ludus::Engine::Core::Build::Configuration::Debug,
+			BuildConfiguration configuration = BuildConfiguration::Debug,
 			BuildCommand command = BuildCommand::Build
 		) = 0;
 

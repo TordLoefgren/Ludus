@@ -3,11 +3,10 @@
 
 int main()
 {
-	auto editorConfiguration = Ludus::Editor::Core::EditorConfiguration::Default();
 	auto host = Ludus::Editor::Core::EditorHostBuilder::Create()
 		.AddDefaultEngine()
-		.WithEditorConfiguration(editorConfiguration)
 		.AddEditorSystem()
+		.WithEditorConfiguration(Ludus::Editor::Core::EditorConfiguration::Default())
 		.Build();
 
 	host->Run();

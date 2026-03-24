@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <stdexcept>
 #include <string_view>
 
 #include <Ludus/Engine/Core/Enums.h>
@@ -16,7 +17,7 @@ namespace Ludus::Engine::Graphics
 			case HorizontalTextAlignment::Left:		return "Left";
 			case HorizontalTextAlignment::Center:	return "Center";
 			case HorizontalTextAlignment::Right:	return "Right";
-			default:								return "Unknown";
+			default:								throw std::runtime_error("Unexpected enum.");
 		}
 	}
 
