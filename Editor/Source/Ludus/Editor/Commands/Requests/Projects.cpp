@@ -113,6 +113,8 @@ namespace Ludus::Editor::Commands::Requests::Projects
 			context.RuntimeManifestPersistence,
 			context.ProjectManifestPersistence
 		);
+
+		Ludus::Editor::Panels::RefreshContentPanel(projectRoot, context.PanelRegistry);
 	}
 
 	void CreateProjectAs(const RequestCommand::CreateProjectAs& command, ProjectSessionCommandContext& context)

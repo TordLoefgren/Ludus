@@ -7,6 +7,8 @@
 
 #include <Ludus/Engine/Core/ExecutionFlags.h>
 #include <Ludus/Engine/Core/Mask.h>
+#include <Ludus/Engine/Core/Scene.h>
+#include <Ludus/Engine/Graphics/MainRenderViewSystem.h>
 #include <Ludus/Engine/Graphics/RenderingSystem2D.h>
 #include <Ludus/Engine/Graphics/RenderViewSystem.h>
 #include <Ludus/Engine/Physics/Core/PhysicsSystem2D.h>
@@ -21,16 +23,19 @@
 
 namespace Ludus::Engine::Runtime
 {
-	std::unique_ptr<Ludus::Engine::Runtime::RuntimeInstance> RuntimeInstanceBuilder::Build(
-		IHostContext& hostContext,
-		RuntimeManifest manifest,
-		RuntimeEnvironment environment
-	)
+	std::unique_ptr<Ludus::Engine::Runtime::RuntimeInstance> RuntimeInstanceBuilder::Build(IHostContext& hostContext)
 	{
+		LUDUS_ASSERT(
+			m_RuntimeEnvironment && m_RuntimeManifest && m_InitialScene,
+			"Cannot build a runtime instance without runtime environment, runtime manifest, and an initial scene."
+		);
+
 		auto runtime = RuntimeInstance::Create(
 			hostContext,
-			std::move(manifest),
-			std::move(environment),
+			std::move(m_RuntimeManifest.value()),
+			std::move(m_RuntimeEnvironment.value()),
+			std::move(m_InitialScene.value()),
+			m_InitialSceneMode,
 			std::move(m_RenderingConfiguration),
 			std::move(m_RenderPresentationSettings),
 			std::move(m_PhysicsConfiguration)
@@ -50,9 +55,9 @@ namespace Ludus::Engine::Runtime
 		return *this;
 	}
 
-	RuntimeInstanceBuilder& RuntimeInstanceBuilder::WithRenderingOptions(const Ludus::Engine::Graphics::RenderingOptions renderingOptions)
+	RuntimeInstanceBuilder& RuntimeInstanceBuilder::WithRenderingOptions(Ludus::Engine::Graphics::RenderingOptions renderingOptions)
 	{
-		m_RenderingOptions = renderingOptions;
+		m_RenderingOptions = std::move(renderingOptions);
 		return *this;
 	}
 
@@ -64,19 +69,49 @@ namespace Ludus::Engine::Runtime
 
 	RuntimeInstanceBuilder& RuntimeInstanceBuilder::WithRenderPresentationSettings(Ludus::Engine::Graphics::RenderPresentationSettings renderPresentationSettings)
 	{
-		m_RenderPresentationSettings = renderPresentationSettings;
+		m_RenderPresentationSettings = std::move(renderPresentationSettings);
 		return *this;
 	}
 
 	RuntimeInstanceBuilder& RuntimeInstanceBuilder::WithRenderViewConfiguration(Ludus::Engine::Graphics::RenderViewConfiguration renderViewConfiguration)
 	{
-		m_RenderViewConfiguration = renderViewConfiguration;
+		m_RenderViewConfiguration = std::move(renderViewConfiguration);
 		return *this;
 	}
 
 	RuntimeInstanceBuilder& RuntimeInstanceBuilder::WithPhysicsConfiguration(Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration)
 	{
 		m_PhysicsConfiguration = std::move(physicsConfiguration);
+		return *this;
+	}
+
+	RuntimeInstanceBuilder& RuntimeInstanceBuilder::WithRuntimeEnvironment(RuntimeEnvironment runtimeEnvironment)
+	{
+		m_RuntimeEnvironment = std::move(runtimeEnvironment);
+
+		return *this;
+	}
+
+	RuntimeInstanceBuilder& RuntimeInstanceBuilder::WithRuntimeManifest(RuntimeManifest manifest)
+	{
+		m_RuntimeManifest = std::move(manifest);
+
+		return *this;
+	}
+
+	RuntimeInstanceBuilder& RuntimeInstanceBuilder::WithEntryScene(Ludus::Engine::Core::Scene entryScene)
+	{
+		m_InitialScene = std::move(entryScene);
+		m_InitialSceneMode = InitialSceneMode::Entry;
+
+		return *this;
+	}
+
+	RuntimeInstanceBuilder& RuntimeInstanceBuilder::WithExplicitScene(Ludus::Engine::Core::Scene explicitScene)
+	{
+		m_InitialScene = std::move(explicitScene);
+		m_InitialSceneMode = InitialSceneMode::Explicit;
+
 		return *this;
 	}
 
@@ -103,6 +138,32 @@ namespace Ludus::Engine::Runtime
 		else
 		{
 			LUDUS_LOG_WARN("Invalid operation: Cannot add default physics system more than once.");
+		}
+
+		return *this;
+	}
+
+	RuntimeInstanceBuilder& RuntimeInstanceBuilder::UseDefaultMainRenderView()
+	{
+		if (!m_HasDefaultMainRenderView)
+		{
+			m_BuilderCommands.emplace_back([](Ludus::Engine::Runtime::RuntimeInstance& runtime)
+			{
+				runtime.AddSystem(
+					Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::Update },
+					std::make_unique<Ludus::Engine::Graphics::MainRenderViewSystem>(
+						runtime.GetHostContext(),
+						runtime.GetRenderViewRequestRegistry(),
+						runtime.GetScenePresentationState()
+					)
+				);
+			});
+
+			m_HasDefaultMainRenderView = true;
+		}
+		else
+		{
+			LUDUS_LOG_WARN("Invalid operation: Cannot add default main render view system more than once.");
 		}
 
 		return *this;

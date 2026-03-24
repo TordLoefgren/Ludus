@@ -29,6 +29,7 @@
   <ItemGroup>
     <ClInclude Include="Include\Ludus\Engine\Components\DisplayNameComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Components\ScriptComponent.h" />
+    <ClInclude Include="Include\Ludus\Engine\Runtime\InitialSceneMode.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\RuntimeManifest.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\RuntimeEnvironment.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\RuntimeOptions.h" />
@@ -70,6 +71,7 @@
     <ClInclude Include="Include\Ludus\Engine\Graphics\GL.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\HorizontalTextAlignment.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\IRenderPass.h" />
+    <ClInclude Include="Include\Ludus\Engine\Graphics\MainRenderViewSystem.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\NoCameraRenderPass.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderingConfiguration2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderContext2D.h" />
@@ -184,6 +186,7 @@
     <ClInclude Include="Include\Ludus\Engine\Core\EntityComponentSystem.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\ISystem.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\SystemScheduler.h" />
+    <ClInclude Include="Include\Ludus\Engine\Runtime\ScenePresentationState.h" />
     <ClInclude Include="Include\Ludus\Engine\Windowing\WindowUserData.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\RenderingPipeline2D.h" />
     <ClInclude Include="Include\Ludus\Engine\Scripting\ScriptSystem.h" />
@@ -505,6 +508,7 @@
     <ClCompile Include="Source\Ludus\Engine\Graphics\Camera2D.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\ElementBufferObject.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\GLContext.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Graphics\MainRenderViewSystem.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\RenderingSystem2D.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\Renderer2D.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Persistence\LmlRuntimeManifestPersistence.cpp" />
@@ -801,10 +805,6 @@
       </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -828,4 +828,3 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
-

@@ -5,10 +5,12 @@
 
 #include <Ludus/Engine/Core/RenderViewRegistry.h>
 #include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
+#include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderPresentationSettings.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
 #include <Ludus/Engine/Runtime/IHostContext.h>
+#include <Ludus/Engine/Runtime/InitialSceneMode.h>
 #include <Ludus/Engine/Runtime/ISystem.h>
 #include <Ludus/Engine/Runtime/RuntimeEnvironment.h>
 #include <Ludus/Engine/Runtime/RuntimeInstance.h>
@@ -20,6 +22,8 @@ namespace Ludus::Engine::Runtime
 		IHostContext& hostContext,
 		RuntimeManifest runtimeManifest,
 		RuntimeEnvironment runtimeEnvironment,
+		Ludus::Engine::Core::Scene initialScene,
+		InitialSceneMode initialSceneMode,
 		Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration,
 		Ludus::Engine::Graphics::RenderPresentationSettings renderPresentationSettings,
 		Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration
@@ -33,8 +37,20 @@ namespace Ludus::Engine::Runtime
 		m_RenderViewRegistry(),
 		m_RenderViewRequestRegistry(),
 		m_SceneRegistry(),
+		m_ScenePresentationState(),
 		m_Scheduler()
-	{ }
+	{
+		if (initialSceneMode == InitialSceneMode::Entry)
+		{
+			LUDUS_ASSERT(
+				m_RuntimeManifest.EntrySceneHandle == initialScene.Handle,
+				"The initial scene must respect the runtime manifest when InitialSceneMode is Entry."
+			);
+		}
+
+		m_ScenePresentationState.CurrentSceneHandle = initialScene.Handle;
+		m_SceneRegistry.AddScene(std::move(initialScene));
+	}
 
 	RuntimeInstance::~RuntimeInstance() = default;
 
@@ -42,6 +58,8 @@ namespace Ludus::Engine::Runtime
 		IHostContext& hostContext,
 		RuntimeManifest RuntimeManifest,
 		RuntimeEnvironment runtimeEnvironment,
+		Ludus::Engine::Core::Scene initialScene,
+		InitialSceneMode initialSceneMode,
 		Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration,
 		Ludus::Engine::Graphics::RenderPresentationSettings renderPresentationSettings,
 		Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration
@@ -51,6 +69,8 @@ namespace Ludus::Engine::Runtime
 			hostContext,
 			std::move(RuntimeManifest),
 			std::move(runtimeEnvironment),
+			std::move(initialScene),
+			initialSceneMode,
 			std::move(renderingConfiguration),
 			std::move(renderPresentationSettings),
 			std::move(physicsConfiguration)
@@ -71,6 +91,11 @@ namespace Ludus::Engine::Runtime
 
 	void RuntimeInstance::Initialize()
 	{
+		LUDUS_ASSERT(
+			m_SceneRegistry.Contains(m_ScenePresentationState.CurrentSceneHandle),
+			"The current scene was not found in the scene registry."
+		);
+
 		m_Scheduler.AttachSystems();
 	}
 

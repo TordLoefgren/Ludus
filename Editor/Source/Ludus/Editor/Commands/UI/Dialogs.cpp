@@ -18,7 +18,7 @@ namespace Ludus::Editor::Commands::UI::Dialogs
 	void OpenAddScriptDialog(const UICommand::OpenAddScriptDialog& command, ProjectSessionCommandContext& context)
 	{
 		auto scriptHandlesByName = std::unordered_map<std::string, Ludus::Engine::Components::ScriptHandle> { };
-		for (const auto& reference : context.ProjectSession.GetPersistenceRuntimeManifest().Scripts)
+		for (const auto& reference : context.ProjectSession.GetEditorManifest().Scripts)
 		{
 			scriptHandlesByName.emplace(reference.Name, reference.Handle);
 		}
@@ -26,7 +26,7 @@ namespace Ludus::Editor::Commands::UI::Dialogs
 		Ludus::Editor::Dialogs::AddScriptDialog dialog(
 			command.EntityHandle,
 			command.SceneHandle,
-			context.ProjectSession.GetPersistenceScriptNames(),
+			context.ProjectSession.GetEditorScriptNames(),
 			std::move(scriptHandlesByName)
 		);
 		context.Shell.State.Dialogs.Open(dialog);

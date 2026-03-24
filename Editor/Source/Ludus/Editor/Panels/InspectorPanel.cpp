@@ -448,7 +448,7 @@ namespace Ludus::Editor::Panels
 
 			if (scriptPtr)
 			{
-				changed |= DrawScript(*scriptPtr, context.ProjectSession.GetPersistenceRuntimeManifest().Scripts);
+				changed |= DrawScript(*scriptPtr, context.ProjectSession.GetEditorManifest().Scripts);
 			}
 
 			if (spritePtr)

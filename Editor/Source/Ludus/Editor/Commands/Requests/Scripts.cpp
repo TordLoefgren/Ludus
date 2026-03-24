@@ -17,7 +17,7 @@ namespace Ludus::Editor::Commands::Requests::Scripts
 		const auto projectRoot = context.ProjectSession.GetProjectRoot();
 		const auto scriptSourcePath = Ludus::Editor::Persistence::Paths::ScriptSourceFile(projectRoot, command.Name);
 
-		if (context.ProjectSession.HasPersistenceScriptReference(command.Name))
+		if (context.ProjectSession.HasEditorScriptReference(command.Name))
 		{
 			throw std::runtime_error("Script already exists in the runtime manifest: " + command.Name);
 		}
@@ -27,9 +27,9 @@ namespace Ludus::Editor::Commands::Requests::Scripts
 			throw std::runtime_error("Script source file already exists: " + scriptSourcePath.string());
 		}
 
-		const auto handle = context.ProjectSession.AllocatePersistenceScriptHandle();
-		auto& runtimeManifest = context.ProjectSession.GetPersistenceRuntimeManifest();
-		context.ProjectSession.AddOrUpdatePersistenceScriptReference(handle, command.Name);
+		const auto handle = context.ProjectSession.AllocateEditorScriptHandle();
+		auto& runtimeManifest = context.ProjectSession.GetEditorManifest();
+		context.ProjectSession.AddOrUpdateEditorScriptReference(handle, command.Name);
 		context.RuntimeManifestPersistence.Save(runtimeManifest, context.ProjectSession.ProjectManifest.RuntimeManifestPath);
 
 		auto& build = context.Shell.Build;
@@ -41,7 +41,7 @@ namespace Ludus::Editor::Commands::Requests::Scripts
 		catch (...)
 		{
 			// Make sure to roll back persistence in case of exceptions.
-			context.ProjectSession.RemovePersistenceScriptReference(handle);
+			context.ProjectSession.RemoveEditorScriptReference(handle);
 			context.RuntimeManifestPersistence.Save(runtimeManifest, context.ProjectSession.ProjectManifest.RuntimeManifestPath);
 			Ludus::Editor::Panels::RefreshContentPanel(projectRoot, context.PanelRegistry);
 

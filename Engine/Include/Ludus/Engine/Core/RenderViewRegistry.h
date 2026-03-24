@@ -29,11 +29,10 @@ namespace Ludus::Engine::Core
 				.Camera = camera,
 				.SceneHandle = sceneHandle,
 				.Target = &target,
-				.ViewportRect = Ludus::Engine::Math::Rect
-				{
+				.ViewportRect = Ludus::Engine::Math::Rect::Create(
 					{ 0.0f, 0.0f },
-				{ static_cast<float>(width), static_cast<float>(height) }
-			}
+					{ static_cast<float>(width), static_cast<float>(height) }
+				)
 			};
 
 			Register(renderView);
