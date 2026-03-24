@@ -2,16 +2,19 @@
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <tuple>
 #include <utility>
 #include <vector>
 
+#include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderingOptions.h>
 #include <Ludus/Engine/Graphics/RenderPresentationSettings.h>
 #include <Ludus/Engine/Graphics/RenderViewConfiguration.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
 #include <Ludus/Engine/Runtime/IHostContext.h>
+#include <Ludus/Engine/Runtime/InitialSceneMode.h>
 #include <Ludus/Engine/Runtime/RuntimeEnvironment.h>
 #include <Ludus/Engine/Runtime/RuntimeInstance.h>
 #include <Ludus/Engine/Runtime/RuntimeManifest.h>
@@ -30,9 +33,15 @@ namespace Ludus::Engine::Runtime
 		Ludus::Engine::Graphics::RenderViewConfiguration m_RenderViewConfiguration;
 		Ludus::Engine::Physics::Core::PhysicsConfiguration2D m_PhysicsConfiguration;
 
+		std::optional<RuntimeEnvironment> m_RuntimeEnvironment;
+		std::optional<RuntimeManifest> m_RuntimeManifest;
+		std::optional<Ludus::Engine::Core::Scene> m_InitialScene;
+		InitialSceneMode m_InitialSceneMode = InitialSceneMode::Entry;
+
 		std::vector<RuntimeInstanceBuilderCommand> m_BuilderCommands;
 
 		bool m_HasDefaultPhysics2D = false;
+		bool m_HasDefaultMainRenderView = false;
 		bool m_HasDefaultRendering2D = false;
 		bool m_HasDefaultScripting = false;
 
@@ -41,11 +50,7 @@ namespace Ludus::Engine::Runtime
 
 		static RuntimeInstanceBuilder Create() { return RuntimeInstanceBuilder { }; }
 
-		std::unique_ptr<Ludus::Engine::Runtime::RuntimeInstance> Build(
-			IHostContext& hostContext,
-			RuntimeManifest manifest,
-			RuntimeEnvironment environment
-		);
+		std::unique_ptr<Ludus::Engine::Runtime::RuntimeInstance> Build(IHostContext& hostContext);
 
 		RuntimeInstanceBuilder& WithRenderingConfiguration(Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration);
 		RuntimeInstanceBuilder& WithRenderingOptions(Ludus::Engine::Graphics::RenderingOptions renderingOptions);
@@ -53,7 +58,13 @@ namespace Ludus::Engine::Runtime
 		RuntimeInstanceBuilder& WithRenderViewConfiguration(Ludus::Engine::Graphics::RenderViewConfiguration renderViewConfiguration);
 		RuntimeInstanceBuilder& WithPhysicsConfiguration(Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration);
 
+		RuntimeInstanceBuilder& WithRuntimeEnvironment(RuntimeEnvironment runtimeEnvironment);
+		RuntimeInstanceBuilder& WithRuntimeManifest(RuntimeManifest manifest);
+		RuntimeInstanceBuilder& WithEntryScene(Ludus::Engine::Core::Scene entryScene);
+		RuntimeInstanceBuilder& WithExplicitScene(Ludus::Engine::Core::Scene explicitScene);
+
 		RuntimeInstanceBuilder& UseDefaultPhysics2D();
+		RuntimeInstanceBuilder& UseDefaultMainRenderView();
 		RuntimeInstanceBuilder& UseDefaultRendering2D();
 		RuntimeInstanceBuilder& UseDefaultScripting();
 

@@ -7,12 +7,15 @@
 #include <Ludus/Engine/Core/FlagSet.h>
 #include <Ludus/Engine/Core/RenderViewRegistry.h>
 #include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
+#include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderPresentationSettings.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
 #include <Ludus/Engine/Runtime/IHostContext.h>
+#include <Ludus/Engine/Runtime/InitialSceneMode.h>
 #include <Ludus/Engine/Runtime/RuntimeEnvironment.h>
 #include <Ludus/Engine/Runtime/RuntimeManifest.h>
+#include <Ludus/Engine/Runtime/ScenePresentationState.h>
 #include <Ludus/Engine/Runtime/SystemPhase.h>
 #include <Ludus/Engine/Runtime/SystemScheduler.h>
 
@@ -31,12 +34,15 @@ namespace Ludus::Engine::Runtime
 		Ludus::Engine::Core::RenderViewRegistry m_RenderViewRegistry;
 		Ludus::Engine::Core::RenderViewRequestRegistry m_RenderViewRequestRegistry;
 		Ludus::Engine::Core::SceneRegistry m_SceneRegistry;
+		ScenePresentationState m_ScenePresentationState;
 		SystemScheduler m_Scheduler;
 
 		RuntimeInstance(
 			IHostContext& hostContext,
 			RuntimeManifest RuntimeManifest,
 			RuntimeEnvironment runtimeEnvironment,
+			Ludus::Engine::Core::Scene initialScene,
+			InitialSceneMode initialSceneMode,
 			Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration,
 			Ludus::Engine::Graphics::RenderPresentationSettings renderPresentationSettings,
 			Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration
@@ -49,6 +55,8 @@ namespace Ludus::Engine::Runtime
 			IHostContext& hostContext,
 			RuntimeManifest RuntimeManifest,
 			RuntimeEnvironment runtimeEnvironment,
+			Ludus::Engine::Core::Scene initialScene,
+			InitialSceneMode initialSceneMode,
 			Ludus::Engine::Graphics::RenderingConfiguration2D renderingConfiguration = Ludus::Engine::Graphics::RenderingConfiguration2D(),
 			Ludus::Engine::Graphics::RenderPresentationSettings renderPresentationSettings = Ludus::Engine::Graphics::RenderPresentationSettings(),
 			Ludus::Engine::Physics::Core::PhysicsConfiguration2D physicsConfiguration = Ludus::Engine::Physics::Core::PhysicsConfiguration2D()
@@ -83,6 +91,9 @@ namespace Ludus::Engine::Runtime
 
 		Ludus::Engine::Core::SceneRegistry& GetSceneRegistry() { return m_SceneRegistry; }
 		const Ludus::Engine::Core::SceneRegistry& GetSceneRegistry() const { return m_SceneRegistry; }
+
+		ScenePresentationState& GetScenePresentationState() { return m_ScenePresentationState; }
+		const ScenePresentationState& GetScenePresentationState() const { return m_ScenePresentationState; }
 
 		IHostContext& GetHostContext() { return m_HostContext; }
 		const IHostContext& GetHostContext() const { return m_HostContext; }

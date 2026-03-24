@@ -43,7 +43,7 @@ namespace Ludus::Editor::Core
 	struct ProjectSession
 	{
 		Ludus::Editor::Core::ProjectManifest ProjectManifest;
-		Ludus::Engine::Runtime::RuntimeManifest SessionManifest;
+		Ludus::Engine::Runtime::RuntimeManifest EditorManifest;
 		std::unique_ptr<Ludus::Engine::Runtime::RuntimeInstance> EditorRuntime;
 		std::unique_ptr<Ludus::Engine::Runtime::RuntimeInstance> SimulationRuntime;
 		ProjectSessionEditorState EditorState;
@@ -54,18 +54,19 @@ namespace Ludus::Editor::Core
 			Ludus::Engine::Core::SceneHandle activeSceneHandle
 		);
 
-	public:
-
 #pragma region Editor Helpers
 
-		void SetActiveScene(Ludus::Engine::Core::SceneHandle sceneHandle);
+		void SetActiveScene(
+			Ludus::Engine::Core::Scene scene,
+			std::optional<std::filesystem::path> sceneSavePath = std::nullopt
+		);
 
-		void SetActiveSceneSavePath(std::filesystem::path savePath)
+		void SetActiveSceneSavePath(std::filesystem::path sceneSavePath)
 		{
-			EditorState.ActiveSceneState.SavePath = savePath;
+			EditorState.ActiveSceneState.SavePath = sceneSavePath;
 		}
 
-		bool ActiveSceneHasSavePath()
+		bool ActiveSceneHasSavePath() const
 		{
 			return EditorState.ActiveSceneState.SavePath.has_value();
 		}
@@ -93,35 +94,34 @@ namespace Ludus::Editor::Core
 		void StartSimulation(Ludus::Engine::Runtime::IHostContext& hostContext);
 		void PauseSimulation(Ludus::Engine::Runtime::IHostContext& hostContext);
 		void StopSimulation(Ludus::Engine::Runtime::IHostContext& hostContext);
+
 		void ShutdownRuntimes();
 
 #pragma endregion
 
-#pragma region Persistence Helpers
+#pragma region Editor State Helpers
 
-		const Ludus::Engine::Runtime::RuntimeInstance& GetPersistenceRuntime() const;
+		const Ludus::Engine::Runtime::RuntimeManifest& GetEditorManifest() const;
 
-		const Ludus::Engine::Runtime::RuntimeManifest& GetPersistenceRuntimeManifest() const;
+		Ludus::Engine::Runtime::RuntimeManifest& GetEditorManifest();
 
-		Ludus::Engine::Runtime::RuntimeManifest& GetPersistenceRuntimeManifest();
+		const Ludus::Engine::Core::Scene& GetEditorScene(Ludus::Engine::Core::SceneHandle sceneHandle) const;
 
-		const Ludus::Engine::Core::Scene& GetPersistenceScene(Ludus::Engine::Core::SceneHandle sceneHandle) const;
+		std::optional<std::filesystem::path> TryGetEditorScenePath(Ludus::Engine::Core::SceneHandle sceneHandle) const;
 
-		std::optional<std::filesystem::path> TryGetPersistenceScenePath(Ludus::Engine::Core::SceneHandle sceneHandle) const;
+		bool HasEditorScriptReference(Ludus::Engine::Components::ScriptHandle handle) const;
 
-		bool HasPersistenceScriptReference(Ludus::Engine::Components::ScriptHandle handle) const;
+		bool HasEditorScriptReference(std::string_view name) const;
 
-		bool HasPersistenceScriptReference(std::string_view name) const;
-
-		bool AddOrUpdatePersistenceScriptReference(
+		bool AddOrUpdateEditorScriptReference(
 			Ludus::Engine::Components::ScriptHandle handle,
 			std::string name
 		);
 
-		bool RemovePersistenceScriptReference(Ludus::Engine::Components::ScriptHandle handle);
-		Ludus::Engine::Components::ScriptHandle AllocatePersistenceScriptHandle() const;
-		std::optional<Ludus::Engine::Components::ScriptHandle> TryFindPersistenceScriptHandleByName(std::string_view name) const;
-		std::vector<std::string> GetPersistenceScriptNames() const;
+		bool RemoveEditorScriptReference(Ludus::Engine::Components::ScriptHandle handle);
+		Ludus::Engine::Components::ScriptHandle AllocateEditorScriptHandle() const;
+		std::optional<Ludus::Engine::Components::ScriptHandle> TryFindEditorScriptHandleByName(std::string_view name) const;
+		std::vector<std::string> GetEditorScriptNames() const;
 
 #pragma endregion
 

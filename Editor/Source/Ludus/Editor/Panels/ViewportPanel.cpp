@@ -230,11 +230,7 @@ namespace Ludus::Editor::Panels
 				.Camera = camera,
 				.SceneHandle = m_SelectedSceneHandle,
 				.Target = &*m_Target,
-				.ViewportRect = Ludus::Engine::Math::Rect
-				{
-					viewportPosition,
-					aspectSize
-			}
+				.ViewportRect = Ludus::Engine::Math::Rect::Create(viewportPosition, aspectSize)
 			};
 
 			context.ProjectSession.GetRenderViewRequestRegistry().Register(renderViewRequest);

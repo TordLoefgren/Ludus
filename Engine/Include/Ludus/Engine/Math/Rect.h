@@ -8,5 +8,10 @@ namespace Ludus::Engine::Math
 	{
 		Vector2D Position;
 		Vector2D Size;
+
+		static Rect Create(Vector2D position, Vector2D size)
+		{
+			return { position, size };
+		}
 	};
 }
