@@ -102,6 +102,8 @@ namespace Ludus::Engine::Runtime
 			return;
 		}
 
+		runtime->Initialize();
+
 		m_Runtime = runtime;
 	}
 

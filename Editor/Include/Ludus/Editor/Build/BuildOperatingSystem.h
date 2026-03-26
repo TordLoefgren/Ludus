@@ -20,7 +20,7 @@ namespace Ludus::Editor::Build
 			case BuildOperatingSystem::Windows:
 				return "Windows";
 			default:
-				throw std::runtime_error("Unexpected enum.");
+				throw std::runtime_error("Unsupported build operating system.");
 		}
 	}
 }

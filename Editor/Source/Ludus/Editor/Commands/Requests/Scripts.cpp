@@ -3,19 +3,18 @@
 #include <filesystem>
 #include <stdexcept>
 
-#include <Ludus/Editor/Commands/EditCommand.h>
 #include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
+#include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/Requests/Scripts.h>
 #include <Ludus/Editor/Panels/PanelHelpers.h>
-#include <Ludus/Editor/Persistence/Paths.h>
-#include <Ludus/Engine/Debug/Debug.h>
+#include <Ludus/Editor/Persistence/ProjectPaths.h>
 
 namespace Ludus::Editor::Commands::Requests::Scripts
 {
 	void CreateScript(const RequestCommand::CreateScript& command, ProjectSessionCommandContext& context)
 	{
 		const auto projectRoot = context.ProjectSession.GetProjectRoot();
-		const auto scriptSourcePath = Ludus::Editor::Persistence::Paths::ScriptSourceFile(projectRoot, command.Name);
+		const auto scriptSourcePath = Ludus::Editor::Persistence::ProjectPaths::ScriptSourceFile(projectRoot, command.Name);
 
 		if (context.ProjectSession.HasEditorScriptReference(command.Name))
 		{
@@ -54,29 +53,6 @@ namespace Ludus::Editor::Commands::Requests::Scripts
 				.SceneHandle = command.SceneHandle,
 				.Init = Ludus::Engine::Components::ScriptComponent { command.Name, handle }
 		});
-
-		Ludus::Editor::Panels::RefreshContentPanel(projectRoot, context.PanelRegistry);
-	}
-
-	void BuildScript(const RequestCommand::BuildScript& command, ProjectSessionCommandContext& context)
-	{
-		LUDUS_ASSERT(!context.ProjectSession.IsSimulating(), "Scripts cannot be built while the simulation session is active.");
-
-		const auto projectRoot = context.ProjectSession.GetProjectRoot();
-		auto& build = context.Shell.Build;
-
-		switch (command.BuildCommand)
-		{
-			case Ludus::Editor::Build::BuildCommand::Build:
-				build.Build(projectRoot);
-				break;
-			case Ludus::Editor::Build::BuildCommand::Rebuild:
-				build.Rebuild(projectRoot);
-				break;
-			case Ludus::Editor::Build::BuildCommand::Clean:
-				build.Clean(projectRoot);
-				break;
-		}
 
 		Ludus::Editor::Panels::RefreshContentPanel(projectRoot, context.PanelRegistry);
 	}

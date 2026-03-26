@@ -3,6 +3,7 @@
 #include <Ludus/Editor/Commands/EditCommand.h>
 #include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 #include <Ludus/Editor/Commands/RequestCommand.h>
+#include <Ludus/Editor/Commands/Requests/Builds.h>
 #include <Ludus/Editor/Commands/Requests/Panels.h>
 #include <Ludus/Editor/Commands/Requests/Projects.h>
 #include <Ludus/Editor/Commands/Requests/Scenes.h>
@@ -30,7 +31,9 @@ namespace Ludus::Editor::Commands
 			void operator()(const RequestCommand::OpenProject& command) const { Requests::Projects::OpenProject(command, Context); }
 			void operator()(const RequestCommand::CloseProject&) const { Requests::Projects::CloseProject(Context); }
 			void operator()(const RequestCommand::CreateScript& command) const { Requests::Scripts::CreateScript(command, Context); }
-			void operator()(const RequestCommand::BuildScript& command) const { Requests::Scripts::BuildScript(command, Context); }
+			void operator()(const RequestCommand::RunTargetBuildCommand& command) const { Requests::Builds::RunTargetBuildCommand(command, Context); }
+			void operator()(const RequestCommand::BuildRuntime& command) const { Requests::Builds::BuildRuntime(command, Context); }
+			void operator()(const RequestCommand::CleanRuntime&) const { Requests::Builds::CleanRuntime(Context); }
 			void operator()(const RequestCommand::SetExecutionMode& command) const { Requests::Panels::SetExecutionMode(command, Context); }
 
 			template<typename T>
@@ -54,7 +57,9 @@ namespace Ludus::Editor::Commands
 			void operator()(const RequestCommand::SaveSceneAs&) const { LUDUS_ASSERT(false, "SaveSceneAs is unavailable during startup."); }
 			void operator()(const RequestCommand::CloseProject&) const { LUDUS_ASSERT(false, "CloseProject is unavailable during startup."); }
 			void operator()(const RequestCommand::CreateScript&) const { LUDUS_ASSERT(false, "CreateScript is unavailable during startup."); }
-			void operator()(const RequestCommand::BuildScript&) const { LUDUS_ASSERT(false, "BuildScript is unavailable during startup."); }
+			void operator()(const RequestCommand::RunTargetBuildCommand&) const { LUDUS_ASSERT(false, "RunTargetBuildCommand is unavailable during startup."); }
+			void operator()(const RequestCommand::BuildRuntime&) const { LUDUS_ASSERT(false, "BuildRuntime is unavailable during startup."); }
+			void operator()(const RequestCommand::CleanRuntime&) const { LUDUS_ASSERT(false, "CleanRuntime is unavailable during startup."); }
 			void operator()(const RequestCommand::SetExecutionMode&) const { LUDUS_ASSERT(false, "SetExecutionMode is unavailable during startup."); }
 
 			template<typename T>

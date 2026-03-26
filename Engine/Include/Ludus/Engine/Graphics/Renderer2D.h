@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -57,6 +58,7 @@ namespace Ludus::Engine::Graphics
 	public:
 		Renderer2D(
 			Shader& shader,
+			std::filesystem::path fontPath,
 			int maxTextures = 16,
 			int maxQuads = 1000
 		);

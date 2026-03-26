@@ -1,8 +1,10 @@
 #include "pch.h"
 
 #include <filesystem>
+#include <stdexcept>
 
 #include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
+#include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/Requests/Scenes.h>
 #include <Ludus/Editor/Core/ProjectTemplates.h>
 #include <Ludus/Editor/Panels/PanelHelpers.h>

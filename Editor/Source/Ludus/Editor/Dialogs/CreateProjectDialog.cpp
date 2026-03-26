@@ -4,7 +4,7 @@
 
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Dialogs/CreateProjectDialog.h>
-#include <Ludus/Editor/Persistence/Paths.h>
+#include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/PopupContext.h>
 #include <Ludus/UI/Labels.h>
@@ -27,7 +27,7 @@ namespace Ludus::Editor::Dialogs
 
 		if (Ludus::UI::Scope::PopupModalScope dialogScope(popupLabel.c_str(), &IsOpen, Ludus::UI::Flags::Window::AlwaysAutoResize); dialogScope)
 		{
-			const auto projectDirectory = Ludus::Editor::Persistence::Paths::ProjectRoot(Name);
+			const auto projectDirectory = Ludus::Editor::Persistence::ProjectPaths::ProjectRoot(Name);
 			DestinationPreview = projectDirectory.string();
 
 			Ludus::UI::Widgets::TextUnformatted("Please write a project name:");
@@ -40,10 +40,10 @@ namespace Ludus::Editor::Dialogs
 
 			if (Ludus::UI::Widgets::Button("Create", Ludus::Editor::Core::Constants::ModalActionButtonSize))
 			{
-				Error = Ludus::Editor::Persistence::Paths::ValidateProjectName(Name);
+				Error = Ludus::Editor::Persistence::ProjectPaths::ValidateProjectName(Name);
 				if (Error.empty())
 				{
-					Error = Ludus::Editor::Persistence::Paths::ValidateProjectDirectory(projectDirectory);
+					Error = Ludus::Editor::Persistence::ProjectPaths::ValidateProjectDirectory(projectDirectory);
 				}
 
 				if (Error.empty())

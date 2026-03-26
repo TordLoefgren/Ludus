@@ -6,17 +6,16 @@
 
 #include <Ludus/Editor/Build/BuildCommand.h>
 #include <Ludus/Editor/Build/BuildConfiguration.h>
-#include <Ludus/Editor/Build/IScriptBuildPipeline.h>
-#include <Ludus/Editor/Build/ScriptBuildSettings.h>
+#include <Ludus/Editor/Build/MSBuild/MSBuildContext.h>
+#include <Ludus/Editor/Build/MSBuild/ScriptBuildSettings.h>
 
-namespace Ludus::Editor::Build
+namespace Ludus::Editor::Build::MSBuild
 {
-	struct MSBuildScriptPipeline final : public IScriptBuildPipeline
+	struct MSBuildScriptPipeline
 	{
 	private:
-		std::optional<std::filesystem::path> m_MSBuildPath;
+		MSBuildContext& m_Context;
 
-		std::optional<std::filesystem::path> LocateMSBuild();
 		void CopyTemplateToDestinationIfMissing(
 			const std::filesystem::path& templateRoot,
 			std::string_view templateFileName,
@@ -34,22 +33,22 @@ namespace Ludus::Editor::Build
 		);
 
 	public:
-		void Initialize();
+		MSBuildScriptPipeline(MSBuildContext& context);
 
-		virtual void RunBuild(
+		void RunBuild(
 			const std::filesystem::path& projectRoot,
 			BuildConfiguration configuration,
 			BuildCommand command
-		) override;
+		);
 
-		virtual void EnsureScriptProject(
+		void EnsureScriptProject(
 			const std::filesystem::path& projectRoot,
 			const ScriptBuildSettings& settings
-		) override;
+		);
 
-		virtual void CreateScript(
+		void CreateScript(
 			const std::filesystem::path& projectRoot,
 			std::string_view name
-		) override;
+		);
 	};
 }

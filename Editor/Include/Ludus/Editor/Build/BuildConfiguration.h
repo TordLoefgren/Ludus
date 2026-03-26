@@ -23,7 +23,7 @@ namespace Ludus::Editor::Build
 			case BuildConfiguration::Release:
 				return "Release";
 			default:
-				throw std::runtime_error("Unexpected enum.");
+				throw std::runtime_error("Unsupported build configuration.");
 		}
 	}
 }

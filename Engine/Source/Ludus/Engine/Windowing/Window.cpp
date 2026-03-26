@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include <stdexcept>
+
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Debug/DebugGLFW.h>
 #include <Ludus/Engine/Events/KeyboardEvents.h>
@@ -40,7 +42,7 @@ namespace Ludus::Engine::Windowing
 		if (!glfwInit())
 		{
 			LUDUS_LOG_CRITICAL("Failed to initialize GLFW.");
-			return;
+			throw std::runtime_error("Failed to initialize GLFW.");
 		}
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -51,10 +53,10 @@ namespace Ludus::Engine::Windowing
 		m_Handle = glfwCreateWindow(m_WindowOptions.StartupWidth, m_WindowOptions.StartupHeight, m_WindowOptions.Title.data(), NULL, NULL);
 		if (!m_Handle)
 		{
-			LUDUS_LOG_CRITICAL("Failed to create a GLFW window.");
-
 			glfwTerminate();
-			return;
+
+			LUDUS_LOG_CRITICAL("Failed to create a GLFW window.");
+			throw std::runtime_error("Failed to create a GLFW window.");
 		}
 
 		if (!m_WindowOptions.IconPath.empty())
@@ -204,7 +206,6 @@ namespace Ludus::Engine::Windowing
 		glfwSetWindowSizeCallback(m_Handle, [](GLFWwindow* window, int width, int height)
 		{
 			auto& data = *reinterpret_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
-
 			data.EventBus->PublishEvent(Ludus::Engine::Events::WindowEvents::WindowSizeEvent(width, height));
 		});
 

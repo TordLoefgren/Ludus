@@ -17,6 +17,7 @@ namespace Ludus::Engine::Graphics
 
 	Renderer2D::Renderer2D(
 		Shader& shader,
+		std::filesystem::path fontPath,
 		int maxTextures,
 		int maxQuads
 	) :
@@ -29,7 +30,7 @@ namespace Ludus::Engine::Graphics
 		m_Textures(maxTextures, nullptr),
 		m_MaxTextures(maxTextures),
 		m_TexturesCount(0),
-		m_Font(Font()),
+		m_Font(std::move(fontPath)),
 		m_WhiteTexture(Texture::White())
 	{
 		m_VertexArray.SetVertexBuffer(m_VertexBuffer);

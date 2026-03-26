@@ -8,7 +8,7 @@
 
 namespace Ludus::Engine::Graphics
 {
-	Font::Font()
+	Font::Font(std::filesystem::path fontPath)
 		: m_GlyphMap(), m_FT_Library(nullptr), m_Face(nullptr), m_PixelSize(48)
 	{
 		if (FT_Init_FreeType(&m_FT_Library))
@@ -16,7 +16,7 @@ namespace Ludus::Engine::Graphics
 			LUDUS_LOG_ERROR("Could not initialize FreeType Library");
 		}
 
-		if (FT_New_Face(m_FT_Library, "Resources/Fonts/liberation-sans/LiberationSans-Regular.ttf", 0, &m_Face))
+		if (FT_New_Face(m_FT_Library, fontPath.string().c_str(), 0, &m_Face))
 		{
 			LUDUS_LOG_ERROR("Failed to load font");
 		}

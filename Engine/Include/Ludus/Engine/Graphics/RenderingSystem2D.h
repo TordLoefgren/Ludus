@@ -6,6 +6,7 @@
 #include <Ludus/Engine/Graphics/RenderingPipeline2D.h>
 #include <Ludus/Engine/Graphics/Shader.h>
 #include <Ludus/Engine/Runtime/ISystem.h>
+#include <Ludus/Engine/Runtime/RuntimeEnvironment.h>
 
 namespace Ludus::Engine::Core
 {
@@ -30,7 +31,8 @@ namespace Ludus::Engine::Graphics
 			RenderingOptions renderingOptions,
 			RenderingConfiguration2D& renderingConfiguration,
 			Ludus::Engine::Core::RenderViewRegistry& renderViewRegistry,
-			Ludus::Engine::Core::SceneRegistry& sceneRegistry
+			Ludus::Engine::Core::SceneRegistry& sceneRegistry,
+			const Ludus::Engine::Runtime::RuntimeEnvironment& runtimeEnvironment
 		);
 
 		~RenderingSystem2D() = default;

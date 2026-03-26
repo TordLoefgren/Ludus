@@ -32,6 +32,7 @@
     <ClInclude Include="Include\Ludus\Engine\Runtime\InitialSceneMode.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\RuntimeManifest.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\RuntimeEnvironment.h" />
+    <ClInclude Include="Include\Ludus\Engine\Runtime\RuntimeLauncher.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\RuntimeOptions.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\ExecutionFlags.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Expected.h" />
@@ -92,7 +93,6 @@
     <ClInclude Include="Include\Ludus\Engine\Core\Cooldown.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Entity.h" />
     <ClInclude Include="Include\Ludus\Engine\Math\Size.h" />
-    <ClInclude Include="Include\Ludus\Engine\Platform\FileSystem.h" />
     <ClInclude Include="Include\Ludus\Engine\Platform\Modals.h" />
     <ClInclude Include="Include\Ludus\Engine\Platform\Paths.h" />
     <ClInclude Include="Include\Ludus\Engine\Persistence\IRuntimeManifestPersistence.h" />
@@ -489,9 +489,9 @@
   <ItemGroup>
     <ClCompile Include="Source\Ludus\Engine\Runtime\ApplicationHostBuilder.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Runtime\RuntimeInstanceBuilder.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Runtime\RuntimeLauncher.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Runtime\RuntimeInstance.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Runtime\ApplicationHost.cpp" />
-    <ClCompile Include="Source\Ludus\Engine\Platform\Windows\FileSystem.Windows.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Platform\Windows\Modals.Windows.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Platform\Windows\Paths.Windows.cpp" />
     <ClCompile Include="Source\Ludus\Engine\pch.cpp">
@@ -501,13 +501,13 @@
     <ClCompile Include="Source\Ludus\Engine\Graphics\FrameBufferObject.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Events\EventBus.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Core\Random.cpp" />
-    <ClCompile Include="Source\Ludus\Engine\FileSystem\FileSystem.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\Camera2D.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\ElementBufferObject.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\GLContext.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\MainRenderViewSystem.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\RenderingSystem2D.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Graphics\Renderer2D.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\FileSystem\FileSystem.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Persistence\LmlRuntimeManifestPersistence.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Persistence\LmlScenePersistence.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Serialization\Codecs\LmlDomCodec.cpp" />

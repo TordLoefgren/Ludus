@@ -4,12 +4,15 @@
 #include <string>
 #include <string_view>
 
+#include <Ludus/Editor/Build/BuildCommand.h>
+#include <Ludus/Editor/Build/BuildConfiguration.h>
+#include <Ludus/Editor/Build/BuildTarget.h>
 #include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/UICommand.h>
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Core/ExecutionMode.h>
 #include <Ludus/Editor/Panels/DockPanel.h>
-#include <Ludus/Editor/Persistence/Paths.h>
+#include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Platform/Modals.h>
@@ -127,7 +130,7 @@ namespace Ludus::Editor::Panels
 					if (Ludus::Engine::Platform::Modals::OpenFileDialog(
 						path,
 						"ludus.project",
-						Ludus::Editor::Persistence::Paths::ProjectsRoot()
+						Ludus::Editor::Persistence::ProjectPaths::ProjectsRoot()
 					))
 					{
 						context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::OpenProject { path });
@@ -164,7 +167,7 @@ namespace Ludus::Editor::Panels
 				if (Ludus::UI::Widgets::MenuItem("Show All Projects"))
 				{
 					Ludus::Engine::Platform::Paths::OpenFolder(
-						Ludus::Editor::Persistence::Paths::ProjectsRoot()
+						Ludus::Editor::Persistence::ProjectPaths::ProjectsRoot()
 					);
 				}
 
@@ -184,19 +187,65 @@ namespace Ludus::Editor::Panels
 					context.Shell.State.Execution.ExecutionMode != Ludus::Editor::Core::ExecutionMode::Stop
 				);
 
-				if (Ludus::UI::Widgets::MenuItem("Build"))
+				if (Ludus::UI::Scope::MenuScope advancedMenu("Advanced"); advancedMenu)
 				{
-					context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::BuildScript { Ludus::Editor::Build::BuildCommand::Build });
+					if (Ludus::UI::Scope::MenuScope scriptsMenu("Scripts"); scriptsMenu)
+					{
+						if (Ludus::UI::Widgets::MenuItem("Build"))
+						{
+							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::RunTargetBuildCommand
+								{ Ludus::Editor::Build::BuildTarget::Scripts, Ludus::Editor::Build::BuildCommand::Build, Ludus::Editor::Build::BuildConfiguration::Debug }
+							);
+						}
+
+						if (Ludus::UI::Widgets::MenuItem("Rebuild"))
+						{
+							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::RunTargetBuildCommand
+								{ Ludus::Editor::Build::BuildTarget::Scripts, Ludus::Editor::Build::BuildCommand::Rebuild, Ludus::Editor::Build::BuildConfiguration::Debug }
+							);
+						}
+
+						if (Ludus::UI::Widgets::MenuItem("Clean"))
+						{
+							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::RunTargetBuildCommand
+								{ Ludus::Editor::Build::BuildTarget::Scripts, Ludus::Editor::Build::BuildCommand::Clean, Ludus::Editor::Build::BuildConfiguration::Debug }
+							);
+						}
+					}
+
+					if (Ludus::UI::Scope::MenuScope runtimeHostMenu("Runtime Host"); runtimeHostMenu)
+					{
+						if (Ludus::UI::Widgets::MenuItem("Build"))
+						{
+							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::RunTargetBuildCommand
+								{ Ludus::Editor::Build::BuildTarget::RuntimeHost, Ludus::Editor::Build::BuildCommand::Build, Ludus::Editor::Build::BuildConfiguration::Debug }
+							);
+						}
+
+						if (Ludus::UI::Widgets::MenuItem("Rebuild"))
+						{
+							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::RunTargetBuildCommand
+								{ Ludus::Editor::Build::BuildTarget::RuntimeHost, Ludus::Editor::Build::BuildCommand::Rebuild, Ludus::Editor::Build::BuildConfiguration::Debug }
+							);
+						}
+
+						if (Ludus::UI::Widgets::MenuItem("Clean"))
+						{
+							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::RunTargetBuildCommand
+								{ Ludus::Editor::Build::BuildTarget::RuntimeHost, Ludus::Editor::Build::BuildCommand::Clean, Ludus::Editor::Build::BuildConfiguration::Debug }
+							);
+						}
+					}
 				}
 
-				if (Ludus::UI::Widgets::MenuItem("Rebuild"))
+				if (Ludus::UI::Widgets::MenuItem("Build Runtime"))
 				{
-					context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::BuildScript { Ludus::Editor::Build::BuildCommand::Rebuild });
+					context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::BuildRuntime { Ludus::Editor::Build::BuildConfiguration::Debug });
 				}
 
-				if (Ludus::UI::Widgets::MenuItem("Clean"))
+				if (Ludus::UI::Widgets::MenuItem("Clean Runtime"))
 				{
-					context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::BuildScript { Ludus::Editor::Build::BuildCommand::Clean });
+					context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::CleanRuntime { });
 				}
 			}
 

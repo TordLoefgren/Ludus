@@ -1,0 +1,6 @@
+#include <Ludus/Engine/Runtime/RuntimeLauncher.h>
+
+int main()
+{
+	return Ludus::Engine::Runtime::RunDefaultRuntime("${LUDUS_RUNTIME_NAME}");
+}

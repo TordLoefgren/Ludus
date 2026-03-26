@@ -17,7 +17,7 @@ namespace Ludus::Engine::Graphics
 			case HorizontalTextAlignment::Left:		return "Left";
 			case HorizontalTextAlignment::Center:	return "Center";
 			case HorizontalTextAlignment::Right:	return "Right";
-			default:								throw std::runtime_error("Unexpected enum.");
+			default:								throw std::runtime_error("Unsupported horizontal text alignment.");
 		}
 	}
 

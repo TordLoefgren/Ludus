@@ -2,59 +2,58 @@
 
 #include <filesystem>
 #include <memory>
-#include <optional>
 #include <string_view>
 
+#include <Ludus/Editor/Build/BuildCommand.h>
 #include <Ludus/Editor/Build/BuildConfiguration.h>
 #include <Ludus/Editor/Build/BuildTarget.h>
-#include <Ludus/Editor/Build/IScriptBuildPipeline.h>
-#include <Ludus/Editor/Build/ScriptBuildSettings.h>
+#include <Ludus/Editor/Build/IBuildPipeline.h>
+#include <Ludus/Editor/Build/IPackagePipeline.h>
 
 namespace Ludus::Editor::Build
 {
 	struct BuildManager
 	{
 	private:
-		std::unique_ptr<IScriptBuildPipeline> m_Scripts;
-
-		void RunScriptBuildCommand(
-			const std::filesystem::path& projectRoot,
-			BuildConfiguration configuration,
-			BuildCommand command
-		);
+		std::unique_ptr<IBuildPipeline> m_BuildPipeline;
+		std::unique_ptr<IPackagePipeline> m_PackagePipeline;
 
 	public:
-		explicit BuildManager(std::unique_ptr<IScriptBuildPipeline> scriptBuildPipeline);
+		explicit BuildManager(
+			std::unique_ptr<IBuildPipeline> buildPipeline,
+			std::unique_ptr<IPackagePipeline> packagePipeline
+		);
 		BuildManager();
 
 		void Initialize();
 
-		void EnsureScriptProject(
+		void BuildRuntime(
 			const std::filesystem::path& projectRoot,
-			std::optional<ScriptBuildSettings> settings = std::nullopt
+			BuildConfiguration configuration
+		);
+
+		void CleanRuntime(
+			const std::filesystem::path& projectRoot
+		);
+
+		void EnsureRuntimeHostProject(
+			const std::filesystem::path& projectRoot
+		);
+
+		void EnsureScriptProject(
+			const std::filesystem::path& projectRoot
+		);
+
+		void RunTargetBuildCommand(
+			const std::filesystem::path& projectRoot,
+			BuildTarget target,
+			BuildCommand command,
+			BuildConfiguration configuration
 		);
 
 		void CreateScript(
 			const std::filesystem::path& projectRoot,
 			std::string_view name
-		);
-
-		void Build(
-			const std::filesystem::path& projectRoot,
-			BuildConfiguration configuration = BuildConfiguration::Debug,
-			BuildTarget target = BuildTarget::Scripts
-		);
-
-		void Clean(
-			const std::filesystem::path& projectRoot,
-			BuildConfiguration configuration = BuildConfiguration::Debug,
-			BuildTarget target = BuildTarget::Scripts
-		);
-
-		void Rebuild(
-			const std::filesystem::path& projectRoot,
-			BuildConfiguration configuration = BuildConfiguration::Debug,
-			BuildTarget target = BuildTarget::Scripts
 		);
 	};
 }

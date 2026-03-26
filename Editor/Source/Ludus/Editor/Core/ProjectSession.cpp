@@ -95,7 +95,6 @@ namespace Ludus::Editor::Core
 			.Build(hostContext);
 
 		SimulationRuntime = std::move(simulationRuntime);
-		SimulationRuntime->Initialize();
 
 		hostContext.AttachRuntime(SimulationRuntime.get());
 	}

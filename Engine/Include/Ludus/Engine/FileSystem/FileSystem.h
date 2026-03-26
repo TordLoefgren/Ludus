@@ -22,19 +22,22 @@ namespace Ludus::Engine::FileSystem
 	};
 
 	std::string GenerateUniqueName(std::string_view prefix, std::string_view suffix);
-
 	std::filesystem::path CreateTempFilePath(const std::filesystem::path& path);
-	void CommitTempFile(FileDeleteScope& temp, const std::filesystem::path& destination);
 
 	std::vector<std::filesystem::path> GetFilePaths(const std::filesystem::path& path);
 	std::vector<std::string> GetFileNames(const std::filesystem::path& path);
-	std::string ToPortablePathString(const std::filesystem::path& path);
 
-	bool ArePathsEqual(const std::filesystem::path& left, const std::filesystem::path& right);
-
-	std::vector<std::byte> ReadAllBytes(const std::filesystem::path& path);
 	std::string ReadAllText(const std::filesystem::path& path);
+	std::vector<std::byte> ReadAllBytes(const std::filesystem::path& path);
 
+	void WriteAllText(const std::filesystem::path& path, std::string_view text);
 	void WriteAllBytes(const std::filesystem::path& path, std::span<const std::byte> data);
-	void WriteAllText(const std::filesystem::path& path, std::string_view data);
+
+	void CopyFileOverwrite(const std::filesystem::path& source, const std::filesystem::path& destination);
+	void RemoveIfExists(const std::filesystem::path& path);
+	void ReplaceDirectory(const std::filesystem::path& source, const std::filesystem::path& destination);
+	void RemoveDirectoryIfEmpty(const std::filesystem::path& path);
+
+	std::string ToPortablePathString(const std::filesystem::path& path);
+	bool ArePathsEqual(const std::filesystem::path& left, const std::filesystem::path& right);
 }

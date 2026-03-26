@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <ft2build.h>
 #include <string_view>
 #include <unordered_map>
@@ -17,7 +18,7 @@ namespace Ludus::Engine::Graphics
 		int m_PixelSize;
 		std::unordered_map<char, Glyph> m_GlyphMap;
 	public:
-		Font();
+		explicit Font(std::filesystem::path fontPath);
 		~Font();
 
 		const Glyph* GetGlyph(const char character);

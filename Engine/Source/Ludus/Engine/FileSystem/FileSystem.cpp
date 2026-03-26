@@ -7,7 +7,6 @@
 #include <system_error>
 
 #include <Ludus/Engine/FileSystem/FileSystem.h>
-#include <Ludus/Engine/Platform/FileSystem.h>
 
 namespace Ludus::Engine::FileSystem
 {
@@ -43,14 +42,7 @@ namespace Ludus::Engine::FileSystem
 	{
 		const auto directory = path.parent_path();
 		const auto name = path.filename().string();
-
 		return directory / GenerateUniqueName(name + ".", ".tmp");
-	}
-
-	void CommitTempFile(FileDeleteScope& temp, const std::filesystem::path& destination)
-	{
-		Ludus::Engine::Platform::FileSystem::ReplaceFile(temp.Path, destination);
-		temp.Path.clear();
 	}
 
 	std::vector<std::filesystem::path> GetFilePaths(const std::filesystem::path& path)
@@ -84,20 +76,18 @@ namespace Ludus::Engine::FileSystem
 		return fileNames;
 	}
 
-	std::string ToPortablePathString(const std::filesystem::path& path)
+	std::string ReadAllText(const std::filesystem::path& path)
 	{
-		return path.lexically_normal().generic_string();
-	}
-
-	bool ArePathsEqual(const std::filesystem::path& left, const std::filesystem::path& right)
-	{
-		std::error_code errorCode;
-		if (std::filesystem::equivalent(left, right, errorCode))
+		std::ifstream file(path, std::ios::binary);
+		if (!file)
 		{
-			return true;
+			throw std::runtime_error("Could not open file: " + path.string());
 		}
 
-		return left.lexically_normal() == right.lexically_normal();
+		return std::string(
+			std::istreambuf_iterator<char>(file),
+			std::istreambuf_iterator<char>()
+		);
 	}
 
 	std::vector<std::byte> ReadAllBytes(const std::filesystem::path& path)
@@ -116,7 +106,7 @@ namespace Ludus::Engine::FileSystem
 
 		std::vector<std::byte> buffer(length);
 
-		std::ifstream file(path, std::ios_base::binary);
+		std::ifstream file(path, std::ios::binary);
 		if (!file)
 		{
 			throw std::runtime_error("Could not open file.");
@@ -134,84 +124,115 @@ namespace Ludus::Engine::FileSystem
 		return buffer;
 	}
 
-	std::string ReadAllText(const std::filesystem::path& path)
+	void WriteAllText(const std::filesystem::path& path, std::string_view text)
 	{
-		std::error_code errorCode;
-		if (!std::filesystem::exists(path, errorCode) || errorCode)
-		{
-			throw std::runtime_error("File does not exist.");
-		}
-
-		const auto length = std::filesystem::file_size(path, errorCode);
-		if (errorCode)
-		{
-			throw std::runtime_error("Error while attempting to get file size.");
-		}
-
-		std::string buffer;
-		buffer.resize(length);
-
-		std::ifstream file(path, std::ios::binary);
+		std::ofstream file(path, std::ios::binary | std::ios::trunc);
 		if (!file)
 		{
-			throw std::runtime_error("Could not open file.");
+			throw std::runtime_error("Could not write file: " + path.string());
 		}
 
-		if (length > 0)
+		file.write(text.data(), static_cast<std::streamsize>(text.size()));
+		if (!file)
 		{
-			file.read(buffer.data(), static_cast<std::streamsize>(length));
-			if (!file || file.gcount() != static_cast<std::streamsize>(length))
-			{
-				throw std::runtime_error("Could not read all text.");
-			}
+			throw std::runtime_error("Could not write all text: " + path.string());
 		}
-
-		return buffer;
 	}
 
 	void WriteAllBytes(const std::filesystem::path& path, std::span<const std::byte> data)
 	{
-		const auto temp = CreateTempFilePath(path);
-		FileDeleteScope tempScoped { temp };
-
-		std::ofstream file(tempScoped.Path, std::ios::binary | std::ios::trunc);
+		std::ofstream file(path, std::ios::binary | std::ios::trunc);
 		if (!file)
 		{
-			throw std::runtime_error("Could not create temporary file.");
+			throw std::runtime_error("Could not write file: " + path.string());
 		}
 
 		file.write(reinterpret_cast<const char*>(data.data()), static_cast<std::streamsize>(data.size_bytes()));
 		if (!file)
 		{
-			throw std::runtime_error("Could not write all bytes.");
+			throw std::runtime_error("Could not write all bytes: " + path.string());
 		}
-
-		file.flush();
-		file.close();
-
-		CommitTempFile(tempScoped, path);
 	}
 
-	void WriteAllText(const std::filesystem::path& path, std::string_view data)
+	void CopyFileOverwrite(const std::filesystem::path& source, const std::filesystem::path& destination)
 	{
-		const auto temp = CreateTempFilePath(path);
-		FileDeleteScope tempScoped { temp };
-
-		std::ofstream file(tempScoped.Path, std::ios::binary | std::ios::trunc);
-		if (!file)
+		std::error_code errorCode;
+		std::filesystem::copy_file(source, destination, std::filesystem::copy_options::overwrite_existing, errorCode);
+		if (errorCode)
 		{
-			throw std::runtime_error("Could not create temporary file.");
+			throw std::runtime_error(
+				"Failed to copy file from '" + source.string() + "' to '" + destination.string() + "'. " + errorCode.message()
+			);
+		}
+	}
+
+	void RemoveIfExists(const std::filesystem::path& path)
+	{
+		std::error_code errorCode;
+		std::filesystem::remove_all(path, errorCode);
+		if (errorCode)
+		{
+			throw std::runtime_error("Failed to remove path: " + path.string() + ". " + errorCode.message());
+		}
+	}
+
+	void ReplaceDirectory(const std::filesystem::path& source, const std::filesystem::path& destination)
+	{
+		std::error_code errorCode;
+		std::filesystem::remove_all(destination, errorCode);
+		if (errorCode)
+		{
+			throw std::runtime_error("Failed to clean directory: " + destination.string() + ". " + errorCode.message());
 		}
 
-		file.write(data.data(), static_cast<std::streamsize>(data.size()));
-		if (!file)
+		std::filesystem::copy(source, destination, std::filesystem::copy_options::recursive, errorCode);
+		if (errorCode)
 		{
-			throw std::runtime_error("Could not write all text.");
+			throw std::runtime_error(
+				"Failed to copy directory from '" + source.string() + "' to '" + destination.string() + "'. " + errorCode.message()
+			);
+		}
+	}
+
+	void RemoveDirectoryIfEmpty(const std::filesystem::path& path)
+	{
+		std::error_code errorCode;
+		const bool exists = std::filesystem::exists(path, errorCode);
+		if (errorCode)
+		{
+			throw std::runtime_error("Failed to inspect directory: " + path.string() + ". " + errorCode.message());
 		}
 
-		file.flush();
-		file.close();
+		if (!exists || !std::filesystem::is_empty(path, errorCode))
+		{
+			if (errorCode)
+			{
+				throw std::runtime_error("Failed to inspect directory emptiness: " + path.string() + ". " + errorCode.message());
+			}
 
-		CommitTempFile(tempScoped, path);
+			return;
+		}
+
+		std::filesystem::remove(path, errorCode);
+		if (errorCode)
+		{
+			throw std::runtime_error("Failed to remove directory: " + path.string() + ". " + errorCode.message());
+		}
+	}
+
+	std::string ToPortablePathString(const std::filesystem::path& path)
+	{
+		return path.lexically_normal().generic_string();
+	}
+
+	bool ArePathsEqual(const std::filesystem::path& left, const std::filesystem::path& right)
+	{
+		std::error_code errorCode;
+		if (std::filesystem::equivalent(left, right, errorCode))
+		{
+			return true;
+		}
+
+		return left.lexically_normal() == right.lexically_normal();
 	}
 }

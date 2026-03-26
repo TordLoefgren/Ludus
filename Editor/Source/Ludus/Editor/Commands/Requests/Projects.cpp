@@ -3,13 +3,14 @@
 #include <filesystem>
 
 #include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
+#include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/Requests/Projects.h>
 #include <Ludus/Editor/Commands/StartupCommandContext.h>
 #include <Ludus/Editor/Core/PendingProjectTransition.h>
 #include <Ludus/Editor/Core/ProjectTemplates.h>
 #include <Ludus/Editor/Panels/PanelHelpers.h>
 #include <Ludus/Editor/Persistence/IProjectManifestPersistence.h>
-#include <Ludus/Editor/Persistence/Paths.h>
+#include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/Engine/Persistence/IRuntimeManifestPersistence.h>
 #include <Ludus/Engine/Persistence/IScenePersistence.h>
 
@@ -26,7 +27,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 			Ludus::Editor::Persistence::IProjectManifestPersistence& projectManifestPersistence
 		)
 		{
-			Ludus::Editor::Persistence::Paths::EnsureProjectLayoutExists(projectRoot);
+			Ludus::Editor::Persistence::ProjectPaths::EnsureProjectLayoutExists(projectRoot);
 
 			// Create default scene.
 			const auto scene = Ludus::Editor::Core::ProjectTemplates::CreateDefaultScene();
@@ -55,7 +56,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 			);
 			projectManifestPersistence.Save(
 				projectManifest,
-				Ludus::Editor::Persistence::Paths::ProjectManifestFile(projectRoot, projectName)
+				Ludus::Editor::Persistence::ProjectPaths::ProjectManifestFile(projectRoot, projectName)
 			);
 
 			// Set pending project.
@@ -65,8 +66,8 @@ namespace Ludus::Editor::Commands::Requests::Projects
 
 	void CreateProject(const RequestCommand::CreateProject& command, StartupCommandContext& context)
 	{
-		Ludus::Editor::Persistence::Paths::EnsureProjectsRootExists();
-		const auto projectRoot = Ludus::Editor::Persistence::Paths::ProjectRoot(command.Name);
+		Ludus::Editor::Persistence::ProjectPaths::EnsureProjectsRootExists();
+		const auto projectRoot = Ludus::Editor::Persistence::ProjectPaths::ProjectRoot(command.Name);
 		CreateProject(
 			projectRoot,
 			command.Name,
@@ -103,8 +104,8 @@ namespace Ludus::Editor::Commands::Requests::Projects
 
 	void CreateProject(const RequestCommand::CreateProject& command, ProjectSessionCommandContext& context)
 	{
-		Ludus::Editor::Persistence::Paths::EnsureProjectsRootExists();
-		const auto projectRoot = Ludus::Editor::Persistence::Paths::ProjectRoot(command.Name);
+		Ludus::Editor::Persistence::ProjectPaths::EnsureProjectsRootExists();
+		const auto projectRoot = Ludus::Editor::Persistence::ProjectPaths::ProjectRoot(command.Name);
 		CreateProject(
 			projectRoot,
 			command.Name,

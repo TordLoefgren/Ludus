@@ -6,6 +6,8 @@
 #include <variant>
 
 #include <Ludus/Editor/Build/BuildCommand.h>
+#include <Ludus/Editor/Build/BuildConfiguration.h>
+#include <Ludus/Editor/Build/BuildTarget.h>
 #include <Ludus/Editor/Commands/EntityReference.h>
 #include <Ludus/Editor/Core/ExecutionMode.h>
 #include <Ludus/Engine/Core/Scene.h>
@@ -31,7 +33,15 @@ namespace Ludus::Editor::Commands
 		struct CloseProject { };
 
 		struct CreateScript { EntityReference EntityReference; Ludus::Engine::Core::SceneHandle SceneHandle; std::string Name; };
-		struct BuildScript { Ludus::Editor::Build::BuildCommand BuildCommand; };
+
+		struct RunTargetBuildCommand
+		{
+			Ludus::Editor::Build::BuildTarget BuildTarget;
+			Ludus::Editor::Build::BuildCommand BuildCommand;
+			Ludus::Editor::Build::BuildConfiguration BuildConfiguration;
+		};
+		struct BuildRuntime { Ludus::Editor::Build::BuildConfiguration BuildConfiguration; };
+		struct CleanRuntime { };
 
 		struct SetExecutionMode { Ludus::Editor::Core::ExecutionMode Mode; };
 
@@ -39,7 +49,8 @@ namespace Ludus::Editor::Commands
 			AddViewport,
 			CreateScene, CreateSceneAs, OpenScene, SaveScene, SaveSceneAs,
 			CreateProject, CreateProjectAs, OpenProject, CloseProject,
-			CreateScript, BuildScript,
+			CreateScript,
+			RunTargetBuildCommand, BuildRuntime, CleanRuntime,
 			SetExecutionMode
 		>;
 

@@ -19,14 +19,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Ludus\Editor\Build\MSBuild\MSBuildContext.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Build\MSBuild\MSBuildRuntimeHostPipeline.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Build\MSBuild\MSBuildPipeline.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Build\RuntimePackage\RuntimeHostPackagePipeline.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Builds.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Scripts.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\EditorSession.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Persistence\ProjectSessionLoader.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Serialization\ProjectManifestSchema.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Persistence\LmlProjectManifestPersistence.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Build\BuildManager.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\CommandManager.cpp" />
-    <ClCompile Include="Source\Ludus\Editor\Build\MSBuildScriptPipeline.cpp" />
-    <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Scripts.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Build\MSBuild\MSBuildScriptPipeline.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\UI\Dialogs.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Edit\Entities.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Edit\Selection.cpp" />
@@ -65,7 +70,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\Editor\Build\IBuildPipeline.h" />
+    <ClInclude Include="Include\Ludus\Editor\Build\IPackagePipeline.h" />
+    <ClInclude Include="Include\Ludus\Editor\Build\MSBuild\MSBuildContext.h" />
+    <ClInclude Include="Include\Ludus\Editor\Build\MSBuild\MSBuildRuntimeHostPipeline.h" />
+    <ClInclude Include="Include\Ludus\Editor\Build\MSBuild\MSBuildPipeline.h" />
+    <ClInclude Include="Include\Ludus\Editor\Build\MSBuild\RuntimeHostBuildSettings.h" />
+    <ClInclude Include="Include\Ludus\Editor\Build\RuntimePackage\RuntimeHostPackagePipeline.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\ProjectSessionCommandContext.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Builds.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Scripts.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\StartupCommandContext.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSession.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorShell.h" />
@@ -79,10 +93,9 @@
     <ClInclude Include="Include\Ludus\Editor\Build\BuildManager.h" />
     <ClInclude Include="Include\Ludus\Editor\Build\BuildOperatingSystem.h" />
     <ClInclude Include="Include\Ludus\Editor\Build\BuildPlatform.h" />
-    <ClInclude Include="Include\Ludus\Editor\Build\IScriptBuildPipeline.h" />
-    <ClInclude Include="Include\Ludus\Editor\Build\ScriptBuildSettings.h" />
+    <ClInclude Include="Include\Ludus\Editor\Build\MSBuild\ScriptBuildSettings.h" />
     <ClInclude Include="Include\Ludus\Editor\Build\BuildTarget.h" />
-    <ClInclude Include="Include\Ludus\Editor\Build\MSBuildScriptPipeline.h" />
+    <ClInclude Include="Include\Ludus\Editor\Build\MSBuild\MSBuildScriptPipeline.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\CommandManager.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\CommandSet.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\Enqueue.h" />
@@ -94,7 +107,6 @@
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Panels.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Projects.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Scenes.h" />
-    <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Scripts.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\UICommand.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\UI\Dialogs.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ActivePanelState.h" />
@@ -128,7 +140,9 @@
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelHelpers.h" />
     <ClInclude Include="Include\Ludus\Editor\Persistence\IProjectManifestPersistence.h" />
     <ClInclude Include="Include\Ludus\Editor\Persistence\LmlProjectManifestPersistence.h" />
-    <ClInclude Include="Include\Ludus\Editor\Persistence\Paths.h" />
+    <ClInclude Include="Include\Ludus\Editor\Persistence\BuildPaths.h" />
+    <ClInclude Include="Include\Ludus\Editor\Persistence\ProjectPaths.h" />
+    <ClInclude Include="Include\Ludus\Editor\Persistence\RepositoryPaths.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorMode.h" />
     <ClInclude Include="Include\Ludus\Editor\Serialization\ProjectManifestSchema.h" />
     <ClInclude Include="Source\Ludus\Editor\pch.h" />
@@ -139,9 +153,11 @@
     <Image Include="Resources\LudusIcon.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Scripting\Templates\Script.cpp.template" />
-    <None Include="Resources\Scripting\Templates\ScriptsModule.cpp.template" />
-    <None Include="Resources\Scripting\Templates\Scripts.vcxproj.template" />
+    <None Include="Resources\Templates\RuntimeHost\RuntimeHost.vcxproj.template" />
+    <None Include="Resources\Templates\RuntimeHost\RuntimeHostModule.cpp.template" />
+    <None Include="Resources\Templates\Scripting\Script.cpp.template" />
+    <None Include="Resources\Templates\Scripting\ScriptsModule.cpp.template" />
+    <None Include="Resources\Templates\Scripting\Scripts.vcxproj.template" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

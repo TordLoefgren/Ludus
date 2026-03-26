@@ -11,9 +11,11 @@
 #include <Ludus/Editor/Core/PendingProjectTransition.h>
 #include <Ludus/Editor/Core/ProjectManifest.h>
 #include <Ludus/Editor/Core/ProjectSession.h>
-#include <Ludus/Editor/Persistence/Paths.h>
+#include <Ludus/Editor/Persistence/BuildPaths.h>
 #include <Ludus/Editor/Persistence/ProjectSessionLoader.h>
+#include <Ludus/Editor/Persistence/RepositoryPaths.h>
 #include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
+#include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Runtime/IHostContext.h>
 #include <Ludus/Engine/Runtime/RuntimeInstanceBuilder.h>
 #include <Ludus/Engine/Runtime/RuntimeManifest.h>
@@ -73,11 +75,16 @@ namespace Ludus::Editor::Core
 		Ludus::Editor::Core::ProjectManifest projectManifest
 	)
 	{
+		const auto engineResourcesDirectory = Ludus::Editor::Persistence::RepositoryPaths::EngineResourcesDirectory();
+
 		auto runtimeEnvironment = Ludus::Engine::Runtime::RuntimeEnvironment
 		{
 			.RuntimeRootDirectory = projectManifest.ProjectRoot,
+			.ResourcesDirectory = engineResourcesDirectory,
+			.ShadersDirectory = Ludus::Engine::Persistence::Paths::ShadersDirectory(engineResourcesDirectory.parent_path()),
+			.DefaultFontPath = Ludus::Engine::Persistence::Paths::DefaultFontFile(engineResourcesDirectory.parent_path()),
 			.RuntimeManifestPath = projectManifest.RuntimeManifestPath,
-			.ScriptModulePath = Ludus::Editor::Persistence::Paths::ScriptsDllFile(projectManifest.ProjectRoot)
+			.ScriptModulePath = Ludus::Editor::Persistence::BuildPaths::ScriptsDllFile(projectManifest.ProjectRoot)
 		};
 
 		auto loadedProject = m_ProjectSessionLoader.Load(std::move(projectManifest));
@@ -89,8 +96,6 @@ namespace Ludus::Editor::Core
 			std::move(loadedProject.ProjectManifest),
 			std::move(loadedProject.EntryScene)
 		);
-
-		projectSession.GetEditorRuntime().Initialize();
 
 		return projectSession;
 	}
