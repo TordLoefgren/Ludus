@@ -15,14 +15,15 @@ namespace Ludus::Engine::Graphics
 		RenderingOptions renderingOptions,
 		RenderingConfiguration2D& renderingConfiguration,
 		Ludus::Engine::Core::RenderViewRegistry& renderViewRegistry,
-		Ludus::Engine::Core::SceneRegistry& sceneRegistry
+		Ludus::Engine::Core::SceneRegistry& sceneRegistry,
+		const Ludus::Engine::Runtime::RuntimeEnvironment& runtimeEnvironment
 	) :
 		m_RenderingOptions(renderingOptions),
 		m_RenderingConfiguration(renderingConfiguration),
 		m_RenderViewRegistry(renderViewRegistry),
 		m_SceneRegistry(sceneRegistry),
-		m_Shader(),
-		m_Renderer(m_Shader),
+		m_Shader(runtimeEnvironment.ShadersDirectory),
+		m_Renderer(m_Shader, runtimeEnvironment.DefaultFontPath),
 		m_RenderingPipeline(m_RenderingConfiguration.GetRenderPasses())
 	{
 		m_Renderer.SetClearColor(m_RenderingOptions.ClearColor);

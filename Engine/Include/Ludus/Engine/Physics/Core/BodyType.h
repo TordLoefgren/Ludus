@@ -38,7 +38,7 @@ namespace Ludus::Engine::Physics::Core
 			case BodyType::Dynamic:		return "Dynamic";
 			case BodyType::Kinematic:	return "Kinematic";
 			case BodyType::Static:		return "Static";
-			default:					throw std::runtime_error("Unexpected enum.");
+			default:					throw std::runtime_error("Unsupported body type.");
 		}
 	}
 

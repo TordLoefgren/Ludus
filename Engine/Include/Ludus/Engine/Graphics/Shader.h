@@ -20,7 +20,7 @@ namespace Ludus::Engine::Graphics
 		unsigned int LoadShaders(std::filesystem::path path);
 
 	public:
-		Shader(std::filesystem::path path = "Resources/Shaders");
+		explicit Shader(std::filesystem::path path);
 		~Shader();
 
 		void Bind() const;

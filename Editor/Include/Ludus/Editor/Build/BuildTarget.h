@@ -2,5 +2,5 @@
 
 namespace Ludus::Editor::Build
 {
-	enum class BuildTarget { Scripts };
+	enum class BuildTarget { RuntimeHost, Scripts };
 }

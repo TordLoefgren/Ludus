@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <string>
 
-namespace Ludus::Editor::Build
+namespace Ludus::Editor::Build::MSBuild
 {
 	struct ScriptBuildSettings
 	{

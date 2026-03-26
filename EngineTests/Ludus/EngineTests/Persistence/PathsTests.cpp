@@ -68,16 +68,28 @@ namespace Ludus::EngineTests::Persistence
 		ASSERT_EQ(path, runtimeRootDirectory / "Scenes" / "MainMenu.ludus.scene");
 	}
 
-	TEST(Paths, ScriptsDirectory_Should_ReturnScriptsPath)
+	TEST(Paths, ShadersDirectory_Should_ReturnShadersPath)
 	{
 		// Arrange.
 		const auto runtimeRootDirectory = std::filesystem::path("C:/Projects/Sandbox");
 
 		// Act.
-		const auto path = Ludus::Engine::Persistence::Paths::ScriptsDirectory(runtimeRootDirectory);
+		const auto path = Ludus::Engine::Persistence::Paths::ShadersDirectory(runtimeRootDirectory);
 
 		// Assert.
-		ASSERT_EQ(path, runtimeRootDirectory / "Scripts");
+		ASSERT_EQ(path, runtimeRootDirectory / "Resources" / "Shaders");
+	}
+
+	TEST(Paths, DefaultFontFile_Should_ReturnDefaultFontPath)
+	{
+		// Arrange.
+		const auto runtimeRootDirectory = std::filesystem::path("C:/Projects/Sandbox");
+
+		// Act.
+		const auto path = Ludus::Engine::Persistence::Paths::DefaultFontFile(runtimeRootDirectory);
+
+		// Assert.
+		ASSERT_EQ(path, runtimeRootDirectory / "Resources" / "Fonts" / "liberation-sans" / "LiberationSans-Regular.ttf");
 	}
 
 	TEST(Paths, ScriptsDllFile_Should_ReturnScriptsDllPath)
@@ -89,6 +101,6 @@ namespace Ludus::EngineTests::Persistence
 		const auto path = Ludus::Engine::Persistence::Paths::ScriptsDllFile(runtimeRootDirectory);
 
 		// Assert.
-		ASSERT_EQ(path, runtimeRootDirectory / "Scripts" / "Scripts.dll");
+		ASSERT_EQ(path, runtimeRootDirectory / "Scripts.dll");
 	}
 }

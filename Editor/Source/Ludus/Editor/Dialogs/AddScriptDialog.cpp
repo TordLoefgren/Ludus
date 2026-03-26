@@ -7,7 +7,7 @@
 
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Dialogs/AddScriptDialog.h>
-#include <Ludus/Editor/Persistence/Paths.h>
+#include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/UI/Context/LayoutContext.h>
@@ -126,7 +126,7 @@ namespace Ludus::Editor::Dialogs
 				{
 					if (ActiveTab == AddScriptTab::Create)
 					{
-						Error = Ludus::Editor::Persistence::Paths::ValidateScriptName(CreateName);
+						Error = Ludus::Editor::Persistence::ProjectPaths::ValidateScriptName(CreateName);
 						if (Error.empty() && ScriptHandlesByName.find(CreateName) != ScriptHandlesByName.end())
 						{
 							Error = "Script already exists.";

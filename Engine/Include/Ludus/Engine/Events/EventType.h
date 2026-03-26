@@ -43,7 +43,7 @@ namespace Ludus::Engine::Events
 			case EventType::WindowPositionEvent:		return "WindowPositionEvent";
 			case EventType::WindowRefreshEvent:			return "WindowRefreshEvent";
 			case EventType::WindowSizeEvent:			return "WindowSizeEvent";
-			default:									throw std::runtime_error("Unexpected enum.");
+			default:									throw std::runtime_error("Unsupported event type.");
 		}
 	}
 }

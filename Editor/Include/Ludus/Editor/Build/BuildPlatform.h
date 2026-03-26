@@ -20,7 +20,7 @@ namespace Ludus::Editor::Build
 			case BuildPlatform::WindowsX64:
 				return "x64";
 			default:
-				throw std::runtime_error("Unexpected enum.");
+				throw std::runtime_error("Unsupported build platform.");
 		}
 	}
 }

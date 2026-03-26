@@ -16,7 +16,7 @@ namespace Ludus::Engine::Graphics
 		{
 			case Shape::Circle:	return "Circle";
 			case Shape::Quad:	return "Quad";
-			default:			throw std::runtime_error("Unexpected enum.");
+			default:			throw std::runtime_error("Unsupported shape.");
 		}
 	}
 

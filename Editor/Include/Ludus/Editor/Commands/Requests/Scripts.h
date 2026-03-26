@@ -10,5 +10,4 @@ namespace Ludus::Editor::Commands
 namespace Ludus::Editor::Commands::Requests::Scripts
 {
 	void CreateScript(const RequestCommand::CreateScript& command, ProjectSessionCommandContext& context);
-	void BuildScript(const RequestCommand::BuildScript& command, ProjectSessionCommandContext& context);
 }

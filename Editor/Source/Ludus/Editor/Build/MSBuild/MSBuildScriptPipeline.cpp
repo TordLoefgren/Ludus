@@ -6,8 +6,10 @@
 
 #include <Ludus/Editor/Build/BuildConfiguration.h>
 #include <Ludus/Editor/Build/BuildPlatform.h>
-#include <Ludus/Editor/Build/MSBuildScriptPipeline.h>
-#include <Ludus/Editor/Persistence/Paths.h>
+#include <Ludus/Editor/Build/MSBuild/MSBuildScriptPipeline.h>
+#include <Ludus/Editor/Persistence/BuildPaths.h>
+#include <Ludus/Editor/Persistence/ProjectPaths.h>
+#include <Ludus/Editor/Persistence/RepositoryPaths.h>
 #include <Ludus/Engine/Core/Enums.h>
 #include <Ludus/Engine/Core/Strings.h>
 #include <Ludus/Engine/FileSystem/FileSystem.h>
@@ -17,12 +19,6 @@ namespace
 {
 	struct Constants
 	{
-		static constexpr std::string_view VSWherePath = R"(C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe)";
-		static constexpr std::string_view MSBuildDirectoryName = "MSBuild";
-		static constexpr std::string_view CurrentDirectoryName = "Current";
-		static constexpr std::string_view BinDirectoryName = "Bin";
-		static constexpr std::string_view MSBuildExecutableName = "MSBuild.exe";
-
 		static constexpr std::string_view ScriptCppExtension = ".cpp";
 		static constexpr std::string_view ScriptSourceTemplateFile = "Script.cpp.template";
 		static constexpr std::string_view ScriptsProjectTemplateFile = "Scripts.vcxproj.template";
@@ -50,111 +46,16 @@ namespace
 
 	void RemoveProjectScriptsBuildLayout(const std::filesystem::path& projectRoot)
 	{
-		std::error_code errorCode;
-		std::filesystem::remove_all(Ludus::Editor::Persistence::Paths::ScriptsBinDirectory(projectRoot), errorCode);
-		if (errorCode)
-		{
-			throw std::runtime_error("Failed to remove scripts bin directory: " + errorCode.message());
-		}
+		Ludus::Engine::FileSystem::RemoveIfExists(Ludus::Editor::Persistence::BuildPaths::ScriptsBinDirectory(projectRoot));
+		Ludus::Engine::FileSystem::RemoveIfExists(Ludus::Editor::Persistence::BuildPaths::ScriptsObjDirectory(projectRoot));
 
-		std::filesystem::remove_all(Ludus::Editor::Persistence::Paths::ScriptsObjDirectory(projectRoot), errorCode);
-		if (errorCode)
-		{
-			throw std::runtime_error("Failed to remove scripts obj directory: " + errorCode.message());
-		}
-
-		std::filesystem::remove(Ludus::Editor::Persistence::Paths::BinDirectory(projectRoot), errorCode);
-		if (errorCode)
-		{
-			throw std::runtime_error("Failed to remove bin directory: " + errorCode.message());
-		}
-
-		std::filesystem::remove(Ludus::Editor::Persistence::Paths::ObjDirectory(projectRoot), errorCode);
-		if (errorCode)
-		{
-			throw std::runtime_error("Failed to remove obj directory: " + errorCode.message());
-		}
+		Ludus::Engine::FileSystem::RemoveDirectoryIfEmpty(Ludus::Editor::Persistence::BuildPaths::BinDirectory(projectRoot));
+		Ludus::Engine::FileSystem::RemoveDirectoryIfEmpty(Ludus::Editor::Persistence::BuildPaths::ObjDirectory(projectRoot));
 	}
 }
 
-namespace Ludus::Editor::Build
+namespace Ludus::Editor::Build::MSBuild
 {
-	std::optional<std::filesystem::path> MSBuildScriptPipeline::LocateMSBuild()
-	{
-		// We use vswhere to locate a Visual Studio installation that includes MSBuild.
-		const auto vswherePath = std::filesystem::path(Constants::VSWherePath);
-		if (!std::filesystem::exists(vswherePath))
-		{
-			return std::nullopt;
-		}
-
-		const auto args =
-			"-latest "
-			"-requires Microsoft.Component.MSBuild "
-			"-property installationPath";
-
-		const auto expected = Ludus::Engine::Platform::Process::Run(vswherePath, args);
-		if (!expected.HasValue())
-		{
-			LUDUS_LOG_ERROR("Process error: " + std::string(expected.GetError().what()));
-			return std::nullopt;
-		}
-
-		const auto& result = expected.GetValue();
-		if (result.ExitCode != 0)
-		{
-			LUDUS_LOG_ERROR("vswhere failed with exit code: " + result.ExitCode);
-			LUDUS_LOG_ERROR(result.Output);
-			return std::nullopt;
-		}
-
-		// Clean path string.
-		auto output = result.Output;
-		output.erase(std::remove(output.begin(), output.end(), '\r'), output.end());
-		output.erase(std::remove(output.begin(), output.end(), '\n'), output.end());
-
-		if (output.empty())
-		{
-			LUDUS_LOG_ERROR("vswhere returned empty output for installationPath.");
-			return std::nullopt;
-		}
-
-		// Visual Studio 2019 and 2022 has a documented convention for the MSBuild path, described here:
-		// https://learn.microsoft.com/en-us/visualstudio/msbuild/whats-new-msbuild-17-0?view=visualstudio
-		// If this changes in the future, we need to use "-find" instead, or branch cases.
-		const auto mSBuildPath = std::filesystem::path(output) /
-			std::string(Constants::MSBuildDirectoryName) /
-			std::string(Constants::CurrentDirectoryName) /
-			std::string(Constants::BinDirectoryName) /
-			std::string(Constants::MSBuildExecutableName);
-
-		if (!std::filesystem::exists(mSBuildPath))
-		{
-			LUDUS_LOG_ERROR("MSBuild.exe not found at expected path: " + mSBuildPath.string());
-			LUDUS_LOG_ERROR("vswhere installationPath output was: " + output);
-			return std::nullopt;
-		}
-
-		return mSBuildPath;
-	}
-
-	void MSBuildScriptPipeline::Initialize()
-	{
-		// MSBuildPath can be cached when editor configuration persistence is implemented.
-		if (!m_MSBuildPath || !std::filesystem::exists(*m_MSBuildPath))
-		{
-			m_MSBuildPath = LocateMSBuild();
-			if (m_MSBuildPath)
-			{
-				LUDUS_LOG_INFO("Located MSBuild path.");
-			}
-			else
-			{
-				LUDUS_LOG_WARN("Could not locate MSBuild path. Script compilation will not be available.");
-			}
-		}
-	}
-
 	void MSBuildScriptPipeline::CopyTemplateToDestinationIfMissing(
 		const std::filesystem::path& templateRoot,
 		std::string_view templateFileName,
@@ -173,8 +74,8 @@ namespace Ludus::Editor::Build
 
 	void MSBuildScriptPipeline::AddScript(std::string_view name, const std::filesystem::path& projectRoot)
 	{
-		const auto templateRoot = Ludus::Editor::Persistence::Paths::ScriptTemplatesDirectory();
-		const auto scriptSourceDirectory = Ludus::Editor::Persistence::Paths::ScriptsSourceDirectory(projectRoot);
+		const auto templateRoot = Ludus::Editor::Persistence::RepositoryPaths::ScriptTemplatesDirectory();
+		const auto scriptSourceDirectory = Ludus::Editor::Persistence::ProjectPaths::ScriptsSourceDirectory(projectRoot);
 		const auto destinationPath = scriptSourceDirectory / (std::string(name) + std::string(Constants::ScriptCppExtension));
 
 		if (std::filesystem::exists(destinationPath))
@@ -191,7 +92,7 @@ namespace Ludus::Editor::Build
 
 	void MSBuildScriptPipeline::AddScriptsModuleReference(std::string_view name, const std::filesystem::path& projectRoot)
 	{
-		const auto scriptModulePath = Ludus::Editor::Persistence::Paths::ScriptsModuleFile(projectRoot);
+		const auto scriptModulePath = Ludus::Editor::Persistence::ProjectPaths::ScriptsModuleFile(projectRoot);
 		auto text = Ludus::Engine::FileSystem::ReadAllText(scriptModulePath);
 
 		Ludus::Engine::Core::Strings::UpsertLineInRegion(
@@ -216,7 +117,7 @@ namespace Ludus::Editor::Build
 		const std::filesystem::path& projectRoot
 	)
 	{
-		const auto projectPath = Ludus::Editor::Persistence::Paths::ScriptsProjectFile(projectRoot);
+		const auto projectPath = Ludus::Editor::Persistence::ProjectPaths::ScriptsProjectFile(projectRoot);
 		auto text = Ludus::Engine::FileSystem::ReadAllText(projectPath);
 
 		Ludus::Engine::Core::Strings::UpsertLineInRegion(
@@ -231,10 +132,10 @@ namespace Ludus::Editor::Build
 
 	void MSBuildScriptPipeline::EnsureBuildFiles(const std::filesystem::path& projectRoot)
 	{
-		Ludus::Editor::Persistence::Paths::EnsureProjectScriptsSourceLayoutExists(projectRoot);
+		Ludus::Editor::Persistence::ProjectPaths::EnsureProjectScriptsSourceLayoutExists(projectRoot);
 
-		const auto templateRoot = Ludus::Editor::Persistence::Paths::ScriptTemplatesDirectory();
-		const auto scriptSourceDirectory = Ludus::Editor::Persistence::Paths::ScriptsSourceDirectory(projectRoot);
+		const auto templateRoot = Ludus::Editor::Persistence::RepositoryPaths::ScriptTemplatesDirectory();
+		const auto scriptSourceDirectory = Ludus::Editor::Persistence::ProjectPaths::ScriptsSourceDirectory(projectRoot);
 
 		CopyTemplateToDestinationIfMissing(
 			templateRoot,
@@ -254,7 +155,7 @@ namespace Ludus::Editor::Build
 		const ScriptBuildSettings& settings
 	)
 	{
-		const auto projectPath = Ludus::Editor::Persistence::Paths::ScriptsProjectFile(projectRoot);
+		const auto projectPath = Ludus::Editor::Persistence::ProjectPaths::ScriptsProjectFile(projectRoot);
 		auto text = Ludus::Engine::FileSystem::ReadAllText(projectPath);
 
 		if (text.find("${") == std::string::npos)
@@ -275,6 +176,10 @@ namespace Ludus::Editor::Build
 		Ludus::Engine::FileSystem::WriteAllText(projectPath, text);
 	}
 
+	MSBuildScriptPipeline::MSBuildScriptPipeline(MSBuildContext& context)
+		: m_Context(context)
+	{ }
+
 	void MSBuildScriptPipeline::RunBuild(
 		const std::filesystem::path& projectRoot,
 		BuildConfiguration configuration,
@@ -283,15 +188,15 @@ namespace Ludus::Editor::Build
 	{
 		if (command == BuildCommand::Build || command == BuildCommand::Rebuild)
 		{
-			Ludus::Editor::Persistence::Paths::EnsureProjectScriptsBuildLayoutExists(projectRoot);
+			Ludus::Editor::Persistence::BuildPaths::EnsureProjectScriptsBuildLayoutExists(projectRoot);
 		}
 
-		if (!m_MSBuildPath.has_value())
+		if (!m_Context.MSBuildPath.has_value())
 		{
 			throw std::runtime_error("MSBuild path not found.");
 		}
 
-		const auto projectPath = Ludus::Editor::Persistence::Paths::ScriptsProjectFile(projectRoot);
+		const auto projectPath = Ludus::Editor::Persistence::ProjectPaths::ScriptsProjectFile(projectRoot);
 
 		const auto configurationStr = Ludus::Engine::Core::Enums::GetDisplayName(configuration);
 		const auto platformStr = Ludus::Engine::Core::Enums::GetDisplayName(BuildPlatform::WindowsX64);
@@ -307,7 +212,7 @@ namespace Ludus::Editor::Build
 			"/p:Platform=" + std::string(platformStr) + " "
 			"/nologo";
 
-		const auto expected = Ludus::Engine::Platform::Process::Run(m_MSBuildPath.value(), args);
+		const auto expected = Ludus::Engine::Platform::Process::Run(m_Context.MSBuildPath.value(), args);
 		if (!expected.HasValue())
 		{
 			LUDUS_LOG_ERROR("Process error: " + std::string(expected.GetError().what()));
@@ -319,7 +224,7 @@ namespace Ludus::Editor::Build
 		const auto& result = expected.GetValue();
 		if (result.ExitCode != 0)
 		{
-			LUDUS_LOG_ERROR("MSBuild failed with exit code: " + result.ExitCode);
+			LUDUS_LOG_ERROR("MSBuild failed with exit code: " + std::to_string(result.ExitCode));
 			LUDUS_LOG_ERROR(result.Output);
 
 			return;

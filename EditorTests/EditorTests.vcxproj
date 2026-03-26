@@ -112,8 +112,10 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Ludus\EditorTests\Persistence\BuildPathsTests.cpp" />
     <ClCompile Include="Ludus\EditorTests\Persistence\LmlProjectManifestPersistenceTests.cpp" />
-    <ClCompile Include="Ludus\EditorTests\Persistence\PathsTests.cpp" />
+    <ClCompile Include="Ludus\EditorTests\Persistence\ProjectPathsTests.cpp" />
+    <ClCompile Include="Ludus\EditorTests\Persistence\RepositoryPathsTests.cpp" />
     <ClCompile Include="Ludus\EditorTests\SmokeTests.cpp" />
     <ClCompile Include="Ludus\EditorTests\Serialization\Schemas\ProjectManifestSchemaTests.cpp" />
     <ClCompile Include="pch.cpp">

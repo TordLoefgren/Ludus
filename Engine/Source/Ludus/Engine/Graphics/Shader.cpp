@@ -4,9 +4,9 @@
 #include <glm/glm.hpp>
 
 #include <Ludus/Engine/Debug/Debug.h>
+#include <Ludus/Engine/FileSystem/FileSystem.h>
 #include <Ludus/Engine/Graphics/GL.h>
 #include <Ludus/Engine/Graphics/Shader.h>
-#include <Ludus/Engine/FileSystem/FileSystem.h>
 
 namespace Ludus::Engine::Graphics
 {

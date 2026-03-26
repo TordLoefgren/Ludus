@@ -20,7 +20,7 @@ namespace Ludus::Editor::Core
 		{
 			case ViewportDisplayMode::Editor:		return "Editor";
 			case ViewportDisplayMode::Simulation:	return "Simulation";
-			default:								throw std::runtime_error("Unexpected enum.");
+			default:								throw std::runtime_error("Unsupported viewport display mode.");
 		}
 	}
 }

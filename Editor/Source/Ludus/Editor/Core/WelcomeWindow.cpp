@@ -6,7 +6,7 @@
 #include <Ludus/Editor/Commands/UICommand.h>
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Core/WelcomeWindow.h>
-#include <Ludus/Editor/Persistence/Paths.h>
+#include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/Engine/Platform/Modals.h>
 #include <Ludus/UI/Context/LayoutContext.h>
@@ -110,7 +110,7 @@ namespace Ludus::Editor::Core
 			if (Ludus::Engine::Platform::Modals::OpenFileDialog(
 				path,
 				"ludus.project",
-				Ludus::Editor::Persistence::Paths::ProjectsRoot()
+				Ludus::Editor::Persistence::ProjectPaths::ProjectsRoot()
 			))
 			{
 				Ludus::Editor::Commands::CommandSet out;

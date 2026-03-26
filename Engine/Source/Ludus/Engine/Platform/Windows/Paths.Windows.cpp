@@ -46,16 +46,44 @@ namespace Ludus::Engine::Platform::Paths
 
 	std::filesystem::path GetExecutablePath()
 	{
+		constexpr int MaxPathResizeAttempts = 6;
+
 		std::wstring buffer(MAX_PATH, L'\0');
 
-		const auto length = GetModuleFileNameW(nullptr, buffer.data(), MAX_PATH);
-		if (length == 0)
+		for (int attempt = 0; attempt < MaxPathResizeAttempts; ++attempt)
 		{
-			throw std::runtime_error("GetModuleFileNameW failed.");
+			const DWORD size = static_cast<DWORD>(buffer.size());
+			const DWORD length = ::GetModuleFileNameW(nullptr, buffer.data(), size);
+
+			if (length == 0)
+			{
+				throw std::runtime_error("GetModuleFileNameW failed.");
+			}
+
+			if (length < size - 1)
+			{
+				buffer.resize(length);
+
+				std::filesystem::path executablePath { buffer };
+
+				std::error_code errorCode;
+				if (!std::filesystem::exists(executablePath, errorCode) || errorCode)
+				{
+					throw std::runtime_error("Executable path does not exist.");
+				}
+
+				if (!std::filesystem::is_regular_file(executablePath, errorCode) || errorCode)
+				{
+					throw std::runtime_error("Executable path is not a regular file.");
+				}
+
+				return executablePath;
+			}
+
+			buffer.resize(buffer.size() * 2);
 		}
 
-		buffer.resize(length);
-		return std::filesystem::path(buffer);
+		throw std::runtime_error("Executable path exceeds supported buffer resize limit.");
 	}
 
 	void OpenFolder(const std::filesystem::path& path)

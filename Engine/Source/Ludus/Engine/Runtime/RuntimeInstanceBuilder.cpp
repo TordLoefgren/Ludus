@@ -197,7 +197,8 @@ namespace Ludus::Engine::Runtime
 					renderingOptions,
 					runtime.GetRenderingConfiguration(),
 					runtime.GetRenderViewRegistry(),
-					runtime.GetSceneRegistry()
+					runtime.GetSceneRegistry(),
+					runtime.GetRuntimeEnvironment()
 				);
 
 				runtime.AddSystem(
