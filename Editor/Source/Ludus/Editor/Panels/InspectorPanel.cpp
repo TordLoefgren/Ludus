@@ -197,7 +197,7 @@ namespace Ludus::Editor::Panels
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::TextUnformatted("Body Type");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::ComboEnum("##RigidBody2D_Combo", component.Type);
+				changed |= Ludus::UI::Widgets::ComboEnum("##RigidBody2D_Combo", component.BodyType);
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::TextUnformatted("Gravity Scale");
@@ -352,7 +352,7 @@ namespace Ludus::Editor::Panels
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::TextUnformatted("Horizontal Alignment");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::ComboEnum("##Text2D_Panel_Combo", component.HorizontalAlignment);
+				changed |= Ludus::UI::Widgets::ComboEnum("##Text2D_Panel_Combo", component.HorizontalTextAlignment);
 			}
 		}
 

@@ -2,6 +2,7 @@
 
 #include <filesystem>
 
+#include <Ludus/Editor/Build/RuntimeManifestBuildHelpers.h>
 #include <Ludus/Editor/Build/RuntimePackage/RuntimeHostPackagePipeline.h>
 #include <Ludus/Editor/Persistence/BuildPaths.h>
 #include <Ludus/Engine/FileSystem/FileSystem.h>
@@ -11,17 +12,6 @@
 
 namespace
 {
-	void RewriteScenePathsForPackagedRuntime(
-		Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest,
-		const std::filesystem::path& runtimeRoot
-	)
-	{
-		for (auto& scene : runtimeManifest.Scenes)
-		{
-			scene.Path = Ludus::Engine::Persistence::Paths::RuntimeSceneFile(runtimeRoot, scene.Path);
-		}
-	}
-
 	void StagePackagedRuntimeManifest(
 		const std::filesystem::path& manifestFrom,
 		const std::filesystem::path& outputRoot,
@@ -30,7 +20,9 @@ namespace
 	{
 		Ludus::Engine::Persistence::LmlRuntimeManifestPersistence runtimeManifestPersistence;
 		auto runtimeManifest = runtimeManifestPersistence.Load(manifestFrom);
-		RewriteScenePathsForPackagedRuntime(runtimeManifest, outputRoot);
+
+		Ludus::Editor::Build::RewriteScenePathsForPackagedRuntime(runtimeManifest);
+
 		runtimeManifestPersistence.Save(
 			runtimeManifest,
 			Ludus::Engine::Persistence::Paths::RuntimeManifestFile(outputRoot, runtimeName)

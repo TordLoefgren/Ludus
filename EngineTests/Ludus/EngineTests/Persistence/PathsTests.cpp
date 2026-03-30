@@ -68,6 +68,18 @@ namespace Ludus::EngineTests::Persistence
 		ASSERT_EQ(path, runtimeRootDirectory / "Scenes" / "MainMenu.ludus.scene");
 	}
 
+	TEST(Paths, RuntimeRelativeSceneFile_Should_ReturnScenePathRelativeToRuntimeRoot)
+	{
+		// Arrange.
+		const auto scenePath = std::filesystem::path("C:/Projects/Sandbox/Scenes/MainMenu.ludus.scene");
+
+		// Act.
+		const auto path = Ludus::Engine::Persistence::Paths::RuntimeRelativeSceneFile(scenePath);
+
+		// Assert.
+		ASSERT_EQ(path, std::filesystem::path("Scenes") / "MainMenu.ludus.scene");
+	}
+
 	TEST(Paths, ShadersDirectory_Should_ReturnShadersPath)
 	{
 		// Arrange.

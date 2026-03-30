@@ -11,5 +11,6 @@ namespace Ludus::Engine::Platform
 
 	SharedLibraryHandle LoadSharedLibrary(const std::filesystem::path& path);
 	void UnloadSharedLibrary(SharedLibraryHandle handle);
+
 	void* GetSharedLibrarySymbol(SharedLibraryHandle handle, const char* name);
 }

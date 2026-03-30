@@ -47,6 +47,11 @@ namespace Ludus::Engine::Persistence::Paths
 		return ScenesDirectory(runtimeRootDirectory) / scenePath.filename();
 	}
 
+	inline std::filesystem::path RuntimeRelativeSceneFile(const std::filesystem::path& scenePath)
+	{
+		return std::filesystem::path(std::string(Constants::ScenesDirectory)) / scenePath.filename();
+	}
+
 	inline std::filesystem::path ResolveRuntimeScenePath(
 		const std::filesystem::path& runtimeRootDirectory,
 		const std::filesystem::path& scenePath

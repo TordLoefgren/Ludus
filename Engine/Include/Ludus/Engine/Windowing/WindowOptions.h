@@ -7,8 +7,8 @@ namespace Ludus::Engine::Windowing
 {
 	struct WindowOptions
 	{
-		int StartupWidth = 1024;
-		int StartupHeight = 768;
+		int StartupWidth = 1920;
+		int StartupHeight = 1080;
 		std::string Title = "Ludus";
 		std::string IconPath = "";
 		bool IsResizeable = true;

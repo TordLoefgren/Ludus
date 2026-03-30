@@ -1,6 +1,8 @@
 #pragma once
 
+#include <span>
 #include <unordered_map>
+#include <vector>
 
 #include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Physics/Narrowphase/ContactPair2D.h>
@@ -39,6 +41,17 @@ namespace Ludus::Engine::Physics::Queries
 			}
 		}
 
+		virtual std::span<const ContactPair2D> GetContacts(EntityHandle handle) const override
+		{
+			auto iter = m_ContactsByEntity.find(handle);
+			if (iter == m_ContactsByEntity.end())
+			{
+				return { };
+			}
+
+			return iter->second;
+		}
+
 		virtual bool IsColliding(EntityHandle handle) const override
 		{
 			auto iter = m_ContactsByEntity.find(handle);
@@ -63,9 +76,9 @@ namespace Ludus::Engine::Physics::Queries
 				contacts.begin(),
 				contacts.end(),
 				[handleA, handleB](const ContactPair2D& pair)
-				{
-					return PairInvolves(pair, handleA, handleB);
-				}
+			{
+				return PairInvolves(pair, handleA, handleB);
+			}
 			);
 		}
 
@@ -82,9 +95,9 @@ namespace Ludus::Engine::Physics::Queries
 				contacts.begin(),
 				contacts.end(),
 				[](const ContactPair2D& pair)
-				{
-					return pair.IsTriggerPair;
-				}
+			{
+				return pair.IsTriggerPair;
+			}
 			);
 		}
 
@@ -102,9 +115,9 @@ namespace Ludus::Engine::Physics::Queries
 				contacts.begin(),
 				contacts.end(),
 				[handleA, handleB](const ContactPair2D& pair)
-				{
-					return pair.IsTriggerPair && PairInvolves(pair, handleA, handleB);
-				}
+			{
+				return pair.IsTriggerPair && PairInvolves(pair, handleA, handleB);
+			}
 			);
 		}
 

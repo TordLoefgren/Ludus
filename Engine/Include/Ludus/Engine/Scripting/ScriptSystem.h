@@ -2,236 +2,61 @@
 
 #include <cstdint>
 #include <filesystem>
-#include <string>
 #include <vector>
 
 #include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/ExecutionFlags.h>
-#include <Ludus/Engine/Core/Mask.h>
-#include <Ludus/Engine/Debug/Debug.h>
+#include <Ludus/Engine/Core/Scene.h>
+#include <Ludus/Engine/Core/SceneRegistry.h>
+#include <Ludus/Engine/Physics/Queries/IPhysicsQueryCache2D.h>
 #include <Ludus/Engine/Runtime/IHostContext.h>
 #include <Ludus/Engine/Runtime/ISystem.h>
-#include <Ludus/Engine/Scripting/API/Types.h>
+#include <Ludus/Engine/Scripting/LoadedScriptModule.h>
+#include <Ludus/Engine/Scripting/ScriptEngine.h>
 #include <Ludus/Engine/Scripting/ScriptInstanceState.h>
-#include <Ludus/Engine/Scripting/ScriptRepository.h>
 
 namespace Ludus::Engine::Scripting
 {
 	class ScriptSystem final : public Ludus::Engine::Runtime::ISystem
 	{
 	private:
-		uint64_t m_FrameCounter = 0;
 		Ludus::Engine::Runtime::IHostContext& m_HostContext;
-		std::vector<ScriptInstanceState> m_InstanceStates;
-		bool m_IsModuleLoaded = false;
 		std::filesystem::path m_ScriptModulePath;
-		ScriptRepository m_ScriptRepository;
 		Ludus::Engine::Core::SceneRegistry& m_SceneRegistry;
+		Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* m_QueryCache;
+		ScriptEngine m_ScriptEngine;
+		LoadedScriptModule m_LoadedScriptModule;
 
-		void DestroyInstance(const ScriptInstanceState& state)
-		{
-			if (!state.HasCreated || !state.Definition || !state.Definition->OnDestroy)
-			{
-				return;
-			}
+		std::vector<ScriptInstanceState> m_InstanceStates;
+		std::uint64_t m_FrameCounter = 0;
+		bool m_IsModuleLoaded = false;
 
-			state.Definition->OnDestroy(state.OwnerHandle, &m_Context);
-		}
+		bool LoadModule();
+		bool UnloadModule();
 
-		void DestroyAllInstances()
-		{
-			for (const auto& state : m_InstanceStates)
-			{
-				DestroyInstance(state);
-			}
+		ScriptInstanceState& FindOrCreateInstanceState(
+			Ludus::Engine::Core::SceneHandle sceneHandle,
+			Ludus::Engine::Core::EntityHandle ownerHandle
+		);
+		void DestroyInactiveInstances(std::uint64_t currentFrame);
+		void DestroyInstance(const ScriptInstanceState& state);
+		void DestroyAllInstances();
 
-			m_InstanceStates.clear();
-		}
-
-		bool LoadModule()
-		{
-			if (m_IsModuleLoaded)
-			{
-				return false;
-			}
-
-			m_IsModuleLoaded = m_ScriptRepository.LoadScriptModule(m_ScriptModulePath);
-
-			// The module might already have been loaded, in which case we return whether the module was loaded this frame.
-			return m_IsModuleLoaded;
-		}
-
-		bool UnloadModule()
-		{
-			if (!m_IsModuleLoaded)
-			{
-				return false;
-			}
-
-			DestroyAllInstances();
-
-			const auto success = m_ScriptRepository.UnloadScriptModule();
-			m_IsModuleLoaded = false;
-
-			// The module might already have been unloaded, in which case we return whether the module was unloaded this frame.
-			return success;
-		}
-
-		static void OnDebugImpl(const char* message)
-		{
-			LUDUS_LOG_DEBUG(message ? message : "");
-		}
-
-		static void OnPrintImpl(const char* message)
-		{
-			LUDUS_LOG_INFO(message ? message : "");
-		}
-
-		Ludus::Engine::Scripting::API::ScriptContext m_Context
-		{
-			.Debug = &OnDebugImpl,
-			.Print = &OnPrintImpl
-		};
+		void DispatchCollisionCallbacks(ScriptInstanceState& state);
 
 	public:
 		ScriptSystem(
 			Ludus::Engine::Runtime::IHostContext& hostContext,
 			Ludus::Engine::Core::SceneRegistry& sceneRegistry,
+			Ludus::Engine::Core::SceneHandle& activeSceneHandle,
+			Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* queryCache,
 			const std::filesystem::path& scriptModulePath
-		) :
-			m_HostContext(hostContext),
-			m_SceneRegistry(sceneRegistry),
-			m_ScriptModulePath(scriptModulePath)
-		{ }
-
-		~ScriptSystem() = default;
+		);
 
 	protected:
-		virtual void OnTransitionEnterImpl() override
-		{
-			(void)UnloadModule();
-			const auto isLoaded = LoadModule();
-			if (isLoaded)
-			{
-				LUDUS_LOG_INFO("Script module loaded.");
-			}
-			else
-			{
-				LUDUS_LOG_WARN("Script module could not be loaded.");
-			}
-		}
-
-		virtual void OnTransitionExitImpl() override
-		{
-			const auto isUnloaded = UnloadModule();
-			if (isUnloaded)
-			{
-				LUDUS_LOG_INFO("Script module unloaded.");
-			}
-			else
-			{
-				LUDUS_LOG_WARN("Script module could not be unloaded.");
-			}
-		}
-
-		ScriptInstanceState& FindOrCreateInstanceState(Ludus::Engine::Core::SceneHandle sceneHandle, Ludus::Engine::Core::EntityHandle ownerHandle)
-		{
-			// Return existing.
-			for (auto& state : m_InstanceStates)
-			{
-				if (state.SceneHandle == sceneHandle && state.OwnerHandle == ownerHandle)
-				{
-					return state;
-				}
-			}
-
-			// Return new.
-			m_InstanceStates.push_back(ScriptInstanceState
-				{
-					.SceneHandle = sceneHandle,
-					.OwnerHandle = ownerHandle,
-					.Definition = nullptr,
-					.HasCreated = false,
-					.LastSeenFrame = 0
-				}
-			);
-
-			return m_InstanceStates.back();
-		}
-
-		void DestroyInactiveInstances(std::uint64_t currentFrame)
-		{
-			for (auto iter = m_InstanceStates.begin(); iter != m_InstanceStates.end(); )
-			{
-				if (iter->LastSeenFrame != currentFrame)
-				{
-					DestroyInstance(*iter);
-					iter = m_InstanceStates.erase(iter);
-					continue;
-				}
-
-				++iter;
-			}
-		}
-
-		virtual void UpdateImpl(float deltaTime) override
-		{
-			if (!m_IsModuleLoaded)
-			{
-				return;
-			}
-
-			if (!m_HostContext.GetExecutionFlags().HasAny(Ludus::Engine::Core::ExecutionFlags::SimulationEnabled))
-			{
-				return;
-			}
-
-			const auto currentFrame = ++m_FrameCounter;
-
-			for (auto& scene : m_SceneRegistry.ViewMutable())
-			{
-				for (auto& script : scene.EntityComponentSystem.Scripts.ViewMutable())
-				{
-					const auto* definition = m_ScriptRepository.TryFindDefinition(script.Name);
-					if (!definition)
-					{
-						continue;
-					}
-
-					auto& state = FindOrCreateInstanceState(scene.Handle, script.OwnerHandle);
-					state.LastSeenFrame = currentFrame;
-
-					// If the script has changed, destroy the old instance and reset its lifecycle.
-					if (state.Definition != definition)
-					{
-						DestroyInstance(state);
-						state.Definition = definition;
-						state.HasCreated = false;
-					}
-
-					if (!state.HasCreated)
-					{
-						if (definition->OnCreate)
-						{
-							definition->OnCreate(script.OwnerHandle, &m_Context);
-						}
-						state.HasCreated = true;
-					}
-
-					if (definition->OnUpdate)
-					{
-						definition->OnUpdate(script.OwnerHandle, deltaTime, &m_Context);
-					}
-				}
-			}
-
-			// Destroy instances that have not been seen this frame.
-			DestroyInactiveInstances(currentFrame);
-		}
-
-		virtual void OnDetachImpl() override
-		{
-			UnloadModule();
-		}
+		virtual void OnTransitionEnterImpl() override;
+		virtual void OnTransitionExitImpl() override;
+		virtual void UpdateImpl(float deltaTime) override;
+		virtual void OnDetachImpl() override;
 	};
 }

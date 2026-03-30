@@ -29,8 +29,8 @@ namespace Ludus::Engine::Physics::Solvers
 				auto* transformA = world.Transforms[i];
 				auto* transformB = world.Transforms[j];
 
-				const float weightA = Ludus::Engine::Physics::Core::GetContactWeight(bodyA->Type);
-				const float weightB = Ludus::Engine::Physics::Core::GetContactWeight(bodyB->Type);
+				const float weightA = Ludus::Engine::Physics::Core::GetContactWeight(bodyA->BodyType);
+				const float weightB = Ludus::Engine::Physics::Core::GetContactWeight(bodyB->BodyType);
 
 				const float weightSum = weightA + weightB;
 				if (weightSum == 0.0f)

@@ -67,7 +67,7 @@ namespace Ludus::Engine::Graphics
 				const auto* transform = ecs.Transforms.TryGetByOwner(text.OwnerHandle);
 				if (transform)
 				{
-					renderer.DrawText(*transform, text.Text, text.Color, text.HorizontalAlignment);
+					renderer.DrawText(*transform, text.Text, text.Color, text.HorizontalTextAlignment);
 				}
 			}
 		};

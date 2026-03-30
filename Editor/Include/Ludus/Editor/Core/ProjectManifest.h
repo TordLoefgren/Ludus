@@ -9,7 +9,7 @@ namespace Ludus::Editor::Core
 {
 	struct ProjectManifest
 	{
-		inline static constexpr Ludus::Engine::Core::Version CurrentVersion = { 0, 3, 0 };
+		inline static constexpr Ludus::Engine::Core::Version CurrentVersion = { 0, 2, 0 };
 
 		Ludus::Engine::Core::Version Version = CurrentVersion;
 		std::filesystem::path ProjectRoot;

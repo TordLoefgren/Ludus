@@ -129,10 +129,10 @@ namespace Ludus::Engine::Core
 			EntityHandle handle,
 			std::string text = "",
 			Ludus::Engine::Graphics::Color color = Ludus::Engine::Graphics::Colors::White,
-			Ludus::Engine::Graphics::HorizontalTextAlignment horizontalAlignment = Ludus::Engine::Graphics::HorizontalTextAlignment::Left
+			Ludus::Engine::Graphics::HorizontalTextAlignment horizontalTextAlignment = Ludus::Engine::Graphics::HorizontalTextAlignment::Left
 		)
 		{
-			Texts.Add(handle, text, color, horizontalAlignment);
+			Texts.Add(handle, text, color, horizontalTextAlignment);
 		}
 
 		void AttachText(Ludus::Engine::Components::Text2DComponent component) { Texts.Add(component); }

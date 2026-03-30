@@ -18,7 +18,7 @@ namespace Ludus::Engine::Physics::Integrators
 				auto* rigidBody = world.RigidBodies[i];
 				auto* transform = world.Transforms[i];
 
-				if (rigidBody->Type == Ludus::Engine::Physics::Core::BodyType::Dynamic)
+				if (rigidBody->BodyType == Ludus::Engine::Physics::Core::BodyType::Dynamic)
 				{
 					// Gravity will should be eventually be applied alongisde other forces. 
 					const Ludus::Engine::Math::Vector2D gravity = { 0.0f, -10.0f };
