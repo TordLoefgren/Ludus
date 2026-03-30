@@ -93,6 +93,7 @@
     <ClInclude Include="Include\Ludus\Editor\Build\BuildManager.h" />
     <ClInclude Include="Include\Ludus\Editor\Build\BuildOperatingSystem.h" />
     <ClInclude Include="Include\Ludus\Editor\Build\BuildPlatform.h" />
+    <ClInclude Include="Include\Ludus\Editor\Build\RuntimeManifestBuildHelpers.h" />
     <ClInclude Include="Include\Ludus\Editor\Build\MSBuild\ScriptBuildSettings.h" />
     <ClInclude Include="Include\Ludus\Editor\Build\BuildTarget.h" />
     <ClInclude Include="Include\Ludus\Editor\Build\MSBuild\MSBuildScriptPipeline.h" />

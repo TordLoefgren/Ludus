@@ -46,7 +46,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		rigidBody.Velocity = { 3.0f, 4.0f };
 		rigidBody.GravityScale = 2.0f;
 		rigidBody.Mass = 5.0f;
-		rigidBody.Type = BodyType::Kinematic;
+		rigidBody.BodyType = BodyType::Kinematic;
 
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
@@ -64,7 +64,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		const auto* velocityNode = FindMember(rigidBodyObject, "Velocity");
 		const auto* gravityNode = FindMember(rigidBodyObject, "GravityScale");
 		const auto* massNode = FindMember(rigidBodyObject, "Mass");
-		const auto* typeNode = FindMember(rigidBodyObject, "Type");
+		const auto* typeNode = FindMember(rigidBodyObject, "BodyType");
 
 		ASSERT_NE(ownerNode, nullptr);
 		ASSERT_NE(velocityNode, nullptr);
@@ -108,7 +108,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		writer.Emit(Token::Double { 2.0f });
 		writer.Emit(Token::Key { "Mass" });
 		writer.Emit(Token::Double { 5.0f });
-		writer.Emit(Token::Key { "Type" });
+		writer.Emit(Token::Key { "BodyType" });
 		writer.Emit(Token::String { "Kinematic" });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
@@ -125,7 +125,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		ASSERT_EQ(rigidBodyResult.Velocity.Y, 4.0f);
 		ASSERT_EQ(rigidBodyResult.GravityScale, 2.0f);
 		ASSERT_EQ(rigidBodyResult.Mass, 5.0f);
-		ASSERT_EQ(rigidBodyResult.Type, BodyType::Kinematic);
+		ASSERT_EQ(rigidBodyResult.BodyType, BodyType::Kinematic);
 	}
 
 	TEST(RigidBody2DComponentSchema, Deserialize_DefaultsOptionalFields_When_Missing)

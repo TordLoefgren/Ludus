@@ -11,7 +11,7 @@ namespace Ludus::Engine::Components
 	struct Transform2DComponent
 	{
 	public:
-		Ludus::Engine::Core::EntityHandle OwnerHandle {};
+		Ludus::Engine::Core::EntityHandle OwnerHandle { };
 		Ludus::Engine::Math::Vector2D Position { 0.0f, 0.0f };
 		Ludus::Engine::Math::Vector2D Scale { 1.0f, 1.0f };
 		float Rotation { 0.0f };

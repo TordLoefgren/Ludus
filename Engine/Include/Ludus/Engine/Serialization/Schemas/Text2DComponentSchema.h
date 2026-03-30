@@ -47,9 +47,9 @@ namespace Ludus::Engine::Serialization::Schemas
 				writer.Emit(Token::EndObject { });
 			}
 
-			const std::string horizontalAlignment = Ludus::Engine::Core::Enums::GetDisplayName(text.HorizontalAlignment);
-			writer.Emit(Token::Key { "HorizontalAlignment" });
-			writer.Emit(Token::String { horizontalAlignment });
+			const std::string horizontalTextAlignment = Ludus::Engine::Core::Enums::GetDisplayName(text.HorizontalTextAlignment);
+			writer.Emit(Token::Key { "HorizontalTextAlignment" });
+			writer.Emit(Token::String { horizontalTextAlignment });
 
 			writer.Emit(Token::EndObject { });
 		}
@@ -104,14 +104,14 @@ namespace Ludus::Engine::Serialization::Schemas
 						});
 						return;
 					}
-					if (key == "HorizontalAlignment")
+					if (key == "HorizontalTextAlignment")
 					{
-						std::string horizontalAlignment = std::string(
+						std::string horizontalTextAlignment = std::string(
 							Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
 						Ludus::Engine::Graphics::HorizontalTextAlignment parsed;
-						if (Ludus::Engine::Graphics::TryParse(horizontalAlignment, parsed))
+						if (Ludus::Engine::Graphics::TryParse(horizontalTextAlignment, parsed))
 						{
-							text.HorizontalAlignment = parsed;
+							text.HorizontalTextAlignment = parsed;
 						}
 						return;
 					}

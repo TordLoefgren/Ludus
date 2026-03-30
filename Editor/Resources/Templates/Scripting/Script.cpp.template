@@ -1,20 +1,50 @@
-#include <Scripts.h>
+#include <Scripting.h>
 
 using namespace Ludus::Scripts;
 
-static void OnCreate(EntityId self, ScriptContext* context)
+static void OnCreate(ScriptContext* context, EntityHandle self)
 {
-	context->Print("[CREATE] From SCRIPT_NAME");
+	(void)context;
+	(void)self;
 }
 
-static void OnDestroy(EntityId self, ScriptContext* context)
+static void OnUpdate(ScriptContext* context, EntityHandle self, float deltaTime)
 {
-	context->Print("[DESTROY] From SCRIPT_NAME");
+	Transform2DData transform;
+	if (!GetTransform(context, self, &transform))
+	{
+		return;
+	}
+
+	constexpr float speed = 5.0f;
+
+	if (GetKey(context, Key::W))
+	{
+		transform.Position.Y += speed * deltaTime;
+	}
+
+	if (GetKey(context, Key::S))
+	{
+		transform.Position.Y -= speed * deltaTime;
+	}
+
+	if (GetKey(context, Key::A))
+	{
+		transform.Position.X -= speed * deltaTime;
+	}
+
+	if (GetKey(context, Key::D))
+	{
+		transform.Position.X += speed * deltaTime;
+	}
+
+	SetTransform(context, self, &transform);
 }
 
-static void OnUpdate(EntityId self, float dt, ScriptContext* context)
+static void OnDestroy(ScriptContext* context, EntityHandle self)
 {
-	context->Print("[UPDATE] From SCRIPT_NAME");
+	(void)context;
+	(void)self;
 }
 
 LUDUS_DEFINE_SCRIPT(SCRIPT_NAME, &OnCreate, &OnDestroy, &OnUpdate);

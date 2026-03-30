@@ -20,6 +20,7 @@ namespace
 		static constexpr std::string_view GladDirectory = "glad";
 		static constexpr std::string_view GladIncludeDirectory = "include";
 		static constexpr std::string_view EngineProjectFile = "Engine.vcxproj";
+		static constexpr std::string_view ScriptingProjectFile = "Scripting.vcxproj";
 	};
 }
 
@@ -76,9 +77,10 @@ namespace Ludus::Editor::Build::MSBuild
 			case Ludus::Editor::Build::BuildTarget::Scripts:
 			{
 				ScriptBuildSettings settings = {
-					Ludus::Editor::Persistence::RepositoryPaths::EngineScriptingApiScriptsIncludeDirectory(),
+					Ludus::Editor::Persistence::RepositoryPaths::ScriptingAPIIncludeDirectory(),
 					Ludus::Editor::Persistence::BuildPaths::ScriptsBinDirectory(projectRoot),
 					Ludus::Editor::Persistence::BuildPaths::ScriptsObjDirectory(projectRoot),
+					Ludus::Editor::Persistence::RepositoryPaths::ScriptingDirectory() / std::string(Constants::ScriptingProjectFile),
 					std::string(Ludus::Editor::Persistence::BuildPaths::Constants::ScriptsTarget)
 				};
 

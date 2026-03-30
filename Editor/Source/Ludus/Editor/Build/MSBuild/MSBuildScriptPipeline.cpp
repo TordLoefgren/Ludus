@@ -37,6 +37,7 @@ namespace
 		static constexpr std::string_view IncludeDirectoryToken = "${LUDUS_SCRIPTS_INCLUDE_DIR}";
 		static constexpr std::string_view OutDirectoryToken = "${LUDUS_SCRIPT_OUT_DIR}";
 		static constexpr std::string_view IntermediateDirectoryToken = "${LUDUS_SCRIPT_INT_DIR}";
+		static constexpr std::string_view ScriptingProjectPathToken = "${LUDUS_SCRIPTING_PROJECT_PATH}";
 		static constexpr std::string_view TargetNameToken = "${LUDUS_TARGET_NAME}";
 
 		static constexpr std::string_view BuildCommand = "Build";
@@ -158,14 +159,10 @@ namespace Ludus::Editor::Build::MSBuild
 		const auto projectPath = Ludus::Editor::Persistence::ProjectPaths::ScriptsProjectFile(projectRoot);
 		auto text = Ludus::Engine::FileSystem::ReadAllText(projectPath);
 
-		if (text.find("${") == std::string::npos)
-		{
-			return;
-		}
-
-		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::IncludeDirectoryToken, Ludus::Engine::FileSystem::ToPortablePathString(settings.IncludeDirectory));
+		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::IncludeDirectoryToken, Ludus::Engine::FileSystem::ToPortablePathString(settings.APIIncludeDirectory));
 		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::OutDirectoryToken, Ludus::Engine::FileSystem::ToPortablePathString(settings.OutDirectory));
 		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::IntermediateDirectoryToken, Ludus::Engine::FileSystem::ToPortablePathString(settings.InDirectory));
+		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::ScriptingProjectPathToken, Ludus::Engine::FileSystem::ToPortablePathString(settings.ScriptingProjectPath));
 		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::TargetNameToken, settings.TargetName);
 
 		if (text.find("${") != std::string::npos)

@@ -69,8 +69,6 @@ namespace Ludus::Engine::Physics::Core
 			int subSteps
 		)
 		{
-			queryCache.Clear();
-
 			auto fixedTimeDelta = fixedTime / subSteps;
 			for (int i = 0; i < subSteps; i++)
 			{

@@ -70,7 +70,7 @@ namespace Ludus::Engine::Graphics
 		void DrawQuad(const Ludus::Engine::Components::Transform2DComponent& transform, Color color = Colors::White, Texture* texture = nullptr, bool fill = true);
 		void DrawLine(float x1, float y1, float x2, float y2, Color color = Colors::White);
 		void DrawCircle(const Ludus::Engine::Components::Transform2DComponent& transform, Color color = Colors::White, bool fill = true);
-		void DrawText(const Ludus::Engine::Components::Transform2DComponent& transform, std::string_view text, Color color = Colors::White, HorizontalTextAlignment horizontalAlignment = HorizontalTextAlignment::Left);
+		void DrawText(const Ludus::Engine::Components::Transform2DComponent& transform, std::string_view text, Color color = Colors::White, HorizontalTextAlignment horizontalTextAlignment = HorizontalTextAlignment::Left);
 
 		void Clear() const;
 		void Flush();

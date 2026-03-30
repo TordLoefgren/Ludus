@@ -56,10 +56,22 @@ namespace Ludus::EditorTests::Persistence
 		ASSERT_EQ(path, RepositoryPaths::EngineDirectory() / "Vendors");
 	}
 
-	TEST(RepositoryPaths, EngineScriptingApiScriptsIncludeDirectory_Should_ReturnScriptsApiIncludeDirectory)
+	TEST(RepositoryPaths, ScriptingDirectory_Should_ReturnScriptingDirectory)
 	{
-		const auto path = RepositoryPaths::EngineScriptingApiScriptsIncludeDirectory();
-		ASSERT_EQ(path, RepositoryPaths::EngineIncludeDirectory() / "Ludus" / "Engine" / "Scripting" / "API" / "Scripts");
+		const auto path = RepositoryPaths::ScriptingDirectory();
+		ASSERT_EQ(path, RepositoryPaths::ResolveRepositoryRoot() / "Scripting");
+	}
+
+	TEST(RepositoryPaths, ScriptingIncludeDirectory_Should_ReturnScriptingIncludeDirectory)
+	{
+		const auto path = RepositoryPaths::ScriptingIncludeDirectory();
+		ASSERT_EQ(path, RepositoryPaths::ScriptingDirectory() / "Include");
+	}
+
+	TEST(RepositoryPaths, ScriptingAPIIncludeDirectory_Should_ReturnAPIIncludeDirectory)
+	{
+		const auto path = RepositoryPaths::ScriptingAPIIncludeDirectory();
+		ASSERT_EQ(path, RepositoryPaths::ScriptingIncludeDirectory() / "Ludus" / "Scripting" / "API");
 	}
 
 	TEST(RepositoryPaths, TemplatesDirectory_Should_ReturnRequestedTemplateDirectory)

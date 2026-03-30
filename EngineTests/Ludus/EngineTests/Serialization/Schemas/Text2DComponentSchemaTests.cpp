@@ -45,7 +45,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		Ludus::Engine::Components::Text2DComponent text(1);
 		text.Text = "Hello";
 		text.Color = { 0.1f, 0.2f, 0.3f, 0.4f };
-		text.HorizontalAlignment = HorizontalTextAlignment::Center;
+		text.HorizontalTextAlignment = HorizontalTextAlignment::Center;
 
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
@@ -62,7 +62,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		const auto* ownerNode = FindMember(textObject, "OwnerHandle");
 		const auto* textNode = FindMember(textObject, "Text");
 		const auto* colorNode = FindMember(textObject, "Color");
-		const auto* alignNode = FindMember(textObject, "HorizontalAlignment");
+		const auto* alignNode = FindMember(textObject, "HorizontalTextAlignment");
 
 		ASSERT_NE(ownerNode, nullptr);
 		ASSERT_NE(textNode, nullptr);
@@ -109,7 +109,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		writer.Emit(Token::Key { "A" });
 		writer.Emit(Token::Double { 0.4f });
 		writer.Emit(Token::EndObject { });
-		writer.Emit(Token::Key { "HorizontalAlignment" });
+		writer.Emit(Token::Key { "HorizontalTextAlignment" });
 		writer.Emit(Token::String { "Center" });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
@@ -127,7 +127,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		ASSERT_EQ(textResult.Color.G, 0.2f);
 		ASSERT_EQ(textResult.Color.B, 0.3f);
 		ASSERT_EQ(textResult.Color.A, 0.4f);
-		ASSERT_EQ(textResult.HorizontalAlignment, HorizontalTextAlignment::Center);
+		ASSERT_EQ(textResult.HorizontalTextAlignment, HorizontalTextAlignment::Center);
 	}
 
 	TEST(Text2DComponentSchema, Deserialize_DefaultsOptionalFields_When_Missing)

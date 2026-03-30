@@ -7,6 +7,7 @@
 #include <Ludus/Editor/Build/BuildConfiguration.h>
 #include <Ludus/Editor/Build/BuildPlatform.h>
 #include <Ludus/Editor/Build/MSBuild/MSBuildRuntimeHostPipeline.h>
+#include <Ludus/Editor/Build/RuntimeManifestBuildHelpers.h>
 #include <Ludus/Editor/Persistence/BuildPaths.h>
 #include <Ludus/Editor/Persistence/RepositoryPaths.h>
 #include <Ludus/Engine/Core/Enums.h>
@@ -51,17 +52,6 @@ namespace
 		Ludus::Engine::FileSystem::RemoveDirectoryIfEmpty(Ludus::Editor::Persistence::BuildPaths::ObjDirectory(projectRoot));
 	}
 
-	void RewriteScenePathsForRuntimeHostOutput(
-		Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest,
-		const std::filesystem::path& runtimeRoot
-	)
-	{
-		for (auto& scene : runtimeManifest.Scenes)
-		{
-			scene.Path = Ludus::Engine::Persistence::Paths::RuntimeSceneFile(runtimeRoot, scene.Path);
-		}
-	}
-
 	void StageRuntimeHostManifest(
 		const std::filesystem::path& manifestFrom,
 		const std::filesystem::path& outputRoot,
@@ -70,7 +60,9 @@ namespace
 	{
 		Ludus::Engine::Persistence::LmlRuntimeManifestPersistence runtimeManifestPersistence;
 		auto runtimeManifest = runtimeManifestPersistence.Load(manifestFrom);
-		RewriteScenePathsForRuntimeHostOutput(runtimeManifest, outputRoot);
+
+		Ludus::Editor::Build::RewriteScenePathsForPackagedRuntime(runtimeManifest);
+
 		runtimeManifestPersistence.Save(
 			runtimeManifest,
 			Ludus::Engine::Persistence::Paths::RuntimeManifestFile(outputRoot, runtimeName)

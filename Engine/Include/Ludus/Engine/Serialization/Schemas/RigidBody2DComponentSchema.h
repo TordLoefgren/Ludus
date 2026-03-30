@@ -45,9 +45,9 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::Key { "Mass" });
 			writer.Emit(Token::Double { rigidBody.Mass });
 
-			const std::string type = Ludus::Engine::Core::Enums::GetDisplayName(rigidBody.Type);
-			writer.Emit(Token::Key { "Type" });
-			writer.Emit(Token::String { type });
+			const std::string bodyType = Ludus::Engine::Core::Enums::GetDisplayName(rigidBody.BodyType);
+			writer.Emit(Token::Key { "BodyType" });
+			writer.Emit(Token::String { bodyType });
 
 			writer.Emit(Token::EndObject { });
 		}
@@ -97,14 +97,14 @@ namespace Ludus::Engine::Serialization::Schemas
 						rigidBody.Mass = Ludus::Engine::Serialization::Core::ConsumeFloatLike(reader);
 						return;
 					}
-					if (key == "Type")
+					if (key == "BodyType")
 					{
-						std::string typeValue = std::string(
+						std::string bodyTypeValue = std::string(
 							Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
 						Ludus::Engine::Physics::Core::BodyType parsed;
-						if (Ludus::Engine::Physics::Core::TryParse(typeValue, parsed))
+						if (Ludus::Engine::Physics::Core::TryParse(bodyTypeValue, parsed))
 						{
-							rigidBody.Type = parsed;
+							rigidBody.BodyType = parsed;
 						}
 						return;
 					}

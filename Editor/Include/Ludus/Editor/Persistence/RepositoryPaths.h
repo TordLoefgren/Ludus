@@ -17,7 +17,7 @@ namespace Ludus::Editor::Persistence::RepositoryPaths
 		inline constexpr std::string_view ScriptingDirectory = "Scripting";
 		inline constexpr std::string_view ScriptsDirectory = "Scripts";
 		inline constexpr std::string_view RuntimeHostDirectory = "RuntimeHost";
-		inline constexpr std::string_view ApiDirectory = "API";
+		inline constexpr std::string_view APIDirectory = "API";
 		inline constexpr std::string_view ResourcesDirectory = "Resources";
 		inline constexpr std::string_view VendorsDirectory = "Vendors";
 		inline constexpr std::string_view TemplatesDirectory = "Templates";
@@ -73,14 +73,22 @@ namespace Ludus::Editor::Persistence::RepositoryPaths
 		return EngineDirectory() / std::string(Constants::VendorsDirectory);
 	}
 
-	inline std::filesystem::path EngineScriptingApiScriptsIncludeDirectory()
+	inline std::filesystem::path ScriptingDirectory()
 	{
-		return EngineIncludeDirectory() /
+		return ResolveRepositoryRoot() / std::string(Constants::ScriptingDirectory);
+	}
+
+	inline std::filesystem::path ScriptingIncludeDirectory()
+	{
+		return ScriptingDirectory() / std::string(Constants::IncludeDirectory);
+	}
+
+	inline std::filesystem::path ScriptingAPIIncludeDirectory()
+	{
+		return ScriptingIncludeDirectory() /
 			std::string(Constants::LudusDirectory) /
-			std::string(Constants::EngineDirectory) /
 			std::string(Constants::ScriptingDirectory) /
-			std::string(Constants::ApiDirectory) /
-			std::string(Constants::ScriptsDirectory);
+			std::string(Constants::APIDirectory);
 	}
 
 	inline std::filesystem::path TemplatesDirectory(std::string_view templateDirectory)

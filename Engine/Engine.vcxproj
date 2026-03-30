@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -104,12 +104,12 @@
     <ClInclude Include="Include\Ludus\Engine\Platform\Process.h" />
     <ClInclude Include="Include\Ludus\Engine\Platform\SharedLibrary.h" />
     <ClInclude Include="Include\Ludus\Engine\Platform\Shell.h" />
-    <ClInclude Include="Include\Ludus\Engine\Scripting\API\Macros.h" />
-    <ClInclude Include="Include\Ludus\Engine\Scripting\API\Scripts\Scripts.h" />
-    <ClInclude Include="Include\Ludus\Engine\Scripting\API\Registry.h" />
-    <ClInclude Include="Include\Ludus\Engine\Scripting\ScriptRepository.h" />
+    <ClInclude Include="Include\Ludus\Engine\Scripting\LoadedScriptDefinition.h" />
+    <ClInclude Include="Include\Ludus\Engine\Scripting\ScriptBindings.h" />
+    <ClInclude Include="Include\Ludus\Engine\Scripting\ScriptEngine.h" />
+    <ClInclude Include="Include\Ludus\Engine\Scripting\LoadedScriptModule.h" />
     <ClInclude Include="Include\Ludus\Engine\Scripting\ScriptInstanceState.h" />
-    <ClInclude Include="Include\Ludus\Engine\Scripting\API\Types.h" />
+    <ClInclude Include="Include\Ludus\Engine\Scripting\ScriptModuleLoader.h" />
     <ClInclude Include="Include\Ludus\Engine\Serialization\Core\DomDocument.h" />
     <ClInclude Include="Include\Ludus\Engine\Serialization\Core\DomTokenStreamReader.h" />
     <ClInclude Include="Include\Ludus\Engine\Serialization\Core\DomTokenStreamWriter.h" />
@@ -510,6 +510,10 @@
     <ClCompile Include="Source\Ludus\Engine\FileSystem\FileSystem.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Persistence\LmlRuntimeManifestPersistence.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Persistence\LmlScenePersistence.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Scripting\ScriptBindings.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Scripting\ScriptEngine.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Scripting\ScriptModuleLoader.cpp" />
+    <ClCompile Include="Source\Ludus\Engine\Scripting\ScriptSystem.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Serialization\Codecs\LmlDomCodec.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Serialization\Core\DomTokenStreamReader.cpp" />
     <ClCompile Include="Source\Ludus\Engine\Serialization\Core\DomTokenStreamWriter.cpp" />
@@ -689,6 +693,11 @@
     <Font Include="Resources\Fonts\liberation-sans\LiberationSans-Italic.ttf" />
     <Font Include="Resources\Fonts\liberation-sans\LiberationSans-Regular.ttf" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Scripting\Scripting.vcxproj">
+      <Project>{5fe9f302-1622-4032-8706-f3951438ece3}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -794,7 +803,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Source\Ludus\Engine;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Source\Ludus\Engine;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;$(SolutionDir)Scripting\Include</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
@@ -814,7 +823,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Source\Ludus\Engine;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)Source\Ludus\Engine;$(ProjectDir)Include;$(ProjectDir)Resources;$(ProjectDir)Vendors;$(ProjectDir)Vendors\glad\include;$(SolutionDir)Scripting\Include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>

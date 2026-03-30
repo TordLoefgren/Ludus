@@ -10,9 +10,9 @@ namespace Ludus::Engine::Graphics
 {
 	enum class HorizontalTextAlignment { Left, Center, Right };
 
-	constexpr std::string_view ToString(HorizontalTextAlignment horizontalAlignment)
+	constexpr std::string_view ToString(HorizontalTextAlignment horizontalTextAlignment)
 	{
-		switch (horizontalAlignment)
+		switch (horizontalTextAlignment)
 		{
 			case HorizontalTextAlignment::Left:		return "Left";
 			case HorizontalTextAlignment::Center:	return "Center";
