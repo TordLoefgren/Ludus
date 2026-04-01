@@ -20,18 +20,18 @@ namespace Ludus::UI::Scope
 		for (auto& style : styles)
 		{
 			std::visit([&](const auto& value)
-				{
-					using T = std::decay_t<decltype(value)>;
+			{
+				using T = std::decay_t<decltype(value)>;
 
-					if constexpr (std::is_same_v<T, float>)
-					{
-						ImGui::PushStyleVar(static_cast<int>(style.Var), value);
-					}
-					else
-					{
-						ImGui::PushStyleVar(static_cast<int>(style.Var), ImVec2 { value.X, value.Y });
-					}
-				}, style.Data);
+				if constexpr (std::is_same_v<T, float>)
+				{
+					ImGui::PushStyleVar(static_cast<int>(style.Var), value);
+				}
+				else
+				{
+					ImGui::PushStyleVar(static_cast<int>(style.Var), ImVec2 { value.X, value.Y });
+				}
+			}, style.Data);
 
 			m_StyleCount++;
 		}

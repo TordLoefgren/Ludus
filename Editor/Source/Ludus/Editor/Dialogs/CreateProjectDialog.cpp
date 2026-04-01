@@ -7,6 +7,7 @@
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/PopupContext.h>
+#include <Ludus/UI/Context/ThemeContext.h>
 #include <Ludus/UI/Labels.h>
 #include <Ludus/UI/Scope/ModalScope.h>
 #include <Ludus/UI/Widgets/Buttons.h>
@@ -35,7 +36,7 @@ namespace Ludus::Editor::Dialogs
 
 			if (!Error.empty())
 			{
-				Ludus::UI::Widgets::TextUnformatted(Error.c_str());
+				Ludus::UI::Widgets::TextUnformattedColor(Error.c_str(), Ludus::UI::Context::ThemeContext::Error());
 			}
 
 			if (Ludus::UI::Widgets::Button("Create", Ludus::Editor::Core::Constants::ModalActionButtonSize))

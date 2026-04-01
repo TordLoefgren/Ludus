@@ -27,8 +27,8 @@ namespace Ludus::Editor::Core::Constants
 		| Ludus::UI::Flags::Window::NoMouseInputs
 		| Ludus::UI::Flags::Window::NoSavedSettings;
 
-	inline Ludus::Engine::Math::Vector2D AddScriptDialogSize = { 400.0f, 160.0f };
-	inline Ludus::Engine::Math::Vector2D WelcomeWindowSize = { 420.0f, 260.0f };
+	inline Ludus::Engine::Math::Vector2D WelcomeWindowSize = { 420.0f, 300.0f };
 	inline Ludus::Engine::Math::Vector2D WelcomeActionButtonSize = { 140.0f, 42.0f };
+
 	inline float ToolbarButtonExtent = 30.0f;
 }

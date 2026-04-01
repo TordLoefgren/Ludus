@@ -42,7 +42,8 @@ namespace Ludus::Editor::Panels
 		static bool DrawCamera2D(Ludus::Engine::Components::Camera2DComponent& component);
 
 	public:
-		virtual bool* GetOpenFlag(Ludus::Editor::Core::ProjectSessionContext& context) override { return &context.Shell.State.ActivePanelState.ShowInspectorPanel; }
+		virtual Ludus::Editor::Panels::PanelKind GetPanelKind() const override { return Ludus::Editor::Panels::PanelKind::Inspector; }
+		virtual bool UsesPanelState() const override { return true; }
 
 		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) override;
 	};

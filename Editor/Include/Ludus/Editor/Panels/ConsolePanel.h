@@ -25,7 +25,8 @@ namespace Ludus::Editor::Panels
 		std::string FormatEntry(const Ludus::Engine::Debug::LogEntry& entry);
 
 	public:
-		virtual bool* GetOpenFlag(Ludus::Editor::Core::ProjectSessionContext& context) override { return &context.Shell.State.ActivePanelState.ShowConsolePanel; }
+		virtual Ludus::Editor::Panels::PanelKind GetPanelKind() const override { return Ludus::Editor::Panels::PanelKind::Console; }
+		virtual bool UsesPanelState() const override { return true; }
 
 		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) override;
 

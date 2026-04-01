@@ -13,6 +13,7 @@ namespace Ludus::Editor::Panels
 		void DrawToolBar(Ludus::Editor::Core::ProjectSessionContext& context);
 
 	public:
+		virtual Ludus::Editor::Panels::PanelKind GetPanelKind() const override { return Ludus::Editor::Panels::PanelKind::Dock; }
 		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) override;
 	};
 }

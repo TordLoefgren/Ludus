@@ -3,8 +3,10 @@
 #include <format>
 
 #include <Ludus/Editor/Commands/EditCommand.h>
+#include <Ludus/Editor/Core/Axis.h>
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Panels/InspectorPanel.h>
+#include <Ludus/Editor/Widgets/Input.h>
 #include <Ludus/Engine/Components/Camera2DComponent.h>
 #include <Ludus/Engine/Components/Collider2DComponent.h>
 #include <Ludus/Engine/Components/DisplayNameComponent.h>
@@ -23,6 +25,7 @@
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/TableContext.h>
 #include <Ludus/UI/Context/WindowContext.h>
+#include <Ludus/UI/Icons/FontAwesome.h>
 #include <Ludus/UI/Scope/DisabledScope.h>
 #include <Ludus/UI/Scope/MenuScope.h>
 #include <Ludus/UI/Scope/TableScope.h>
@@ -83,31 +86,31 @@ namespace Ludus::Editor::Panels
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::TextUnformatted("Position");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::DragFloatLabelButton("X##Transform2D_Panel_Position_X", &component.Position.X);
+				changed |= Ludus::Editor::Widgets::DragFloatAxisButton("X##Transform2D_Panel_Position_X", &component.Position.X, Ludus::Editor::Core::Axis::X);
 				Ludus::UI::Context::LayoutContext::SameLine();
 				changed |= Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Position_X", &component.Position.X);
 
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(2);
-				changed |= Ludus::UI::Widgets::DragFloatLabelButton("Y##Transform2D_Panel_Position_Y", &component.Position.Y);
+				changed |= Ludus::Editor::Widgets::DragFloatAxisButton("Y##Transform2D_Panel_Position_Y", &component.Position.Y, Ludus::Editor::Core::Axis::Y);
 				Ludus::UI::Context::LayoutContext::SameLine();
 				changed |= Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Position_Y", &component.Position.Y);
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::TextUnformatted("Scale");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::DragFloatLabelButton("X##Transform2D_Panel_Scale_X", &component.Scale.X);
+				changed |= Ludus::Editor::Widgets::DragFloatAxisButton("X##Transform2D_Panel_Scale_X", &component.Scale.X, Ludus::Editor::Core::Axis::X);
 				Ludus::UI::Context::LayoutContext::SameLine();
 				changed |= Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Scale_X", &component.Scale.X);
 
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(2);
-				changed |= Ludus::UI::Widgets::DragFloatLabelButton("Y##Transform2D_Panel_Scale_Y", &component.Scale.Y);
+				changed |= Ludus::Editor::Widgets::DragFloatAxisButton("Y##Transform2D_Panel_Scale_Y", &component.Scale.Y, Ludus::Editor::Core::Axis::Y);
 				Ludus::UI::Context::LayoutContext::SameLine();
 				changed |= Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Scale_Y", &component.Scale.Y);
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::TextUnformatted("Rotation");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::DragFloatLabelButton("Z##Transform2D_Panel_DragFloat_Rotation", &component.Rotation);
+				changed |= Ludus::Editor::Widgets::DragFloatAxisButton("Z##Transform2D_Panel_DragFloat_Rotation", &component.Rotation, Ludus::Editor::Core::Axis::Z);
 				Ludus::UI::Context::LayoutContext::SameLine();
 				changed |= Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_InputFloat_Rotation_Z", &component.Rotation);
 			}
@@ -185,12 +188,12 @@ namespace Ludus::Editor::Panels
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::TextUnformatted("Velocity");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::DragFloatLabelButton("X##RigidBody2D_Panel_Velocity_X", &component.Velocity.X);
+				changed |= Ludus::Editor::Widgets::DragFloatAxisButton("X##RigidBody2D_Panel_Velocity_X", &component.Velocity.X, Ludus::Editor::Core::Axis::X);
 				Ludus::UI::Context::LayoutContext::SameLine();
 				changed |= Ludus::UI::Widgets::InputFloat("##RigidBody2D_Panel_Input_Velocity_X", &component.Velocity.X);
 
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(2);
-				changed |= Ludus::UI::Widgets::DragFloatLabelButton("Y##RigidBody2D_Panel_Velocity_Y", &component.Velocity.Y);
+				changed |= Ludus::Editor::Widgets::DragFloatAxisButton("Y##RigidBody2D_Panel_Velocity_Y", &component.Velocity.Y, Ludus::Editor::Core::Axis::Y);
 				Ludus::UI::Context::LayoutContext::SameLine();
 				changed |= Ludus::UI::Widgets::InputFloat("##RigidBody2D_Panel_Input_Velocity_Y", &component.Velocity.Y);
 
@@ -370,7 +373,6 @@ namespace Ludus::Editor::Panels
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
 				Ludus::UI::Widgets::TextUnformatted("Orthographic Size");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::DragFloatLabelButton("Z##Camera2D_OrthographicSize_DragFloat_Rotation", &component.OrthographicSize);
 				Ludus::UI::Context::LayoutContext::SameLine();
 				changed |= Ludus::UI::Widgets::InputFloat("##Camera2D_OrthographicSize_InputFloat_Rotation_Z", &component.OrthographicSize);
 			}
@@ -383,7 +385,7 @@ namespace Ludus::Editor::Panels
 
 	bool InspectorPanel::UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
-		auto windowTitle = CreateWindowTitle("Inspector");
+		auto windowTitle = CreateWindowTitleWithIcon(ICON_SLIDERS, "Inspector");
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
 		{
 			auto& selection = context.ProjectSession.EditorState.Selection;

@@ -7,6 +7,7 @@
 
 #include <Ludus/Editor/Core/EditorMode.h>
 #include <Ludus/Editor/Core/ProjectSessionContext.h>
+#include <Ludus/Editor/Panels/PanelKind.h>
 
 namespace Ludus::Editor::Panels
 {
@@ -21,11 +22,9 @@ namespace Ludus::Editor::Panels
 
 		bool Update(Ludus::Editor::Core::ProjectSessionContext& context)
 		{
-			// Singleton panels can use this hook to be toggled on and off.
-			auto* external = GetOpenFlag(context);
-			if (external)
+			if (UsesPanelState())
 			{
-				m_Open = *external;
+				m_Open = context.Shell.State.Panels.IsVisible(GetPanelKind());
 			}
 
 			if (!m_Open)
@@ -35,9 +34,9 @@ namespace Ludus::Editor::Panels
 
 			auto active = UpdateImpl(context);
 
-			if (external)
+			if (UsesPanelState())
 			{
-				*external = m_Open;
+				context.Shell.State.Panels.SetVisible(GetPanelKind(), m_Open);
 			}
 
 			return active;
@@ -54,18 +53,24 @@ namespace Ludus::Editor::Panels
 		PanelHandle m_Handle = s_NextHandle++;
 		bool m_Open = true;
 
-		virtual bool* GetOpenFlag(Ludus::Editor::Core::ProjectSessionContext& context) { return nullptr; }
+		virtual bool UsesPanelState() const { return false; }
 
+		virtual Ludus::Editor::Panels::PanelKind GetPanelKind() const = 0;
 		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) = 0;
+
+		std::string CreateUniqueWindowTitle(std::string_view visibleTitle)
+		{
+			return std::format("{}##{}", visibleTitle, m_Handle);
+		}
 
 		std::string CreateWindowTitle(std::string_view visibleTitle)
 		{
 			return std::format("{}##{}", visibleTitle, visibleTitle);
 		}
 
-		std::string CreateUniqueWindowTitle(std::string_view visibleTitle)
+		std::string CreateWindowTitleWithIcon(std::string_view icon, std::string_view visibleTitle)
 		{
-			return std::format("{}##{}", visibleTitle, m_Handle);
+			return std::format("{} {}##{}", icon, visibleTitle, visibleTitle);
 		}
 	};
 }

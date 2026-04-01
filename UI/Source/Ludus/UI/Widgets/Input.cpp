@@ -2,11 +2,29 @@
 
 #include <string>
 
+#include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/UI/Flags/Flags.h>
 #include <Ludus/UI/Widgets/Input.h>
 
 namespace Ludus::UI::Widgets
 {
+	namespace
+	{
+		ImVec4 ToImVec4(const Ludus::Engine::Graphics::Color& color)
+		{
+			return ImVec4(color.R, color.G, color.B, color.A);
+		}
+
+		ImVec4 ScaleRgb(ImVec4 color, const float factor)
+		{
+			color.x *= factor;
+			color.y *= factor;
+			color.z *= factor;
+
+			return color;
+		}
+	}
+
 	bool DragInt(const std::string& label, int* value, float speed)
 	{
 		return ImGui::DragInt(label.c_str(), value, speed);
@@ -17,24 +35,30 @@ namespace Ludus::UI::Widgets
 		return ImGui::DragFloat(label.c_str(), value, speed, 0.0f, 0.0f, "%.2f");
 	}
 
-	bool DragFloatLabelButton(const char* label, float* value, float speed)
+	bool DragFloatColoredButton(const char* label, float* value, const Ludus::Engine::Graphics::Color& color, const float speed)
 	{
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
+		const ImVec4 normal = ToImVec4(color);
+		const ImVec4 hovered = ScaleRgb(normal, 1.10f);
+		const ImVec4 active = ScaleRgb(normal, 0.90f);
 
-		const auto _ = ImGui::Button(label);
-		const auto active = ImGui::IsItemActive();
+		ImGui::PushStyleColor(ImGuiCol_Button, normal);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hovered);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, active);
+
+		ImGui::PushTabStop(false);
+		const bool pressed = ImGui::Button(label);
+		const bool isActive = ImGui::IsItemActive();
+		ImGui::PopTabStop();
 
 		ImGui::PopStyleColor(3);
 
-		if (active && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+		if (isActive && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
 		{
 			*value += ImGui::GetIO().MouseDelta.x * speed;
 			return true;
 		}
 
-		return false;
+		return pressed;
 	}
 
 	bool InputInt(const std::string& label, int* value, int step, int step_fast, Ludus::UI::Flags::InputText flags)

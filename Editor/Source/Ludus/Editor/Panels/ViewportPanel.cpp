@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <string>
+#include <string_view>
 
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Core/ViewportDisplayMode.h>
@@ -20,6 +22,7 @@
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/SelectionContext.h>
 #include <Ludus/UI/Context/WindowContext.h>
+#include <Ludus/UI/Icons/FontAwesome.h>
 #include <Ludus/UI/Labels.h>
 #include <Ludus/UI/Scope/ComboScope.h>
 #include <Ludus/UI/Scope/StyleScope.h>
@@ -30,10 +33,10 @@
 namespace Ludus::Editor::Panels
 {
 	ViewportPanel::ViewportPanel(
-		std::string title,
+		std::string_view title,
 		Ludus::Editor::Core::ViewportDisplayMode displayMode
 	)
-		: m_Title(title),
+		: m_Title(CreateWindowTitleWithIcon(ICON_EYE, title)),
 		m_Camera(),
 		m_Target(std::nullopt),
 		m_PreviousTargetSize(),
@@ -139,8 +142,8 @@ namespace Ludus::Editor::Panels
 			const auto worldUnitPerPixelY = worldSize.Y / viewportSize.Y;
 
 			const auto mouseDelta = input.GetMouseDelta();
-			const auto worldDeltaX = mouseDelta.X * -worldUnitPerPixelX;
-			const auto worldDeltaY = mouseDelta.Y * worldUnitPerPixelY;
+			const auto worldDeltaX = mouseDelta.X * worldUnitPerPixelX;
+			const auto worldDeltaY = mouseDelta.Y * -worldUnitPerPixelY;
 
 			auto currentPosition = m_Camera.GetPosition();
 			currentPosition.X += worldDeltaX;
@@ -154,9 +157,11 @@ namespace Ludus::Editor::Panels
 			const auto scrollY = input.GetMouseScrollOffset().Y;
 			if (scrollY != 0.0f)
 			{
-				const auto factor = (scrollY > 0.0f) ? (1.0f - m_ZoomFactor) : (1.0f + m_ZoomFactor);
 				const auto currentSize = m_Camera.GetOrthographicSize();
+
+				const auto factor = (scrollY > 0.0f) ? (1.0f - m_ZoomFactor) : (1.0f + m_ZoomFactor);
 				const auto nextSize = std::clamp(currentSize * factor, m_MinZoom, m_MaxZoom);
+
 				m_Camera.SetOrthographicSize(nextSize);
 			}
 		}

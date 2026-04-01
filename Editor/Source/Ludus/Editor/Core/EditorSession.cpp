@@ -139,7 +139,7 @@ namespace Ludus::Editor::Core
 				// Reset state.
 				m_Shell.State.Mode = Ludus::Editor::Core::EditorMode::Session;
 				pendingTransition = Ludus::Editor::Core::PendingProjectTransition::NoneState();
-				m_HostContext.SetWindowTitle("Ludus Editor - " + out.value().ProjectManifest.ProjectRoot.string());
+				m_HostContext.SetWindowTitle("Ludus Editor - " + out.value().ProjectManifest.ProjectRoot.filename().string());
 			}
 		}, pendingTransition.Data);
 	}

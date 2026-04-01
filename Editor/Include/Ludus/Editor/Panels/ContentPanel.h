@@ -4,20 +4,21 @@
 
 #include <Ludus/Editor/Core/ProjectSessionContext.h>
 #include <Ludus/Editor/Panels/IPanel.h>
-#include <Ludus/UI/AssetBrowser.h>
+#include <Ludus/UI/Elements/ContentBrowser.h>
 
 namespace Ludus::Editor::Panels
 {
 	class ContentPanel final : public Ludus::Editor::Panels::IPanel
 	{
 	private:
-		Ludus::UI::AssetBrowser m_AssetBrowser;
+		Ludus::UI::Elements::ContentBrowser m_ContentBrowser;
 
 	public:
-		virtual bool* GetOpenFlag(Ludus::Editor::Core::ProjectSessionContext& context) override { return &context.Shell.State.ActivePanelState.ShowContentPanel; }
+		virtual Ludus::Editor::Panels::PanelKind GetPanelKind() const override { return Ludus::Editor::Panels::PanelKind::Content; }
+		virtual bool UsesPanelState() const override { return true; }
 		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) override;
 
-		void Initialize(const std::filesystem::path& directory) { m_AssetBrowser.FromDirectory(directory); }
-		void Clear() { m_AssetBrowser.Clear(); }
+		void Initialize(const std::filesystem::path& directory) { m_ContentBrowser.FromDirectory(directory); }
+		void Clear() { m_ContentBrowser.Clear(); }
 	};
 }

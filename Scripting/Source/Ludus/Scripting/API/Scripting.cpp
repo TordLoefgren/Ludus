@@ -9,8 +9,6 @@ namespace Ludus::Scripting::API
 {
 	namespace
 	{
-		inline constexpr ABI::Version CurrentAPIVersion { 0, 1, 0 };
-
 		const ABI::ScriptAPI* ResolveAPI(ScriptContext* context)
 		{
 			const auto* api = ABI::GetScriptAPI(context);
@@ -24,9 +22,9 @@ namespace Ludus::Scripting::API
 				throw std::runtime_error("Script API size mismatch.");
 			}
 
-			if (api->Version.Major != CurrentAPIVersion.Major ||
-				api->Version.Minor != CurrentAPIVersion.Minor ||
-				api->Version.Patch != CurrentAPIVersion.Patch)
+			if (api->Version.Major != ABI::CurrentAPIVersion.Major ||
+				api->Version.Minor != ABI::CurrentAPIVersion.Minor ||
+				api->Version.Patch != ABI::CurrentAPIVersion.Patch)
 			{
 				throw std::runtime_error("Script API version mismatch.");
 			}

@@ -20,6 +20,7 @@
 #include <Ludus/UI/Context/DockingContext.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/PopupContext.h>
+#include <Ludus/UI/Context/ThemeContext.h>
 #include <Ludus/UI/Context/ViewportContext.h>
 #include <Ludus/UI/Context/WindowContext.h>
 #include <Ludus/UI/Icons/FontAwesome.h>
@@ -34,10 +35,27 @@
 #include <Ludus/UI/Widgets/Input.h>
 #include <Ludus/UI/Widgets/Menu.h>
 #include <Ludus/UI/Widgets/Text.h>
-#include <Ludus/UI/Widgets/Toggle.h>
 
 namespace Ludus::Editor::Panels
 {
+	namespace
+	{
+		void SetPanelVisibilityIfSelected(
+			Ludus::Editor::Core::ProjectSessionContext& context,
+			const char* label,
+			const Ludus::Editor::Panels::PanelKind panelKind
+		)
+		{
+			const bool isVisible = context.Shell.State.Panels.IsVisible(panelKind);
+			if (Ludus::UI::Widgets::MenuItem(label, nullptr, isVisible))
+			{
+				context.Shell.State.Commands.AddRequestCommand(
+					Ludus::Editor::Commands::RequestCommand::SetPanelVisibility { panelKind, !isVisible }
+				);
+			}
+		};
+	}
+
 	void DockPanel::DrawMenuBar(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
 		if (Ludus::UI::Scope::MenuBarScope menuBar; menuBar)
@@ -249,6 +267,28 @@ namespace Ludus::Editor::Panels
 				}
 			}
 
+			// Theme.
+			if (Ludus::UI::Scope::MenuScope themeMenu("Theme"); themeMenu)
+			{
+				auto& theme = context.Shell.State.Theme;
+
+				if (Ludus::UI::Widgets::MenuItem("Dark", nullptr, theme.IsActive(Ludus::UI::Theme::ThemeId::LudusDark))
+					&& !theme.IsActive(Ludus::UI::Theme::ThemeId::LudusDark))
+				{
+					context.Shell.State.Commands.AddRequestCommand(
+						Ludus::Editor::Commands::RequestCommand::SetTheme { Ludus::UI::Theme::ThemeId::LudusDark }
+					);
+				}
+
+				if (Ludus::UI::Widgets::MenuItem("Light", nullptr, theme.IsActive(Ludus::UI::Theme::ThemeId::LudusLight))
+					&& !theme.IsActive(Ludus::UI::Theme::ThemeId::LudusLight))
+				{
+					context.Shell.State.Commands.AddRequestCommand(
+						Ludus::Editor::Commands::RequestCommand::SetTheme { Ludus::UI::Theme::ThemeId::LudusLight }
+					);
+				}
+			}
+
 			// View.
 			if (Ludus::UI::Scope::MenuScope viewMenu("View"); viewMenu)
 			{
@@ -259,11 +299,11 @@ namespace Ludus::Editor::Panels
 
 				if (Ludus::UI::Scope::MenuScope panelsMenu("Panels"); panelsMenu)
 				{
-					Ludus::UI::Widgets::Checkbox("Console", &context.Shell.State.ActivePanelState.ShowConsolePanel);
-					Ludus::UI::Widgets::Checkbox("Hierarchy", &context.Shell.State.ActivePanelState.ShowHierarchyPanel);
-					Ludus::UI::Widgets::Checkbox("ImGuiDemo", &context.Shell.State.ActivePanelState.ShowImGuiDemoPanel);
-					Ludus::UI::Widgets::Checkbox("Inspector", &context.Shell.State.ActivePanelState.ShowInspectorPanel);
-					Ludus::UI::Widgets::Checkbox("Content", &context.Shell.State.ActivePanelState.ShowContentPanel);
+					SetPanelVisibilityIfSelected(context, "Console", Ludus::Editor::Panels::PanelKind::Console);
+					SetPanelVisibilityIfSelected(context, "Hierarchy", Ludus::Editor::Panels::PanelKind::Hierarchy);
+					SetPanelVisibilityIfSelected(context, "ImGuiDemo", Ludus::Editor::Panels::PanelKind::ImGuiDemo);
+					SetPanelVisibilityIfSelected(context, "Inspector", Ludus::Editor::Panels::PanelKind::Inspector);
+					SetPanelVisibilityIfSelected(context, "Content", Ludus::Editor::Panels::PanelKind::Content);
 				}
 			}
 		}
@@ -273,63 +313,59 @@ namespace Ludus::Editor::Panels
 	{
 		const auto buttonWidth = Ludus::Editor::Core::Constants::ToolbarButtonExtent;
 		const auto spacing = Ludus::Editor::Core::Constants::StandardInlineSpacing;
-		const auto buttonCount = 3;
+		const auto buttonCount = 2;
 
 		const auto totalWidth = buttonCount * buttonWidth + (buttonCount - 1) * spacing;
 		const auto availableWidth = Ludus::UI::Context::WindowContext::GetContentRegionAvailable().X;
 		Ludus::UI::Context::WindowContext::SetCursorPositionX((availableWidth - totalWidth) * 0.5f);
 
-		const auto activeColor = Ludus::UI::Scope::GetStyleColor(Ludus::UI::Scope::Color::ButtonHovered);
-
-		auto drawToolbarButton = [&](const std::string& label, bool isActive, bool isEnabled, auto&& onClick) -> bool
+		auto drawToolbarButton = [&](const std::string& label, bool isActive, bool isEnabled, auto&& onClick) -> void
 		{
 			if (!isEnabled)
 			{
 				Ludus::UI::Scope::DisabledScope disabledScope(true);
-				return Ludus::UI::Widgets::Button(label.c_str(), { buttonWidth, buttonWidth });
+				(void)Ludus::UI::Widgets::Button(label.c_str(), { buttonWidth, buttonWidth });
+				return;
 			}
 
 			if (isActive)
 			{
 				Ludus::UI::Scope::StyleColorScope colorScope({
-					{ Ludus::UI::Scope::Color::Button, activeColor },
-					{ Ludus::UI::Scope::Color::ButtonHovered, activeColor },
-					{ Ludus::UI::Scope::Color::ButtonActive, activeColor },
+					{ Ludus::UI::Scope::Color::Button, Ludus::UI::Context::ThemeContext::Accent() },
+					{ Ludus::UI::Scope::Color::ButtonHovered, Ludus::UI::Context::ThemeContext::AccentHover() },
+					{ Ludus::UI::Scope::Color::ButtonActive, Ludus::UI::Context::ThemeContext::AccentActive() }
 					});
 
 				if (Ludus::UI::Widgets::Button(label.c_str(), { buttonWidth, buttonWidth }))
 				{
 					onClick();
-					return true;
 				}
 
-				return false;
+				return;
 			}
 
 			if (Ludus::UI::Widgets::Button(label.c_str(), { buttonWidth, buttonWidth }))
 			{
 				onClick();
-				return true;
 			}
-
-			return false;
 		};
 
 		auto& mode = context.Shell.State.Execution.ExecutionMode;
-		const bool isRunning = (mode != Ludus::Editor::Core::ExecutionMode::Stop);
+
+		const bool hasSimulationSession = (mode != Ludus::Editor::Core::ExecutionMode::Stop);
 		const bool isPaused = (mode == Ludus::Editor::Core::ExecutionMode::Pause);
 
-		const auto playOrStopLabel = isRunning
+		const auto playOrStopLabel = hasSimulationSession
 			? Ludus::UI::CreateLabel(ICON_STOP, "Stop")
 			: Ludus::UI::CreateLabel(ICON_PLAY, "Start");
 		const auto pauseLabel = Ludus::UI::CreateLabel(ICON_PAUSE, "Pause");
 
-		drawToolbarButton(playOrStopLabel, isRunning, true, [&]
-		{
-			const auto next = isRunning
-				? Ludus::Editor::Core::ExecutionMode::Stop
-				: Ludus::Editor::Core::ExecutionMode::Start;
+		const auto next = hasSimulationSession
+			? Ludus::Editor::Core::ExecutionMode::Stop
+			: Ludus::Editor::Core::ExecutionMode::Start;
 
+		drawToolbarButton(playOrStopLabel, hasSimulationSession, true, [&]
+		{
 			context.Shell.State.Commands.AddRequestCommand(
 				Ludus::Editor::Commands::RequestCommand::SetExecutionMode { next }
 			);
@@ -337,10 +373,10 @@ namespace Ludus::Editor::Panels
 
 		Ludus::UI::Context::LayoutContext::SameLine(0.0f, spacing);
 
-		drawToolbarButton(pauseLabel, isPaused, isRunning, [&]
+		drawToolbarButton(pauseLabel, isPaused, hasSimulationSession, [&]
 		{
 			const auto next = isPaused
-				? Ludus::Editor::Core::ExecutionMode::Start   // Resume.
+				? Ludus::Editor::Core::ExecutionMode::Start // Resume.
 				: Ludus::Editor::Core::ExecutionMode::Pause;
 
 			context.Shell.State.Commands.AddRequestCommand(

@@ -35,6 +35,8 @@ namespace Ludus::Editor::Commands
 			void operator()(const RequestCommand::BuildRuntime& command) const { Requests::Builds::BuildRuntime(command, Context); }
 			void operator()(const RequestCommand::CleanRuntime&) const { Requests::Builds::CleanRuntime(Context); }
 			void operator()(const RequestCommand::SetExecutionMode& command) const { Requests::Panels::SetExecutionMode(command, Context); }
+			void operator()(const RequestCommand::SetPanelVisibility& command) const { Requests::Panels::SetPanelVisibility(command, Context); }
+			void operator()(const RequestCommand::SetTheme& command) const { Requests::Panels::SetTheme(command, Context); }
 
 			template<typename T>
 			void operator()(T&& unhandled) const
@@ -61,6 +63,8 @@ namespace Ludus::Editor::Commands
 			void operator()(const RequestCommand::BuildRuntime&) const { LUDUS_ASSERT(false, "BuildRuntime is unavailable during startup."); }
 			void operator()(const RequestCommand::CleanRuntime&) const { LUDUS_ASSERT(false, "CleanRuntime is unavailable during startup."); }
 			void operator()(const RequestCommand::SetExecutionMode&) const { LUDUS_ASSERT(false, "SetExecutionMode is unavailable during startup."); }
+			void operator()(const RequestCommand::SetPanelVisibility&) const { LUDUS_ASSERT(false, "SetPanelVisibility is unavailable during startup."); }
+			void operator()(const RequestCommand::SetTheme&) const { LUDUS_ASSERT(false, "SetTheme is unavailable during startup."); }
 
 			template<typename T>
 			void operator()(T&& unhandled) const
