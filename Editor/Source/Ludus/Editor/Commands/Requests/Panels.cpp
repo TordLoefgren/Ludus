@@ -4,6 +4,7 @@
 #include <Ludus/Editor/Commands/Requests/Panels.h>
 #include <Ludus/Editor/Panels/PanelRegistry.h>
 #include <Ludus/Editor/Panels/ViewportPanel.h>
+#include <Ludus/UI/Context/ThemeContext.h>
 
 namespace Ludus::Editor::Commands::Requests::Panels
 {
@@ -29,5 +30,16 @@ namespace Ludus::Editor::Commands::Requests::Panels
 
 		context.Shell.State.Execution.ExecutionMode = command.Mode;
 		context.Shell.State.Execution.Apply(context.HostContext.GetExecutionFlags(), command.Mode);
+	}
+
+	void SetPanelVisibility(const RequestCommand::SetPanelVisibility& command, ProjectSessionCommandContext& context)
+	{
+		context.Shell.State.Panels.SetVisible(command.PanelKind, command.IsVisible);
+	}
+
+	void SetTheme(const RequestCommand::SetTheme& command, ProjectSessionCommandContext& context)
+	{
+		Ludus::UI::Context::ThemeContext::SetActiveTheme(command.ThemeId);
+		context.Shell.State.Theme.ActiveThemeId = command.ThemeId;
 	}
 }

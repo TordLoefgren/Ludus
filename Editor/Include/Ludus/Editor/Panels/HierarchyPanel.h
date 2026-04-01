@@ -18,7 +18,8 @@ namespace Ludus::Editor::Panels
 		void DrawSceneRow(Ludus::Editor::Core::ProjectSessionContext& context, Ludus::Engine::Core::Scene& scene);
 
 	public:
-		virtual bool* GetOpenFlag(Ludus::Editor::Core::ProjectSessionContext& context) override { return &context.Shell.State.ActivePanelState.ShowHierarchyPanel; }
+		virtual Ludus::Editor::Panels::PanelKind GetPanelKind() const override { return Ludus::Editor::Panels::PanelKind::Hierarchy; }
+		virtual bool UsesPanelState() const override { return true; }
 
 		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) override;
 	};

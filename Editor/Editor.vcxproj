@@ -55,6 +55,7 @@
     <ClCompile Include="Source\Ludus\Editor\Panels\ImGuiDemoPanel.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\InspectorPanel.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\ViewportPanel.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Widgets\Input.cpp" />
     <ClCompile Include="Source\Ludus\Editor\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -111,6 +112,8 @@
     <ClInclude Include="Include\Ludus\Editor\Commands\UICommand.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\UI\Dialogs.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ActivePanelState.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\ActiveThemeState.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\Axis.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\RequestCommand.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorConfiguration.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorExecutionFlags.h" />
@@ -138,7 +141,9 @@
     <ClInclude Include="Include\Ludus\Editor\Panels\ViewportPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\HierarchyPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\ContentPanel.h" />
+    <ClInclude Include="Include\Ludus\Editor\Panels\PanelKind.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelHelpers.h" />
+    <ClInclude Include="Include\Ludus\Editor\Widgets\Input.h" />
     <ClInclude Include="Include\Ludus\Editor\Persistence\IProjectManifestPersistence.h" />
     <ClInclude Include="Include\Ludus\Editor\Persistence\LmlProjectManifestPersistence.h" />
     <ClInclude Include="Include\Ludus\Editor\Persistence\BuildPaths.h" />

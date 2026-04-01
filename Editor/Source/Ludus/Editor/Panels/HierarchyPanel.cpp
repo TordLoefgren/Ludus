@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <format>
+#include <string>
 #include <type_traits>
 #include <utility>
 
@@ -42,8 +43,8 @@ namespace Ludus::Editor::Panels
 
 		const auto* displayNamePtr = ecs.DisplayNames.TryGetByOwner(entityHandle);
 		const auto entityLabel = displayNamePtr != nullptr
-			? Ludus::UI::CreateLabel(ICON_CUBE + std::string(" ") + displayNamePtr->Value, entityHandle)
-			: Ludus::UI::CreateLabel(std::format("{} Entity {}", ICON_CUBE, entityHandle), entityHandle);
+			? Ludus::UI::CreateLabelWithIcon(ICON_CUBE, displayNamePtr->Value, std::to_string(entityHandle))
+			: Ludus::UI::CreateLabelWithIcon(ICON_CUBE, std::format("Entity {}", entityHandle), std::to_string(entityHandle));
 
 		if (Ludus::UI::Widgets::Selectable(entityLabel.c_str(), selection.IsSelected(entityHandle)))
 		{
@@ -223,13 +224,13 @@ namespace Ludus::Editor::Panels
 
 	void HierarchyPanel::DrawSceneRow(Ludus::Editor::Core::ProjectSessionContext& context, Ludus::Engine::Core::Scene& scene)
 	{
-		auto sceneHeader = ICON_CUBES + std::string(" ") + scene.Name;
+		auto sceneHeader = scene.Name;
 		if (context.ProjectSession.IsSceneDirty())
 		{
 			sceneHeader.append("*");
 		}
 
-		const auto sceneLabel = Ludus::UI::CreateLabel(sceneHeader, scene.Name);
+		const auto sceneLabel = Ludus::UI::CreateLabelWithIcon(ICON_CUBES, sceneHeader, scene.Name);
 		if (Ludus::UI::Scope::TreeNodeScope treeScope(sceneLabel.c_str()); treeScope)
 		{
 			if (Ludus::UI::Scope::PopupContextItemScope contextItem; contextItem)
@@ -258,7 +259,7 @@ namespace Ludus::Editor::Panels
 
 	bool HierarchyPanel::UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
-		auto windowTitle = CreateWindowTitle("Hierarchy");
+		auto windowTitle = CreateWindowTitleWithIcon(ICON_DIAGRAM_PROJECT, "Hierarchy");
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
 		{
 			auto& registry = context.ProjectSession.GetSceneRegistry();

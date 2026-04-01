@@ -10,7 +10,9 @@
 #include <Ludus/Editor/Build/BuildTarget.h>
 #include <Ludus/Editor/Commands/EntityReference.h>
 #include <Ludus/Editor/Core/ExecutionMode.h>
+#include <Ludus/Editor/Panels/PanelKind.h>
 #include <Ludus/Engine/Core/Scene.h>
+#include <Ludus/UI/Theme/ThemeId.h>
 
 namespace Ludus::Editor::Commands
 {
@@ -20,6 +22,9 @@ namespace Ludus::Editor::Commands
 	struct RequestCommand
 	{
 		struct AddViewport { };
+		struct SetExecutionMode { Ludus::Editor::Core::ExecutionMode Mode; };
+		struct SetPanelVisibility { Ludus::Editor::Panels::PanelKind PanelKind; bool IsVisible; };
+		struct SetTheme { Ludus::UI::Theme::ThemeId ThemeId; };
 
 		struct CreateScene { };
 		struct CreateSceneAs { std::filesystem::path Path; };
@@ -43,15 +48,13 @@ namespace Ludus::Editor::Commands
 		struct BuildRuntime { Ludus::Editor::Build::BuildConfiguration BuildConfiguration; };
 		struct CleanRuntime { };
 
-		struct SetExecutionMode { Ludus::Editor::Core::ExecutionMode Mode; };
 
 		using Variant = std::variant<
-			AddViewport,
+			AddViewport, SetExecutionMode, SetPanelVisibility, SetTheme,
 			CreateScene, CreateSceneAs, OpenScene, SaveScene, SaveSceneAs,
 			CreateProject, CreateProjectAs, OpenProject, CloseProject,
 			CreateScript,
-			RunTargetBuildCommand, BuildRuntime, CleanRuntime,
-			SetExecutionMode
+			RunTargetBuildCommand, BuildRuntime, CleanRuntime
 		>;
 
 		Variant Data;

@@ -19,7 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Ludus\UI\AssetBrowser.h" />
+    <ClInclude Include="Include\Ludus\UI\Elements\ContentBrowser.h" />
+    <ClInclude Include="Include\Ludus\UI\Context\ThemeContext.h" />
     <ClInclude Include="Include\Ludus\UI\Scope\DisabledScope.h" />
     <ClInclude Include="Include\Ludus\UI\Backend\Fonts.h" />
     <ClInclude Include="Include\Ludus\UI\Context\ImageContext.h" />
@@ -28,6 +29,12 @@
     <ClInclude Include="Include\Ludus\UI\Labels.h" />
     <ClInclude Include="Include\Ludus\UI\Scope\ComboScope.h" />
     <ClInclude Include="Include\Ludus\UI\Systems\ImGuiModule.h" />
+    <ClInclude Include="Include\Ludus\UI\Theme\RoleColor.h" />
+    <ClInclude Include="Include\Ludus\UI\Theme\ThemeDefinition.h" />
+    <ClInclude Include="Include\Ludus\UI\Theme\ThemeId.h" />
+    <ClInclude Include="Include\Ludus\UI\Theme\ThemeMetrics.h" />
+    <ClInclude Include="Include\Ludus\UI\Theme\ThemePalette.h" />
+    <ClInclude Include="Include\Ludus\UI\Theme\Themes.h" />
     <ClInclude Include="Include\Ludus\UI\Widgets\Demo.h" />
     <ClInclude Include="Include\Ludus\UI\Widgets\Headers.h" />
     <ClInclude Include="Include\Ludus\UI\Widgets\Color.h" />
@@ -47,6 +54,7 @@
     <ClInclude Include="Include\Ludus\UI\Scope\MenuBarScope.h" />
     <ClInclude Include="Include\Ludus\UI\Scope\ModalScope.h" />
     <ClInclude Include="Include\Ludus\UI\Context\PopupContext.h" />
+    <ClInclude Include="Include\Ludus\UI\Backend\ImGuiTheme.h" />
     <ClInclude Include="Source\Ludus\UI\pch.h" />
     <ClInclude Include="Include\Ludus\UI\Flags\Flags.h" />
     <ClInclude Include="Include\Ludus\UI\Systems\ImGuiSystem.h" />
@@ -77,7 +85,9 @@
     <ClInclude Include="Include\Ludus\UI\Context\ViewportContext.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Ludus\UI\AssetBrowser.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Elements\ContentBrowser.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Backend\ImGuiTheme.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Context\ThemeContext.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\DisabledScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Context\PopupContext.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\ModalScope.cpp" />
@@ -92,6 +102,7 @@
     <ClCompile Include="Source\Ludus\UI\Layout\Layout.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\ComboScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\StyleScope.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Theme\Themes.cpp" />
     <ClCompile Include="Source\Ludus\UI\Widgets\Demo.cpp" />
     <ClCompile Include="Source\Ludus\UI\Widgets\Headers.cpp" />
     <ClCompile Include="Source\Ludus\UI\Widgets\Color.cpp" />
@@ -161,6 +172,8 @@
     <None Include="Vendors\imgui\.gitignore" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="Resources\Fonts\font-awesome\LICENSE.txt" />
+    <Text Include="Resources\Fonts\font-awesome\OFL.txt" />
     <Text Include="Resources\Fonts\liberation-sans\SIL Open Font License.txt" />
     <Text Include="Vendors\imgui\LICENSE.txt" />
   </ItemGroup>

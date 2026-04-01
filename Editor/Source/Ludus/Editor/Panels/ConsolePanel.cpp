@@ -1,11 +1,13 @@
 #include "pch.h"
 
 #include <format>
+#include <string>
 #include <utility>
 
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Panels/ConsolePanel.h>
 #include <Ludus/UI/Context/ScrollContext.h>
+#include <Ludus/UI/Icons/FontAwesome.h>
 #include <Ludus/UI/Scope/WindowScope.h>
 #include <Ludus/UI/Widgets/Text.h>
 
@@ -14,7 +16,7 @@ namespace Ludus::Editor::Panels
 	bool ConsolePanel::UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
 		const auto flags = Ludus::Editor::Core::Constants::PanelFlags | Ludus::UI::Flags::Window::HorizontalScrollbar;
-		auto windowTitle = CreateWindowTitle("Console");
+		auto windowTitle = CreateWindowTitleWithIcon(ICON_FILE_LINES, "Console");
 
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, flags); window)
 		{

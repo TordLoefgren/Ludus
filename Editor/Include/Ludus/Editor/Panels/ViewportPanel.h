@@ -2,6 +2,7 @@
 
 #include <optional>
 #include <string>
+#include <string_view>
 
 #include <Ludus/Editor/Core/ProjectSessionContext.h>
 #include <Ludus/Editor/Core/ViewportDisplayMode.h>
@@ -46,10 +47,11 @@ namespace Ludus::Editor::Panels
 
 	public:
 		ViewportPanel(
-			std::string title = "Viewport",
+			std::string_view title = "Viewport",
 			Ludus::Editor::Core::ViewportDisplayMode displayMode = Ludus::Editor::Core::ViewportDisplayMode::Editor
 		);
 
+		virtual Ludus::Editor::Panels::PanelKind GetPanelKind() const override { return Ludus::Editor::Panels::PanelKind::Viewport; }
 		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) override;
 	};
 }

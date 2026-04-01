@@ -22,8 +22,6 @@ namespace Ludus::Engine::Scripting
 	using Text2DData = Ludus::Scripting::ABI::Text2DData;
 	using Transform2DData = Ludus::Scripting::ABI::Transform2DData;
 
-	inline constexpr Ludus::Scripting::ABI::Version ABIVersion = { 1, 0, 0 };
-
 	struct ScriptHost
 	{
 		Ludus::Engine::Core::SceneRegistry& SceneRegistry;
@@ -412,7 +410,7 @@ namespace Ludus::Engine::Scripting
 		{
 			.Host = { sceneRegistry, input, activeSceneHandle },
 			.API = {
-				.Version = ABIVersion,
+				.Version = Ludus::Scripting::ABI::CurrentAPIVersion,
 				.GetEntityByName = &GetEntityByName,
 				.Debug = &OnDebugImpl,
 				.Print = &OnPrintImpl,

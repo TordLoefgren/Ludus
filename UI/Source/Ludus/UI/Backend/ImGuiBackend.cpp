@@ -2,9 +2,24 @@
 
 #include <Ludus/UI/Backend/Fonts.h>
 #include <Ludus/UI/Backend/ImGuiBackend.h>
+#include <Ludus/UI/Backend/ImGuiTheme.h>
+#include <Ludus/UI/Context/ThemeContext.h>
+#include <Ludus/UI/Theme/Themes.h>
 
 namespace Ludus::UI::Backend
 {
+	void ImGuiBackend::ApplyPendingTheme()
+	{
+		const auto revision = Ludus::UI::Context::ThemeContext::GetThemeRevision();
+		if (revision == m_CurrentThemeRevision)
+		{
+			return;
+		}
+
+		ApplyThemeToImGui(Ludus::UI::Context::ThemeContext::GetActiveTheme());
+		m_CurrentThemeRevision = revision;
+	}
+
 	void ImGuiBackend::Initialize(GLFWwindow* window)
 	{
 		IMGUI_CHECKVERSION();
@@ -22,6 +37,9 @@ namespace Ludus::UI::Backend
 
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 450 core");
+
+		Ludus::UI::Context::ThemeContext::SetActiveTheme(Ludus::UI::Theme::ThemeId::LudusDark);
+		ApplyPendingTheme();
 	}
 
 	void ImGuiBackend::Shutdown()
@@ -33,6 +51,8 @@ namespace Ludus::UI::Backend
 
 	void ImGuiBackend::Begin()
 	{
+		ApplyPendingTheme();
+
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();

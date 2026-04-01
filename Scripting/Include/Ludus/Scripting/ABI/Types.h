@@ -11,6 +11,8 @@ namespace Ludus::Scripting::ABI
 		std::uint32_t Patch;
 	};
 
+	inline constexpr Version CurrentAPIVersion { 0, 1, 0 };
+
 	struct DisplayNameData
 	{
 		const char* Value;

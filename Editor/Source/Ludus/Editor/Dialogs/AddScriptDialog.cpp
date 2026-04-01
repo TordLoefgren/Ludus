@@ -12,10 +12,12 @@
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/PopupContext.h>
+#include <Ludus/UI/Context/ThemeContext.h>
 #include <Ludus/UI/Context/WindowContext.h>
 #include <Ludus/UI/Labels.h>
 #include <Ludus/UI/Scope/DisabledScope.h>
 #include <Ludus/UI/Scope/ModalScope.h>
+#include <Ludus/UI/Scope/StyleScope.h>
 #include <Ludus/UI/Scope/TabScope.h>
 #include <Ludus/UI/Widgets/Buttons.h>
 #include <Ludus/UI/Widgets/Input.h>
@@ -56,9 +58,7 @@ namespace Ludus::Editor::Dialogs
 			JustOpened = false;
 		}
 
-		Ludus::UI::Context::WindowContext::SetNextWindowSize(Ludus::Editor::Core::Constants::AddScriptDialogSize);
-
-		if (Ludus::UI::Scope::PopupModalScope dialogScope(popupLabel.c_str(), &IsOpen); dialogScope)
+		if (Ludus::UI::Scope::PopupModalScope dialogScope(popupLabel.c_str(), &IsOpen, Ludus::UI::Flags::Window::AlwaysAutoResize); dialogScope)
 		{
 			if (Ludus::UI::Scope::TabBarScope tabBarScope("##TabBar"); tabBarScope)
 			{
@@ -71,7 +71,7 @@ namespace Ludus::Editor::Dialogs
 
 					if (!Error.empty())
 					{
-						Ludus::UI::Widgets::TextUnformatted(Error.c_str());
+						Ludus::UI::Widgets::TextUnformattedColor(Error.c_str(), Ludus::UI::Context::ThemeContext::Error());
 					}
 				}
 
