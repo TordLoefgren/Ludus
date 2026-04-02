@@ -39,12 +39,16 @@ namespace Ludus::Engine::Serialization::Schemas
 		for (const auto& scene : runtimeManifest.Scenes)
 		{
 			writer.Emit(Token::StartObject { });
+
 			writer.Emit(Token::Key { "Handle" });
 			writer.Emit(Token::Uint { scene.Handle });
 			writer.Emit(Token::Key { "Name" });
 			writer.Emit(Token::String { scene.Name });
+
 			writer.Emit(Token::Key { "Path" });
-			writer.Emit(Token::String { Ludus::Engine::FileSystem::ToPortablePathString(scene.Path) });
+			const auto scenePath = Ludus::Engine::FileSystem::ToPortablePathString(scene.Path);
+			writer.Emit(Token::String { scenePath });
+
 			writer.Emit(Token::EndObject { });
 		}
 
@@ -56,10 +60,12 @@ namespace Ludus::Engine::Serialization::Schemas
 		for (const auto& script : runtimeManifest.Scripts)
 		{
 			writer.Emit(Token::StartObject { });
+
 			writer.Emit(Token::Key { "Handle" });
 			writer.Emit(Token::Uint { script.Handle });
 			writer.Emit(Token::Key { "Name" });
 			writer.Emit(Token::String { script.Name });
+
 			writer.Emit(Token::EndObject { });
 		}
 

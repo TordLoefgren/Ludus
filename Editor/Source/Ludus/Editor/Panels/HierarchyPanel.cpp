@@ -10,6 +10,7 @@
 #include <Ludus/Editor/Panels/HierarchyPanel.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
+#include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Graphics/Shape.h>
 #include <Ludus/UI/Context/InputContext.h>
 #include <Ludus/UI/Context/LayoutContext.h>
@@ -33,6 +34,11 @@ namespace Ludus::Editor::Panels
 	namespace
 	{
 		namespace Component = Ludus::Engine::Components;
+
+		bool MenuItemConditional(const char* label, bool enabled)
+		{
+			return Ludus::UI::Widgets::MenuItem(label, nullptr, false, enabled);
+		}
 	}
 
 	void HierarchyPanel::DrawEntityRow(Ludus::Editor::Core::ProjectSessionContext& context, Ludus::Engine::Core::Scene& scene, Ludus::Engine::Core::EntityHandle entityHandle)
@@ -42,8 +48,9 @@ namespace Ludus::Editor::Panels
 		const auto sceneHandle = scene.Handle;
 
 		const auto* displayNamePtr = ecs.DisplayNames.TryGetByOwner(entityHandle);
+		LUDUS_ASSERT(displayNamePtr != nullptr, "An entity must have a DisplayNameComponent.");
 		const auto entityLabel = displayNamePtr != nullptr
-			? Ludus::UI::CreateLabelWithIcon(ICON_CUBE, displayNamePtr->Value, std::to_string(entityHandle))
+			? Ludus::UI::CreateLabelWithIcon(ICON_CUBE, displayNamePtr->Name, std::to_string(entityHandle))
 			: Ludus::UI::CreateLabelWithIcon(ICON_CUBE, std::format("Entity {}", entityHandle), std::to_string(entityHandle));
 
 		if (Ludus::UI::Widgets::Selectable(entityLabel.c_str(), selection.IsSelected(entityHandle)))
@@ -72,7 +79,7 @@ namespace Ludus::Editor::Panels
 			{
 				auto isComponentAdded = false;
 
-				if (!ecs.Cameras.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Camera 2D"))
+				if (MenuItemConditional("Camera 2D", !ecs.Cameras.ContainsOwner(entityHandle)))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Camera2DComponent> {
 						.EntityReference = entityHandle, .SceneHandle = sceneHandle
@@ -80,7 +87,7 @@ namespace Ludus::Editor::Panels
 					isComponentAdded = true;
 				}
 
-				if (!ecs.Colliders.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Collider 2D"))
+				if (MenuItemConditional("Collider 2D", !ecs.Colliders.ContainsOwner(entityHandle)))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Collider2DComponent> {
 						.EntityReference = entityHandle, .SceneHandle = sceneHandle
@@ -88,7 +95,7 @@ namespace Ludus::Editor::Panels
 					isComponentAdded = true;
 				}
 
-				if (!ecs.RigidBodies.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Rigid Body 2D"))
+				if (MenuItemConditional("Rigidbody 2D", !ecs.RigidBodies.ContainsOwner(entityHandle)))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::RigidBody2DComponent> {
 						.EntityReference = entityHandle, .SceneHandle = sceneHandle
@@ -96,7 +103,7 @@ namespace Ludus::Editor::Panels
 					isComponentAdded = true;
 				}
 
-				if (!ecs.Scripts.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Script"))
+				if (MenuItemConditional("Script", !ecs.Scripts.ContainsOwner(entityHandle)))
 				{
 					Commands::EnqueueUI(context.Shell.State.Commands, Commands::UICommand::OpenAddScriptDialog {
 						.EntityHandle = entityHandle, .SceneHandle = sceneHandle
@@ -104,7 +111,7 @@ namespace Ludus::Editor::Panels
 					// The added component will be selected later as part of the command chain.
 				}
 
-				if (!ecs.Sprites.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Sprite 2D"))
+				if (MenuItemConditional("Sprite 2D", !ecs.Sprites.ContainsOwner(entityHandle)))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Sprite2DComponent> {
 						.EntityReference = entityHandle, .SceneHandle = sceneHandle
@@ -112,7 +119,7 @@ namespace Ludus::Editor::Panels
 					isComponentAdded = true;
 				}
 
-				if (!ecs.Texts.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Text 2D"))
+				if (MenuItemConditional("Text 2D", !ecs.Texts.ContainsOwner(entityHandle)))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Text2DComponent> {
 						.EntityReference = entityHandle, .SceneHandle = sceneHandle
@@ -235,6 +242,11 @@ namespace Ludus::Editor::Panels
 		{
 			if (Ludus::UI::Scope::PopupContextItemScope contextItem; contextItem)
 			{
+				if (Ludus::UI::Widgets::MenuItem("Rename"))
+				{
+					Commands::EnqueueUI(context.Shell.State.Commands, Commands::UICommand::OpenRenameSceneDialog { .SceneHandle = scene.Handle });
+				}
+
 				if (Ludus::UI::Widgets::MenuItem("Save"))
 				{
 					Commands::EnqueueRequest(context.Shell.State.Commands, Commands::RequestCommand::SaveScene { .SceneHandle = scene.Handle });

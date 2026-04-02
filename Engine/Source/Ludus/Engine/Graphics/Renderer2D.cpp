@@ -154,7 +154,7 @@ namespace Ludus::Engine::Graphics
 	{
 		auto position = transform.Position;
 
-		if (horizontalTextAlignment != HorizontalTextAlignment::Left)
+		if (horizontalTextAlignment != HorizontalTextAlignment::Right)
 		{
 			const auto widthPixels = m_Font.MeasureTextWidth(string) * transform.Scale.X;
 

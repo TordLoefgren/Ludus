@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Ludus\UI\Elements\ActionTreeNode.h" />
     <ClInclude Include="Include\Ludus\UI\Elements\ContentBrowser.h" />
     <ClInclude Include="Include\Ludus\UI\Context\ThemeContext.h" />
     <ClInclude Include="Include\Ludus\UI\Scope\DisabledScope.h" />
@@ -28,6 +29,7 @@
     <ClInclude Include="Include\Ludus\UI\Icons\FontAwesome.h" />
     <ClInclude Include="Include\Ludus\UI\Labels.h" />
     <ClInclude Include="Include\Ludus\UI\Scope\ComboScope.h" />
+    <ClInclude Include="Include\Ludus\UI\Scope\IDScope.h" />
     <ClInclude Include="Include\Ludus\UI\Systems\ImGuiModule.h" />
     <ClInclude Include="Include\Ludus\UI\Theme\RoleColor.h" />
     <ClInclude Include="Include\Ludus\UI\Theme\ThemeDefinition.h" />
@@ -58,7 +60,6 @@
     <ClInclude Include="Source\Ludus\UI\pch.h" />
     <ClInclude Include="Include\Ludus\UI\Flags\Flags.h" />
     <ClInclude Include="Include\Ludus\UI\Systems\ImGuiSystem.h" />
-    <ClInclude Include="Include\Ludus\UI\Layout\Layout.h" />
     <ClInclude Include="Include\Ludus\UI\Backend\ImGuiBackend.h" />
     <ClInclude Include="Include\Ludus\UI\Widgets\Text.h" />
     <ClInclude Include="Include\Ludus\UI\Scope\TableScope.h" />
@@ -85,11 +86,13 @@
     <ClInclude Include="Include\Ludus\UI\Context\ViewportContext.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Ludus\UI\Elements\ActionTreeNode.cpp" />
     <ClCompile Include="Source\Ludus\UI\Elements\ContentBrowser.cpp" />
     <ClCompile Include="Source\Ludus\UI\Backend\ImGuiTheme.cpp" />
     <ClCompile Include="Source\Ludus\UI\Context\ThemeContext.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\DisabledScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Context\PopupContext.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Scope\IDScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\ModalScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Backend\Fonts.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\MenuBarScope.cpp" />
@@ -99,7 +102,6 @@
     <ClCompile Include="Source\Ludus\UI\Context\ScrollContext.cpp" />
     <ClCompile Include="Source\Ludus\UI\Context\InputContext.cpp" />
     <ClCompile Include="Source\Ludus\UI\Context\SelectionContext.cpp" />
-    <ClCompile Include="Source\Ludus\UI\Layout\Layout.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\ComboScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\StyleScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Theme\Themes.cpp" />

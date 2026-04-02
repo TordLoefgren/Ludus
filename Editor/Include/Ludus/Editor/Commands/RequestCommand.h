@@ -31,6 +31,7 @@ namespace Ludus::Editor::Commands
 		struct OpenScene { std::filesystem::path Path; bool Additive = false; };
 		struct SaveScene { Ludus::Engine::Core::SceneHandle SceneHandle; };
 		struct SaveSceneAs { Ludus::Engine::Core::SceneHandle SceneHandle; std::filesystem::path Path; };
+		struct RenameScene { Ludus::Engine::Core::SceneHandle SceneHandle; std::filesystem::path Path; };
 
 		struct CreateProject { std::string Name; };
 		struct CreateProjectAs { std::string Name; std::filesystem::path ProjectRoot; };
@@ -51,7 +52,7 @@ namespace Ludus::Editor::Commands
 
 		using Variant = std::variant<
 			AddViewport, SetExecutionMode, SetPanelVisibility, SetTheme,
-			CreateScene, CreateSceneAs, OpenScene, SaveScene, SaveSceneAs,
+			CreateScene, CreateSceneAs, OpenScene, SaveScene, SaveSceneAs, RenameScene,
 			CreateProject, CreateProjectAs, OpenProject, CloseProject,
 			CreateScript,
 			RunTargetBuildCommand, BuildRuntime, CleanRuntime

@@ -15,7 +15,7 @@ namespace Ludus::UI::Context::TableContext
 
 	void TableSetColumnIndex(int index) { ImGui::TableSetColumnIndex(index); }
 
-	void TableSetupColumn(const char* label, Ludus::UI::Flags::Table flags, float initWidthOrWeight)
+	void TableSetupColumn(const char* label, Ludus::UI::Flags::TableColumn flags, float initWidthOrWeight)
 	{
 		ImGui::TableSetupColumn(label, static_cast<int>(flags), initWidthOrWeight);
 	}

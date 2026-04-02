@@ -126,7 +126,7 @@ namespace Ludus::Editor::Dialogs
 				{
 					if (ActiveTab == AddScriptTab::Create)
 					{
-						Error = Ludus::Editor::Persistence::ProjectPaths::ValidateScriptName(CreateName);
+						Error = Ludus::Editor::Persistence::ProjectPaths::ValidateFileName(CreateName);
 						if (Error.empty() && ScriptHandlesByName.find(CreateName) != ScriptHandlesByName.end())
 						{
 							Error = "Script already exists.";

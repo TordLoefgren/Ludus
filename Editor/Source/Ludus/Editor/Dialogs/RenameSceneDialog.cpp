@@ -1,9 +1,10 @@
 #include "pch.h"
 
+#include <filesystem>
 #include <type_traits>
 
 #include <Ludus/Editor/Core/Constants.h>
-#include <Ludus/Editor/Dialogs/CreateProjectDialog.h>
+#include <Ludus/Editor/Dialogs/RenameSceneDialog.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/PopupContext.h>
@@ -16,9 +17,13 @@
 
 namespace Ludus::Editor::Dialogs
 {
-	CreateProjectDialog::Outcome CreateProjectDialog::Draw()
+	RenameSceneDialog::RenameSceneDialog(Ludus::Engine::Core::SceneHandle sceneHandle, std::filesystem::path currentPath)
+		: SceneHandle(sceneHandle), CurrentPath(currentPath)
+	{ }
+
+	RenameSceneDialog::Outcome RenameSceneDialog::Draw()
 	{
-		const auto popupLabel = Ludus::UI::CreateLabel("Create Project", "Create Project");
+		const auto popupLabel = Ludus::UI::CreateLabel("Rename Scene", "Rename Scene");
 
 		if (JustOpened)
 		{
@@ -28,28 +33,29 @@ namespace Ludus::Editor::Dialogs
 
 		if (Ludus::UI::Scope::PopupModalScope dialogScope(popupLabel.c_str(), &IsOpen, Ludus::UI::Flags::Window::AlwaysAutoResize); dialogScope)
 		{
-			const auto projectDirectory = Ludus::Editor::Persistence::ProjectPaths::ProjectRoot(Name);
-
-			Ludus::UI::Widgets::TextUnformatted("Please write a project name:");
-			Ludus::UI::Widgets::InputText("##NewProjectName", Name);
+			Ludus::UI::Widgets::TextUnformatted("Please write a new scene name:");
+			if (Ludus::UI::Widgets::InputText("##NewScene", Name))
+			{
+				NewPath = Ludus::Editor::Persistence::ProjectPaths::SceneFileInDirectory(CurrentPath.parent_path(), Name);
+			}
 
 			if (!Error.empty())
 			{
 				Ludus::UI::Widgets::TextUnformattedColor(Error.c_str(), Ludus::UI::Context::ThemeContext::Error());
 			}
 
-			if (Ludus::UI::Widgets::Button("Create", Ludus::Editor::Core::Constants::ModalActionButtonSize))
+			if (Ludus::UI::Widgets::Button("Rename", Ludus::Editor::Core::Constants::ModalActionButtonSize))
 			{
 				Error = Ludus::Editor::Persistence::ProjectPaths::ValidateFileName(Name);
 				if (Error.empty())
 				{
-					Error = Ludus::Editor::Persistence::ProjectPaths::ValidateAvailablePath(projectDirectory);
+					Error = Ludus::Editor::Persistence::ProjectPaths::ValidateAvailablePath(NewPath);
 				}
 
 				if (Error.empty())
 				{
 					IsOpen = false;
-					return Outcome::Confirm(Name);
+					return Outcome::Confirm({ .SceneHandle = SceneHandle, .Path = NewPath });
 				}
 			}
 
@@ -68,7 +74,7 @@ namespace Ludus::Editor::Dialogs
 		return Outcome::NoneState();
 	}
 
-	void CreateProjectDialog::Resolve(const Outcome& outcome, Ludus::Editor::Commands::CommandSet& out)
+	void RenameSceneDialog::Resolve(const Outcome& outcome, Ludus::Editor::Commands::CommandSet& out)
 	{
 		std::visit([&](auto&& value)
 		{
@@ -85,13 +91,13 @@ namespace Ludus::Editor::Dialogs
 			else if constexpr (std::is_same_v<Alt, typename Outcome::Confirmed>)
 			{
 				out.RequestCommands.emplace_back(
-					Ludus::Editor::Commands::RequestCommand::CreateProject { value.Payload }
+					Ludus::Editor::Commands::RequestCommand::RenameScene { value.Payload.SceneHandle, value.Payload.Path }
 				);
 			}
 		}, outcome.Data);
 	}
 
-	bool CreateProjectDialog::ShouldClose(const Outcome&) const
+	bool RenameSceneDialog::ShouldClose(const Outcome&) const
 	{
 		return !IsOpen;
 	}

@@ -31,7 +31,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 
 			// Create default scene.
 			const auto scene = Ludus::Editor::Core::ProjectTemplates::CreateDefaultScene();
-			const auto scenePath = Ludus::Engine::Persistence::Paths::SceneFile(projectRoot, scene.Name);
+			const auto scenePath = Ludus::Editor::Persistence::ProjectPaths::SceneFile(projectRoot, scene.Name);
 			scenePersistence.Save(
 				scene,
 				scenePath

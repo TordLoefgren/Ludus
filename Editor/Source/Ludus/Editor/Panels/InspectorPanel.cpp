@@ -1,8 +1,11 @@
 #include "pch.h"
 
 #include <format>
+#include <string>
+#include <vector>
 
 #include <Ludus/Editor/Commands/EditCommand.h>
+#include <Ludus/Editor/Commands/Enqueue.h>
 #include <Ludus/Editor/Core/Axis.h>
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Panels/InspectorPanel.h>
@@ -16,6 +19,7 @@
 #include <Ludus/Engine/Components/Text2DComponent.h>
 #include <Ludus/Engine/Components/Transform2DComponent.h>
 #include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Enums.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
@@ -23,14 +27,23 @@
 #include <Ludus/Engine/Physics/Core/LayerMask.h>
 #include <Ludus/Engine/Runtime/RuntimeManifest.h>
 #include <Ludus/UI/Context/LayoutContext.h>
+#include <Ludus/UI/Context/PopupContext.h>
 #include <Ludus/UI/Context/TableContext.h>
+#include <Ludus/UI/Context/ThemeContext.h>
 #include <Ludus/UI/Context/WindowContext.h>
+#include <Ludus/UI/Elements/ActionTreeNode.h>
 #include <Ludus/UI/Icons/FontAwesome.h>
+#include <Ludus/UI/Labels.h>
+#include <Ludus/UI/Scope/ComboScope.h>
 #include <Ludus/UI/Scope/DisabledScope.h>
+#include <Ludus/UI/Scope/FontScope.h>
+#include <Ludus/UI/Scope/IDScope.h>
 #include <Ludus/UI/Scope/MenuScope.h>
+#include <Ludus/UI/Scope/StyleScope.h>
 #include <Ludus/UI/Scope/TableScope.h>
 #include <Ludus/UI/Scope/TreeNodeScope.h>
 #include <Ludus/UI/Scope/WindowScope.h>
+#include <Ludus/UI/Widgets/Buttons.h>
 #include <Ludus/UI/Widgets/Color.h>
 #include <Ludus/UI/Widgets/Headers.h>
 #include <Ludus/UI/Widgets/Input.h>
@@ -41,23 +54,148 @@
 
 namespace Ludus::Editor::Panels
 {
-#pragma region Draw calls
 
-	void InspectorPanel::DrawEntityHandle(Ludus::Engine::Core::EntityHandle handle)
+	namespace
 	{
-		if (Ludus::UI::Scope::TreeNodeScope treeNode("Id"); treeNode)
+		namespace Component = Ludus::Engine::Components;
+
+		constexpr const char* AddComponentPopupId = "AddComponentPopup";
+		constexpr float InspectorLabelColumnWidth = 130.0f;
+
+		void SetupInspectorTable2()
 		{
-			if (Ludus::UI::Scope::TableScope table("Id_Panel", 2); table)
+			Ludus::UI::Context::TableContext::TableSetupColumn("Label", Ludus::UI::Flags::TableColumn::WidthFixed, InspectorLabelColumnWidth);
+			Ludus::UI::Context::TableContext::TableSetupColumn("Value", Ludus::UI::Flags::TableColumn::WidthStretch);
+		}
+
+		void DrawInspectorLabel(const char* text)
+		{
+			Ludus::UI::Context::LayoutContext::AlignTextToFramePadding();
+			Ludus::UI::Widgets::TextUnformatted(text);
+		}
+
+		bool InputFloatFill(
+			const std::string& label,
+			float* value,
+			float step = 0.0f,
+			float step_fast = 0.0f,
+			const char* format = "%.2f",
+			Ludus::UI::Flags::InputText flags = Ludus::UI::Flags::InputText::None
+		)
+		{
+			Ludus::UI::Context::LayoutContext::SetNextItemWidthFill();
+			return Ludus::UI::Widgets::InputFloat(label, value, step, step_fast, format, flags);
+		}
+
+		bool InputTextFill(
+			const std::string& label,
+			std::string& text,
+			Ludus::UI::Flags::InputText flags = Ludus::UI::Flags::InputText::None
+		)
+		{
+			Ludus::UI::Context::LayoutContext::SetNextItemWidthFill();
+			return Ludus::UI::Widgets::InputText(label, text, flags);
+		}
+
+		template<typename TEnum>
+			requires Ludus::Engine::Core::Enums::HasValues<TEnum>
+		bool ComboEnumFill(const char* label, TEnum& currentItem)
+		{
+			Ludus::UI::Context::LayoutContext::SetNextItemWidthFill();
+			return Ludus::UI::Widgets::ComboEnum(label, currentItem);
+		}
+
+		bool ComboFill(const std::string& label, int* currentItem, const std::vector<const char*>& items)
+		{
+			Ludus::UI::Context::LayoutContext::SetNextItemWidthFill();
+			return Ludus::UI::Widgets::Combo(label, currentItem, items);
+		}
+
+		template<typename TComponent>
+		Ludus::UI::Elements::ActionTreeNode DrawComponentHeaderWithMenu(
+			Ludus::Editor::Core::ProjectSessionContext& context,
+			const char* label,
+			TComponent component
+		)
+		{
+			const std::string treeNodeId = std::string(label) + "_ActionTreeNode";
+			const std::string menuId = std::string(label) + "_MenuButton";
+
+			Ludus::UI::Elements::ActionTreeNodeOptions options {
+				.Id = treeNodeId.c_str(),
+				.MenuId = menuId.c_str(),
+				.Label = label,
+				.MenuButtonIcon = ICON_ELLIPSIS_V
+			};
+			Ludus::UI::Elements::ActionTreeNodeResult result;
+			Ludus::UI::Elements::ActionTreeNode treeNode(options, &result);
+
+			if (auto popup = treeNode.Menu(); popup)
 			{
-				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Value");
-				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				Ludus::UI::Widgets::TextUnformatted(std::to_string(handle));
+				if (Ludus::UI::Widgets::MenuItem("Remove"))
+				{
+					context.Shell.State.Commands.AddEditCommand(
+						Ludus::Editor::Commands::EditCommand::RemoveComponent<TComponent>(
+							component.OwnerHandle,
+							context.ProjectSession.GetActiveRuntime().GetScenePresentationState().CurrentSceneHandle
+						)
+					);
+
+					Ludus::UI::Context::PopupContext::CloseCurrentPopup();
+				}
 			}
+
+			return treeNode;
+		}
+
+		std::string BuildLayerMaskPreview(const Ludus::Engine::Physics::Core::LayerMask& mask)
+		{
+			const auto layers = Ludus::Engine::Physics::Core::LayerMask::GetLayersOrdered();
+
+			std::vector<std::string> selected;
+			selected.reserve(layers.size());
+
+			for (const auto& layer : layers)
+			{
+				if (mask.Contains(layer.Index))
+				{
+					selected.emplace_back(layer.Name);
+				}
+			}
+
+			if (selected.empty())
+			{
+				return "None";
+			}
+
+			if (selected.size() == layers.size())
+			{
+				return "All";
+			}
+
+			if (selected.size() <= 3)
+			{
+				std::string result;
+				for (size_t i = 0; i < selected.size(); i++)
+				{
+					if (i > 0)
+					{
+						result += ", ";
+					}
+
+					result += selected[i];
+				}
+
+				return result;
+			}
+
+			return std::format("{} layers selected", selected.size());
 		}
 	}
 
-	bool InspectorPanel::DrawDisplayName(Ludus::Engine::Components::DisplayNameComponent& component)
+#pragma region Draw calls
+
+	bool InspectorPanel::DrawDisplayName(Component::DisplayNameComponent& component)
 	{
 		bool changed = false;
 
@@ -65,111 +203,137 @@ namespace Ludus::Editor::Panels
 		{
 			if (Ludus::UI::Scope::TableScope table("DisplayName_Panel", 2); table)
 			{
+				SetupInspectorTable2();
+
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Value");
+				DrawInspectorLabel("Name");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::InputText("##DisplayName_Panel_Value", component.Value);
+				changed |= InputTextFill("##DisplayName_Panel_Name", component.Name);
 			}
 		}
 
 		return changed;
 	}
 
-	bool InspectorPanel::DrawTransform2D(Ludus::Engine::Components::Transform2DComponent& component)
+	bool InspectorPanel::DrawTransform2D(Component::Transform2DComponent& component)
 	{
 		bool changed = false;
 
 		if (Ludus::UI::Scope::TreeNodeScope treeNode("Transform 2D"); treeNode)
 		{
-			if (Ludus::UI::Scope::TableScope table("Transform2D_Panel", 3); table)
+			if (Ludus::UI::Scope::TableScope table("Transform2D_Panel", 2); table)
 			{
-				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Position");
-				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::Editor::Widgets::DragFloatAxisButton("X##Transform2D_Panel_Position_X", &component.Position.X, Ludus::Editor::Core::Axis::X);
-				Ludus::UI::Context::LayoutContext::SameLine();
-				changed |= Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Position_X", &component.Position.X);
-
-				Ludus::UI::Context::TableContext::TableSetColumnIndex(2);
-				changed |= Ludus::Editor::Widgets::DragFloatAxisButton("Y##Transform2D_Panel_Position_Y", &component.Position.Y, Ludus::Editor::Core::Axis::Y);
-				Ludus::UI::Context::LayoutContext::SameLine();
-				changed |= Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Position_Y", &component.Position.Y);
+				SetupInspectorTable2();
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Scale");
+				DrawInspectorLabel("Position");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::Editor::Widgets::DragFloatAxisButton("X##Transform2D_Panel_Scale_X", &component.Scale.X, Ludus::Editor::Core::Axis::X);
-				Ludus::UI::Context::LayoutContext::SameLine();
-				changed |= Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Scale_X", &component.Scale.X);
-
-				Ludus::UI::Context::TableContext::TableSetColumnIndex(2);
-				changed |= Ludus::Editor::Widgets::DragFloatAxisButton("Y##Transform2D_Panel_Scale_Y", &component.Scale.Y, Ludus::Editor::Core::Axis::Y);
-				Ludus::UI::Context::LayoutContext::SameLine();
-				changed |= Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_Input_Scale_Y", &component.Scale.Y);
+				changed |= Ludus::Editor::Widgets::DrawVector2Field("Transform2D_Panel_Position", &component.Position.X, &component.Position.Y);
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Rotation");
+				DrawInspectorLabel("Scale");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::Editor::Widgets::DragFloatAxisButton("Z##Transform2D_Panel_DragFloat_Rotation", &component.Rotation, Ludus::Editor::Core::Axis::Z);
-				Ludus::UI::Context::LayoutContext::SameLine();
-				changed |= Ludus::UI::Widgets::InputFloat("##Transform2D_Panel_InputFloat_Rotation_Z", &component.Rotation);
+				changed |= Ludus::Editor::Widgets::DrawVector2Field("Transform2D_Panel_Scale", &component.Scale.X, &component.Scale.Y);
+
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				DrawInspectorLabel("Rotation");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
+				changed |= Ludus::Editor::Widgets::DrawAxisFloatField("Transform2D_Panel_Rotation", &component.Rotation, Ludus::Editor::Core::Axis::Z);
 			}
 		}
 
 		return changed;
 	}
 
-	bool InspectorPanel::DrawCollider2D(Ludus::Engine::Components::Collider2DComponent& component)
+	bool InspectorPanel::DrawCamera2D(Ludus::Editor::Core::ProjectSessionContext& context, Component::Camera2DComponent& component)
 	{
 		bool changed = false;
 
-		if (Ludus::UI::Scope::TreeNodeScope treeNode("Collider 2D"); treeNode)
+		if (auto treeNode = DrawComponentHeaderWithMenu(context, "Camera 2D", component); treeNode)
 		{
-			if (Ludus::UI::Scope::TableScope table("##Collider2D_Panel", 3); table)
+			if (Ludus::UI::Scope::TableScope table("Camera2D_Panel", 2); table)
 			{
-				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Layer Index");
-				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::InputUInt8("##Collider2D_Panel_LayerIndex", &component.LayerIndex);
-				Ludus::UI::Context::TableContext::TableSetColumnIndex(2);
-				Ludus::UI::Widgets::TextUnformatted(Ludus::Engine::Physics::Core::LayerMask::LayerIndexToName(component.LayerIndex));
+				SetupInspectorTable2();
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Collides With");
+				DrawInspectorLabel("Orthographic Size");
+
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
+				changed |= InputFloatFill("##Camera2D_Panel_OrthographicSize", &component.OrthographicSize);
+			}
+		}
+
+		return changed;
+	}
+
+	bool InspectorPanel::DrawCollider2D(Ludus::Editor::Core::ProjectSessionContext& context, Component::Collider2DComponent& component)
+	{
+		bool changed = false;
+
+		if (auto treeNode = DrawComponentHeaderWithMenu(context, "Collider 2D", component); treeNode)
+		{
+			if (Ludus::UI::Scope::TableScope table("##Collider2D_Panel", 2); table)
+			{
+				SetupInspectorTable2();
+
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				DrawInspectorLabel("Layer");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 
-				const auto count = Ludus::Engine::Physics::Core::LayerMask::GetLayerCount();
-				if (Ludus::UI::Widgets::CollapsingHeader("##Collider2D_Panel_CollidesWith"))
+				const auto layers = Ludus::Engine::Physics::Core::LayerMask::GetLayersOrdered();
+				auto values = std::vector<const char*> { };
+				values.reserve(layers.size());
+
+				auto currentLayerRow = 0;
+				for (auto i = 0; i < static_cast<int>(layers.size()); i++)
 				{
-					auto newMask = component.CollidesWith;
-					auto hasChanges = false;
-
-					for (size_t i = 0; i < count; i++)
+					values.push_back(layers[static_cast<size_t>(i)].Name.data());
+					if (layers[static_cast<size_t>(i)].Index == component.LayerIndex)
 					{
-						auto layer = Ludus::Engine::Physics::Core::LayerMask::FromIndex(static_cast<uint8_t>(i));
-						auto label = Ludus::Engine::Physics::Core::LayerMask::LayerIndexToName(static_cast<uint8_t>(i));
-						auto isChecked = component.CollidesWith.Contains(layer);
-
-						auto item = Ludus::UI::Widgets::CheckboxItem(std::format("{} {}", i, label), isChecked);
-						if (Ludus::UI::Widgets::Checkbox(item))
-						{
-							hasChanges = true;
-							newMask = item.IsChecked ? newMask |= layer : newMask &= ~layer;
-						}
-					}
-
-					if (hasChanges)
-					{
-						changed = true;
-						component.CollidesWith = newMask;
+						currentLayerRow = i;
 					}
 				}
 
+				if (ComboFill("##Collider2D_Panel_LayerIndex", &currentLayerRow, values))
+				{
+					component.LayerIndex = layers[static_cast<size_t>(currentLayerRow)].Index;
+					changed = true;
+				}
+
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Is Trigger");
+				DrawInspectorLabel("Collides With");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 
-				changed |= Ludus::UI::Widgets::Checkbox("##IsTrigger", &component.IsTrigger);
+				const auto preview = BuildLayerMaskPreview(component.CollidesWith);
+
+				Ludus::UI::Context::LayoutContext::SetNextItemWidthFill();
+
+				if (Ludus::UI::Scope::ComboScope combo("##Collider2D_Panel_CollidesWith", preview.c_str()); combo)
+				{
+					auto newMask = component.CollidesWith;
+
+					for (const auto& layerEntry : Ludus::Engine::Physics::Core::LayerMask::GetLayersOrdered())
+					{
+						auto layer = Ludus::Engine::Physics::Core::LayerMask::FromIndex(layerEntry.Index);
+						auto label = std::string(layerEntry.Name);
+						auto isChecked = newMask.Contains(layer);
+
+						auto item = Ludus::UI::Widgets::CheckboxItem(label, isChecked);
+						if (Ludus::UI::Widgets::Checkbox(item))
+						{
+							changed = true;
+							newMask = item.IsChecked ? (newMask |= layer) : (newMask &= ~layer);
+						}
+					}
+
+					component.CollidesWith = newMask;
+				}
+
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				DrawInspectorLabel("Is Trigger");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
+
+				changed |= Ludus::UI::Widgets::Checkbox("##Collider2D_Panel_IsTrigger", &component.IsTrigger);
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 			}
 		}
@@ -177,40 +341,35 @@ namespace Ludus::Editor::Panels
 		return changed;
 	}
 
-	bool InspectorPanel::DrawRigidBody2D(Ludus::Engine::Components::RigidBody2DComponent& component)
+	bool InspectorPanel::DrawRigidBody2D(Ludus::Editor::Core::ProjectSessionContext& context, Component::RigidBody2DComponent& component)
 	{
 		bool changed = false;
 
-		if (Ludus::UI::Scope::TreeNodeScope treeNode("Rigid Body 2D"); treeNode)
+		if (auto treeNode = DrawComponentHeaderWithMenu(context, "Rigidbody 2D", component); treeNode)
 		{
-			if (Ludus::UI::Scope::TableScope table("RigidBody2D_Panel", 3); table)
+			if (Ludus::UI::Scope::TableScope table("RigidBody2D_Panel", 2); table)
 			{
-				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Velocity");
-				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::Editor::Widgets::DragFloatAxisButton("X##RigidBody2D_Panel_Velocity_X", &component.Velocity.X, Ludus::Editor::Core::Axis::X);
-				Ludus::UI::Context::LayoutContext::SameLine();
-				changed |= Ludus::UI::Widgets::InputFloat("##RigidBody2D_Panel_Input_Velocity_X", &component.Velocity.X);
-
-				Ludus::UI::Context::TableContext::TableSetColumnIndex(2);
-				changed |= Ludus::Editor::Widgets::DragFloatAxisButton("Y##RigidBody2D_Panel_Velocity_Y", &component.Velocity.Y, Ludus::Editor::Core::Axis::Y);
-				Ludus::UI::Context::LayoutContext::SameLine();
-				changed |= Ludus::UI::Widgets::InputFloat("##RigidBody2D_Panel_Input_Velocity_Y", &component.Velocity.Y);
+				SetupInspectorTable2();
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Body Type");
+				DrawInspectorLabel("Velocity");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::ComboEnum("##RigidBody2D_Combo", component.BodyType);
+				changed |= Ludus::Editor::Widgets::DrawVector2Field("RigidBody2D_Panel_Velocity", &component.Velocity.X, &component.Velocity.Y);
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Gravity Scale");
+				DrawInspectorLabel("Body Type");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::InputFloat("##RigidBody2D_Panel_GravityScale", &component.GravityScale);
+				changed |= ComboEnumFill("##RigidBody2D_Panel_BodyType", component.BodyType);
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Mass");
+				DrawInspectorLabel("Gravity Scale");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::InputFloat("##RigidBody2D_Panel_Mass", &component.Mass);
+				changed |= InputFloatFill("##RigidBody2D_Panel_GravityScale", &component.GravityScale);
+
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				DrawInspectorLabel("Mass");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
+				changed |= InputFloatFill("##RigidBody2D_Panel_Mass", &component.Mass);
 			}
 		}
 
@@ -218,32 +377,30 @@ namespace Ludus::Editor::Panels
 	}
 
 	bool InspectorPanel::DrawScript(
-		Ludus::Engine::Components::ScriptComponent& component,
-		const std::vector<Ludus::Engine::Runtime::ScriptReference>& scriptReferences
+		Ludus::Editor::Core::ProjectSessionContext& context,
+		Component::ScriptComponent& component
 	)
 	{
 		bool changed = false;
 
-		if (Ludus::UI::Scope::TreeNodeScope treeNode("Script"); treeNode)
+		if (auto treeNode = DrawComponentHeaderWithMenu(context, "Script", component); treeNode)
 		{
 			if (Ludus::UI::Scope::TableScope table("Script_Panel", 2); table)
 			{
-				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Handle");
-				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				Ludus::UI::Widgets::TextUnformatted(std::to_string(component.Handle));
+				SetupInspectorTable2();
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Name");
+				DrawInspectorLabel("Name");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 
+				auto scriptReferences = context.ProjectSession.GetEditorManifest().Scripts;
 				if (scriptReferences.empty())
 				{
 					const auto noneValues = { "None" };
 					auto currentIndex = 0;
 
 					Ludus::UI::Scope::DisabledScope disabled(true);
-					auto _ = Ludus::UI::Widgets::Combo("##Script_Panel_Name", &currentIndex, noneValues);
+					auto _ = ComboFill("##Script_Panel_Name", &currentIndex, noneValues);
 				}
 				else
 				{
@@ -286,12 +443,14 @@ namespace Ludus::Editor::Panels
 						return item.Name.c_str();
 					});
 
-					if (Ludus::UI::Widgets::Combo("##Script_Panel_Name", &currentIndex, items))
+					if (ComboFill("##Script_Panel_Name", &currentIndex, items))
 					{
 						const auto& selected = scriptReferences[static_cast<size_t>(currentIndex)];
 
 						component.Name = selected.Name;
 						component.Handle = selected.Handle;
+
+						changed = true;
 					}
 				}
 			}
@@ -300,33 +459,30 @@ namespace Ludus::Editor::Panels
 		return changed;
 	}
 
-	bool InspectorPanel::DrawSprite2D(Ludus::Engine::Components::Sprite2DComponent& component)
+	bool InspectorPanel::DrawSprite2D(Ludus::Editor::Core::ProjectSessionContext& context, Component::Sprite2DComponent& component)
 	{
 		bool changed = false;
 
-		if (Ludus::UI::Scope::TreeNodeScope treeNode("Sprite 2D"); treeNode)
+		if (auto treeNode = DrawComponentHeaderWithMenu(context, "Sprite 2D", component); treeNode)
 		{
-			if (Ludus::UI::Scope::TableScope table("Sprite2D_Panel", 3); table)
+			if (Ludus::UI::Scope::TableScope table("Sprite2D_Panel", 2); table)
 			{
-				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Shape");
-				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::ComboEnum("##Sprite2D_Panel_Combo", component.Shape);
+				SetupInspectorTable2();
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Color");
+				DrawInspectorLabel("Shape");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
+				changed |= ComboEnumFill("##Sprite2D_Panel_Shape", component.Shape);
+
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				DrawInspectorLabel("Color");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				changed |= Ludus::UI::Widgets::ColorEdit4("##Sprite2D_Panel_Color", component.Color.GetData());
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Texture");
+				DrawInspectorLabel("Fill");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				Ludus::UI::Widgets::TextUnformatted("N/A");
-
-				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Fill");
-				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::Checkbox("##Fill", &component.Fill);
+				changed |= Ludus::UI::Widgets::Checkbox("##Sprite2D_Panel_Fill", &component.Fill);
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 			}
 		}
@@ -334,47 +490,30 @@ namespace Ludus::Editor::Panels
 		return changed;
 	}
 
-	bool InspectorPanel::DrawText2D(Ludus::Engine::Components::Text2DComponent& component)
+	bool InspectorPanel::DrawText2D(Ludus::Editor::Core::ProjectSessionContext& context, Component::Text2DComponent& component)
 	{
 		bool changed = false;
 
-		if (Ludus::UI::Scope::TreeNodeScope treeNode("Text 2D"); treeNode)
+		if (auto treeNode = DrawComponentHeaderWithMenu(context, "Text 2D", component); treeNode)
 		{
-			if (Ludus::UI::Scope::TableScope table("Text2D_Panel", 3); table)
+			if (Ludus::UI::Scope::TableScope table("Text2D_Panel", 2); table)
 			{
-				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Text");
-				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::InputText("##Text2D_Panel_Text", component.Text);
+				SetupInspectorTable2();
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Color");
+				DrawInspectorLabel("Text");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
+				changed |= InputTextFill("##Text2D_Panel_Text", component.Text);
+
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				DrawInspectorLabel("Color");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				changed |= Ludus::UI::Widgets::ColorEdit4("##Text2D_Panel_Color", component.Color.GetData());
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Horizontal Alignment");
+				DrawInspectorLabel("Horizontal Alignment");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= Ludus::UI::Widgets::ComboEnum("##Text2D_Panel_Combo", component.HorizontalTextAlignment);
-			}
-		}
-
-		return changed;
-	}
-
-	bool InspectorPanel::DrawCamera2D(Ludus::Engine::Components::Camera2DComponent& component)
-	{
-		bool changed = false;
-
-		if (Ludus::UI::Scope::TreeNodeScope treeNode("Camera 2D"); treeNode)
-		{
-			if (Ludus::UI::Scope::TableScope table("Camera2D_Panel", 2); table)
-			{
-				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
-				Ludus::UI::Widgets::TextUnformatted("Orthographic Size");
-				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				Ludus::UI::Context::LayoutContext::SameLine();
-				changed |= Ludus::UI::Widgets::InputFloat("##Camera2D_OrthographicSize_InputFloat_Rotation_Z", &component.OrthographicSize);
+				changed |= ComboEnumFill("##Text2D_Panel_HorizontalTextAlignment", component.HorizontalTextAlignment);
 			}
 		}
 
@@ -396,17 +535,17 @@ namespace Ludus::Editor::Panels
 
 			auto& registry = context.ProjectSession.GetSceneRegistry();
 
-			auto active = context.ProjectSession.EditorState.ActiveSceneHandle;
-			if (!registry.Contains(active))
+			auto activeSceneHandle = context.ProjectSession.EditorState.ActiveSceneHandle;
+			if (!registry.Contains(activeSceneHandle))
 			{
 				return true;
 			}
 
-			auto& scene = registry.GetScene(active);
+			auto& scene = registry.GetScene(activeSceneHandle);
 
 			auto& ecs = scene.EntityComponentSystem;
-			auto handle = selection.SelectedEntity.value();
-			const bool existsInActiveScene = ecs.IndexOf(handle).has_value();
+			auto entityHandle = selection.SelectedEntity.value();
+			const bool existsInActiveScene = ecs.IndexOf(entityHandle).has_value();
 			if (!existsInActiveScene)
 			{
 				context.Shell.State.Commands.AddEditCommand(
@@ -415,62 +554,143 @@ namespace Ludus::Editor::Panels
 				return true;
 			}
 
-			auto* transformPtr = ecs.Transforms.TryGetByOwnerMutable(handle);
-			auto* displayNamePtr = ecs.DisplayNames.TryGetByOwnerMutable(handle);
-			auto* colliderPtr = ecs.Colliders.TryGetByOwnerMutable(handle);
-			auto* rigidBodyPtr = ecs.RigidBodies.TryGetByOwnerMutable(handle);
-			auto* scriptPtr = ecs.Scripts.TryGetByOwnerMutable(handle);
-			auto* spritePtr = ecs.Sprites.TryGetByOwnerMutable(handle);
-			auto* textPtr = ecs.Texts.TryGetByOwnerMutable(handle);
-			auto* cameraPtr = ecs.Cameras.TryGetByOwnerMutable(handle);
-
-			DrawEntityHandle(handle);
-
 			bool changed = false;
 
-			if (displayNamePtr)
+			// Draw required components.
+			auto* transformPtr = ecs.Transforms.TryGetByOwnerMutable(entityHandle);
+			auto* displayNamePtr = ecs.DisplayNames.TryGetByOwnerMutable(entityHandle);
+
+			if (!displayNamePtr || !transformPtr)
 			{
-				changed |= DrawDisplayName(*displayNamePtr);
+				throw std::runtime_error("DisplayName and Transform cannot be null.");
 			}
 
-			if (transformPtr)
+			changed |= DrawDisplayName(*displayNamePtr);
+			changed |= DrawTransform2D(*transformPtr);
+
+			// Draw remaining components.
+			auto* colliderPtr = ecs.Colliders.TryGetByOwnerMutable(entityHandle);
+			auto* rigidBodyPtr = ecs.RigidBodies.TryGetByOwnerMutable(entityHandle);
+			auto* scriptPtr = ecs.Scripts.TryGetByOwnerMutable(entityHandle);
+			auto* spritePtr = ecs.Sprites.TryGetByOwnerMutable(entityHandle);
+			auto* textPtr = ecs.Texts.TryGetByOwnerMutable(entityHandle);
+			auto* cameraPtr = ecs.Cameras.TryGetByOwnerMutable(entityHandle);
+
+			if (cameraPtr)
 			{
-				changed |= DrawTransform2D(*transformPtr);
+				changed |= DrawCamera2D(context, *cameraPtr);
 			}
 
 			if (colliderPtr)
 			{
-				changed |= DrawCollider2D(*colliderPtr);
+				changed |= DrawCollider2D(context, *colliderPtr);
 			}
 
 			if (rigidBodyPtr)
 			{
-				changed |= DrawRigidBody2D(*rigidBodyPtr);
+				changed |= DrawRigidBody2D(context, *rigidBodyPtr);
 			}
 
 			if (scriptPtr)
 			{
-				changed |= DrawScript(*scriptPtr, context.ProjectSession.GetEditorManifest().Scripts);
+				changed |= DrawScript(context, *scriptPtr);
 			}
 
 			if (spritePtr)
 			{
-				changed |= DrawSprite2D(*spritePtr);
+				changed |= DrawSprite2D(context, *spritePtr);
 			}
 
 			if (textPtr)
 			{
-				changed |= DrawText2D(*textPtr);
-			}
-
-			if (cameraPtr)
-			{
-				changed |= DrawCamera2D(*cameraPtr);
+				changed |= DrawText2D(context, *textPtr);
 			}
 
 			if (changed)
 			{
 				context.ProjectSession.MarkSceneDirty();
+			}
+
+			Ludus::UI::Context::LayoutContext::Separator();
+
+			{
+				auto hasAllComponents = colliderPtr && rigidBodyPtr && scriptPtr && spritePtr && textPtr && cameraPtr;
+				Ludus::UI::Scope::DisabledScope disabled(hasAllComponents);
+
+				const auto addComponentLabel = "Add Component";
+				const auto buttonWidth = Ludus::UI::Context::LayoutContext::CalculateTextSize(addComponentLabel).X;
+				const auto availableWidth = Ludus::UI::Context::WindowContext::GetContentRegionAvailable().X;
+				Ludus::UI::Context::WindowContext::SetCursorPositionX((availableWidth - buttonWidth) * 0.5f);
+
+				if (Ludus::UI::Widgets::Button(addComponentLabel))
+				{
+					const auto min = Ludus::UI::Context::LayoutContext::GetItemRectMin();
+					const auto max = Ludus::UI::Context::LayoutContext::GetItemRectMax();
+					const auto width = max.X - min.X;
+					Ludus::UI::Context::WindowContext::SetNextWindowPosition({ min.X, max.Y });
+					Ludus::UI::Context::WindowContext::SetNextWindowSize({ width, 0.0f });
+
+					Ludus::UI::Context::PopupContext::OpenPopup(AddComponentPopupId);
+				}
+			}
+
+			if (Ludus::UI::Scope::PopupScope componentMenu(AddComponentPopupId); componentMenu)
+			{
+				auto isComponentAdded = false;
+
+				if (!ecs.Cameras.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Camera 2D"))
+				{
+					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Camera2DComponent> {
+						.EntityReference = entityHandle, .SceneHandle = activeSceneHandle
+					});
+					isComponentAdded = true;
+				}
+
+				if (!ecs.Colliders.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Collider 2D"))
+				{
+					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Collider2DComponent> {
+						.EntityReference = entityHandle, .SceneHandle = activeSceneHandle
+					});
+					isComponentAdded = true;
+				}
+
+				if (!ecs.RigidBodies.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Rigid Body 2D"))
+				{
+					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::RigidBody2DComponent> {
+						.EntityReference = entityHandle, .SceneHandle = activeSceneHandle
+					});
+					isComponentAdded = true;
+				}
+
+				if (!ecs.Scripts.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Script"))
+				{
+					Commands::EnqueueUI(context.Shell.State.Commands, Commands::UICommand::OpenAddScriptDialog {
+						.EntityHandle = entityHandle, .SceneHandle = activeSceneHandle
+						});
+					// The added component will be selected later as part of the command chain.
+				}
+
+				if (!ecs.Sprites.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Sprite 2D"))
+				{
+					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Sprite2DComponent> {
+						.EntityReference = entityHandle, .SceneHandle = activeSceneHandle
+					});
+					isComponentAdded = true;
+				}
+
+				if (!ecs.Texts.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Text 2D"))
+				{
+					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Text2DComponent> {
+						.EntityReference = entityHandle, .SceneHandle = activeSceneHandle
+					});
+					isComponentAdded = true;
+				}
+
+				if (isComponentAdded)
+				{
+					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::SelectEntity { .EntityReference = entityHandle });
+					Ludus::UI::Context::PopupContext::CloseCurrentPopup();
+				}
 			}
 		}
 

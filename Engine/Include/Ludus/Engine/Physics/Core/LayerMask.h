@@ -1,9 +1,11 @@
 #pragma once
 
+#include <algorithm>
 #include <bit>
 #include <cstdint>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -16,11 +18,17 @@ namespace Ludus::Engine::Physics::Core
 
 	inline LayerIndex s_MaxLayers = 32u;
 
-	inline std::unordered_map<std::string, uint8_t> s_NameToIndex = { { "Default", 0 } };
-	inline std::unordered_map<uint8_t, std::string> s_IndexToName = { { 0, "Default" } };
+	inline std::unordered_map<std::string, uint8_t> s_NameToIndex = { { "Default", 0 }, { "UI", 1 } };
+	inline std::unordered_map<uint8_t, std::string> s_IndexToName = { { 0, "Default" }, { 1, "UI" } };
 
 	struct LayerMask
 	{
+		struct LayerEntry
+		{
+			LayerIndex Index;
+			std::string_view Name;
+		};
+
 		uint32_t Value { 0u };
 
 		bool Any()  const { return Value != 0; }
@@ -173,7 +181,7 @@ namespace Ludus::Engine::Physics::Core
 		static void RemoveLayer(const LayerIndex layerIndex)
 		{
 			auto layerName = LayerIndexToName(layerIndex);
-			if (layerName != "" && layerName != "Default")
+			if (layerName != "" && layerName != "Default" && layerName != "UI")
 			{
 				s_NameToIndex.erase(layerName);
 				s_IndexToName.erase(layerIndex);
@@ -205,6 +213,24 @@ namespace Ludus::Engine::Physics::Core
 			}
 
 			return mask;
+		}
+
+		static std::vector<LayerEntry> GetLayersOrdered()
+		{
+			std::vector<LayerEntry> layers;
+			layers.reserve(s_IndexToName.size());
+
+			for (const auto& [index, name] : s_IndexToName)
+			{
+				layers.push_back({ index, name });
+			}
+
+			std::sort(layers.begin(), layers.end(), [](const LayerEntry& left, const LayerEntry& right)
+			{
+				return left.Index < right.Index;
+			});
+
+			return layers;
 		}
 
 		static const size_t GetLayerCount() { return s_NameToIndex.size(); }

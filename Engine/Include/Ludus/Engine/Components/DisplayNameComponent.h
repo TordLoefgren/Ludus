@@ -11,22 +11,22 @@ namespace Ludus::Engine::Components
 	{
 	public:
 		Ludus::Engine::Core::EntityHandle OwnerHandle { };
-		std::string Value = "";
+		std::string Name = "";
 
 		DisplayNameComponent() = default;
 
 		explicit DisplayNameComponent(
-			std::string value
+			std::string name
 		) :
-			Value(std::move(value))
+			Name(std::move(name))
 		{ }
 
 		DisplayNameComponent(
 			Ludus::Engine::Core::EntityHandle owner,
-			std::string value = ""
+			std::string name = ""
 		) :
 			OwnerHandle(owner),
-			Value(std::move(value))
+			Name(std::move(name))
 		{ }
 
 		~DisplayNameComponent() = default;

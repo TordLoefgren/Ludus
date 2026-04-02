@@ -1,6 +1,5 @@
 #pragma once
 
-#include <filesystem>
 #include <string>
 
 #include <Ludus/Editor/Commands/CommandSet.h>
@@ -16,12 +15,10 @@ namespace Ludus::Editor::Dialogs
 		std::string Error;
 
 		std::string Name;
-		std::string DestinationPreview;
 
 		using Outcome = DialogOutcome<std::string>;
 
 	public:
-
 		Outcome Draw();
 		void Resolve(const Outcome& outcome, Ludus::Editor::Commands::CommandSet& out);
 		bool ShouldClose(const Outcome&) const;

@@ -85,9 +85,9 @@ namespace Ludus::Engine::Core
 
 		void AttachCollider(Ludus::Engine::Components::Collider2DComponent component) { Colliders.Add(component); }
 
-		void AttachDisplayName(EntityHandle handle, std::string value = "")
+		void AttachDisplayName(EntityHandle handle, std::string name = "")
 		{
-			DisplayNames.Add(handle, value);
+			DisplayNames.Add(handle, name);
 		}
 
 		void AttachDisplayName(Ludus::Engine::Components::DisplayNameComponent component) { DisplayNames.Add(component); }

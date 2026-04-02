@@ -12,10 +12,16 @@ namespace Ludus::UI::Context::LayoutContext
 	void SameLine(float offsetFromStart = 0.0f, float spacing = 0.0f);
 
 	void SetNextItemWidth(float width);
+	void SetNextItemWidthFill();
 
 	void Separator();
 
 	float CalculateItemWidth();
+
+	Ludus::Engine::Math::Vector2D GetItemRectMin();
+	Ludus::Engine::Math::Vector2D GetItemRectMax();
+
+	float GetFrameHeight();
 
 	Ludus::Engine::Math::Vector2D CalculateTextSize(std::string text);
 

@@ -68,7 +68,7 @@ namespace Ludus::Engine::Scripting
 
 			for (const auto& displayName : scene.EntityComponentSystem.DisplayNames.View())
 			{
-				if (displayName.Value == name)
+				if (displayName.Name == name)
 				{
 					*entityHandle = displayName.OwnerHandle;
 					return true;
@@ -134,7 +134,7 @@ namespace Ludus::Engine::Scripting
 		{
 			return DisplayNameData
 			{
-				.Value = displayName.Value.c_str(),
+				.Name = displayName.Name.c_str(),
 			};
 		}
 
@@ -143,7 +143,7 @@ namespace Ludus::Engine::Scripting
 			const Ludus::Scripting::ABI::DisplayNameData& source
 		)
 		{
-			destination.Value = source.Value;
+			destination.Name = source.Name;
 		}
 
 		static bool OnGetDisplayName(ScriptContext* context, EntityHandle entityHandle, DisplayNameData* displayNameOut)

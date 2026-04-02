@@ -105,9 +105,15 @@ namespace Ludus::Editor::Core
 
 		Ludus::Engine::Runtime::RuntimeManifest& GetEditorManifest();
 
+		Ludus::Engine::Core::Scene& GetEditorScene(Ludus::Engine::Core::SceneHandle sceneHandle);
 		const Ludus::Engine::Core::Scene& GetEditorScene(Ludus::Engine::Core::SceneHandle sceneHandle) const;
 
 		std::optional<std::filesystem::path> TryGetEditorScenePath(Ludus::Engine::Core::SceneHandle sceneHandle) const;
+		void AddOrUpdateEditorSceneReference(
+			Ludus::Engine::Core::SceneHandle handle,
+			std::string name,
+			std::filesystem::path path
+		);
 
 		bool HasEditorScriptReference(Ludus::Engine::Components::ScriptHandle handle) const;
 

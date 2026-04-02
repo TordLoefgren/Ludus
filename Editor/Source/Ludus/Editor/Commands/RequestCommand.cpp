@@ -26,6 +26,7 @@ namespace Ludus::Editor::Commands
 			void operator()(const RequestCommand::OpenScene& command) const { Requests::Scenes::OpenScene(command, Context); }
 			void operator()(const RequestCommand::SaveScene& command) const { Requests::Scenes::SaveScene(command, Context); }
 			void operator()(const RequestCommand::SaveSceneAs& command) const { Requests::Scenes::SaveSceneAs(command, Context); }
+			void operator()(const RequestCommand::RenameScene& command) const { Requests::Scenes::RenameScene(command, Context); }
 			void operator()(const RequestCommand::CreateProject& command) const { Requests::Projects::CreateProject(command, Context); }
 			void operator()(const RequestCommand::CreateProjectAs& command) const { Requests::Projects::CreateProjectAs(command, Context); }
 			void operator()(const RequestCommand::OpenProject& command) const { Requests::Projects::OpenProject(command, Context); }
@@ -57,6 +58,7 @@ namespace Ludus::Editor::Commands
 			void operator()(const RequestCommand::OpenScene&) const { LUDUS_ASSERT(false, "OpenScene is unavailable during startup."); }
 			void operator()(const RequestCommand::SaveScene&) const { LUDUS_ASSERT(false, "SaveScene is unavailable during startup."); }
 			void operator()(const RequestCommand::SaveSceneAs&) const { LUDUS_ASSERT(false, "SaveSceneAs is unavailable during startup."); }
+			void operator()(const RequestCommand::RenameScene&) const { LUDUS_ASSERT(false, "RenameScene is unavailable during startup."); }
 			void operator()(const RequestCommand::CloseProject&) const { LUDUS_ASSERT(false, "CloseProject is unavailable during startup."); }
 			void operator()(const RequestCommand::CreateScript&) const { LUDUS_ASSERT(false, "CreateScript is unavailable during startup."); }
 			void operator()(const RequestCommand::RunTargetBuildCommand&) const { LUDUS_ASSERT(false, "RunTargetBuildCommand is unavailable during startup."); }

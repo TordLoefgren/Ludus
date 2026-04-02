@@ -17,6 +17,7 @@ namespace Ludus::Editor::Commands
 
 			void operator()(const UICommand::OpenAddScriptDialog& command) const { UI::Dialogs::OpenAddScriptDialog(command, Context); }
 			void operator()(const UICommand::OpenCreateProjectDialog&) const { UI::Dialogs::OpenCreateProjectDialog(Context); }
+			void operator()(const UICommand::OpenRenameSceneDialog& command) const { UI::Dialogs::OpenRenameSceneDialog(command, Context); }
 
 			template<typename T>
 			void operator()(T&& unhandled) const
@@ -31,6 +32,7 @@ namespace Ludus::Editor::Commands
 
 			void operator()(const UICommand::OpenAddScriptDialog&) const { LUDUS_ASSERT(false, "OpenAddScriptDialog is unavailable during startup."); }
 			void operator()(const UICommand::OpenCreateProjectDialog& command) const { UI::Dialogs::OpenCreateProjectDialog(Context); }
+			void operator()(const UICommand::OpenRenameSceneDialog&) const { LUDUS_ASSERT(false, "OpenRenameSceneDialog is unavailable during startup."); }
 
 			template<typename T>
 			void operator()(T&& unhandled) const

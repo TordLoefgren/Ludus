@@ -37,14 +37,38 @@ namespace Ludus::Editor::Persistence::ProjectPaths
 		return ProjectsRoot() / std::string(projectName);
 	}
 
-	inline std::string ValidateProjectName(std::string_view projectName)
+	inline std::filesystem::path SceneFileName(std::string_view sceneName)
 	{
-		if (projectName.empty())
+		return std::string(sceneName) + std::string(Ludus::Engine::Persistence::Paths::Constants::SceneExtension);
+	}
+
+	inline std::filesystem::path SceneFile(const std::filesystem::path& projectRoot, std::string_view sceneName)
+	{
+		return Ludus::Engine::Persistence::Paths::ScenesDirectory(projectRoot) / SceneFileName(sceneName);
+	}
+
+	inline std::filesystem::path SceneFileInDirectory(const std::filesystem::path& directory, std::string_view sceneName)
+	{
+		return directory / SceneFileName(sceneName);
+	}
+
+	inline std::string SceneName(const std::filesystem::path& scenePath)
+	{
+		auto path = scenePath.filename();
+		path.replace_extension();
+		path.replace_extension();
+
+		return path.string();
+	}
+
+	inline std::string ValidateFileName(std::string_view fileName)
+	{
+		if (fileName.empty())
 		{
 			return "Name must not be empty.";
 		}
 
-		if (projectName.find_first_of(Constants::InvalidFileNameCharacters) != std::string_view::npos)
+		if (fileName.find_first_of(Constants::InvalidFileNameCharacters) != std::string_view::npos)
 		{
 			return "Name contains invalid path characters.";
 		}
@@ -52,49 +76,34 @@ namespace Ludus::Editor::Persistence::ProjectPaths
 		return { };
 	}
 
-	inline std::string ValidateScriptName(std::string_view scriptName)
+	inline std::string ValidateAvailablePath(const std::filesystem::path& path)
 	{
-		if (scriptName.empty())
+		if (path.empty())
 		{
-			return "Name must not be empty.";
-		}
-
-		if (scriptName.find_first_of(Constants::InvalidFileNameCharacters) != std::string_view::npos)
-		{
-			return "Name contains invalid path characters.";
-		}
-
-		return { };
-	}
-
-	inline std::string ValidateProjectDirectory(const std::filesystem::path& projectDirectory)
-	{
-		if (projectDirectory.empty())
-		{
-			return "Project directory is invalid.";
+			return "Path is invalid.";
 		}
 
 		std::error_code errorCode;
-		const auto parentDirectory = projectDirectory.parent_path();
+		const auto parentDirectory = path.parent_path();
 		if (parentDirectory.empty())
 		{
-			return "Project directory is invalid.";
+			return "Path is invalid.";
 		}
 
 		std::filesystem::create_directories(parentDirectory, errorCode);
 		if (errorCode)
 		{
-			return "Project directory is not accessible.";
+			return "Path directory is not accessible.";
 		}
 
-		if (std::filesystem::exists(projectDirectory, errorCode))
+		if (std::filesystem::exists(path, errorCode))
 		{
 			if (errorCode)
 			{
-				return "Project directory could not be validated.";
+				return "Path could not be validated.";
 			}
 
-			return "Project directory already exists.";
+			return "Path already exists.";
 		}
 
 		return { };
