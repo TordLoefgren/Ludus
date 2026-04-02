@@ -25,6 +25,11 @@ namespace Ludus::UI::Context::LayoutContext
 		ImGui::SetNextItemWidth(width);
 	}
 
+	void SetNextItemWidthFill()
+	{
+		ImGui::SetNextItemWidth(-FLT_MIN);
+	}
+
 	void Separator()
 	{
 		ImGui::Separator();
@@ -34,6 +39,24 @@ namespace Ludus::UI::Context::LayoutContext
 	{
 		return ImGui::CalcItemWidth();
 	}
+
+	Ludus::Engine::Math::Vector2D GetItemRectMin()
+	{
+		const auto min = ImGui::GetItemRectMin();
+		return { min.x, min.y };
+	}
+
+	Ludus::Engine::Math::Vector2D GetItemRectMax()
+	{
+		const auto max = ImGui::GetItemRectMax();
+		return { max.x, max.y };
+	}
+
+	float GetFrameHeight()
+	{
+		return ImGui::GetFrameHeight();
+	}
+
 
 	Ludus::Engine::Math::Vector2D CalculateTextSize(std::string text)
 	{

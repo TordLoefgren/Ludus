@@ -26,6 +26,7 @@
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Builds.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Scripts.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\EditorSession.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Dialogs\RenameSceneDialog.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Persistence\ProjectSessionLoader.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Serialization\ProjectManifestSchema.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Persistence\LmlProjectManifestPersistence.cpp" />
@@ -131,6 +132,7 @@
     <ClInclude Include="Include\Ludus\Editor\Dialogs\CreateProjectDialog.h" />
     <ClInclude Include="Include\Ludus\Editor\Dialogs\DialogManager.h" />
     <ClInclude Include="Include\Ludus\Editor\Dialogs\DialogOutcome.h" />
+    <ClInclude Include="Include\Ludus\Editor\Dialogs\RenameSceneDialog.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelRegistry.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\Constants.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\DockPanel.h" />

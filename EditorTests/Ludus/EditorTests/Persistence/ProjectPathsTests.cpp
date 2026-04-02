@@ -55,59 +55,67 @@ namespace Ludus::EditorTests::Persistence
 		ASSERT_EQ(path, projectRoot / "Sandbox.ludus.project");
 	}
 
-	TEST(ProjectPaths, ValidateProjectName_Should_ReturnError_WhenNameIsEmpty)
+	TEST(ProjectPaths, ValidateFileName_Should_ReturnError_WhenNameIsEmpty)
 	{
-		const auto error = ProjectPaths::ValidateProjectName("");
+		const auto error = ProjectPaths::ValidateFileName("");
 		ASSERT_EQ(error, "Name must not be empty.");
 	}
 
-	TEST(ProjectPaths, ValidateProjectName_Should_ReturnError_WhenNameContainsInvalidCharacters)
+	TEST(ProjectPaths, ValidateFileName_Should_ReturnError_WhenNameContainsInvalidCharacters)
 	{
-		const auto error = ProjectPaths::ValidateProjectName("Sand:box");
+		const auto error = ProjectPaths::ValidateFileName("Sand:box");
 		ASSERT_EQ(error, "Name contains invalid path characters.");
 	}
 
-	TEST(ProjectPaths, ValidateScriptName_Should_ReturnError_WhenNameIsEmpty)
+	TEST(ProjectPaths, SceneFileName_Should_ReturnSceneFileName)
 	{
-		const auto error = ProjectPaths::ValidateScriptName("");
-		ASSERT_EQ(error, "Name must not be empty.");
+		const auto path = ProjectPaths::SceneFileName("Sandbox");
+		ASSERT_EQ(path, std::filesystem::path("Sandbox.ludus.scene"));
 	}
 
-	TEST(ProjectPaths, ValidateScriptName_Should_ReturnError_WhenNameContainsInvalidCharacters)
+	TEST(ProjectPaths, SceneFile_Should_ReturnProjectScenePath)
 	{
-		const auto error = ProjectPaths::ValidateScriptName("Player/Controller");
-		ASSERT_EQ(error, "Name contains invalid path characters.");
+		const auto projectRoot = std::filesystem::path("C:/Projects/Sandbox");
+		const auto path = ProjectPaths::SceneFile(projectRoot, "Main");
+		ASSERT_EQ(path, projectRoot / "Scenes" / "Main.ludus.scene");
 	}
 
-	TEST(ProjectPaths, ValidateScriptName_Should_ReturnEmpty_WhenNameIsValid)
+	TEST(ProjectPaths, SceneFileInDirectory_Should_ReturnScenePathUnderDirectory)
 	{
-		const auto error = ProjectPaths::ValidateScriptName("PlayerController");
-		ASSERT_TRUE(error.empty());
+		const auto directory = std::filesystem::path("C:/Projects/Sandbox/Scenes");
+		const auto path = ProjectPaths::SceneFileInDirectory(directory, "Main");
+		ASSERT_EQ(path, directory / "Main.ludus.scene");
 	}
 
-	TEST(ProjectPaths, ValidateProjectDirectory_Should_ReturnError_WhenDirectoryIsEmpty)
+	TEST(ProjectPaths, SceneName_Should_ReturnSceneNameFromPath)
 	{
-		const auto error = ProjectPaths::ValidateProjectDirectory({ });
-		ASSERT_EQ(error, "Project directory is invalid.");
+		const auto name = ProjectPaths::SceneName("C:/Projects/Sandbox/Scenes/Main.ludus.scene");
+		ASSERT_EQ(name, "Main");
 	}
 
-	TEST(ProjectPaths, ValidateProjectDirectory_Should_ReturnError_WhenDirectoryAlreadyExists)
+	TEST(ProjectPaths, ValidateAvailablePath_Should_ReturnError_WhenPathIsEmpty)
+	{
+		const auto error = ProjectPaths::ValidateAvailablePath({ });
+		ASSERT_EQ(error, "Path is invalid.");
+	}
+
+	TEST(ProjectPaths, ValidateAvailablePath_Should_ReturnError_WhenPathAlreadyExists)
 	{
 		const auto tempDirectoryScope = CreateTestDirectory();
 		const auto projectRoot = tempDirectoryScope.Path / "Sandbox";
 		std::filesystem::create_directories(projectRoot);
 
-		const auto error = ProjectPaths::ValidateProjectDirectory(projectRoot);
+		const auto error = ProjectPaths::ValidateAvailablePath(projectRoot);
 
-		ASSERT_EQ(error, "Project directory already exists.");
+		ASSERT_EQ(error, "Path already exists.");
 	}
 
-	TEST(ProjectPaths, ValidateProjectDirectory_Should_ReturnEmpty_WhenDirectoryIsNew)
+	TEST(ProjectPaths, ValidateAvailablePath_Should_ReturnEmpty_WhenPathIsNew)
 	{
 		const auto tempDirectoryScope = CreateTestDirectory();
 		const auto projectRoot = tempDirectoryScope.Path / "Sandbox";
 
-		const auto error = ProjectPaths::ValidateProjectDirectory(projectRoot);
+		const auto error = ProjectPaths::ValidateAvailablePath(projectRoot);
 
 		ASSERT_TRUE(error.empty());
 	}

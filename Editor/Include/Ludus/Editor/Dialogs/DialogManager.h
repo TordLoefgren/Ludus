@@ -8,10 +8,11 @@
 #include <Ludus/Editor/Commands/CommandSet.h>
 #include <Ludus/Editor/Dialogs/AddScriptDialog.h>
 #include <Ludus/Editor/Dialogs/CreateProjectDialog.h>
+#include <Ludus/Editor/Dialogs/RenameSceneDialog.h>
 
 namespace Ludus::Editor::Dialogs
 {
-	using ActiveDialog = std::variant<std::monostate, AddScriptDialog, CreateProjectDialog>;
+	using ActiveDialog = std::variant<std::monostate, AddScriptDialog, CreateProjectDialog, RenameSceneDialog>;
 
 	struct DialogManager
 	{

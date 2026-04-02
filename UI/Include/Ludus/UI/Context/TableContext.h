@@ -10,5 +10,9 @@ namespace Ludus::UI::Context::TableContext
 
 	void TableSetColumnIndex(int index);
 
-	void TableSetupColumn(const char* label, Ludus::UI::Flags::Table flags = Ludus::UI::Flags::Table::None, float initWidthOrWeight = 0.0f);
+	void TableSetupColumn(
+		const char* label,
+		Ludus::UI::Flags::TableColumn flags = Ludus::UI::Flags::TableColumn::None,
+		float initWidthOrWeight = 0.0f
+	);
 }

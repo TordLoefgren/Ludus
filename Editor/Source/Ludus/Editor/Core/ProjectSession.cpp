@@ -147,6 +147,11 @@ namespace Ludus::Editor::Core
 		return EditorManifest;
 	}
 
+	Ludus::Engine::Core::Scene& ProjectSession::GetEditorScene(Ludus::Engine::Core::SceneHandle sceneHandle)
+	{
+		return GetEditorRuntime().GetSceneRegistry().GetScene(sceneHandle);
+	}
+
 	const Ludus::Engine::Core::Scene& ProjectSession::GetEditorScene(Ludus::Engine::Core::SceneHandle sceneHandle) const
 	{
 		return GetEditorRuntime().GetSceneRegistry().GetScene(sceneHandle);
@@ -171,6 +176,26 @@ namespace Ludus::Editor::Core
 		}
 
 		return scenePath;
+	}
+
+	void ProjectSession::AddOrUpdateEditorSceneReference(
+		Ludus::Engine::Core::SceneHandle handle,
+		std::string name,
+		std::filesystem::path path
+	)
+	{
+		for (auto& sceneReference : GetEditorManifest().Scenes)
+		{
+			if (sceneReference.Handle == handle)
+			{
+				sceneReference.Name = std::move(name);
+				sceneReference.Path = std::move(path);
+
+				return;
+			}
+		}
+
+		GetEditorManifest().Scenes.push_back({ handle, std::move(name), std::move(path) });
 	}
 
 	bool ProjectSession::HasEditorScriptReference(Ludus::Engine::Components::ScriptHandle handle) const

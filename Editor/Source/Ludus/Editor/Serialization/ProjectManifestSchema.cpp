@@ -29,10 +29,12 @@ namespace Ludus::Editor::Serialization::Schemas
 		writer.Emit(Token::EndObject { });
 
 		writer.Emit(Token::Key { "ProjectRoot" });
-		writer.Emit(Token::String { Ludus::Engine::FileSystem::ToPortablePathString(projectManifest.ProjectRoot) });
+		const auto projectRoot = Ludus::Engine::FileSystem::ToPortablePathString(projectManifest.ProjectRoot);
+		writer.Emit(Token::String { projectRoot });
 
 		writer.Emit(Token::Key { "RuntimeManifestPath" });
-		writer.Emit(Token::String { Ludus::Engine::FileSystem::ToPortablePathString(projectManifest.RuntimeManifestPath) });
+		const auto runtimeManifestPath = Ludus::Engine::FileSystem::ToPortablePathString(projectManifest.RuntimeManifestPath);
+		writer.Emit(Token::String { runtimeManifestPath });
 
 		writer.Emit(Token::EndObject { });
 	}

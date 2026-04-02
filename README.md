@@ -21,41 +21,47 @@ A personal experiment in graphics, physics, and engine architecture design.
 
 **Ludus** is a **C++** game engine and integrated editor built as a long-term learning and portfolio project.
 
-Right now, Ludus is focused on **2D** engine and editor development, with **3D** support planned later. It serves as a space to explore rendering, editor design, data-driven architecture, and physics systems.
+Right now, Ludus is focused on **2D** engine and editor development, with **3D** support planned later. It serves as a space to explore rendering, editor tooling, data-driven architecture, and physics systems.
 
 
 
 ## Architecture
 
-Ludus is organized into layers, with each layer building on the one below it:
+Ludus is organized as a layered stack:
 
-- `Engine` is the runtime core
-- `UI` provides shared user interface components for the editor
-- `Editor` adds tools for creating and editing content
 - `EditorHost` serves as the desktop application shell
+- `Editor` adds tools for creating and editing content
+- `UI` provides shared user interface components for the editor
+- `Engine` is the runtime core
 - `Scripting` defines the script-facing application programming interface (API) and application binary interface (ABI)
 
+The diagram below shows a simplified view of the repository structure.
 
-<img
-  src=".tools/assets/ludus_reduced_dependency_diagram.svg"
-  alt="Reduced dependency diagram of the Ludus repository"
-  width="340"
-/>
 
-*Simplified dependency view of the repository, showing the main architectural layers and their test projects rather than every direct project reference.*
+<p align="center">
+  <img
+    src=".tools/assets/ludus-reduced-dependency-diagram.svg"
+    alt="Reduced dependency diagram of the Ludus repository"
+    width="340"
+  />
+</p>
+
+<p align="center"><i>
+Simplified dependency view of the repository, showing the main architectural layers and their test projects rather than every direct project reference.
+</i></p>
 
 
 
 ## Current Snapshot
 
-Ludus is in active development and currently focused on **2D** engine and editor features. Simple projects such as Pong can be created in the editor and built into runnable Windows builds.
+Ludus is in active development and currently focused on **2D** engine and editor features. Simple projects such as Pong can be created in the editor and exported as runnable Windows builds.
 
 <p align="center">
-  <img src=".tools/assets/editor_snapshot.png" alt="Ludus Editor" width="900"/>
+  <img src=".tools/assets/editor_snapshot.gif" alt="Ludus Editor showing a Pong project, with the editor occasionally switching between dark and light themes" width="900" />
 </p>
 
 <p align="center"><i>
-Pong created in the editor and built into a runnable build.
+Pong created in the editor and exported as a runnable Windows build.
 </i></p>
 
 
@@ -67,6 +73,8 @@ git clone https://github.com/TordLoefgren/Ludus.git
 cd Ludus
 msbuild .\Ludus.sln /m /p:Configuration=Debug /p:Platform=x64 /p:VcpkgEnableManifest=true
 ```
+
+After building, run `EditorHost` from the selected output directory.
 
 
 

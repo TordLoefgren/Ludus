@@ -15,8 +15,9 @@ namespace Ludus::Editor::Commands
 	{
 		struct OpenAddScriptDialog { Ludus::Engine::Core::EntityHandle EntityHandle; Ludus::Engine::Core::SceneHandle SceneHandle; };
 		struct OpenCreateProjectDialog { };
+		struct OpenRenameSceneDialog { Ludus::Engine::Core::SceneHandle SceneHandle; };
 
-		using Variant = std::variant<OpenAddScriptDialog, OpenCreateProjectDialog>;
+		using Variant = std::variant<OpenAddScriptDialog, OpenCreateProjectDialog, OpenRenameSceneDialog>;
 
 		Variant Data;
 

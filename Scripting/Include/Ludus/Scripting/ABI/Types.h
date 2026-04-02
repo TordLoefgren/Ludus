@@ -15,7 +15,7 @@ namespace Ludus::Scripting::ABI
 
 	struct DisplayNameData
 	{
-		const char* Value;
+		const char* Name;
 	};
 
 	struct Vector2F

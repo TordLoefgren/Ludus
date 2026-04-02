@@ -4,6 +4,7 @@
 #include <string>
 
 #include <Ludus/Engine/Graphics/Color.h>
+#include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/UI/Flags/Flags.h>
 
 namespace Ludus::UI::Widgets
@@ -12,7 +13,13 @@ namespace Ludus::UI::Widgets
 
 	bool DragFloat(const std::string& label, float* value, float speed = 1.0f);
 
-	bool DragFloatColoredButton(const char* label, float* value, const Ludus::Engine::Graphics::Color& color, float speed = 0.1f);
+	bool DragFloatColoredButton(
+		const char* label,
+		float* value,
+		const Ludus::Engine::Graphics::Color& color,
+		const Ludus::Engine::Math::Vector2D& size = { },
+		float speed = 0.1f
+	);
 
 	bool InputInt(const std::string& label, int* value, int step = 0, int step_fast = 0, Ludus::UI::Flags::InputText flags = Ludus::UI::Flags::InputText::None);
 

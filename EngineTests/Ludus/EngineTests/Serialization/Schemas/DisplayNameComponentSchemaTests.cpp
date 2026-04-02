@@ -53,13 +53,13 @@ namespace Ludus::EngineTests::Serialization::Schemas
 
 		const auto& displayNameObject = AsObject(*root);
 		const auto* ownerNode = FindMember(displayNameObject, "OwnerHandle");
-		const auto* valueNode = FindMember(displayNameObject, "Value");
+		const auto* nameNode = FindMember(displayNameObject, "Name");
 
 		ASSERT_NE(ownerNode, nullptr);
-		ASSERT_NE(valueNode, nullptr);
+		ASSERT_NE(nameNode, nullptr);
 
 		const auto ownerHandle = std::get<uint64_t>(AsValue(*ownerNode));
-		const auto value = std::get<std::string>(AsValue(*valueNode));
+		const auto value = std::get<std::string>(AsValue(*nameNode));
 
 		ASSERT_EQ(ownerHandle, 1u);
 		ASSERT_EQ(value, "Name");
@@ -73,7 +73,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "OwnerHandle" });
 		writer.Emit(Token::Int { 1 });
-		writer.Emit(Token::Key { "Value" });
+		writer.Emit(Token::Key { "Name" });
 		writer.Emit(Token::String { "Name" });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
@@ -86,7 +86,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 
 		const auto& displayNameResult = result.GetValue();
 		ASSERT_EQ(displayNameResult.OwnerHandle, 1u);
-		ASSERT_EQ(displayNameResult.Value, "Name");
+		ASSERT_EQ(displayNameResult.Name, "Name");
 	}
 
 	TEST(DisplayNameComponentSchema, Deserialize_DefaultsOptionalFields_When_Missing)
@@ -108,7 +108,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 
 		const auto& displayNameResult = result.GetValue();
 		ASSERT_EQ(displayNameResult.OwnerHandle, 1u);
-		ASSERT_EQ(displayNameResult.Value, "");
+		ASSERT_EQ(displayNameResult.Name, "");
 	}
 
 	TEST(DisplayNameComponentSchema, Deserialize_Fails_When_RequiredFieldsAreMissing)

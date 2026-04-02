@@ -25,8 +25,8 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::Key { "OwnerHandle" });
 			writer.Emit(Token::Uint { displayName.OwnerHandle });
 
-			writer.Emit(Token::Key { "Value" });
-			writer.Emit(Token::String { displayName.Value });
+			writer.Emit(Token::Key { "Name" });
+			writer.Emit(Token::String { displayName.Name });
 
 			writer.Emit(Token::EndObject { });
 		}
@@ -46,9 +46,9 @@ namespace Ludus::Engine::Serialization::Schemas
 						hasOwner = true;
 						return;
 					}
-					if (key == "Value")
+					if (key == "Name")
 					{
-						displayName.Value = std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
+						displayName.Name = std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
 						return;
 					}
 

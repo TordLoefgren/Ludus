@@ -3,6 +3,7 @@
 #include <string>
 
 #include <Ludus/Engine/Graphics/Color.h>
+#include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/UI/Flags/Flags.h>
 #include <Ludus/UI/Widgets/Input.h>
 
@@ -35,18 +36,24 @@ namespace Ludus::UI::Widgets
 		return ImGui::DragFloat(label.c_str(), value, speed, 0.0f, 0.0f, "%.2f");
 	}
 
-	bool DragFloatColoredButton(const char* label, float* value, const Ludus::Engine::Graphics::Color& color, const float speed)
+	bool DragFloatColoredButton(
+		const char* label,
+		float* value,
+		const Ludus::Engine::Graphics::Color& color,
+		const Ludus::Engine::Math::Vector2D& size,
+		const float speed
+	)
 	{
-		const ImVec4 normal = ToImVec4(color);
-		const ImVec4 hovered = ScaleRgb(normal, 1.10f);
-		const ImVec4 active = ScaleRgb(normal, 0.90f);
+		const auto normal = ToImVec4(color);
+		const auto hovered = ScaleRgb(normal, 1.10f);
+		const auto active = ScaleRgb(normal, 0.90f);
 
 		ImGui::PushStyleColor(ImGuiCol_Button, normal);
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hovered);
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, active);
 
 		ImGui::PushTabStop(false);
-		const bool pressed = ImGui::Button(label);
+		const bool pressed = ImGui::Button(label, { size.X, size.Y });
 		const bool isActive = ImGui::IsItemActive();
 		ImGui::PopTabStop();
 
