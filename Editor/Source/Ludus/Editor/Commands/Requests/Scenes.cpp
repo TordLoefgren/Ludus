@@ -25,12 +25,12 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 		)
 		{
 			const auto scenePath = context.ProjectSession.TryGetEditorScenePath(sceneHandle);
-			if (!scenePath.has_value())
+			if (!scenePath)
 			{
 				throw std::runtime_error("No valid path was found for scene.");
 			}
 
-			return scenePath.value();
+			return *scenePath;
 		}
 
 		void SaveManifest(ProjectSessionCommandContext& context)
@@ -127,10 +127,10 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 		SaveManifest(context);
 		SaveSceneToPath(context, command.SceneHandle, command.Path);
 
-		if (previousPath.has_value() && previousPath.value() != command.Path)
+		if (previousPath && *previousPath != command.Path)
 		{
 			std::error_code errorCode;
-			std::filesystem::remove(previousPath.value(), errorCode);
+			std::filesystem::remove(*previousPath, errorCode);
 		}
 
 		CommitSceneSave(context, command.Path);

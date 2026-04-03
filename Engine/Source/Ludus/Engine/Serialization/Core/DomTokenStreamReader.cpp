@@ -55,7 +55,7 @@ namespace Ludus::Engine::Serialization::Core
 	{
 		return std::visit(Overloaded
 			{
-				[](std::monostate) { return Token(Token::Null {}); },
+				[](std::monostate) { return Token(Token::Null { }); },
 				[](bool data) { return Token(Token::Bool { data }); },
 				[](double data) { return Token(Token::Double { data }); },
 				[](int64_t data) { return Token(Token::Int { data }); },
@@ -68,12 +68,12 @@ namespace Ludus::Engine::Serialization::Core
 	{
 		if (IsObject(node))
 		{
-			return Token(Token::StartObject {});
+			return Token(Token::StartObject { });
 		}
 
 		if (IsArray(node))
 		{
-			return Token(Token::StartArray {});
+			return Token(Token::StartArray { });
 		}
 
 		return MakeValueToken(AsValue(node));
@@ -124,7 +124,7 @@ namespace Ludus::Engine::Serialization::Core
 		LUDUS_ASSERT(!m_IsComplete, "Peek cannot be called on a completed DOM document.");
 		LUDUS_ASSERT(!m_NodeStack.empty(), "The DOM document does not have a valid token.");
 
-		if (m_CurrentToken.has_value())
+		if (m_CurrentToken)
 		{
 			return *m_CurrentToken;
 		}
@@ -134,12 +134,12 @@ namespace Ludus::Engine::Serialization::Core
 		{
 			case EmitState::ArrayEnd:
 			{
-				m_CurrentToken = Token::EndArray {};
+				m_CurrentToken = Token::EndArray { };
 				break;
 			}
 			case EmitState::ArrayStart:
 			{
-				m_CurrentToken = Token::StartArray {};
+				m_CurrentToken = Token::StartArray { };
 				break;
 			}
 			case EmitState::Element:
@@ -155,12 +155,12 @@ namespace Ludus::Engine::Serialization::Core
 			}
 			case EmitState::ObjectEnd:
 			{
-				m_CurrentToken = Token::EndObject {};
+				m_CurrentToken = Token::EndObject { };
 				break;
 			}
 			case EmitState::ObjectStart:
 			{
-				m_CurrentToken = Token::StartObject {};
+				m_CurrentToken = Token::StartObject { };
 				break;
 			}
 			case EmitState::Value:
@@ -189,7 +189,7 @@ namespace Ludus::Engine::Serialization::Core
 			return;
 		}
 
-		if (!m_CurrentToken.has_value())
+		if (!m_CurrentToken)
 		{
 			(void)Peek();
 		}
@@ -293,7 +293,7 @@ namespace Ludus::Engine::Serialization::Core
 
 		m_CurrentToken.reset();
 
-		if (m_NodeStack.empty() && !m_CurrentToken.has_value())
+		if (m_NodeStack.empty() && !m_CurrentToken)
 		{
 			m_IsComplete = true;
 		}

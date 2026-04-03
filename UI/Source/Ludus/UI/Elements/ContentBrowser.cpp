@@ -1,8 +1,8 @@
 #include "pch.h"
 
 #include <algorithm>
-#include <functional>
 #include <filesystem>
+#include <functional>
 #include <ranges>
 
 #include <Ludus/UI/Context/ImageContext.h>
@@ -53,9 +53,9 @@ namespace Ludus::UI::Elements
 
 		m_RootEntries.push_back(BuildTree(directory));
 
-		if (previousCurrentDirectoryPath.has_value())
+		if (previousCurrentDirectoryPath)
 		{
-			if (const auto restoredCurrentDirectoryPath = TryFindIndicesFromPath(*previousCurrentDirectoryPath); restoredCurrentDirectoryPath.has_value())
+			if (const auto restoredCurrentDirectoryPath = TryFindIndicesFromPath(*previousCurrentDirectoryPath); restoredCurrentDirectoryPath)
 			{
 				m_CurrentDirectoryPath = *restoredCurrentDirectoryPath;
 			}
@@ -69,9 +69,9 @@ namespace Ludus::UI::Elements
 			m_CurrentDirectoryPath.clear();
 		}
 
-		if (previousSelectedPath.has_value())
+		if (previousSelectedPath)
 		{
-			if (const auto restoredSelectedPath = TryFindIndicesFromPath(*previousSelectedPath); restoredSelectedPath.has_value())
+			if (const auto restoredSelectedPath = TryFindIndicesFromPath(*previousSelectedPath); restoredSelectedPath)
 			{
 				m_SelectedPath = *restoredSelectedPath;
 			}

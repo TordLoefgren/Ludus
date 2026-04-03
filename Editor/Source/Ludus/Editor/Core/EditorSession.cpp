@@ -29,7 +29,7 @@ namespace Ludus::Editor::Core
 			std::optional<Ludus::Editor::Core::ProjectSession>& projectSession
 		)
 		{
-			if (!projectSession.has_value())
+			if (!projectSession)
 			{
 				return;
 			}
@@ -139,7 +139,7 @@ namespace Ludus::Editor::Core
 				// Reset state.
 				m_Shell.State.Mode = Ludus::Editor::Core::EditorMode::Session;
 				pendingTransition = Ludus::Editor::Core::PendingProjectTransition::NoneState();
-				m_HostContext.SetWindowTitle("Ludus Editor - " + out.value().ProjectManifest.ProjectRoot.filename().string());
+				m_HostContext.SetWindowTitle("Ludus Editor - " + out->ProjectManifest.ProjectRoot.filename().string());
 			}
 		}, pendingTransition.Data);
 	}

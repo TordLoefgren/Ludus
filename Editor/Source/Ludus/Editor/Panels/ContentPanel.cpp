@@ -19,7 +19,7 @@ namespace Ludus::Editor::Panels
 		{
 			m_ContentBrowser.Update();
 
-			if (auto openedFilePath = m_ContentBrowser.ConsumeOpenedFilePath(); openedFilePath.has_value())
+			if (auto openedFilePath = m_ContentBrowser.ConsumeOpenedFilePath(); openedFilePath)
 			{
 				if (openedFilePath->filename().generic_string().ends_with(".ludus.scene"))
 				{

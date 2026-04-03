@@ -43,14 +43,14 @@ namespace Ludus::Editor::Commands::UI::Dialogs
 	void OpenRenameSceneDialog(const UICommand::OpenRenameSceneDialog& command, ProjectSessionCommandContext& context)
 	{
 		const auto scenePath = context.ProjectSession.TryGetEditorScenePath(command.SceneHandle);
-		if (!scenePath.has_value())
+		if (!scenePath)
 		{
 			throw std::runtime_error("Scene does not have a path.");
 		}
 
 		Ludus::Editor::Dialogs::RenameSceneDialog dialog(
 			command.SceneHandle,
-			scenePath.value()
+			*scenePath
 		);
 		context.Shell.State.Dialogs.Open(dialog);
 	}

@@ -21,7 +21,7 @@ namespace Ludus::Engine::Graphics
 
 		virtual bool Enabled(RenderContext2D& context) override
 		{
-			if (!context.RenderView.SceneHandle.has_value())
+			if (!context.RenderView.SceneHandle)
 			{
 				return false;
 			}

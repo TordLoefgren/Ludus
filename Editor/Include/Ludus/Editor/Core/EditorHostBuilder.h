@@ -1,12 +1,10 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 
 #include <Ludus/Editor/Core/EditorConfiguration.h>
-#include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
-#include <Ludus/Engine/Graphics/RenderingOptions.h>
-#include <Ludus/Engine/Graphics/RenderViewConfiguration.h>
-#include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
+#include <Ludus/Editor/Core/EditorStartupOptions.h>
 #include <Ludus/Engine/Runtime/ApplicationHostBuilder.h>
 #include <Ludus/Engine/Runtime/RuntimeOptions.h>
 #include <Ludus/Engine/Windowing/WindowOptions.h>
@@ -17,15 +15,14 @@ namespace Ludus::Editor::Core
 	{
 	private:
 		Ludus::Engine::Runtime::ApplicationHostBuilder m_ApplicationHostBuilder;
-
-		Ludus::Engine::Graphics::RenderingConfiguration2D m_RenderingConfiguration;
-		Ludus::Engine::Graphics::RenderingOptions m_RenderingOptions;
-		Ludus::Engine::Graphics::RenderViewConfiguration m_RenderViewConfiguration;
-		Ludus::Engine::Runtime::RuntimeOptions m_RuntimeOptions;
-		Ludus::Engine::Physics::Core::PhysicsConfiguration2D m_PhysicsConfiguration;
-		Ludus::Engine::Windowing::WindowOptions m_WindowOptions;
-
 		Ludus::Editor::Core::EditorConfiguration m_EditorConfiguration = Ludus::Editor::Core::EditorConfiguration::Default();
+		Ludus::Editor::Core::EditorStartupOptions m_StartupOptions;
+
+		std::optional<Ludus::Engine::Runtime::RuntimeOptions> m_RuntimeOptions;
+		std::optional<Ludus::Engine::Windowing::WindowOptions> m_WindowOptions;
+
+		bool m_UseEditor = false;
+		bool m_UseImGui = false;
 
 	public:
 		static EditorHostBuilder Create();
@@ -33,8 +30,11 @@ namespace Ludus::Editor::Core
 		std::unique_ptr<Ludus::Engine::Runtime::ApplicationHost> Build();
 
 		EditorHostBuilder& WithEditorConfiguration(Ludus::Editor::Core::EditorConfiguration editorConfiguration);
+		EditorHostBuilder& WithRuntimeOptions(Ludus::Engine::Runtime::RuntimeOptions runtimeOptions);
+		EditorHostBuilder& WithStartupOptions(EditorStartupOptions startupOptions);
+		EditorHostBuilder& WithWindowOptions(Ludus::Engine::Windowing::WindowOptions windowOptions);
 
-		EditorHostBuilder& AddDefaultEngine();
-		EditorHostBuilder& AddEditorSystem();
+		EditorHostBuilder& UseEditor();
+		EditorHostBuilder& UseEditorHostDefaults();
 	};
 }

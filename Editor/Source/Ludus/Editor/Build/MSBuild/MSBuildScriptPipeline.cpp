@@ -188,7 +188,7 @@ namespace Ludus::Editor::Build::MSBuild
 			Ludus::Editor::Persistence::BuildPaths::EnsureProjectScriptsBuildLayoutExists(projectRoot);
 		}
 
-		if (!m_Context.MSBuildPath.has_value())
+		if (!m_Context.MSBuildPath)
 		{
 			throw std::runtime_error("MSBuild path not found.");
 		}
@@ -209,7 +209,7 @@ namespace Ludus::Editor::Build::MSBuild
 			"/p:Platform=" + std::string(platformStr) + " "
 			"/nologo";
 
-		const auto expected = Ludus::Engine::Platform::Process::Run(m_Context.MSBuildPath.value(), args);
+		const auto expected = Ludus::Engine::Platform::Process::Run(*m_Context.MSBuildPath, args);
 		if (!expected.HasValue())
 		{
 			LUDUS_LOG_ERROR("Process error: " + std::string(expected.GetError().what()));

@@ -20,18 +20,18 @@ namespace Ludus::Engine::Graphics
 
 		virtual bool Enabled(Ludus::Engine::Graphics::RenderContext2D& context) override
 		{
-			return context.RenderView.SceneHandle.has_value()
+			return context.RenderView.SceneHandle
 				&& context.RenderView.CameraSource != CameraSource::None;
 		};
 
 		virtual void Execute(Ludus::Engine::Graphics::RenderContext2D& context, Ludus::Engine::Graphics::Renderer2D& renderer) override
 		{
-			if (!context.RenderView.SceneHandle.has_value())
+			if (!context.RenderView.SceneHandle)
 			{
 				return;
 			}
 
-			const auto* scene = context.SceneRegistry.TryGetScene(context.RenderView.SceneHandle.value());
+			const auto* scene = context.SceneRegistry.TryGetScene(*context.RenderView.SceneHandle);
 			if (!scene)
 			{
 				return;

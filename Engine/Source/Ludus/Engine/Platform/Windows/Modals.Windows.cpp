@@ -106,9 +106,9 @@ namespace Ludus::Engine::Platform::Modals
 				// In this case, get shell items only for file system items.
 				hr = openDialog->SetOptions(flags | FOS_FORCEFILESYSTEM);
 
-				if (defaultStartupPath.has_value())
+				if (defaultStartupPath)
 				{
-					SetDialogStartupFolder(openDialog, defaultStartupPath.value());
+					SetDialogStartupFolder(openDialog, *defaultStartupPath);
 				}
 
 				if (SUCCEEDED(hr))
@@ -193,9 +193,9 @@ namespace Ludus::Engine::Platform::Modals
 				// - FOS_STRICTFILETYPES: Keep extension aligned with the selected filter.
 				hr = saveDialog->SetOptions(flags | FOS_FORCEFILESYSTEM | FOS_OVERWRITEPROMPT | FOS_STRICTFILETYPES);
 
-				if (defaultStartupPath.has_value())
+				if (defaultStartupPath)
 				{
-					SetDialogStartupFolder(saveDialog, defaultStartupPath.value());
+					SetDialogStartupFolder(saveDialog, *defaultStartupPath);
 				}
 
 				if (SUCCEEDED(hr))
@@ -215,7 +215,7 @@ namespace Ludus::Engine::Platform::Modals
 
 							if (SUCCEEDED(hr))
 							{
-								if (defaultFileName.has_value() && !defaultFileName->empty())
+								if (defaultFileName && !defaultFileName->empty())
 								{
 									std::wstring fileNameWide = Ludus::Engine::Platform::Windows::Detail::Utf8ToWide(*defaultFileName);
 									saveDialog->SetFileName(fileNameWide.c_str());

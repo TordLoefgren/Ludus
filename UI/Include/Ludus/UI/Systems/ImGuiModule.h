@@ -3,7 +3,6 @@
 #include <memory>
 #include <utility>
 
-#include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Runtime/ApplicationHost.h>
 #include <Ludus/Engine/Runtime/ApplicationHostBuilder.h>
 #include <Ludus/Engine/Runtime/SystemPhase.h>
@@ -12,31 +11,16 @@
 
 namespace Ludus::UI::Systems
 {
-	static bool s_IsImGuiEnabled = false;
-
 	inline void RegisterImGui(Ludus::Engine::Runtime::ApplicationHostBuilder& builder)
 	{
-		if (!s_IsImGuiEnabled)
+		builder.Configure([](Ludus::Engine::Runtime::ApplicationHost& host)
 		{
-			builder.Configure(
-				[](Ludus::Engine::Runtime::ApplicationHost& host)
-			{
-				auto imGuiSystem = std::make_unique<Ludus::UI::Systems::ImGuiSystem>(host.GetWindowHandle());
+			auto imGuiSystem = std::make_unique<Ludus::UI::Systems::ImGuiSystem>(host.GetWindowHandle());
 
-				host.AddSystem(
-					{
-						{ Ludus::Engine::Runtime::SystemPhase::BeginFrame, Ludus::Engine::Runtime::SystemPhaseOrder::Before },
-					{ Ludus::Engine::Runtime::SystemPhase::EndFrame, Ludus::Engine::Runtime::SystemPhaseOrder::After }
-					},
-					std::move(imGuiSystem));
-			}
-			);
-
-			s_IsImGuiEnabled = true;
-		}
-		else
-		{
-			LUDUS_LOG_WARN("Invalid operation: Cannot add ImGui system more than once.");
-		}
+			host.AddSystem({
+				{ Ludus::Engine::Runtime::SystemPhase::BeginFrame, Ludus::Engine::Runtime::SystemPhaseOrder::Before },
+				{ Ludus::Engine::Runtime::SystemPhase::EndFrame, Ludus::Engine::Runtime::SystemPhaseOrder::After } },
+				std::move(imGuiSystem));
+		});
 	}
 }

@@ -67,7 +67,7 @@ namespace Ludus::Editor::Core
 		EditorState.ActiveSceneHandle = sceneHandle;
 		EditorState.ActiveSceneState = {
 			.IsDirty = false,
-			.SavePath = sceneSavePath.has_value() ? sceneSavePath : TryGetEditorScenePath(sceneHandle)
+			.SavePath = sceneSavePath ? sceneSavePath : TryGetEditorScenePath(sceneHandle)
 		};
 		GetEditorRuntime().GetScenePresentationState().CurrentSceneHandle = sceneHandle;
 	}

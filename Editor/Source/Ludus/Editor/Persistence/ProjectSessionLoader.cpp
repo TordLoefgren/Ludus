@@ -52,12 +52,12 @@ namespace Ludus::Editor::Persistence
 	{
 		auto runtimeManifest = m_RuntimeManifestPersistence.Load(projectManifest.RuntimeManifestPath);
 		const auto scenePath = TryFindScenePath(runtimeManifest, runtimeManifest.EntrySceneHandle);
-		if (!scenePath.has_value())
+		if (!scenePath)
 		{
 			throw std::runtime_error("No scene path in runtime manifest.");
 		}
 
-		auto scene = m_ScenePersistence.Load(scenePath.value());
+		auto scene = m_ScenePersistence.Load(*scenePath);
 
 		return {
 			.ProjectManifest = std::move(projectManifest),

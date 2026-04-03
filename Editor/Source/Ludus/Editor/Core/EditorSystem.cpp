@@ -10,6 +10,7 @@
 #include <Ludus/Editor/Commands/UICommand.h>
 #include <Ludus/Editor/Core/EditorSystem.h>
 #include <Ludus/Editor/Core/WelcomeWindow.h>
+#include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Runtime/IHostContext.h>
 #include <Ludus/Engine/Runtime/RuntimeInstanceBuilder.h>
@@ -51,9 +52,11 @@ namespace Ludus::Editor::Core
 
 	EditorSystem::EditorSystem(
 		Ludus::Engine::Runtime::IHostContext& hostContext,
-		Ludus::Editor::Core::EditorConfiguration editorOptions
+		Ludus::Editor::Core::EditorConfiguration editorConfiguration,
+		EditorStartupOptions editorStartupOptions
 	) :
-		m_EditorConfiguration(std::move(editorOptions)),
+		m_EditorConfiguration(std::move(editorConfiguration)),
+		m_EditorStartupOptions(std::move(editorStartupOptions)),
 		m_HostContext(hostContext),
 		m_ScenePersistence(),
 		m_RuntimeManifestPersistence(),
@@ -86,11 +89,11 @@ namespace Ludus::Editor::Core
 
 	Ludus::Editor::Commands::ProjectSessionCommandContext EditorSystem::CreateProjectSessionCommandContext()
 	{
-		LUDUS_ASSERT(m_ProjectSession.has_value(), "Project session context requires an active project.");
+		LUDUS_ASSERT(m_ProjectSession, "Project session context requires an active project.");
 
 		return {
 			.Shell = m_Shell,
-			.ProjectSession = m_ProjectSession.value(),
+			.ProjectSession = *m_ProjectSession,
 			.HostContext = m_HostContext,
 			.ScenePersistence = m_ScenePersistence,
 			.RuntimeManifestPersistence = m_RuntimeManifestPersistence,
@@ -101,7 +104,7 @@ namespace Ludus::Editor::Core
 
 	void EditorSystem::DelegateUICommands()
 	{
-		if (m_ProjectSession.has_value())
+		if (m_ProjectSession)
 		{
 			auto context = CreateProjectSessionCommandContext();
 
@@ -123,7 +126,7 @@ namespace Ludus::Editor::Core
 
 	void EditorSystem::DelegateEditCommands()
 	{
-		if (m_ProjectSession.has_value())
+		if (m_ProjectSession)
 		{
 			auto context = CreateProjectSessionCommandContext();
 
@@ -143,7 +146,7 @@ namespace Ludus::Editor::Core
 
 	void EditorSystem::DelegateRequestCommands()
 	{
-		if (m_ProjectSession.has_value())
+		if (m_ProjectSession)
 		{
 			auto context = CreateProjectSessionCommandContext();
 
@@ -174,17 +177,17 @@ namespace Ludus::Editor::Core
 	{
 		if (auto commands = m_Shell.State.Dialogs.Update())
 		{
-			m_Shell.State.Commands.EnqueueCommands(std::move(commands.value()));
+			m_Shell.State.Commands.EnqueueCommands(std::move(*commands));
 		}
 	}
 
 	void EditorSystem::UpdatePanels()
 	{
-		LUDUS_ASSERT(m_ProjectSession.has_value(), "Panel updates require an active project session.");
+		LUDUS_ASSERT(m_ProjectSession, "Panel updates require an active project session.");
 
 		Ludus::Editor::Core::ProjectSessionContext context {
 			.Shell = m_Shell,
-			.ProjectSession = m_ProjectSession.value(),
+			.ProjectSession = *m_ProjectSession,
 			.HostContext = m_HostContext,
 			.PanelRegistry = m_PanelRegistry
 		};
@@ -211,6 +214,15 @@ namespace Ludus::Editor::Core
 		{
 			m_PanelRegistry.Register(factoryMethod());
 		}
+
+		if (m_EditorStartupOptions.StartupProjectPath)
+		{
+			LUDUS_LOG_INFO("Using startup project from command line: " + m_EditorStartupOptions.StartupProjectPath->string());
+
+			m_Shell.State.Commands.AddRequestCommand(
+				Ludus::Editor::Commands::RequestCommand::OpenProject { *m_EditorStartupOptions.StartupProjectPath }
+			);
+		}
 	}
 
 	void Ludus::Editor::Core::EditorSystem::OnDetachImpl()
@@ -222,7 +234,7 @@ namespace Ludus::Editor::Core
 	{
 		if (auto commands = m_WelcomeWindow.Update())
 		{
-			m_Shell.State.Commands.EnqueueCommands(std::move(commands.value()));
+			m_Shell.State.Commands.EnqueueCommands(std::move(*commands));
 		}
 
 		FlushCommands();
@@ -232,7 +244,7 @@ namespace Ludus::Editor::Core
 
 	void EditorSystem::UpdateProjectSession()
 	{
-		if (!m_ProjectSession.has_value())
+		if (!m_ProjectSession)
 		{
 			throw std::runtime_error("No active project session available.");
 		}

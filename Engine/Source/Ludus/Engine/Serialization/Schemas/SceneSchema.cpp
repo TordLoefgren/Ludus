@@ -309,44 +309,44 @@ namespace Ludus::Engine::Serialization::Schemas
 
 						scene.EntityComponentSystem.RestoreEntity(entityHandle);
 
-						if (stagedComponents.Camera.has_value())
+						if (stagedComponents.Camera)
 						{
-							scene.EntityComponentSystem.AttachCamera(stagedComponents.Camera.value());
+							scene.EntityComponentSystem.AttachCamera(*stagedComponents.Camera);
 						}
 
-						if (stagedComponents.Collider.has_value())
+						if (stagedComponents.Collider)
 						{
-							scene.EntityComponentSystem.AttachCollider(stagedComponents.Collider.value());
+							scene.EntityComponentSystem.AttachCollider(*stagedComponents.Collider);
 						}
 
-						if (stagedComponents.DisplayName.has_value())
+						if (stagedComponents.DisplayName)
 						{
-							scene.EntityComponentSystem.AttachDisplayName(stagedComponents.DisplayName.value());
+							scene.EntityComponentSystem.AttachDisplayName(*stagedComponents.DisplayName);
 						}
 
-						if (stagedComponents.RigidBody.has_value())
+						if (stagedComponents.RigidBody)
 						{
-							scene.EntityComponentSystem.AttachRigidBody(stagedComponents.RigidBody.value());
+							scene.EntityComponentSystem.AttachRigidBody(*stagedComponents.RigidBody);
 						}
 
-						if (stagedComponents.Script.has_value())
+						if (stagedComponents.Script)
 						{
-							scene.EntityComponentSystem.AttachScript(stagedComponents.Script.value());
+							scene.EntityComponentSystem.AttachScript(*stagedComponents.Script);
 						}
 
-						if (stagedComponents.Sprite.has_value())
+						if (stagedComponents.Sprite)
 						{
-							scene.EntityComponentSystem.AttachSprite(stagedComponents.Sprite.value());
+							scene.EntityComponentSystem.AttachSprite(*stagedComponents.Sprite);
 						}
 
-						if (stagedComponents.Text.has_value())
+						if (stagedComponents.Text)
 						{
-							scene.EntityComponentSystem.AttachText(stagedComponents.Text.value());
+							scene.EntityComponentSystem.AttachText(*stagedComponents.Text);
 						}
 
-						if (stagedComponents.Transform.has_value())
+						if (stagedComponents.Transform)
 						{
-							scene.EntityComponentSystem.AttachTransform(stagedComponents.Transform.value());
+							scene.EntityComponentSystem.AttachTransform(*stagedComponents.Transform);
 						}
 					}
 
