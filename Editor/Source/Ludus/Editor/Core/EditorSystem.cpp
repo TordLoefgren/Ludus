@@ -8,6 +8,7 @@
 #include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/StartupCommandContext.h>
 #include <Ludus/Editor/Commands/UICommand.h>
+#include <Ludus/Editor/Core/EditorExecutionFlags.h>
 #include <Ludus/Editor/Core/EditorSystem.h>
 #include <Ludus/Editor/Core/WelcomeWindow.h>
 #include <Ludus/Engine/Debug/Debug.h>
@@ -208,13 +209,8 @@ namespace Ludus::Editor::Core
 		m_PanelRegistry.ApplyRemovals();
 	}
 
-	void Ludus::Editor::Core::EditorSystem::OnAttachImpl()
+	void Ludus::Editor::Core::EditorSystem::ApplyStartupOptions()
 	{
-		for (const auto& factoryMethod : m_EditorConfiguration.PanelFactories)
-		{
-			m_PanelRegistry.Register(factoryMethod());
-		}
-
 		if (m_EditorStartupOptions.StartupProjectPath)
 		{
 			LUDUS_LOG_INFO("Using startup project from command line: " + m_EditorStartupOptions.StartupProjectPath->string());
@@ -223,6 +219,28 @@ namespace Ludus::Editor::Core
 				Ludus::Editor::Commands::RequestCommand::OpenProject { *m_EditorStartupOptions.StartupProjectPath }
 			);
 		}
+
+		if (m_EditorStartupOptions.EnableImGuiDemo)
+		{
+			LUDUS_LOG_INFO("ImGui demo panel enabled from command line.");
+			m_Shell.State.Commands.AddRequestCommand(
+				Ludus::Editor::Commands::RequestCommand::SetExecutionFlag { Ludus::Editor::Core::EditorExecutionFlags::ImGuiDemoEnabled }
+			);
+		}
+	}
+
+	void Ludus::Editor::Core::EditorSystem::RegisterPanels()
+	{
+		for (const auto& factoryMethod : m_EditorConfiguration.PanelFactories)
+		{
+			m_PanelRegistry.Register(factoryMethod());
+		}
+	}
+
+	void Ludus::Editor::Core::EditorSystem::OnAttachImpl()
+	{
+		ApplyStartupOptions();
+		RegisterPanels();
 	}
 
 	void Ludus::Editor::Core::EditorSystem::OnDetachImpl()

@@ -65,7 +65,7 @@ namespace Ludus::Editor::Panels
 		{
 			return std::format(
 				"[{}] {}({}): {}",
-				ToString(entry.Level),
+				Ludus::Engine::Debug::ToString(entry.Level),
 				entry.File,
 				entry.Line,
 				entry.Message

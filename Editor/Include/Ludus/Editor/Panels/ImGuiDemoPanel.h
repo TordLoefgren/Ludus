@@ -9,7 +9,8 @@ namespace Ludus::Editor::Panels
 	{
 	public:
 		virtual Ludus::Editor::Panels::PanelKind GetPanelKind() const override { return Ludus::Editor::Panels::PanelKind::ImGuiDemo; }
-		virtual bool UsesPanelState() const override { return true; }
+		virtual bool UsesVisibilityState() const override { return true; }
+		virtual bool IsAvailable(Ludus::Editor::Core::ProjectSessionContext& context) override;
 
 		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) override;
 	};

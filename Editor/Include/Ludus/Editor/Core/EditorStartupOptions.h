@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <optional>
+#include <string_view>
 
 #include <Ludus/Engine/Debug/Debug.h>
 
@@ -10,6 +11,7 @@ namespace Ludus::Editor::Core
 	struct EditorStartupOptions
 	{
 		std::optional<std::filesystem::path> StartupProjectPath;
+		bool EnableImGuiDemo = false;
 
 		static EditorStartupOptions FromCommandLineArgs(int argc, char* argv[])
 		{
@@ -36,6 +38,23 @@ namespace Ludus::Editor::Core
 					else
 					{
 						LUDUS_LOG_WARN("Startup project path does not exist: " + startupProjectPath.string());
+					}
+
+					continue;
+				}
+
+				if (arg == "--enable")
+				{
+					if (i + 1 >= argc)
+					{
+						LUDUS_LOG_WARN("Missing value for --enable.");
+						continue;
+					}
+
+					std::string_view enableFlag = argv[++i];
+					if (enableFlag == "imgui-demo")
+					{
+						options.EnableImGuiDemo = true;
 					}
 				}
 			}

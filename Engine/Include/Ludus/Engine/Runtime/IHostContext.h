@@ -35,12 +35,14 @@ namespace Ludus::Engine::Runtime
 
 		virtual void AttachRuntime(RuntimeInstance* runtime) = 0;
 		virtual void DetachRuntime() = 0;
+
 		virtual Ludus::Engine::Math::Size<int> GetFramebufferSize() const = 0;
 		virtual Ludus::Engine::Math::Size<int> GetWindowSize() const = 0;
 		virtual GLFWwindow* GetWindowHandle() const = 0;
 		virtual Ludus::Engine::Graphics::RenderTarget& GetMainRenderTarget() = 0;
 		virtual Ludus::Engine::Core::FlagSet& GetExecutionFlags() = 0;
 		virtual Ludus::Engine::Windowing::Input& GetInput() = 0;
+
 		virtual void SetWindowTitle(std::string_view title) = 0;
 	};
 }
