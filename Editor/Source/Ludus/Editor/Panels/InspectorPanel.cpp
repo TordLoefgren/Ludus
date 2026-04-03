@@ -544,9 +544,8 @@ namespace Ludus::Editor::Panels
 			auto& scene = registry.GetScene(activeSceneHandle);
 
 			auto& ecs = scene.EntityComponentSystem;
-			auto entityHandle = selection.SelectedEntity.value();
-			const bool existsInActiveScene = ecs.IndexOf(entityHandle).has_value();
-			if (!existsInActiveScene)
+			auto entityHandle = *selection.SelectedEntity;
+			if (!ecs.IndexOf(entityHandle))
 			{
 				context.Shell.State.Commands.AddEditCommand(
 					Ludus::Editor::Commands::EditCommand::ClearSelection { }

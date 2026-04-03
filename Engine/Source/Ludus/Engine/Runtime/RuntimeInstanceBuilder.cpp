@@ -32,14 +32,95 @@ namespace Ludus::Engine::Runtime
 
 		auto runtime = RuntimeInstance::Create(
 			hostContext,
-			std::move(m_RuntimeManifest.value()),
-			std::move(m_RuntimeEnvironment.value()),
-			std::move(m_InitialScene.value()),
+			std::move(*m_RuntimeManifest),
+			std::move(*m_RuntimeEnvironment),
+			std::move(*m_InitialScene),
 			m_InitialSceneMode,
 			std::move(m_RenderingConfiguration),
 			std::move(m_RenderPresentationSettings),
 			std::move(m_PhysicsConfiguration)
 		);
+
+		if (m_UseDefaultMainRenderView)
+		{
+			runtime->AddSystem(
+				Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::Update },
+				std::make_unique<Ludus::Engine::Graphics::MainRenderViewSystem>(
+					runtime->GetHostContext(),
+					runtime->GetRenderViewRequestRegistry(),
+					runtime->GetScenePresentationState()
+				)
+			);
+		}
+
+		if (m_UseDefaultPhysics2D)
+		{
+			auto& physicsConfiguration = runtime->GetPhysicsConfiguration();
+			auto physicsSystem = std::make_unique<Ludus::Engine::Physics::Core::PhysicsSystem2D>(physicsConfiguration, runtime->GetSceneRegistry());
+			auto constraints = Ludus::Engine::Runtime::SystemConstraints::Create()
+				.RequireAllOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::PhysicsEnabled) | Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::SimulationEnabled));
+
+			runtime->AddSystem(
+				Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::FixedUpdate, SystemPhaseOrder::Before, constraints },
+				std::move(physicsSystem)
+			);
+		}
+
+		if (m_UseDefaultRendering2D)
+		{
+			auto renderViewSystem = std::make_unique<Ludus::Engine::Graphics::RenderViewSystem>(
+				runtime->GetHostContext(),
+				m_RenderViewConfiguration,
+				runtime->GetRenderViewRegistry(),
+				runtime->GetRenderViewRequestRegistry(),
+				runtime->GetSceneRegistry()
+			);
+			auto constraints = Ludus::Engine::Runtime::SystemConstraints::Create()
+				.RequireAnyOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::RenderingEnabled));
+
+			runtime->AddSystem(
+				{
+					Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::BeginFrame, SystemPhaseOrder::Before },
+					Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::Render, SystemPhaseOrder::Before, constraints }
+				},
+				std::move(renderViewSystem)
+			);
+
+			auto renderingSystem = std::make_unique<Ludus::Engine::Graphics::RenderingSystem2D>(
+				m_RenderingOptions,
+				runtime->GetRenderingConfiguration(),
+				runtime->GetRenderViewRegistry(),
+				runtime->GetSceneRegistry(),
+				runtime->GetRuntimeEnvironment()
+			);
+
+			runtime->AddSystem(
+				Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::Render, SystemPhaseOrder::Before },
+				std::move(renderingSystem)
+			);
+		}
+
+		if (m_UseDefaultScripting)
+		{
+			auto constraints = Ludus::Engine::Runtime::SystemConstraints::Create()
+				.RequireAllOf(
+					Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::ScriptingEnabled) |
+					Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::SimulationSessionEnabled)
+				);
+
+			auto scriptingSystem = std::make_unique<Ludus::Engine::Scripting::ScriptSystem>(
+				runtime->GetHostContext(),
+				runtime->GetSceneRegistry(),
+				runtime->GetScenePresentationState().CurrentSceneHandle,
+				runtime->GetPhysicsConfiguration().QueryCache.get(),
+				runtime->GetRuntimeEnvironment().ScriptModulePath
+			);
+
+			runtime->AddSystem(
+				Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::Update, SystemPhaseOrder::Before, constraints },
+				std::move(scriptingSystem)
+			);
+		}
 
 		for (auto& command : m_BuilderCommands)
 		{
@@ -117,138 +198,48 @@ namespace Ludus::Engine::Runtime
 
 	RuntimeInstanceBuilder& RuntimeInstanceBuilder::UseDefaultPhysics2D()
 	{
-		if (!m_HasDefaultPhysics2D)
-		{
-			m_BuilderCommands.emplace_back([](Ludus::Engine::Runtime::RuntimeInstance& runtime)
-			{
-				// A physics context will already have been created when this build command is invoked.
-				auto& physicsConfiguration = runtime.GetPhysicsConfiguration();
-				auto physicsSystem = std::make_unique<Ludus::Engine::Physics::Core::PhysicsSystem2D>(physicsConfiguration, runtime.GetSceneRegistry());
-				auto constraints = Ludus::Engine::Runtime::SystemConstraints::Create()
-					.RequireAllOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::PhysicsEnabled) | Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::SimulationEnabled));
-
-				runtime.AddSystem(
-					Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::FixedUpdate, SystemPhaseOrder::Before, constraints },
-					std::move(physicsSystem)
-				);
-			});
-
-			m_HasDefaultPhysics2D = true;
-		}
-		else
+		if (m_UseDefaultPhysics2D)
 		{
 			LUDUS_LOG_WARN("Invalid operation: Cannot add default physics system more than once.");
 		}
+
+		m_UseDefaultPhysics2D = true;
 
 		return *this;
 	}
 
 	RuntimeInstanceBuilder& RuntimeInstanceBuilder::UseDefaultMainRenderView()
 	{
-		if (!m_HasDefaultMainRenderView)
-		{
-			m_BuilderCommands.emplace_back([](Ludus::Engine::Runtime::RuntimeInstance& runtime)
-			{
-				runtime.AddSystem(
-					Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::Update },
-					std::make_unique<Ludus::Engine::Graphics::MainRenderViewSystem>(
-						runtime.GetHostContext(),
-						runtime.GetRenderViewRequestRegistry(),
-						runtime.GetScenePresentationState()
-					)
-				);
-			});
-
-			m_HasDefaultMainRenderView = true;
-		}
-		else
+		if (m_UseDefaultMainRenderView)
 		{
 			LUDUS_LOG_WARN("Invalid operation: Cannot add default main render view system more than once.");
 		}
+
+		m_UseDefaultMainRenderView = true;
 
 		return *this;
 	}
 
 	RuntimeInstanceBuilder& RuntimeInstanceBuilder::UseDefaultRendering2D()
 	{
-		if (!m_HasDefaultRendering2D)
-		{
-			m_BuilderCommands.emplace_back([renderingOptions = m_RenderingOptions, renderViewConfiguration = m_RenderViewConfiguration](Ludus::Engine::Runtime::RuntimeInstance& runtime)
-			{
-				auto renderViewSystem = std::make_unique<Ludus::Engine::Graphics::RenderViewSystem>(
-					runtime.GetHostContext(),
-					renderViewConfiguration,
-					runtime.GetRenderViewRegistry(),
-					runtime.GetRenderViewRequestRegistry(),
-					runtime.GetSceneRegistry()
-				);
-				auto constraints = Ludus::Engine::Runtime::SystemConstraints::Create()
-					.RequireAnyOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::RenderingEnabled));
-
-				runtime.AddSystem(
-					{
-						Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::BeginFrame, SystemPhaseOrder::Before },
-						Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::Render, SystemPhaseOrder::Before, constraints }
-					},
-					std::move(renderViewSystem)
-				);
-
-				auto renderingSystem = std::make_unique<Ludus::Engine::Graphics::RenderingSystem2D>(
-					renderingOptions,
-					runtime.GetRenderingConfiguration(),
-					runtime.GetRenderViewRegistry(),
-					runtime.GetSceneRegistry(),
-					runtime.GetRuntimeEnvironment()
-				);
-
-				runtime.AddSystem(
-					Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::Render, SystemPhaseOrder::Before },
-					std::move(renderingSystem)
-				);
-			});
-
-			m_HasDefaultRendering2D = true;
-		}
-		else
+		if (m_UseDefaultRendering2D)
 		{
 			LUDUS_LOG_WARN("Invalid operation: Cannot add default rendering system more than once.");
 		}
+
+		m_UseDefaultRendering2D = true;
 
 		return *this;
 	}
 
 	RuntimeInstanceBuilder& RuntimeInstanceBuilder::UseDefaultScripting()
 	{
-		if (!m_HasDefaultScripting)
-		{
-			m_BuilderCommands.emplace_back([](Ludus::Engine::Runtime::RuntimeInstance& runtime)
-			{
-				auto constraints = Ludus::Engine::Runtime::SystemConstraints::Create()
-					.RequireAllOf(
-						Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::ScriptingEnabled) |
-						Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::SimulationSessionEnabled)
-					);
-
-				auto scriptingSystem = std::make_unique<Ludus::Engine::Scripting::ScriptSystem>(
-					runtime.GetHostContext(),
-					runtime.GetSceneRegistry(),
-					runtime.GetScenePresentationState().CurrentSceneHandle,
-					runtime.GetPhysicsConfiguration().QueryCache.get(),
-					runtime.GetRuntimeEnvironment().ScriptModulePath
-				);
-
-				runtime.AddSystem(
-					Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::Update, SystemPhaseOrder::Before, constraints },
-					std::move(scriptingSystem)
-				);
-			});
-
-			m_HasDefaultScripting = true;
-		}
-		else
+		if (m_UseDefaultScripting)
 		{
 			LUDUS_LOG_WARN("Invalid operation: Cannot add default scripting system more than once.");
 		}
+
+		m_UseDefaultScripting = true;
 
 		return *this;
 	}

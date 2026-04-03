@@ -187,7 +187,7 @@ namespace Ludus::Editor::Panels
 			auto& registry = context.ProjectSession.GetSceneRegistry();
 
 			auto active = context.ProjectSession.EditorState.ActiveSceneHandle;
-			if (!m_SelectedSceneHandle.has_value() || !registry.Contains(m_SelectedSceneHandle.value()))
+			if (!m_SelectedSceneHandle || !registry.Contains(*m_SelectedSceneHandle))
 			{
 				m_SelectedSceneHandle = active;
 			}

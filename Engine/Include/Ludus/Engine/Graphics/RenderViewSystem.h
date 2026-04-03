@@ -100,9 +100,9 @@ namespace Ludus::Engine::Graphics
 			auto [targetWidth, targetHeight] = request.Target->Framebuffer.GetSize();
 
 			// Explicit camera -> Tool camera.
-			if (request.Camera.has_value())
+			if (request.Camera)
 			{
-				auto camera = request.Camera.value();
+				auto camera = *request.Camera;
 				camera.SetViewport(targetWidth, targetHeight);
 
 				return {
@@ -115,12 +115,12 @@ namespace Ludus::Engine::Graphics
 			}
 
 			// Resolve camera from scene -> Scene primary camera view.
-			if (request.SceneHandle.has_value())
+			if (request.SceneHandle)
 			{
-				auto* scene = sceneRegistry.TryGetScene(request.SceneHandle.value());
+				auto* scene = sceneRegistry.TryGetScene(*request.SceneHandle);
 				if (scene)
 				{
-					if (auto primaryCamera = scene->TryGetPrimaryCamera2D(); primaryCamera.has_value())
+					if (auto primaryCamera = scene->TryGetPrimaryCamera2D(); primaryCamera)
 					{
 						Camera2D camera;
 						camera.SetViewport(targetWidth, targetHeight);

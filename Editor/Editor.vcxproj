@@ -127,6 +127,7 @@
     <ClInclude Include="Include\Ludus\Editor\Core\EditorGridRenderPass.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ExecutionMode.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ProjectManifest.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorStartupOptions.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ViewportDisplayMode.h" />
     <ClInclude Include="Include\Ludus\Editor\Dialogs\AddScriptDialog.h" />
     <ClInclude Include="Include\Ludus\Editor\Dialogs\CreateProjectDialog.h" />

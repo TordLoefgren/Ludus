@@ -1,12 +1,12 @@
-#include <Ludus/Editor/Core/EditorConfiguration.h>
 #include <Ludus/Editor/Core/EditorHostBuilder.h>
+#include <Ludus/Editor/Core/EditorStartupOptions.h>
 
-int main()
+int main(int argc, char* argv[])
 {
 	auto host = Ludus::Editor::Core::EditorHostBuilder::Create()
-		.AddDefaultEngine()
-		.AddEditorSystem()
-		.WithEditorConfiguration(Ludus::Editor::Core::EditorConfiguration::Default())
+		.WithStartupOptions(Ludus::Editor::Core::EditorStartupOptions::FromCommandLineArgs(argc, argv))
+		.UseEditorHostDefaults()
+		.UseEditor()
 		.Build();
 
 	host->Run();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <functional>
 #include <memory>
 #include <vector>
@@ -22,19 +23,26 @@ namespace Ludus::Editor::Core
 	{
 		std::vector<PanelFactory> PanelFactories;
 
+		EditorConfiguration() = default;
+
 		static EditorConfiguration Default()
 		{
-			EditorConfiguration options;
-			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::DockPanel>(); });
-			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ImGuiDemoPanel>(); });
-			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::HierarchyPanel>(); });
-			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::InspectorPanel>(); });
-			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ConsolePanel>(); });
-			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ContentPanel>(); });
-			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ViewportPanel>("Viewport", Ludus::Editor::Core::ViewportDisplayMode::Simulation); });
-			options.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ViewportPanel>("Viewport", Ludus::Editor::Core::ViewportDisplayMode::Editor); });
+			EditorConfiguration configuration;
+			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::DockPanel>(); });
+			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ImGuiDemoPanel>(); });
+			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::HierarchyPanel>(); });
+			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::InspectorPanel>(); });
+			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ConsolePanel>(); });
+			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ContentPanel>(); });
+			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ViewportPanel>("Viewport", Ludus::Editor::Core::ViewportDisplayMode::Simulation); });
+			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ViewportPanel>("Viewport", Ludus::Editor::Core::ViewportDisplayMode::Editor); });
 
-			return options;
+			return configuration;
 		}
+
+		EditorConfiguration(const EditorConfiguration&) = delete;
+		EditorConfiguration& operator=(const EditorConfiguration&) = delete;
+		EditorConfiguration(EditorConfiguration&&) = default;
+		EditorConfiguration& operator=(EditorConfiguration&&) = default;
 	};
 }

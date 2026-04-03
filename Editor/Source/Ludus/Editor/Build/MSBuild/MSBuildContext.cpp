@@ -85,7 +85,7 @@ namespace Ludus::Editor::Build::MSBuild
 	void MSBuildContext::Initialize()
 	{
 		// MSBuildPath can be cached when editor configuration persistence is implemented.
-		if (!MSBuildPath || !std::filesystem::exists(MSBuildPath.value()))
+		if (!MSBuildPath || !std::filesystem::exists(*MSBuildPath))
 		{
 			MSBuildPath = LocateMSBuild();
 			if (MSBuildPath)

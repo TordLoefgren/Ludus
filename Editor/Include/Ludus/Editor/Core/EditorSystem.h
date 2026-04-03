@@ -7,6 +7,7 @@
 #include <Ludus/Editor/Core/EditorConfiguration.h>
 #include <Ludus/Editor/Core/EditorSession.h>
 #include <Ludus/Editor/Core/EditorShell.h>
+#include <Ludus/Editor/Core/EditorStartupOptions.h>
 #include <Ludus/Editor/Core/ProjectSession.h>
 #include <Ludus/Editor/Core/WelcomeWindow.h>
 #include <Ludus/Editor/Panels/PanelRegistry.h>
@@ -35,6 +36,7 @@ namespace Ludus::Editor::Core
 		WelcomeWindow m_WelcomeWindow;
 
 		EditorConfiguration m_EditorConfiguration;
+		EditorStartupOptions m_EditorStartupOptions;
 
 		Ludus::Editor::Commands::StartupCommandContext CreateStartupCommandContext();
 		Ludus::Editor::Commands::ProjectSessionCommandContext CreateProjectSessionCommandContext();
@@ -53,7 +55,8 @@ namespace Ludus::Editor::Core
 	public:
 		EditorSystem(
 			Ludus::Engine::Runtime::IHostContext& hostContext,
-			EditorConfiguration editorConfiguration
+			EditorConfiguration editorConfiguration,
+			EditorStartupOptions editorStartupOptions
 		);
 		~EditorSystem() = default;
 

@@ -40,10 +40,10 @@ namespace Ludus::Engine::Runtime
 
 		std::vector<RuntimeInstanceBuilderCommand> m_BuilderCommands;
 
-		bool m_HasDefaultPhysics2D = false;
-		bool m_HasDefaultMainRenderView = false;
-		bool m_HasDefaultRendering2D = false;
-		bool m_HasDefaultScripting = false;
+		bool m_UseDefaultPhysics2D = false;
+		bool m_UseDefaultMainRenderView = false;
+		bool m_UseDefaultRendering2D = false;
+		bool m_UseDefaultScripting = false;
 
 	public:
 		RuntimeInstanceBuilder() = default;
