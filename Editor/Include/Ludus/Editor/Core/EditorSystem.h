@@ -45,6 +45,9 @@ namespace Ludus::Editor::Core
 		void DelegateEditCommands();
 		void DelegateRequestCommands();
 
+		void ApplyStartupOptions();
+		void RegisterPanels();
+
 		void FlushCommands();
 		void UpdateDialogs();
 		void UpdatePanels();

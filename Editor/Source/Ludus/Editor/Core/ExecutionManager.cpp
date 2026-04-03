@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include <cstdint>
+
 #include <Ludus/Editor/Core/EditorExecutionFlags.h>
 #include <Ludus/Editor/Core/ExecutionManager.h>
 #include <Ludus/Engine/Core/ExecutionFlags.h>
@@ -34,5 +36,15 @@ namespace Ludus::Editor::Core
 				executionFlags.Unset(physicsFlag | simulationFlag);
 				break;
 		}
+	}
+
+	void ExecutionManager::SetFlag(Ludus::Engine::Core::FlagSet& executionFlags, EditorExecutionFlags flag)
+	{
+		executionFlags.Set(flag);
+	}
+
+	void ExecutionManager::UnsetFlag(Ludus::Engine::Core::FlagSet& executionFlags, EditorExecutionFlags flag)
+	{
+		executionFlags.Unset(flag);
 	}
 }

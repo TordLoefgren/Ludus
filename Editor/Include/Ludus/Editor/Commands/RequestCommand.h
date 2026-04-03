@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
 #include <string>
 #include <utility>
@@ -9,6 +10,7 @@
 #include <Ludus/Editor/Build/BuildConfiguration.h>
 #include <Ludus/Editor/Build/BuildTarget.h>
 #include <Ludus/Editor/Commands/EntityReference.h>
+#include <Ludus/Editor/Core/EditorExecutionFlags.h>
 #include <Ludus/Editor/Core/ExecutionMode.h>
 #include <Ludus/Editor/Panels/PanelKind.h>
 #include <Ludus/Engine/Core/Scene.h>
@@ -23,6 +25,8 @@ namespace Ludus::Editor::Commands
 	{
 		struct AddViewport { };
 		struct SetExecutionMode { Ludus::Editor::Core::ExecutionMode Mode; };
+		struct SetExecutionFlag { Ludus::Editor::Core::EditorExecutionFlags Flag; };
+		struct UnsetExecutionFlag { Ludus::Editor::Core::EditorExecutionFlags Flag; };
 		struct SetPanelVisibility { Ludus::Editor::Panels::PanelKind PanelKind; bool IsVisible; };
 		struct SetTheme { Ludus::UI::Theme::ThemeId ThemeId; };
 
@@ -51,7 +55,7 @@ namespace Ludus::Editor::Commands
 
 
 		using Variant = std::variant<
-			AddViewport, SetExecutionMode, SetPanelVisibility, SetTheme,
+			AddViewport, SetExecutionMode, SetExecutionFlag, UnsetExecutionFlag, SetPanelVisibility, SetTheme,
 			CreateScene, CreateSceneAs, OpenScene, SaveScene, SaveSceneAs, RenameScene,
 			CreateProject, CreateProjectAs, OpenProject, CloseProject,
 			CreateScript,

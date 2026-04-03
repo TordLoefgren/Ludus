@@ -10,8 +10,10 @@
 #include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/UICommand.h>
 #include <Ludus/Editor/Core/Constants.h>
+#include <Ludus/Editor/Core/EditorExecutionFlags.h>
 #include <Ludus/Editor/Core/ExecutionMode.h>
 #include <Ludus/Editor/Panels/DockPanel.h>
+#include <Ludus/Editor/Panels/PanelRegistry.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Persistence/Paths.h>
@@ -40,14 +42,19 @@ namespace Ludus::Editor::Panels
 {
 	namespace
 	{
-		void SetPanelVisibilityIfSelected(
+		void DrawPanelMenuItem(
 			Ludus::Editor::Core::ProjectSessionContext& context,
-			const char* label,
-			const Ludus::Editor::Panels::PanelKind panelKind
+			Ludus::Editor::Panels::IPanel& panel
 		)
 		{
+			if (!panel.UsesVisibilityState() || !panel.IsAvailable(context))
+			{
+				return;
+			}
+
+			const auto panelKind = panel.GetPanelKind();
 			const bool isVisible = context.Shell.State.Panels.IsVisible(panelKind);
-			if (Ludus::UI::Widgets::MenuItem(label, nullptr, isVisible))
+			if (Ludus::UI::Widgets::MenuItem(Ludus::Editor::Panels::ToString(panelKind).data(), nullptr, isVisible))
 			{
 				context.Shell.State.Commands.AddRequestCommand(
 					Ludus::Editor::Commands::RequestCommand::SetPanelVisibility { panelKind, !isVisible }
@@ -299,11 +306,10 @@ namespace Ludus::Editor::Panels
 
 				if (Ludus::UI::Scope::MenuScope panelsMenu("Panels"); panelsMenu)
 				{
-					SetPanelVisibilityIfSelected(context, "Console", Ludus::Editor::Panels::PanelKind::Console);
-					SetPanelVisibilityIfSelected(context, "Hierarchy", Ludus::Editor::Panels::PanelKind::Hierarchy);
-					SetPanelVisibilityIfSelected(context, "ImGuiDemo", Ludus::Editor::Panels::PanelKind::ImGuiDemo);
-					SetPanelVisibilityIfSelected(context, "Inspector", Ludus::Editor::Panels::PanelKind::Inspector);
-					SetPanelVisibilityIfSelected(context, "Content", Ludus::Editor::Panels::PanelKind::Content);
+					for (const auto& panel : context.PanelRegistry.View())
+					{
+						DrawPanelMenuItem(context, *panel);
+					}
 				}
 			}
 		}

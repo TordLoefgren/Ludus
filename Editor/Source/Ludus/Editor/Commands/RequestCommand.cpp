@@ -4,6 +4,7 @@
 #include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 #include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/Requests/Builds.h>
+#include <Ludus/Editor/Commands/Requests/EditorState.h>
 #include <Ludus/Editor/Commands/Requests/Panels.h>
 #include <Ludus/Editor/Commands/Requests/Projects.h>
 #include <Ludus/Editor/Commands/Requests/Scenes.h>
@@ -35,9 +36,11 @@ namespace Ludus::Editor::Commands
 			void operator()(const RequestCommand::RunTargetBuildCommand& command) const { Requests::Builds::RunTargetBuildCommand(command, Context); }
 			void operator()(const RequestCommand::BuildRuntime& command) const { Requests::Builds::BuildRuntime(command, Context); }
 			void operator()(const RequestCommand::CleanRuntime&) const { Requests::Builds::CleanRuntime(Context); }
-			void operator()(const RequestCommand::SetExecutionMode& command) const { Requests::Panels::SetExecutionMode(command, Context); }
+			void operator()(const RequestCommand::SetExecutionMode& command) const { Requests::EditorState::SetExecutionMode(command, Context); }
+			void operator()(const RequestCommand::SetExecutionFlag& command) const { Requests::EditorState::SetExecutionFlag(command, Context); }
+			void operator()(const RequestCommand::UnsetExecutionFlag& command) const { Requests::EditorState::UnsetExecutionFlag(command, Context); }
 			void operator()(const RequestCommand::SetPanelVisibility& command) const { Requests::Panels::SetPanelVisibility(command, Context); }
-			void operator()(const RequestCommand::SetTheme& command) const { Requests::Panels::SetTheme(command, Context); }
+			void operator()(const RequestCommand::SetTheme& command) const { Requests::EditorState::SetTheme(command, Context); }
 
 			template<typename T>
 			void operator()(T&& unhandled) const
@@ -49,6 +52,7 @@ namespace Ludus::Editor::Commands
 		struct StartupRequestCommandVisitor
 		{
 			StartupCommandContext& Context;
+
 			void operator()(const RequestCommand::CreateProject& command) const { Requests::Projects::CreateProject(command, Context); }
 			void operator()(const RequestCommand::CreateProjectAs& command) const { Requests::Projects::CreateProjectAs(command, Context); }
 			void operator()(const RequestCommand::OpenProject& command) const { Requests::Projects::OpenProject(command, Context); }
@@ -65,6 +69,8 @@ namespace Ludus::Editor::Commands
 			void operator()(const RequestCommand::BuildRuntime&) const { LUDUS_ASSERT(false, "BuildRuntime is unavailable during startup."); }
 			void operator()(const RequestCommand::CleanRuntime&) const { LUDUS_ASSERT(false, "CleanRuntime is unavailable during startup."); }
 			void operator()(const RequestCommand::SetExecutionMode&) const { LUDUS_ASSERT(false, "SetExecutionMode is unavailable during startup."); }
+			void operator()(const RequestCommand::SetExecutionFlag& command) const { Requests::EditorState::SetExecutionFlag(command, Context); }
+			void operator()(const RequestCommand::UnsetExecutionFlag& command) const { Requests::EditorState::UnsetExecutionFlag(command, Context); }
 			void operator()(const RequestCommand::SetPanelVisibility&) const { LUDUS_ASSERT(false, "SetPanelVisibility is unavailable during startup."); }
 			void operator()(const RequestCommand::SetTheme&) const { LUDUS_ASSERT(false, "SetTheme is unavailable during startup."); }
 

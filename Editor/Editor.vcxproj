@@ -24,6 +24,7 @@
     <ClCompile Include="Source\Ludus\Editor\Build\MSBuild\MSBuildPipeline.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Build\RuntimePackage\RuntimeHostPackagePipeline.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Builds.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\Requests\EditorState.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Scripts.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\EditorSession.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Dialogs\RenameSceneDialog.cpp" />
@@ -81,6 +82,7 @@
     <ClInclude Include="Include\Ludus\Editor\Build\RuntimePackage\RuntimeHostPackagePipeline.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\ProjectSessionCommandContext.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Builds.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Requests\EditorState.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Scripts.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\StartupCommandContext.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSession.h" />

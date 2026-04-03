@@ -28,12 +28,18 @@ namespace Ludus::Editor::Core
 		static EditorConfiguration Default()
 		{
 			EditorConfiguration configuration;
+
+			// Register the dock panel first to ensure a docking surface is available.
 			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::DockPanel>(); });
-			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ImGuiDemoPanel>(); });
-			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::HierarchyPanel>(); });
-			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::InspectorPanel>(); });
+
+			// Single-instance panels.
 			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ConsolePanel>(); });
 			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ContentPanel>(); });
+			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::HierarchyPanel>(); });
+			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ImGuiDemoPanel>(); });
+			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::InspectorPanel>(); });
+
+			// Multi-instance panels.
 			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ViewportPanel>("Viewport", Ludus::Editor::Core::ViewportDisplayMode::Simulation); });
 			configuration.PanelFactories.push_back([] { return std::make_unique<Ludus::Editor::Panels::ViewportPanel>("Viewport", Ludus::Editor::Core::ViewportDisplayMode::Editor); });
 

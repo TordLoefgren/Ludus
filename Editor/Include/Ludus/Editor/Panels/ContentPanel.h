@@ -15,7 +15,7 @@ namespace Ludus::Editor::Panels
 
 	public:
 		virtual Ludus::Editor::Panels::PanelKind GetPanelKind() const override { return Ludus::Editor::Panels::PanelKind::Content; }
-		virtual bool UsesPanelState() const override { return true; }
+		virtual bool UsesVisibilityState() const override { return true; }
 		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) override;
 
 		void Initialize(const std::filesystem::path& directory) { m_ContentBrowser.FromDirectory(directory); }

@@ -11,6 +11,7 @@ namespace Ludus::Editor::Core
 	{
 		None = 0,
 		EditorToolsEnabled = 1 << 16,
+		ImGuiDemoEnabled = 1 << 17,
 	};
 
 	constexpr uint32_t DefaultEditorExecutionMask =

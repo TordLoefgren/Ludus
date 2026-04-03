@@ -20,9 +20,18 @@ namespace Ludus::Editor::Panels
 
 		PanelHandle GetHandle() const { return m_Handle; }
 
+		virtual Ludus::Editor::Panels::PanelKind GetPanelKind() const = 0;
+
+		virtual bool IsAvailable(Ludus::Editor::Core::ProjectSessionContext& context)
+		{
+			return context.Shell.State.Mode == Ludus::Editor::Core::EditorMode::Session;
+		}
+
+		virtual bool UsesVisibilityState() const { return false; }
+
 		bool Update(Ludus::Editor::Core::ProjectSessionContext& context)
 		{
-			if (UsesPanelState())
+			if (UsesVisibilityState())
 			{
 				m_Open = context.Shell.State.Panels.IsVisible(GetPanelKind());
 			}
@@ -34,17 +43,12 @@ namespace Ludus::Editor::Panels
 
 			auto active = UpdateImpl(context);
 
-			if (UsesPanelState())
+			if (UsesVisibilityState())
 			{
 				context.Shell.State.Panels.SetVisible(GetPanelKind(), m_Open);
 			}
 
 			return active;
-		}
-
-		virtual bool IsAvailable(Ludus::Editor::Core::ProjectSessionContext& context)
-		{
-			return context.Shell.State.Mode == Ludus::Editor::Core::EditorMode::Session;
 		}
 
 	protected:
@@ -53,9 +57,6 @@ namespace Ludus::Editor::Panels
 		PanelHandle m_Handle = s_NextHandle++;
 		bool m_Open = true;
 
-		virtual bool UsesPanelState() const { return false; }
-
-		virtual Ludus::Editor::Panels::PanelKind GetPanelKind() const = 0;
 		virtual bool UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context) = 0;
 
 		std::string CreateUniqueWindowTitle(std::string_view visibleTitle)
