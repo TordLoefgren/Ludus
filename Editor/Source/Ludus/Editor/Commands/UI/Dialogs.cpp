@@ -3,9 +3,7 @@
 #include <filesystem>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
 #include <utility>
-#include <vector>
 
 #include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 #include <Ludus/Editor/Commands/StartupCommandContext.h>
@@ -14,23 +12,18 @@
 #include <Ludus/Editor/Dialogs/DialogManager.h>
 #include <Ludus/Editor/Dialogs/RenameSceneDialog.h>
 #include <Ludus/Engine/Components/ScriptComponent.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 
 namespace Ludus::Editor::Commands::UI::Dialogs
 {
 	void OpenAddScriptDialog(const UICommand::OpenAddScriptDialog& command, ProjectSessionCommandContext& context)
 	{
-		auto scriptHandlesByName = std::unordered_map<std::string, Ludus::Engine::Components::ScriptHandle> { };
-		for (const auto& reference : context.ProjectSession.GetEditorManifest().Scripts)
-		{
-			scriptHandlesByName.emplace(reference.Name, reference.Handle);
-		}
-
 		Ludus::Editor::Dialogs::AddScriptDialog dialog(
-			command.EntityHandle,
-			command.SceneHandle,
+			command.SceneId,
+			command.EntityId,
 			context.ProjectSession.GetEditorScriptNames(),
-			std::move(scriptHandlesByName)
+			context.ProjectSession.GetEditorManifest().Scripts
 		);
 		context.Shell.State.Dialogs.Open(dialog);
 	}
@@ -42,14 +35,14 @@ namespace Ludus::Editor::Commands::UI::Dialogs
 
 	void OpenRenameSceneDialog(const UICommand::OpenRenameSceneDialog& command, ProjectSessionCommandContext& context)
 	{
-		const auto scenePath = context.ProjectSession.TryGetEditorScenePath(command.SceneHandle);
+		const auto scenePath = context.ProjectSession.TryGetEditorScenePath(command.SceneId);
 		if (!scenePath)
 		{
 			throw std::runtime_error("Scene does not have a path.");
 		}
 
 		Ludus::Editor::Dialogs::RenameSceneDialog dialog(
-			command.SceneHandle,
+			command.SceneId,
 			*scenePath
 		);
 		context.Shell.State.Dialogs.Open(dialog);

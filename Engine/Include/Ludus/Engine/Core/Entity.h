@@ -1,18 +1,17 @@
 #pragma once
 
-#include <cstdint>
+#include <Ludus/Engine/Core/Id.h>
 
 namespace Ludus::Engine::Core
 {
-	using EntityHandle = uint64_t;
-
 	struct Entity
 	{
 	public:
-		EntityHandle Handle;
+		EntityId Id { EntityId::Invalid() };
 
-		Entity(EntityHandle handle)
-			: Handle(handle)
+		Entity() = default;
+
+		Entity(EntityId id) : Id(id)
 		{ }
 
 		Entity(const Entity&) = default;
@@ -21,6 +20,7 @@ namespace Ludus::Engine::Core
 		Entity& operator=(Entity&&) noexcept = default;
 		~Entity() = default;
 
-		bool operator==(const Entity& other) const { return Handle == other.Handle; }
+		bool operator==(const Entity& other) const { return Id == other.Id; }
 	};
 }
+

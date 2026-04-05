@@ -3,9 +3,9 @@
 #include <string>
 
 #include <Ludus/Engine/Components/Text2DComponent.h>
-#include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Enums.h>
 #include <Ludus/Engine/Core/Expected.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamReader.h>
@@ -26,9 +26,6 @@ namespace Ludus::Engine::Serialization::Schemas
 		inline static void Serialize(ITokenStreamWriter& writer, const Text& text)
 		{
 			writer.Emit(Token::StartObject { });
-
-			writer.Emit(Token::Key { "OwnerHandle" });
-			writer.Emit(Token::Uint { text.OwnerHandle });
 
 			writer.Emit(Token::Key { "Text" });
 			writer.Emit(Token::String { text.Text });
@@ -54,21 +51,18 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::EndObject { });
 		}
 
-		inline static Ludus::Engine::Core::Expected<Text, SerializationException> Deserialize(ITokenStreamReader& reader)
+		inline static Ludus::Engine::Core::Expected<Text, SerializationException> Deserialize(
+			ITokenStreamReader& reader,
+			Ludus::Engine::Core::EntityId ownerId
+		)
 		{
 			try
 			{
 				Text text;
-				bool hasOwner = false;
+				text.OwnerId = ownerId;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 				{
-					if (key == "OwnerHandle")
-					{
-						text.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
-						hasOwner = true;
-						return;
-					}
 					if (key == "Text")
 					{
 						text.Text = std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
@@ -118,11 +112,6 @@ namespace Ludus::Engine::Serialization::Schemas
 
 					Ludus::Engine::Serialization::Core::SkipValue(reader);
 				});
-
-				if (!hasOwner)
-				{
-					throw SerializationException("No owner handle found.");
-				}
 
 				return text;
 			}

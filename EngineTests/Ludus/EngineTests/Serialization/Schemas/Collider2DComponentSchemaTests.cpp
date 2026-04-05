@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include <Ludus/Engine/Components/Collider2DComponent.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Physics/Core/LayerMask.h>
 #include <Ludus/Engine/Serialization/Core/DomDocument.h>
 #include <Ludus/Engine/Serialization/Core/DomNode.h>
@@ -13,6 +14,7 @@
 
 namespace Ludus::EngineTests::Serialization::Schemas
 {
+	using EntityId = Ludus::Engine::Core::EntityId;
 	using DomDocument = Ludus::Engine::Serialization::Core::DomDocument;
 	using DomTokenStreamWriter = Ludus::Engine::Serialization::Core::DomTokenStreamWriter;
 	using DomTokenStreamReader = Ludus::Engine::Serialization::Core::DomTokenStreamReader;
@@ -41,7 +43,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	{
 		// Arrange.
 		Ludus::Engine::Components::Collider2DComponent collider(
-			1, 3, Ludus::Engine::Physics::Core::LayerMask(0xFF), true
+			EntityId { 1 }, 3, Ludus::Engine::Physics::Core::LayerMask(0xFF), true
 		);
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
@@ -55,22 +57,18 @@ namespace Ludus::EngineTests::Serialization::Schemas
 
 		const auto& colliderObject = AsObject(*root);
 
-		const auto* ownerNode = FindMember(colliderObject, "OwnerHandle");
 		const auto* layerNode = FindMember(colliderObject, "LayerIndex");
 		const auto* collidesNode = FindMember(colliderObject, "CollidesWith");
 		const auto* triggerNode = FindMember(colliderObject, "IsTrigger");
 
-		ASSERT_NE(ownerNode, nullptr);
 		ASSERT_NE(layerNode, nullptr);
 		ASSERT_NE(collidesNode, nullptr);
 		ASSERT_NE(triggerNode, nullptr);
 
-		const auto ownerHandle = std::get<uint64_t>(AsValue(*ownerNode));
 		const auto layerIndex = std::get<uint64_t>(AsValue(*layerNode));
 		const auto collidesWith = std::get<uint64_t>(AsValue(*collidesNode));
 		const auto isTrigger = std::get<bool>(AsValue(*triggerNode));
 
-		ASSERT_EQ(ownerHandle, 1u);
 		ASSERT_EQ(layerIndex, 3u);
 		ASSERT_EQ(collidesWith, 0xFFu);
 		ASSERT_EQ(isTrigger, true);
@@ -79,11 +77,10 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	TEST(Collider2DComponentSchema, Deserialize_ReadsFields_When_ComponentHasValues)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "LayerIndex" });
 		writer.Emit(Token::Int { 2 });
 		writer.Emit(Token::Key { "CollidesWith" });
@@ -94,13 +91,13 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Collider2DComponentSchema::Deserialize(reader);
+		const auto result = Collider2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
 		ASSERT_TRUE(result.HasValue());
 
 		const auto& colliderResult = result.GetValue();
-		ASSERT_EQ(colliderResult.OwnerHandle, 1u);
+		ASSERT_EQ(colliderResult.OwnerId, ownerId);
 		ASSERT_EQ(colliderResult.LayerIndex, 2);
 		ASSERT_EQ(colliderResult.CollidesWith.Value, 0xAAu);
 		ASSERT_EQ(colliderResult.IsTrigger, true);
@@ -109,30 +106,30 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	TEST(Collider2DComponentSchema, Deserialize_DefaultsOptionalFields_When_Missing)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Collider2DComponentSchema::Deserialize(reader);
+		const auto result = Collider2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
 		ASSERT_TRUE(result.HasValue());
 
 		const auto& colliderResult = result.GetValue();
-		ASSERT_EQ(colliderResult.OwnerHandle, 1u);
+		ASSERT_EQ(colliderResult.OwnerId, ownerId);
 		ASSERT_EQ(colliderResult.LayerIndex, 0);
 		ASSERT_EQ(colliderResult.CollidesWith.Value, Ludus::Engine::Physics::Core::LayerMask::GetEmpty().Value);
 		ASSERT_EQ(colliderResult.IsTrigger, false);
 	}
 
-	TEST(Collider2DComponentSchema, Deserialize_Fails_When_RequiredFieldsAreMissing)
+	TEST(Collider2DComponentSchema, Deserialize_DefaultsFields_When_AllPayloadFieldsAreMissing)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
@@ -140,22 +137,27 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Collider2DComponentSchema::Deserialize(reader);
+		const auto result = Collider2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
-		ASSERT_FALSE(result.HasValue());
+		ASSERT_TRUE(result.HasValue());
+		ASSERT_EQ(result.GetValue().OwnerId, ownerId);
+		ASSERT_EQ(result.GetValue().LayerIndex, 0);
+		ASSERT_EQ(result.GetValue().CollidesWith.Value, Ludus::Engine::Physics::Core::LayerMask::GetEmpty().Value);
+		ASSERT_EQ(result.GetValue().IsTrigger, false);
 	}
 
 	TEST(Collider2DComponentSchema, Deserialize_Fails_When_ComponentHeaderIsMissing)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::Int { 1 });
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Collider2DComponentSchema::Deserialize(reader);
+		const auto result = Collider2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
 		ASSERT_FALSE(result.HasValue());

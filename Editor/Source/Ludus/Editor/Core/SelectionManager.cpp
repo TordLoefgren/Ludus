@@ -1,34 +1,35 @@
 #include "pch.h"
 
 #include <Ludus/Editor/Core/SelectionManager.h>
+#include <Ludus/Engine/Core/Id.h>
 
 namespace Ludus::Editor::Core
 {
-	void SelectionManager::SelectEntity(Ludus::Engine::Core::EntityHandle entity)
+	void SelectionManager::SelectEntity(Ludus::Engine::Core::EntityId id)
 	{
-		SelectedEntity = entity;
+		SelectedEntityId = id;
 	}
 
-	void SelectionManager::DeselectEntity(Ludus::Engine::Core::EntityHandle entity)
+	void SelectionManager::DeselectEntity(Ludus::Engine::Core::EntityId id)
 	{
-		if (SelectedEntity == entity)
+		if (SelectedEntityId == id)
 		{
-			SelectedEntity = std::nullopt;
+			SelectedEntityId = std::nullopt;
 		}
 	}
 
 	void SelectionManager::ClearSelection()
 	{
-		SelectedEntity = std::nullopt;
+		SelectedEntityId = std::nullopt;
 	}
 
 	bool SelectionManager::HasEntity() const
 	{
-		return SelectedEntity.has_value();
+		return SelectedEntityId.has_value();
 	}
 
-	bool SelectionManager::IsSelected(Ludus::Engine::Core::EntityHandle entity) const
+	bool SelectionManager::IsSelected(Ludus::Engine::Core::EntityId id) const
 	{
-		return SelectedEntity == entity;
+		return SelectedEntityId == id;
 	}
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/Engine/Physics/Narrowphase/ContactPoint2D.h>
 
@@ -8,8 +8,8 @@ namespace Ludus::Engine::Physics::Narrowphase
 {
 	struct ContactPair2D
 	{
-		Ludus::Engine::Core::EntityHandle EntityHandleA;
-		Ludus::Engine::Core::EntityHandle EntityHandleB;
+		Ludus::Engine::Core::EntityId EntityIdA;
+		Ludus::Engine::Core::EntityId EntityIdB;
 		size_t WorldIndexA;
 		size_t WorldIndexB;
 		ContactPoint2D Point;

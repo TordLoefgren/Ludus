@@ -7,18 +7,16 @@
 #include <utility>
 #include <vector>
 
-#include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Id.h>
 
 namespace Ludus::Engine::Core
 {
-	using Handle = uint32_t;
-
 	template<typename T>
 	struct ComponentRegistry
 	{
 	private:
-		std::vector<T> m_Data;												// Object Storage.
-		std::unordered_map<EntityHandle, size_t> m_OwnerHandleToIndex;		// Owner handle -> index.
+		std::vector<T> m_Data;										// Object Storage.
+		std::unordered_map<EntityId, size_t> m_OwnerIdToIndex;		// Owner id -> index.
 
 		void RemoveAndReorderIndices(size_t index)
 		{
@@ -28,12 +26,12 @@ namespace Ludus::Engine::Core
 				std::swap(m_Data[index], m_Data[lastIndex]);
 
 				// Fix the indices of the moved element.
-				const EntityHandle movedOwnerHandle = m_Data[index].OwnerHandle;
+				const EntityId movedOwnerId = m_Data[index].OwnerId;
 
-				m_OwnerHandleToIndex[movedOwnerHandle] = index;
+				m_OwnerIdToIndex[movedOwnerId] = index;
 			}
 
-			m_OwnerHandleToIndex.erase(m_Data[lastIndex].OwnerHandle);
+			m_OwnerIdToIndex.erase(m_Data[lastIndex].OwnerId);
 
 			m_Data.pop_back();
 		}
@@ -43,31 +41,31 @@ namespace Ludus::Engine::Core
 		std::span<T> ViewMutable() { return { m_Data.data(), m_Data.size() }; }
 
 		template<typename... Args>
-			requires std::constructible_from<T, EntityHandle, Args...>
-		void Add(EntityHandle owner, Args&&... args)
+			requires std::constructible_from<T, EntityId, Args...>
+		void Add(EntityId owner, Args&&... args)
 		{
 			LUDUS_ASSERT(!ContainsOwner(owner), "Invalid component handle.");
 
 			m_Data.emplace_back(owner, std::forward<Args>(args)...);
 
 			const auto index = m_Data.size() - 1;
-			m_OwnerHandleToIndex[owner] = index;
+			m_OwnerIdToIndex[owner] = index;
 		}
 
 		void Add(T component)
 		{
-			const auto owner = component.OwnerHandle;
+			const auto owner = component.OwnerId;
 
 			LUDUS_ASSERT(!ContainsOwner(owner), "Invalid component handle.");
 
 			m_Data.push_back(std::move(component));
 			const auto index = m_Data.size() - 1;
-			m_OwnerHandleToIndex[owner] = index;
+			m_OwnerIdToIndex[owner] = index;
 		}
 
-		bool RemoveByOwner(EntityHandle ownerHandle)
+		bool RemoveByOwner(EntityId ownerId)
 		{
-			if (auto iter = m_OwnerHandleToIndex.find(ownerHandle); iter != m_OwnerHandleToIndex.end())
+			if (auto iter = m_OwnerIdToIndex.find(ownerId); iter != m_OwnerIdToIndex.end())
 			{
 				RemoveAndReorderIndices(iter->second);
 				return true;
@@ -80,9 +78,9 @@ namespace Ludus::Engine::Core
 
 #pragma region Lookups
 
-		const T* TryGetByOwner(EntityHandle ownerHandle) const
+		const T* TryGetByOwner(EntityId ownerId) const
 		{
-			if (auto iter = m_OwnerHandleToIndex.find(ownerHandle); iter != m_OwnerHandleToIndex.end())
+			if (auto iter = m_OwnerIdToIndex.find(ownerId); iter != m_OwnerIdToIndex.end())
 			{
 				return &m_Data[iter->second];
 			}
@@ -90,9 +88,9 @@ namespace Ludus::Engine::Core
 			return nullptr;
 		}
 
-		T* TryGetByOwnerMutable(EntityHandle ownerHandle)
+		T* TryGetByOwnerMutable(EntityId ownerId)
 		{
-			if (auto iter = m_OwnerHandleToIndex.find(ownerHandle); iter != m_OwnerHandleToIndex.end())
+			if (auto iter = m_OwnerIdToIndex.find(ownerId); iter != m_OwnerIdToIndex.end())
 			{
 				return &m_Data[iter->second];
 			}
@@ -100,7 +98,7 @@ namespace Ludus::Engine::Core
 			return nullptr;
 		}
 
-		bool ContainsOwner(EntityHandle ownerHandle) const { return m_OwnerHandleToIndex.contains(ownerHandle); }
+		bool ContainsOwner(EntityId ownerId) const { return m_OwnerIdToIndex.contains(ownerId); }
 
 #pragma endregion
 

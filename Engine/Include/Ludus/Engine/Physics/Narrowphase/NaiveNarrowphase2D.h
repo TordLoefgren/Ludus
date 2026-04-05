@@ -48,7 +48,7 @@ namespace Ludus::Engine::Physics::Narrowphase
 
 				const auto isTrigger = colliderA->IsTrigger || colliderB->IsTrigger;
 
-				outContacts.push_back({ colliderA->OwnerHandle, colliderB->OwnerHandle, i, j, contactPoint, isTrigger });
+				outContacts.push_back({ colliderA->OwnerId, colliderB->OwnerId, i, j, contactPoint, isTrigger });
 			}
 		}
 	};

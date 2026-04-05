@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Ludus/Engine/Components/DisplayNameComponent.h>
-#include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Expected.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamReader.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamWriter.h>
 #include <Ludus/Engine/Serialization/Core/SerializationException.h>
@@ -22,30 +22,24 @@ namespace Ludus::Engine::Serialization::Schemas
 		{
 			writer.Emit(Token::StartObject { });
 
-			writer.Emit(Token::Key { "OwnerHandle" });
-			writer.Emit(Token::Uint { displayName.OwnerHandle });
-
 			writer.Emit(Token::Key { "Name" });
 			writer.Emit(Token::String { displayName.Name });
 
 			writer.Emit(Token::EndObject { });
 		}
 
-		inline static Ludus::Engine::Core::Expected<DisplayName, SerializationException> Deserialize(ITokenStreamReader& reader)
+		inline static Ludus::Engine::Core::Expected<DisplayName, SerializationException> Deserialize(
+			ITokenStreamReader& reader,
+			Ludus::Engine::Core::EntityId ownerId
+		)
 		{
 			try
 			{
 				DisplayName displayName;
-				bool hasOwner = false;
+				displayName.OwnerId = ownerId;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 				{
-					if (key == "OwnerHandle")
-					{
-						displayName.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
-						hasOwner = true;
-						return;
-					}
 					if (key == "Name")
 					{
 						displayName.Name = std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
@@ -54,11 +48,6 @@ namespace Ludus::Engine::Serialization::Schemas
 
 					Ludus::Engine::Serialization::Core::SkipValue(reader);
 				});
-
-				if (!hasOwner)
-				{
-					throw SerializationException("No owner handle found.");
-				}
 
 				return displayName;
 			}

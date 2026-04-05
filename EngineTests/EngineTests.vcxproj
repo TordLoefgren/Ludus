@@ -118,6 +118,7 @@
     <ClCompile Include="Ludus\EngineTests\Events\EventBusTests.cpp" />
     <ClCompile Include="Ludus\EngineTests\IO\FileSystemTests.cpp" />
     <ClCompile Include="Ludus\EngineTests\Math\Vector2DTests.cpp" />
+    <ClCompile Include="Ludus\EngineTests\Platform\GuidTests.cpp" />
     <ClCompile Include="Ludus\EngineTests\Persistence\PathsTests.cpp" />
     <ClCompile Include="Ludus\EngineTests\Persistence\LmlRuntimeManifestPersistenceTests.cpp" />
     <ClCompile Include="Ludus\EngineTests\SmokeTests.cpp" />

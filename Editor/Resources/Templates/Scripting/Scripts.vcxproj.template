@@ -14,7 +14,7 @@
 
 	<PropertyGroup Label="Globals">
 		<VCProjectVersion>17.0</VCProjectVersion>
-		<ProjectGuid>{d4a99667-4e18-4ef8-8e4e-f2fd78091d57}</ProjectGuid>
+		<ProjectGuid>{${LUDUS_SCRIPTS_PROJECT_GUID}}</ProjectGuid>
 		<RootNamespace>Scripts</RootNamespace>
 		<WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 	</PropertyGroup>

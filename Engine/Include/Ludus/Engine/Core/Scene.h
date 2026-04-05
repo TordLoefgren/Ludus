@@ -1,30 +1,31 @@
 #pragma once
 
-#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 
 #include <Ludus/Engine/Components/Camera2DComponent.h>
 #include <Ludus/Engine/Core/EntityComponentSystem.h>
+#include <Ludus/Engine/Core/Id.h>
 
 namespace Ludus::Engine::Core
 {
-	using SceneHandle = uint64_t;
-
 	struct Scene
 	{
 	public:
-		SceneHandle Handle;
+		SceneId Id { SceneId::Invalid() };
 		std::string Name;
 		Ludus::Engine::Core::EntityComponentSystem EntityComponentSystem;
 
-		Scene(SceneHandle handle)
-			: Handle(handle), Name("Untitled")
+		Scene() = default;
+
+		Scene(SceneId id)
+			: Id(id), Name("Untitled")
 		{ }
 
-		Scene(SceneHandle handle, std::string_view name)
-			: Handle(handle), Name(name)
+		Scene(SceneId id, std::string_view name)
+			: Id(id), Name(name)
 		{ }
 
 		Scene(const Scene&) = delete;
@@ -34,51 +35,69 @@ namespace Ludus::Engine::Core
 
 		static Scene Clone(const Scene& source)
 		{
-			auto clone = Scene(source.Handle, source.Name);
+			auto clone = Scene(source.Id, source.Name);
+			auto clonedEntityIds = std::unordered_map<EntityId, EntityId> { };
 
 			for (const auto& entity : source.EntityComponentSystem.View())
 			{
-				clone.EntityComponentSystem.RestoreEntity(entity.Handle);
+				const auto clonedEntityId = clone.EntityComponentSystem.RestoreEntity(entity.Id);
+				clonedEntityIds.emplace(entity.Id, clonedEntityId);
 			}
 
 			for (const auto& component : source.EntityComponentSystem.Cameras.View())
 			{
-				clone.EntityComponentSystem.AttachCamera(component);
+				auto cloned = component;
+				cloned.OwnerId = clonedEntityIds.at(component.OwnerId);
+				clone.EntityComponentSystem.AttachCamera(cloned);
 			}
 
 			for (const auto& component : source.EntityComponentSystem.Colliders.View())
 			{
-				clone.EntityComponentSystem.AttachCollider(component);
+				auto cloned = component;
+				cloned.OwnerId = clonedEntityIds.at(component.OwnerId);
+				clone.EntityComponentSystem.AttachCollider(cloned);
 			}
 
 			for (const auto& component : source.EntityComponentSystem.DisplayNames.View())
 			{
-				clone.EntityComponentSystem.AttachDisplayName(component);
+				auto cloned = component;
+				cloned.OwnerId = clonedEntityIds.at(component.OwnerId);
+				clone.EntityComponentSystem.AttachDisplayName(cloned);
 			}
 
 			for (const auto& component : source.EntityComponentSystem.RigidBodies.View())
 			{
-				clone.EntityComponentSystem.AttachRigidBody(component);
+				auto cloned = component;
+				cloned.OwnerId = clonedEntityIds.at(component.OwnerId);
+				clone.EntityComponentSystem.AttachRigidBody(cloned);
 			}
 
 			for (const auto& component : source.EntityComponentSystem.Scripts.View())
 			{
-				clone.EntityComponentSystem.AttachScript(component);
+				auto cloned = component;
+				cloned.OwnerId = clonedEntityIds.at(component.OwnerId);
+				clone.EntityComponentSystem.AttachScript(cloned);
 			}
 
 			for (const auto& component : source.EntityComponentSystem.Sprites.View())
 			{
-				clone.EntityComponentSystem.AttachSprite(component);
+				auto cloned = component;
+				cloned.OwnerId = clonedEntityIds.at(component.OwnerId);
+				clone.EntityComponentSystem.AttachSprite(cloned);
 			}
 
 			for (const auto& component : source.EntityComponentSystem.Texts.View())
 			{
-				clone.EntityComponentSystem.AttachText(component);
+				auto cloned = component;
+				cloned.OwnerId = clonedEntityIds.at(component.OwnerId);
+				clone.EntityComponentSystem.AttachText(cloned);
 			}
 
 			for (const auto& component : source.EntityComponentSystem.Transforms.View())
 			{
-				clone.EntityComponentSystem.AttachTransform(component);
+				auto cloned = component;
+				cloned.OwnerId = clonedEntityIds.at(component.OwnerId);
+				clone.EntityComponentSystem.AttachTransform(cloned);
 			}
 
 			return clone;
@@ -138,7 +157,7 @@ namespace Ludus::Engine::Core
 				return std::nullopt;
 			}
 
-			auto* transformPtr = EntityComponentSystem.Transforms.TryGetByOwnerMutable(cameraPtr->OwnerHandle);
+			auto* transformPtr = EntityComponentSystem.Transforms.TryGetByOwnerMutable(cameraPtr->OwnerId);
 			if (!transformPtr)
 			{
 				return std::nullopt;

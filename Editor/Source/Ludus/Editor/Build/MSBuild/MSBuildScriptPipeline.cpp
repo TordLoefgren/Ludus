@@ -1,6 +1,5 @@
 #include "pch.h"
 
-#include <algorithm>
 #include <stdexcept>
 #include <string>
 
@@ -13,6 +12,7 @@
 #include <Ludus/Engine/Core/Enums.h>
 #include <Ludus/Engine/Core/Strings.h>
 #include <Ludus/Engine/FileSystem/FileSystem.h>
+#include <Ludus/Engine/Platform/Guid.h>
 #include <Ludus/Engine/Platform/Process.h>
 
 namespace
@@ -39,6 +39,7 @@ namespace
 		static constexpr std::string_view IntermediateDirectoryToken = "${LUDUS_SCRIPT_INT_DIR}";
 		static constexpr std::string_view ScriptingProjectPathToken = "${LUDUS_SCRIPTING_PROJECT_PATH}";
 		static constexpr std::string_view TargetNameToken = "${LUDUS_TARGET_NAME}";
+		static constexpr std::string_view ProjectGuidToken = "${LUDUS_SCRIPTS_PROJECT_GUID}";
 
 		static constexpr std::string_view BuildCommand = "Build";
 		static constexpr std::string_view RebuildCommand = "Rebuild";
@@ -69,7 +70,8 @@ namespace Ludus::Editor::Build::MSBuild
 		}
 
 		const auto sourcePath = templateRoot / std::string(templateFileName);
-		const auto text = Ludus::Engine::FileSystem::ReadAllText(sourcePath);
+		auto text = Ludus::Engine::FileSystem::ReadAllText(sourcePath);
+		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::ProjectGuidToken, Ludus::Engine::Platform::CreateGuid().ToString());
 		Ludus::Engine::FileSystem::WriteAllText(destinationPath, text);
 	}
 

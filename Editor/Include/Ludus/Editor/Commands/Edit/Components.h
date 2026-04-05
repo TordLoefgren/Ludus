@@ -77,7 +77,7 @@ namespace Ludus::Editor::Commands::Edit::Components
 	template<typename TComponent>
 	void AddComponent(const EditCommand::AddComponent<TComponent>& command, ProjectSessionCommandContext& context)
 	{
-		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneHandle);
+		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneId);
 		if (!scene)
 		{
 			return;
@@ -97,7 +97,7 @@ namespace Ludus::Editor::Commands::Edit::Components
 			else
 			{
 				auto component = value;
-				component.OwnerHandle = owner;
+				component.OwnerId = owner;
 				registry.Add(std::move(component));
 			}
 		}, command.Init);
@@ -108,7 +108,7 @@ namespace Ludus::Editor::Commands::Edit::Components
 	template<typename TComponent>
 	void RemoveComponent(const EditCommand::RemoveComponent<TComponent>& command, ProjectSessionCommandContext& context)
 	{
-		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneHandle);
+		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneId);
 		if (!scene)
 		{
 			return;
@@ -125,7 +125,7 @@ namespace Ludus::Editor::Commands::Edit::Components
 	template<typename TComponent>
 	void UpdateComponent(const EditCommand::UpdateComponent<TComponent>& command, ProjectSessionCommandContext& context)
 	{
-		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneHandle);
+		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneId);
 		if (!scene)
 		{
 			return;
@@ -135,7 +135,7 @@ namespace Ludus::Editor::Commands::Edit::Components
 		const auto owner = context.Shell.State.Commands.ResolveEntity(command.EntityReference);
 
 		auto after = command.After;
-		after.OwnerHandle = owner;
+		after.OwnerId = owner;
 
 		registry.RemoveByOwner(owner);
 		registry.Add(after);

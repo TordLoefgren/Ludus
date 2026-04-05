@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Ludus/Engine/Components/Transform2DComponent.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Graphics/CameraSource.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/IRenderPass.h>
@@ -21,7 +22,7 @@ namespace Ludus::Engine::Graphics
 
 		virtual bool Enabled(RenderContext2D& context) override
 		{
-			if (!context.RenderView.SceneHandle)
+			if (!context.RenderView.SceneId)
 			{
 				return false;
 			}
@@ -34,7 +35,7 @@ namespace Ludus::Engine::Graphics
 			const auto worldRect = context.RenderView.Camera.GetWorldRect();
 
 			const Ludus::Engine::Components::Transform2DComponent transform(
-				0,
+				Ludus::Engine::Core::EntityId::Invalid(),
 				{ worldRect.Position.X, worldRect.Position.Y },
 				{ 0.03f, 0.03f },
 				0.0f

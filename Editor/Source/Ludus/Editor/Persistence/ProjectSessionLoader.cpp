@@ -1,6 +1,5 @@
 #include "pch.h"
 
-#include <optional>
 #include <stdexcept>
 #include <utility>
 
@@ -14,25 +13,6 @@
 
 namespace Ludus::Editor::Persistence
 {
-	namespace
-	{
-		std::optional<std::filesystem::path> TryFindScenePath(
-			const Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest,
-			Ludus::Engine::Core::SceneHandle sceneHandle
-		)
-		{
-			for (const auto& sceneReference : runtimeManifest.Scenes)
-			{
-				if (sceneReference.Handle == sceneHandle)
-				{
-					return sceneReference.Path;
-				}
-			}
-
-			return std::nullopt;
-		}
-	}
-
 	ProjectSessionLoader::ProjectSessionLoader(
 		Ludus::Engine::Persistence::IScenePersistence& scenePersistence,
 		Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence,
@@ -51,13 +31,34 @@ namespace Ludus::Editor::Persistence
 	LoadedProjectData ProjectSessionLoader::Load(Ludus::Editor::Core::ProjectManifest projectManifest)
 	{
 		auto runtimeManifest = m_RuntimeManifestPersistence.Load(projectManifest.RuntimeManifestPath);
-		const auto scenePath = TryFindScenePath(runtimeManifest, runtimeManifest.EntrySceneHandle);
-		if (!scenePath)
+
+		const Ludus::Engine::Runtime::SceneReference* entrySceneReference = nullptr;
+		if (runtimeManifest.EntrySceneId.IsValid())
 		{
-			throw std::runtime_error("No scene path in runtime manifest.");
+			for (const auto& sceneReference : runtimeManifest.Scenes)
+			{
+				if (sceneReference.Id == runtimeManifest.EntrySceneId)
+				{
+					entrySceneReference = &sceneReference;
+					break;
+				}
+			}
 		}
 
-		auto scene = m_ScenePersistence.Load(*scenePath);
+		if (!entrySceneReference)
+		{
+			throw std::runtime_error("Runtime manifest entry scene was not found.");
+		}
+
+		auto scene = m_ScenePersistence.Load(entrySceneReference->Path);
+
+		for (const auto& script : scene.EntityComponentSystem.Scripts.View())
+		{
+			if (!runtimeManifest.TryGetScriptReference(script.Id))
+			{
+				throw std::runtime_error("Scene contains script id that is not present in the runtime manifest.");
+			}
+		}
 
 		return {
 			.ProjectManifest = std::move(projectManifest),

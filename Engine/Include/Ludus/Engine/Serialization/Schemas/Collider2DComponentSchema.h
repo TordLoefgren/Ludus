@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Ludus/Engine/Components/Collider2DComponent.h>
-#include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Expected.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Physics/Core/LayerMask.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamReader.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamWriter.h>
@@ -23,9 +23,6 @@ namespace Ludus::Engine::Serialization::Schemas
 		{
 			writer.Emit(Token::StartObject { });
 
-			writer.Emit(Token::Key { "OwnerHandle" });
-			writer.Emit(Token::Uint { collider.OwnerHandle });
-
 			writer.Emit(Token::Key { "LayerIndex" });
 			writer.Emit(Token::Uint { static_cast<uint32_t>(collider.LayerIndex) });
 
@@ -38,21 +35,18 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::EndObject { });
 		}
 
-		inline static Ludus::Engine::Core::Expected<Collider, SerializationException> Deserialize(ITokenStreamReader& reader)
+		inline static Ludus::Engine::Core::Expected<Collider, SerializationException> Deserialize(
+			ITokenStreamReader& reader,
+			Ludus::Engine::Core::EntityId ownerId
+		)
 		{
 			try
 			{
 				Collider collider;
-				bool hasOwner = false;
+				collider.OwnerId = ownerId;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 				{
-					if (key == "OwnerHandle")
-					{
-						collider.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
-						hasOwner = true;
-						return;
-					}
 					if (key == "LayerIndex")
 					{
 						collider.LayerIndex = static_cast<uint8_t>(Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader));
@@ -73,11 +67,6 @@ namespace Ludus::Engine::Serialization::Schemas
 					Ludus::Engine::Serialization::Core::SkipValue(reader);
 				}
 				);
-
-				if (!hasOwner)
-				{
-					throw SerializationException("No owner handle found.");
-				}
 
 				return collider;
 			}

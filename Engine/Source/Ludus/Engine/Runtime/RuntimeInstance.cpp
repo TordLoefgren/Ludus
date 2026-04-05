@@ -43,13 +43,12 @@ namespace Ludus::Engine::Runtime
 		if (initialSceneMode == InitialSceneMode::Entry)
 		{
 			LUDUS_ASSERT(
-				m_RuntimeManifest.EntrySceneHandle == initialScene.Handle,
+				m_RuntimeManifest.EntrySceneId == initialScene.Id,
 				"The initial scene must respect the runtime manifest when InitialSceneMode is Entry."
 			);
 		}
 
-		m_ScenePresentationState.CurrentSceneHandle = initialScene.Handle;
-		m_SceneRegistry.AddScene(std::move(initialScene));
+		m_ScenePresentationState.CurrentSceneId = m_SceneRegistry.AddScene(std::move(initialScene));
 	}
 
 	RuntimeInstance::~RuntimeInstance() = default;
@@ -92,7 +91,7 @@ namespace Ludus::Engine::Runtime
 	void RuntimeInstance::Initialize()
 	{
 		LUDUS_ASSERT(
-			m_SceneRegistry.Contains(m_ScenePresentationState.CurrentSceneHandle),
+			m_SceneRegistry.Contains(m_ScenePresentationState.CurrentSceneId),
 			"The current scene was not found in the scene registry."
 		);
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/Engine/Physics/Core/BodyType.h>
 
@@ -9,7 +9,7 @@ namespace Ludus::Engine::Components
 	struct RigidBody2DComponent
 	{
 	public:
-		Ludus::Engine::Core::EntityHandle OwnerHandle { };
+		Ludus::Engine::Core::EntityId OwnerId { Ludus::Engine::Core::EntityId::Invalid() };
 		Ludus::Engine::Math::Vector2D Velocity;
 		float GravityScale = 1.0f;
 		float Mass = 1.0f;
@@ -30,13 +30,13 @@ namespace Ludus::Engine::Components
 		{ }
 
 		RigidBody2DComponent(
-			Ludus::Engine::Core::EntityHandle owner,
+			Ludus::Engine::Core::EntityId owner,
 			Ludus::Engine::Math::Vector2D velocity = { 0.0f, 0.0f },
 			Ludus::Engine::Physics::Core::BodyType bodyType = Ludus::Engine::Physics::Core::BodyType::Dynamic,
 			float gravityScale = 1.0f,
 			float mass = 1.0f
 		) :
-			OwnerHandle(owner),
+			OwnerId(owner),
 			Velocity(velocity),
 			BodyType(bodyType),
 			GravityScale(gravityScale),
@@ -45,6 +45,6 @@ namespace Ludus::Engine::Components
 
 		~RigidBody2DComponent() = default;
 
-		bool operator==(const RigidBody2DComponent& other) const { return OwnerHandle == other.OwnerHandle; }
+		bool operator==(const RigidBody2DComponent& other) const { return OwnerId == other.OwnerId; }
 	};
 }

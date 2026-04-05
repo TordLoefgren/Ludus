@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include <Ludus/Engine/Components/Camera2DComponent.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Serialization/Core/DomDocument.h>
 #include <Ludus/Engine/Serialization/Core/DomTokenStreamReader.h>
 #include <Ludus/Engine/Serialization/Core/DomTokenStreamWriter.h>
@@ -11,6 +12,7 @@
 
 namespace Ludus::EngineTests::Serialization::Schemas
 {
+	using EntityId = Ludus::Engine::Core::EntityId;
 	using DomDocument = Ludus::Engine::Serialization::Core::DomDocument;
 	using DomTokenStreamWriter = Ludus::Engine::Serialization::Core::DomTokenStreamWriter;
 	using DomTokenStreamReader = Ludus::Engine::Serialization::Core::DomTokenStreamReader;
@@ -36,7 +38,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	TEST(Camera2DComponentSchema, Serialize_WritesExpectedComponentValues)
 	{
 		// Arrange.
-		Ludus::Engine::Components::Camera2DComponent camera(1, 10.0f, -1);
+		Ludus::Engine::Components::Camera2DComponent camera(EntityId { 1 }, 10.0f, -1);
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 
@@ -48,19 +50,15 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		ASSERT_NE(root, nullptr);
 
 		const auto& cameraObject = AsObject(*root);
-		const auto* ownerNode = FindMember(cameraObject, "OwnerHandle");
 		const auto* sizeNode = FindMember(cameraObject, "OrthographicSize");
 		const auto* priorityNode = FindMember(cameraObject, "Priority");
 
-		ASSERT_NE(ownerNode, nullptr);
 		ASSERT_NE(sizeNode, nullptr);
 		ASSERT_NE(priorityNode, nullptr);
 
-		const auto ownerHandle = std::get<uint64_t>(AsValue(*ownerNode));
 		const auto orthographicSize = std::get<double>(AsValue(*sizeNode));
 		const auto priority = std::get<int64_t>(AsValue(*priorityNode));
 
-		ASSERT_EQ(ownerHandle, 1u);
 		ASSERT_EQ(orthographicSize, 10.0f);
 		ASSERT_EQ(priority, -1);
 	}
@@ -68,15 +66,13 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	TEST(Camera2DComponentSchema, Deserialize_ReadsFields_When_ComponentHasValues)
 	{
 		// Arrange.
-		const auto ownerHandle = 1;
+		const auto ownerId = EntityId { 1 };
 		const auto orthographicSize = 10.0f;
 		const auto priority = -1;
 
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Int { static_cast<int>(ownerHandle) });
 		writer.Emit(Token::Key { "OrthographicSize" });
 		writer.Emit(Token::Double { orthographicSize });
 		writer.Emit(Token::Key { "Priority" });
@@ -85,13 +81,13 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto& result = Camera2DComponentSchema::Deserialize(reader);
+		const auto& result = Camera2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
 		ASSERT_TRUE(result.HasValue());
 
 		const auto& cameraResult = result.GetValue();
-		ASSERT_EQ(cameraResult.OwnerHandle, ownerHandle);
+		ASSERT_EQ(cameraResult.OwnerId, ownerId);
 		ASSERT_EQ(cameraResult.OrthographicSize, orthographicSize);
 		ASSERT_EQ(cameraResult.Priority, priority);
 	}
@@ -102,26 +98,25 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Camera2DComponentSchema::Deserialize(reader);
+		const auto result = Camera2DComponentSchema::Deserialize(reader, EntityId { 1 });
 
 		// Assert.
 		ASSERT_TRUE(result.HasValue());
 
 		const auto& cameraResult = result.GetValue();
-		ASSERT_EQ(cameraResult.OwnerHandle, 1);
+		ASSERT_EQ(cameraResult.OwnerId.Value, 1u);
 		ASSERT_EQ(cameraResult.OrthographicSize, 10.0f);
 		ASSERT_EQ(cameraResult.Priority, -1);
 	}
 
-	TEST(Camera2DComponentSchema, Deserialize_Fails_When_RequiredFieldsAreMissing)
+	TEST(Camera2DComponentSchema, Deserialize_DefaultsFields_When_AllPayloadFieldsAreMissing)
 	{
 		// Arrange.
+		const auto ownerId = EntityId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
@@ -129,10 +124,13 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Camera2DComponentSchema::Deserialize(reader);
+		const auto result = Camera2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
-		ASSERT_FALSE(result.HasValue());
+		ASSERT_TRUE(result.HasValue());
+		ASSERT_EQ(result.GetValue().OwnerId, ownerId);
+		ASSERT_EQ(result.GetValue().OrthographicSize, 10.0f);
+		ASSERT_EQ(result.GetValue().Priority, -1);
 	}
 
 	TEST(Camera2DComponentSchema, Deserialize_Fails_When_ObjectStartIsMissing)
@@ -144,7 +142,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Camera2DComponentSchema::Deserialize(reader);
+		const auto result = Camera2DComponentSchema::Deserialize(reader, EntityId { 1 });
 
 		// Assert.
 		ASSERT_FALSE(result.HasValue());

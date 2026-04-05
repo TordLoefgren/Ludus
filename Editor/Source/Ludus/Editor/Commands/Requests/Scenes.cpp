@@ -9,6 +9,7 @@
 #include <Ludus/Editor/Core/ProjectTemplates.h>
 #include <Ludus/Editor/Panels/PanelHelpers.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
+#include <Ludus/Engine/Core/Id.h>
 
 namespace Ludus::Editor::Commands::Requests::Scenes
 {
@@ -20,11 +21,11 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 		}
 
 		std::filesystem::path RequireScenePath(
-			Ludus::Engine::Core::SceneHandle sceneHandle,
+			Ludus::Engine::Core::SceneId sceneId,
 			ProjectSessionCommandContext& context
 		)
 		{
-			const auto scenePath = context.ProjectSession.TryGetEditorScenePath(sceneHandle);
+			const auto scenePath = context.ProjectSession.TryGetEditorScenePath(sceneId);
 			if (!scenePath)
 			{
 				throw std::runtime_error("No valid path was found for scene.");
@@ -42,13 +43,13 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 		}
 
 		std::optional<std::filesystem::path> TryGetSceneReferencePath(
-			Ludus::Engine::Core::SceneHandle sceneHandle,
+			Ludus::Engine::Core::SceneId sceneId,
 			ProjectSessionCommandContext& context
 		)
 		{
 			for (const auto& sceneReference : context.ProjectSession.GetEditorManifest().Scenes)
 			{
-				if (sceneReference.Handle == sceneHandle)
+				if (sceneReference.Id == sceneId)
 				{
 					return sceneReference.Path;
 				}
@@ -59,11 +60,11 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 
 		void SaveSceneToPath(
 			ProjectSessionCommandContext& context,
-			Ludus::Engine::Core::SceneHandle sceneHandle,
+			Ludus::Engine::Core::SceneId sceneId,
 			const std::filesystem::path& path
 		)
 		{
-			context.ScenePersistence.Save(context.ProjectSession.GetEditorScene(sceneHandle), path);
+			context.ScenePersistence.Save(context.ProjectSession.GetEditorScene(sceneId), path);
 		}
 
 		void CommitSceneSave(
@@ -98,34 +99,34 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 
 	void SaveScene(const RequestCommand::SaveScene& command, ProjectSessionCommandContext& context)
 	{
-		const auto scenePath = RequireScenePath(command.SceneHandle, context);
-		SaveSceneToPath(context, command.SceneHandle, scenePath);
+		const auto scenePath = RequireScenePath(command.SceneId, context);
+		SaveSceneToPath(context, command.SceneId, scenePath);
 
 		CommitSceneSave(context, scenePath);
 	}
 
 	void SaveSceneAs(const RequestCommand::SaveSceneAs& command, ProjectSessionCommandContext& context)
 	{
-		const auto& scene = context.ProjectSession.GetEditorScene(command.SceneHandle);
-		context.ProjectSession.AddOrUpdateEditorSceneReference(command.SceneHandle, scene.Name, command.Path);
+		const auto& scene = context.ProjectSession.GetEditorScene(command.SceneId);
+		context.ProjectSession.AddOrUpdateEditorSceneReference(scene.Id, scene.Name, command.Path);
 
 		SaveManifest(context);
-		SaveSceneToPath(context, command.SceneHandle, command.Path);
+		SaveSceneToPath(context, command.SceneId, command.Path);
 
 		CommitSceneSave(context, command.Path);
 	}
 
 	void RenameScene(const RequestCommand::RenameScene& command, ProjectSessionCommandContext& context)
 	{
-		auto& scene = context.ProjectSession.GetEditorScene(command.SceneHandle);
+		auto& scene = context.ProjectSession.GetEditorScene(command.SceneId);
 		const auto newName = Ludus::Editor::Persistence::ProjectPaths::SceneName(command.Path);
-		const auto previousPath = TryGetSceneReferencePath(command.SceneHandle, context);
+		const auto previousPath = TryGetSceneReferencePath(command.SceneId, context);
 
-		context.ProjectSession.AddOrUpdateEditorSceneReference(command.SceneHandle, newName, command.Path);
+		context.ProjectSession.AddOrUpdateEditorSceneReference(scene.Id, newName, command.Path);
 		scene.Name = newName;
 
 		SaveManifest(context);
-		SaveSceneToPath(context, command.SceneHandle, command.Path);
+		SaveSceneToPath(context, command.SceneId, command.Path);
 
 		if (previousPath && *previousPath != command.Path)
 		{

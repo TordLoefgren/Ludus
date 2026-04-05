@@ -13,6 +13,8 @@
 #include <Ludus/Engine/Components/Sprite2DComponent.h>
 #include <Ludus/Engine/Components/Text2DComponent.h>
 #include <Ludus/Engine/Components/Transform2DComponent.h>
+#include <Ludus/Engine/Core/Id.h>
+#include <Ludus/Engine/Core/Random.h>
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Serialization/Core/TokenRead.h>
 #include <Ludus/Engine/Serialization/Schemas/Camera2DComponentSchema.h>
@@ -43,7 +45,7 @@ namespace
 	};
 
 	template <class SlotT, class LoaderT>
-	bool TryReadComponent(
+	void TryReadComponent(
 		ITokenStreamReader& reader,
 		SlotT& componentSlot,
 		LoaderT loader,
@@ -53,7 +55,7 @@ namespace
 		if (!Ludus::Engine::Serialization::Core::Is<Token::StartObject>(reader.Peek()))
 		{
 			Ludus::Engine::Serialization::Core::SkipValue(reader);
-			return false;
+			return;
 		}
 
 		const auto result = loader(reader);
@@ -70,11 +72,10 @@ namespace
 			{
 				Ludus::Engine::Serialization::Core::SkipValue(reader);
 			}
-			return false;
+			return;
 		}
 
 		componentSlot = std::move(result.GetValue());
-		return true;
 	}
 }
 
@@ -84,8 +85,8 @@ namespace Ludus::Engine::Serialization::Schemas
 	{
 		writer.Emit(Token::StartObject { });
 
-		writer.Emit(Token::Key { "Handle" });
-		writer.Emit(Token::Uint { scene.Handle });
+		writer.Emit(Token::Key { "Id" });
+		writer.Emit(Token::Uint { scene.Id.Value });
 
 		writer.Emit(Token::Key { "Name" });
 		writer.Emit(Token::String { scene.Name });
@@ -98,52 +99,52 @@ namespace Ludus::Engine::Serialization::Schemas
 		{
 			writer.Emit(Token::StartObject { });
 
-			writer.Emit(Token::Key { "Handle" });
-			writer.Emit(Token::Uint { entity.Handle });
+			writer.Emit(Token::Key { "Id" });
+			writer.Emit(Token::Uint { entity.Id.Value });
 
-			if (const auto* camera = ecs.Cameras.TryGetByOwner(entity.Handle))
+			if (const auto* camera = ecs.Cameras.TryGetByOwner(entity.Id))
 			{
 				writer.Emit(Token::Key { Camera2DString });
 				Camera2DComponentSchema::Serialize(writer, *camera);
 			}
 
-			if (const auto* collider = ecs.Colliders.TryGetByOwner(entity.Handle))
+			if (const auto* collider = ecs.Colliders.TryGetByOwner(entity.Id))
 			{
 				writer.Emit(Token::Key { Collider2DString });
 				Collider2DComponentSchema::Serialize(writer, *collider);
 			}
 
-			if (const auto* displayName = ecs.DisplayNames.TryGetByOwner(entity.Handle))
+			if (const auto* displayName = ecs.DisplayNames.TryGetByOwner(entity.Id))
 			{
 				writer.Emit(Token::Key { DisplayNameString });
 				DisplayNameComponentSchema::Serialize(writer, *displayName);
 			}
 
-			if (const auto* rigidBody = ecs.RigidBodies.TryGetByOwner(entity.Handle))
+			if (const auto* rigidBody = ecs.RigidBodies.TryGetByOwner(entity.Id))
 			{
 				writer.Emit(Token::Key { RigidBody2DString });
 				RigidBody2DComponentSchema::Serialize(writer, *rigidBody);
 			}
 
-			if (const auto* script = ecs.Scripts.TryGetByOwner(entity.Handle))
+			if (const auto* script = ecs.Scripts.TryGetByOwner(entity.Id))
 			{
 				writer.Emit(Token::Key { ScriptString });
 				ScriptComponentSchema::Serialize(writer, *script);
 			}
 
-			if (const auto* sprite = ecs.Sprites.TryGetByOwner(entity.Handle))
+			if (const auto* sprite = ecs.Sprites.TryGetByOwner(entity.Id))
 			{
 				writer.Emit(Token::Key { Sprite2DString });
 				Sprite2DComponentSchema::Serialize(writer, *sprite);
 			}
 
-			if (const auto* text = ecs.Texts.TryGetByOwner(entity.Handle))
+			if (const auto* text = ecs.Texts.TryGetByOwner(entity.Id))
 			{
 				writer.Emit(Token::Key { Text2DString });
 				Text2DComponentSchema::Serialize(writer, *text);
 			}
 
-			if (const auto* transform = ecs.Transforms.TryGetByOwner(entity.Handle))
+			if (const auto* transform = ecs.Transforms.TryGetByOwner(entity.Id))
 			{
 				writer.Emit(Token::Key { Transform2DString });
 				Transform2DComponentSchema::Serialize(writer, *transform);
@@ -158,18 +159,22 @@ namespace Ludus::Engine::Serialization::Schemas
 
 	Ludus::Engine::Core::Expected<Scene, SerializationException> SceneSchema::Deserialize(ITokenStreamReader& reader)
 	{
-		Scene scene { 0 };
-
+		Scene scene { };
 		try
 		{
-			bool hasHandle = false;
+			bool hasId = false;
 
 			Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 			{
-				if (key == "Handle")
+				if (key == "Id")
 				{
-					scene.Handle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
-					hasHandle = true;
+					scene.Id = { Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader) };
+					if (!scene.Id.IsValid())
+					{
+						throw SerializationException("Scene id is invalid.");
+					}
+
+					hasId = true;
 					return;
 				}
 				if (key == "Name")
@@ -184,168 +189,157 @@ namespace Ludus::Engine::Serialization::Schemas
 					while (!Ludus::Engine::Serialization::Core::Is<Token::EndArray>(reader.Peek()))
 					{
 						StagedComponents stagedComponents;
-						uint64_t entityHandle = 0;
-						bool entityValid = true;
-						bool hasEntityHandle = false;
+						Ludus::Engine::Core::EntityId entityId { Ludus::Engine::Core::EntityId::Invalid() };
+						bool hasEntityId = false;
 
 						Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view entityKey)
 						{
-							if (entityKey == "Handle")
+							if (entityKey == "Id")
 							{
-								entityHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
-								hasEntityHandle = true;
+								entityId = { Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader) };
+								if (!entityId.IsValid())
+								{
+									throw SerializationException("Entity id is invalid.");
+								}
+								hasEntityId = true;
 								return;
 							}
 							if (entityKey == Camera2DString)
 							{
-								if (!TryReadComponent(reader, stagedComponents.Camera, Camera2DComponentSchema::Deserialize, "Camera2D"))
-								{
-									entityValid = false;
-								}
+								TryReadComponent(
+									reader,
+									stagedComponents.Camera,
+									[](auto& componentReader) { return Camera2DComponentSchema::Deserialize(componentReader, Ludus::Engine::Core::EntityId::Invalid()); },
+									"Camera2D"
+								);
 								return;
 							}
 							if (entityKey == Collider2DString)
 							{
-								if (!TryReadComponent(reader, stagedComponents.Collider, Collider2DComponentSchema::Deserialize, "Collider2D"))
-								{
-									entityValid = false;
-								}
+								TryReadComponent(
+									reader,
+									stagedComponents.Collider,
+									[](auto& componentReader) { return Collider2DComponentSchema::Deserialize(componentReader, Ludus::Engine::Core::EntityId::Invalid()); },
+									"Collider2D"
+								);
 								return;
 							}
 							if (entityKey == DisplayNameString)
 							{
-								if (!TryReadComponent(reader, stagedComponents.DisplayName, DisplayNameComponentSchema::Deserialize, "DisplayName"))
-								{
-									entityValid = false;
-								}
+								TryReadComponent(
+									reader,
+									stagedComponents.DisplayName,
+									[](auto& componentReader) { return DisplayNameComponentSchema::Deserialize(componentReader, Ludus::Engine::Core::EntityId::Invalid()); },
+									"DisplayName"
+								);
 								return;
 							}
 							if (entityKey == RigidBody2DString)
 							{
-								if (!TryReadComponent(reader, stagedComponents.RigidBody, RigidBody2DComponentSchema::Deserialize, "RigidBody2D"))
-								{
-									entityValid = false;
-								}
+								TryReadComponent(
+									reader,
+									stagedComponents.RigidBody,
+									[](auto& componentReader) { return RigidBody2DComponentSchema::Deserialize(componentReader, Ludus::Engine::Core::EntityId::Invalid()); },
+									"RigidBody2D"
+								);
 								return;
 							}
 							if (entityKey == ScriptString)
 							{
-								if (!TryReadComponent(reader, stagedComponents.Script, ScriptComponentSchema::Deserialize, "Script"))
-								{
-									entityValid = false;
-								}
+								TryReadComponent(
+									reader,
+									stagedComponents.Script,
+									[](auto& componentReader) { return ScriptComponentSchema::Deserialize(componentReader, Ludus::Engine::Core::EntityId::Invalid()); },
+									"Script"
+								);
 								return;
 							}
 							if (entityKey == Sprite2DString)
 							{
-								if (!TryReadComponent(reader, stagedComponents.Sprite, Sprite2DComponentSchema::Deserialize, "Sprite2D"))
-								{
-									entityValid = false;
-								}
+								TryReadComponent(
+									reader,
+									stagedComponents.Sprite,
+									[](auto& componentReader) { return Sprite2DComponentSchema::Deserialize(componentReader, Ludus::Engine::Core::EntityId::Invalid()); },
+									"Sprite2D"
+								);
 								return;
 							}
 							if (entityKey == Text2DString)
 							{
-								if (!TryReadComponent(reader, stagedComponents.Text, Text2DComponentSchema::Deserialize, "Text2D"))
-								{
-									entityValid = false;
-								}
+								TryReadComponent(
+									reader,
+									stagedComponents.Text,
+									[](auto& componentReader) { return Text2DComponentSchema::Deserialize(componentReader, Ludus::Engine::Core::EntityId::Invalid()); },
+									"Text2D"
+								);
 								return;
 							}
 							if (entityKey == Transform2DString)
 							{
-								if (!TryReadComponent(reader, stagedComponents.Transform, Transform2DComponentSchema::Deserialize, "Transform2D"))
-								{
-									entityValid = false;
-								}
+								TryReadComponent(
+									reader,
+									stagedComponents.Transform,
+									[](auto& componentReader) { return Transform2DComponentSchema::Deserialize(componentReader, Ludus::Engine::Core::EntityId::Invalid()); },
+									"Transform2D"
+								);
 								return;
 							}
 
 							Ludus::Engine::Serialization::Core::SkipValue(reader);
 						});
 
-						if (!hasEntityHandle)
+						if (!hasEntityId)
 						{
 							continue;
 						}
 
-						if (stagedComponents.Camera && stagedComponents.Camera->OwnerHandle != entityHandle)
-						{
-							entityValid = false;
-						}
-						if (stagedComponents.Collider && stagedComponents.Collider->OwnerHandle != entityHandle)
-						{
-							entityValid = false;
-						}
-						if (stagedComponents.DisplayName && stagedComponents.DisplayName->OwnerHandle != entityHandle)
-						{
-							entityValid = false;
-						}
-						if (stagedComponents.RigidBody && stagedComponents.RigidBody->OwnerHandle != entityHandle)
-						{
-							entityValid = false;
-						}
-						if (stagedComponents.Script && stagedComponents.Script->OwnerHandle != entityHandle)
-						{
-							entityValid = false;
-						}
-						if (stagedComponents.Sprite && stagedComponents.Sprite->OwnerHandle != entityHandle)
-						{
-							entityValid = false;
-						}
-						if (stagedComponents.Text && stagedComponents.Text->OwnerHandle != entityHandle)
-						{
-							entityValid = false;
-						}
-						if (stagedComponents.Transform && stagedComponents.Transform->OwnerHandle != entityHandle)
-						{
-							entityValid = false;
-						}
-
-						if (!entityValid)
-						{
-							continue;
-						}
-
-						scene.EntityComponentSystem.RestoreEntity(entityHandle);
+						scene.EntityComponentSystem.RestoreEntity(entityId);
 
 						if (stagedComponents.Camera)
 						{
+							stagedComponents.Camera->OwnerId = entityId;
 							scene.EntityComponentSystem.AttachCamera(*stagedComponents.Camera);
 						}
 
 						if (stagedComponents.Collider)
 						{
+							stagedComponents.Collider->OwnerId = entityId;
 							scene.EntityComponentSystem.AttachCollider(*stagedComponents.Collider);
 						}
 
 						if (stagedComponents.DisplayName)
 						{
+							stagedComponents.DisplayName->OwnerId = entityId;
 							scene.EntityComponentSystem.AttachDisplayName(*stagedComponents.DisplayName);
 						}
 
 						if (stagedComponents.RigidBody)
 						{
+							stagedComponents.RigidBody->OwnerId = entityId;
 							scene.EntityComponentSystem.AttachRigidBody(*stagedComponents.RigidBody);
 						}
 
 						if (stagedComponents.Script)
 						{
+							stagedComponents.Script->OwnerId = entityId;
 							scene.EntityComponentSystem.AttachScript(*stagedComponents.Script);
 						}
 
 						if (stagedComponents.Sprite)
 						{
+							stagedComponents.Sprite->OwnerId = entityId;
 							scene.EntityComponentSystem.AttachSprite(*stagedComponents.Sprite);
 						}
 
 						if (stagedComponents.Text)
 						{
+							stagedComponents.Text->OwnerId = entityId;
 							scene.EntityComponentSystem.AttachText(*stagedComponents.Text);
 						}
 
 						if (stagedComponents.Transform)
 						{
+							stagedComponents.Transform->OwnerId = entityId;
 							scene.EntityComponentSystem.AttachTransform(*stagedComponents.Transform);
 						}
 					}
@@ -357,9 +351,9 @@ namespace Ludus::Engine::Serialization::Schemas
 				Ludus::Engine::Serialization::Core::SkipValue(reader);
 			});
 
-			if (!hasHandle)
+			if (!hasId)
 			{
-				throw SerializationException("No scene handle found.");
+				throw SerializationException("No scene id found.");
 			}
 		}
 		catch (const SerializationException& ex)

@@ -6,6 +6,7 @@
 #include <utility>
 
 #include <Ludus/Editor/Commands/CommandManager.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Debug/Debug.h>
 
 namespace Ludus::Editor::Commands
@@ -46,13 +47,13 @@ namespace Ludus::Editor::Commands
 		PendingCommands.UICommands.emplace_back(std::move(command));
 	}
 
-	Ludus::Engine::Core::EntityHandle CommandManager::ResolveEntity(const EntityReference& reference) const
+	Ludus::Engine::Core::EntityId CommandManager::ResolveEntity(const EntityReference& reference) const
 	{
-		return std::visit([&](auto&& value) -> Ludus::Engine::Core::EntityHandle
+		return std::visit([&](auto&& value) -> Ludus::Engine::Core::EntityId
 		{
 			using Alt = std::decay_t<decltype(value)>;
 
-			if constexpr (std::is_same_v<Alt, Ludus::Engine::Core::EntityHandle>)
+			if constexpr (std::is_same_v<Alt, Ludus::Engine::Core::EntityId>)
 			{
 				return value;
 			}
@@ -61,14 +62,14 @@ namespace Ludus::Editor::Commands
 				auto iter = m_TempToBinding.find(value.Temp);
 				LUDUS_ASSERT(iter != m_TempToBinding.end(), "Unresolved temporary entity reference.");
 
-				return iter->second.Handle;
+				return iter->second.Id;
 			}
 		}, reference.Value);
 	}
 
-	void CommandManager::BindEntityReference(TempReference temp, Ludus::Engine::Core::EntityHandle handle)
+	void CommandManager::BindEntityReference(TempReference temp, Ludus::Engine::Core::EntityId id)
 	{
-		m_TempToBinding[temp] = TempEntityBinding { .Handle = handle, .LastSeenFrame = m_FrameIndex };
+		m_TempToBinding[temp] = TempEntityBinding { .Id = id, .LastSeenFrame = m_FrameIndex };
 	}
 
 	void CommandManager::ClearEntityReferences()

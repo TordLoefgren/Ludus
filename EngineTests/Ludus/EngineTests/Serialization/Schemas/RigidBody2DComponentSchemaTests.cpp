@@ -4,6 +4,7 @@
 #include <string>
 
 #include <Ludus/Engine/Components/RigidBody2DComponent.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Physics/Core/BodyType.h>
 #include <Ludus/Engine/Serialization/Core/DomDocument.h>
 #include <Ludus/Engine/Serialization/Core/DomNode.h>
@@ -14,6 +15,7 @@
 
 namespace Ludus::EngineTests::Serialization::Schemas
 {
+	using EntityId = Ludus::Engine::Core::EntityId;
 	using DomDocument = Ludus::Engine::Serialization::Core::DomDocument;
 	using DomTokenStreamWriter = Ludus::Engine::Serialization::Core::DomTokenStreamWriter;
 	using DomTokenStreamReader = Ludus::Engine::Serialization::Core::DomTokenStreamReader;
@@ -60,19 +62,16 @@ namespace Ludus::EngineTests::Serialization::Schemas
 
 		const auto& rigidBodyObject = AsObject(*root);
 
-		const auto* ownerNode = FindMember(rigidBodyObject, "OwnerHandle");
 		const auto* velocityNode = FindMember(rigidBodyObject, "Velocity");
 		const auto* gravityNode = FindMember(rigidBodyObject, "GravityScale");
 		const auto* massNode = FindMember(rigidBodyObject, "Mass");
 		const auto* typeNode = FindMember(rigidBodyObject, "BodyType");
 
-		ASSERT_NE(ownerNode, nullptr);
 		ASSERT_NE(velocityNode, nullptr);
 		ASSERT_NE(gravityNode, nullptr);
 		ASSERT_NE(massNode, nullptr);
 		ASSERT_NE(typeNode, nullptr);
 
-		const auto ownerHandle = std::get<uint64_t>(AsValue(*ownerNode));
 		const auto gravityScale = std::get<double>(AsValue(*gravityNode));
 		const auto mass = std::get<double>(AsValue(*massNode));
 		const auto typeValue = std::get<std::string>(AsValue(*typeNode));
@@ -81,7 +80,6 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		const auto velocityX = std::get<double>(AsValue(*FindMember(velocityObject, "X")));
 		const auto velocityY = std::get<double>(AsValue(*FindMember(velocityObject, "Y")));
 
-		ASSERT_EQ(ownerHandle, 1u);
 		ASSERT_EQ(velocityX, 3.0f);
 		ASSERT_EQ(velocityY, 4.0f);
 		ASSERT_EQ(gravityScale, 2.0f);
@@ -92,11 +90,10 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	TEST(RigidBody2DComponentSchema, Deserialize_ReadsFields_When_ComponentHasValues)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Velocity" });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "X" });
@@ -114,13 +111,13 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = RigidBody2DComponentSchema::Deserialize(reader);
+		const auto result = RigidBody2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
 		ASSERT_TRUE(result.HasValue());
 
 		const auto& rigidBodyResult = result.GetValue();
-		ASSERT_EQ(rigidBodyResult.OwnerHandle, 1u);
+		ASSERT_EQ(rigidBodyResult.OwnerId, ownerId);
 		ASSERT_EQ(rigidBodyResult.Velocity.X, 3.0f);
 		ASSERT_EQ(rigidBodyResult.Velocity.Y, 4.0f);
 		ASSERT_EQ(rigidBodyResult.GravityScale, 2.0f);
@@ -131,31 +128,31 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	TEST(RigidBody2DComponentSchema, Deserialize_DefaultsOptionalFields_When_Missing)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = RigidBody2DComponentSchema::Deserialize(reader);
+		const auto result = RigidBody2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
 		ASSERT_TRUE(result.HasValue());
 
 		const auto& rigidBodyResult = result.GetValue();
-		ASSERT_EQ(rigidBodyResult.OwnerHandle, 1u);
+		ASSERT_EQ(rigidBodyResult.OwnerId, ownerId);
 		ASSERT_EQ(rigidBodyResult.Velocity.X, 0.0f);
 		ASSERT_EQ(rigidBodyResult.Velocity.Y, 0.0f);
 		ASSERT_EQ(rigidBodyResult.GravityScale, 1.0f);
 		ASSERT_EQ(rigidBodyResult.Mass, 1.0f);
 	}
 
-	TEST(RigidBody2DComponentSchema, Deserialize_Fails_When_RequiredFieldsAreMissing)
+	TEST(RigidBody2DComponentSchema, Deserialize_DefaultsFields_When_AllPayloadFieldsAreMissing)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
@@ -163,22 +160,28 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = RigidBody2DComponentSchema::Deserialize(reader);
+		const auto result = RigidBody2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
-		ASSERT_FALSE(result.HasValue());
+		ASSERT_TRUE(result.HasValue());
+		ASSERT_EQ(result.GetValue().OwnerId, ownerId);
+		ASSERT_EQ(result.GetValue().Velocity.X, 0.0f);
+		ASSERT_EQ(result.GetValue().Velocity.Y, 0.0f);
+		ASSERT_EQ(result.GetValue().GravityScale, 1.0f);
+		ASSERT_EQ(result.GetValue().Mass, 1.0f);
 	}
 
 	TEST(RigidBody2DComponentSchema, Deserialize_Fails_When_ComponentHeaderIsMissing)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::Int { 1 });
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = RigidBody2DComponentSchema::Deserialize(reader);
+		const auto result = RigidBody2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
 		ASSERT_FALSE(result.HasValue());

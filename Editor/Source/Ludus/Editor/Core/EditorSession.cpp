@@ -50,8 +50,6 @@ namespace Ludus::Editor::Core
 			auto renderingConfiguration = Ludus::Engine::Graphics::RenderingConfiguration2D { };
 			renderingConfiguration.AddPass(std::make_unique<Ludus::Editor::Core::EditorGridRenderPass>());
 
-			const auto entrySceneHandle = runtimeManifest.EntrySceneHandle;
-
 			// Build runtime instance.
 			auto runtime = Ludus::Engine::Runtime::RuntimeInstanceBuilder::Create()
 				.UseDefaultPhysics2D()
@@ -63,10 +61,12 @@ namespace Ludus::Editor::Core
 				.WithEntryScene(std::move(entryScene))
 				.Build(hostContext);
 
+			const auto entrySceneId = runtime->GetScenePresentationState().CurrentSceneId;
+
 			return Ludus::Editor::Core::ProjectSession::Create(
 				std::move(projectManifest),
 				std::move(runtime),
-				entrySceneHandle
+				entrySceneId
 			);
 		}
 	}

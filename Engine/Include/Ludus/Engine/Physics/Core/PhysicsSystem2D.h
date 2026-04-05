@@ -54,19 +54,19 @@ namespace Ludus::Engine::Physics::Core
 
 			for (auto& body : rigidBodies)
 			{
-				auto* transform = entityComponentSystem.Transforms.TryGetByOwnerMutable(body.OwnerHandle);
+				auto* transform = entityComponentSystem.Transforms.TryGetByOwnerMutable(body.OwnerId);
 				if (!transform)
 				{
 					continue;
 				}
 
-				auto* collider = entityComponentSystem.Colliders.TryGetByOwnerMutable(body.OwnerHandle);
+				auto* collider = entityComponentSystem.Colliders.TryGetByOwnerMutable(body.OwnerId);
 				if (!collider)
 				{
 					continue;
 				}
 
-				m_PhysicsWorld.Entities.push_back(body.OwnerHandle);
+				m_PhysicsWorld.Entities.push_back(body.OwnerId);
 				m_PhysicsWorld.Colliders.push_back(collider);
 				m_PhysicsWorld.RigidBodies.push_back(&body);
 				m_PhysicsWorld.Transforms.push_back(transform);

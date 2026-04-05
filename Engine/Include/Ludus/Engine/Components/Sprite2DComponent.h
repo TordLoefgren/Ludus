@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/Shape.h>
 #include <Ludus/Engine/Graphics/Texture.h>
@@ -10,7 +10,7 @@ namespace Ludus::Engine::Components
 	struct Sprite2DComponent
 	{
 	public:
-		Ludus::Engine::Core::EntityHandle OwnerHandle {};
+		Ludus::Engine::Core::EntityId OwnerId { Ludus::Engine::Core::EntityId::Invalid() };
 		Ludus::Engine::Graphics::Shape Shape = Ludus::Engine::Graphics::Shape::Quad;
 		Ludus::Engine::Graphics::Color Color = Ludus::Engine::Graphics::Colors::White;
 		Ludus::Engine::Graphics::Texture* Texture = nullptr;
@@ -31,13 +31,13 @@ namespace Ludus::Engine::Components
 		{ }
 
 		Sprite2DComponent(
-			Ludus::Engine::Core::EntityHandle owner,
+			Ludus::Engine::Core::EntityId owner,
 			Ludus::Engine::Graphics::Shape shape = Ludus::Engine::Graphics::Shape::Quad,
 			Ludus::Engine::Graphics::Color color = Ludus::Engine::Graphics::Colors::White,
 			Ludus::Engine::Graphics::Texture* texture = nullptr,
 			bool fill = true
 		) :
-			OwnerHandle(owner),
+			OwnerId(owner),
 			Shape(shape),
 			Color(color),
 			Texture(texture),
@@ -46,7 +46,7 @@ namespace Ludus::Engine::Components
 
 		~Sprite2DComponent() = default;
 
-		bool operator==(const Sprite2DComponent& other) const { return OwnerHandle == other.OwnerHandle; }
+		bool operator==(const Sprite2DComponent& other) const { return OwnerId == other.OwnerId; }
 	};
 }
 

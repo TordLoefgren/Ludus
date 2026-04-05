@@ -174,7 +174,7 @@ namespace Ludus::EngineTests::Serialization::Core
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 
-		// Act + Assert.
+		// Act & Assert.
 		ASSERT_DEATH({ writer.Emit(Token::Key { "oops" }); }, R"(Key requires an active object\.)");
 	}
 
@@ -184,7 +184,7 @@ namespace Ludus::EngineTests::Serialization::Core
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 
-		// Act + Assert.
+		// Act & Assert.
 		ASSERT_DEATH({ writer.Emit(Token::EndObject { }); }, R"(EndObject requires an active object\.)");
 	}
 #endif

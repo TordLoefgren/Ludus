@@ -3,9 +3,9 @@
 #include <string>
 
 #include <Ludus/Engine/Components/RigidBody2DComponent.h>
-#include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Enums.h>
 #include <Ludus/Engine/Core/Expected.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Physics/Core/BodyType.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamReader.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamWriter.h>
@@ -25,9 +25,6 @@ namespace Ludus::Engine::Serialization::Schemas
 		inline static void Serialize(ITokenStreamWriter& writer, const RigidBody& rigidBody)
 		{
 			writer.Emit(Token::StartObject { });
-
-			writer.Emit(Token::Key { "OwnerHandle" });
-			writer.Emit(Token::Uint { rigidBody.OwnerHandle });
 
 			{
 				writer.Emit(Token::Key { "Velocity" });
@@ -52,21 +49,18 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::EndObject { });
 		}
 
-		inline static Ludus::Engine::Core::Expected<RigidBody, SerializationException> Deserialize(ITokenStreamReader& reader)
+		inline static Ludus::Engine::Core::Expected<RigidBody, SerializationException> Deserialize(
+			ITokenStreamReader& reader,
+			Ludus::Engine::Core::EntityId ownerId
+		)
 		{
 			try
 			{
 				RigidBody rigidBody;
-				bool hasOwner = false;
+				rigidBody.OwnerId = ownerId;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 				{
-					if (key == "OwnerHandle")
-					{
-						rigidBody.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
-						hasOwner = true;
-						return;
-					}
 					if (key == "Velocity")
 					{
 						Ludus::Engine::Serialization::Core::ReadObject(reader,
@@ -111,11 +105,6 @@ namespace Ludus::Engine::Serialization::Schemas
 
 					Ludus::Engine::Serialization::Core::SkipValue(reader);
 				});
-
-				if (!hasOwner)
-				{
-					throw SerializationException("No owner handle found.");
-				}
 
 				return rigidBody;
 			}

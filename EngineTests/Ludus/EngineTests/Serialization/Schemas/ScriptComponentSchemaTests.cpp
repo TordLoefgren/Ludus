@@ -1,9 +1,8 @@
 #include "pch.h"
 
 #include <cstdint>
-#include <string>
-
 #include <Ludus/Engine/Components/ScriptComponent.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Serialization/Core/DomDocument.h>
 #include <Ludus/Engine/Serialization/Core/DomNode.h>
 #include <Ludus/Engine/Serialization/Core/DomTokenStreamReader.h>
@@ -18,6 +17,8 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	using DomTokenStreamReader = Ludus::Engine::Serialization::Core::DomTokenStreamReader;
 	using ScriptComponentSchema = Ludus::Engine::Serialization::Schemas::ScriptComponentSchema;
 	using Token = Ludus::Engine::Serialization::Core::Token;
+	using EntityId = Ludus::Engine::Core::EntityId;
+	using ScriptId = Ludus::Engine::Core::ScriptId;
 
 	using Ludus::Engine::Serialization::Core::AsObject;
 	using Ludus::Engine::Serialization::Core::AsValue;
@@ -40,7 +41,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	TEST(ScriptComponentSchema, Serialize_WritesExpectedComponentValues)
 	{
 		// Arrange.
-		Ludus::Engine::Components::ScriptComponent script(1, "PlayerScript", 999);
+		Ludus::Engine::Components::ScriptComponent script(EntityId { 1 }, ScriptId { 999 });
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 
@@ -52,73 +53,33 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		ASSERT_NE(root, nullptr);
 
 		const auto& scriptObject = AsObject(*root);
-		const auto* ownerNode = FindMember(scriptObject, "OwnerHandle");
-		const auto* handleNode = FindMember(scriptObject, "Handle");
+		const auto* idNode = FindMember(scriptObject, "Id");
 		const auto* nameNode = FindMember(scriptObject, "Name");
 
-		ASSERT_NE(ownerNode, nullptr);
-		ASSERT_NE(handleNode, nullptr);
-		ASSERT_NE(nameNode, nullptr);
-
-		const auto ownerHandle = std::get<uint64_t>(AsValue(*ownerNode));
-		const auto handle = std::get<uint64_t>(AsValue(*handleNode));
-		const auto name = std::get<std::string>(AsValue(*nameNode));
-
-		ASSERT_EQ(ownerHandle, 1u);
-		ASSERT_EQ(handle, 999u);
-		ASSERT_EQ(name, "PlayerScript");
+		ASSERT_NE(idNode, nullptr);
+		ASSERT_EQ(nameNode, nullptr);
 	}
 
-	TEST(ScriptComponentSchema, Deserialize_ReadsFields_When_ComponentHasValues)
+	TEST(ScriptComponentSchema, Deserialize_ReadsId_When_ComponentIsValid)
 	{
 		// Arrange.
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Int { 1 });
-		writer.Emit(Token::Key { "Handle" });
-		writer.Emit(Token::Int { 999 });
-		writer.Emit(Token::Key { "Name" });
-		writer.Emit(Token::String { "PlayerScript" });
+		writer.Emit(Token::Key { "Id" });
+		writer.Emit(Token::Uint { 7 });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = ScriptComponentSchema::Deserialize(reader);
+		const auto result = ScriptComponentSchema::Deserialize(reader, EntityId { 1 });
 
 		// Assert.
 		ASSERT_TRUE(result.HasValue());
 
 		const auto& scriptResult = result.GetValue();
-		ASSERT_EQ(scriptResult.OwnerHandle, 1u);
-		ASSERT_EQ(scriptResult.Handle, 999u);
-		ASSERT_EQ(scriptResult.Name, "PlayerScript");
-	}
-
-	TEST(ScriptComponentSchema, Deserialize_DefaultsOptionalFields_When_Missing)
-	{
-		// Arrange.
-		DomDocument document;
-		DomTokenStreamWriter writer(document);
-		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Int { 1 });
-		writer.Emit(Token::Key { "Handle" });
-		writer.Emit(Token::Int { 999 });
-		writer.Emit(Token::EndObject { });
-		DomTokenStreamReader reader(document);
-
-		// Act.
-		const auto result = ScriptComponentSchema::Deserialize(reader);
-
-		// Assert.
-		ASSERT_TRUE(result.HasValue());
-
-		const auto& scriptResult = result.GetValue();
-		ASSERT_EQ(scriptResult.OwnerHandle, 1u);
-		ASSERT_EQ(scriptResult.Handle, 999u);
-		ASSERT_EQ(scriptResult.Name, "");
+		ASSERT_EQ(scriptResult.OwnerId.Value, 1u);
+		ASSERT_EQ(scriptResult.Id, ScriptId { 7 });
 	}
 
 	TEST(ScriptComponentSchema, Deserialize_Fails_When_RequiredFieldsAreMissing)
@@ -131,7 +92,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = ScriptComponentSchema::Deserialize(reader);
+		const auto result = ScriptComponentSchema::Deserialize(reader, EntityId { 1 });
 
 		// Assert.
 		ASSERT_FALSE(result.HasValue());
@@ -146,7 +107,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = ScriptComponentSchema::Deserialize(reader);
+		const auto result = ScriptComponentSchema::Deserialize(reader, EntityId { 1 });
 
 		// Assert.
 		ASSERT_FALSE(result.HasValue());

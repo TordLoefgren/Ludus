@@ -3,12 +3,13 @@
 #include <Ludus/Engine/Components/Collider2DComponent.h>
 #include <Ludus/Engine/Components/RigidBody2DComponent.h>
 #include <Ludus/Engine/Components/Transform2DComponent.h>
+#include <Ludus/Engine/Core/Id.h>
 
 namespace Ludus::Engine::Physics::Core
 {
 	struct PhysicsWorld2D
 	{
-		std::vector<Ludus::Engine::Core::EntityHandle> Entities;
+		std::vector<Ludus::Engine::Core::EntityId> Entities;
 		std::vector<Ludus::Engine::Components::Collider2DComponent*> Colliders;
 		std::vector<Ludus::Engine::Components::RigidBody2DComponent*> RigidBodies;
 		std::vector<Ludus::Engine::Components::Transform2DComponent*> Transforms;

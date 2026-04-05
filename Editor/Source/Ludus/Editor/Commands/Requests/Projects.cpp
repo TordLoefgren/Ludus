@@ -39,8 +39,8 @@ namespace Ludus::Editor::Commands::Requests::Projects
 
 			// Create runtime manifest.
 			const auto runtimeManifest = Ludus::Engine::Runtime::RuntimeManifest::Create(
-				scene.Handle,
-				{ { scene.Handle, scene.Name, scenePath } },
+				scene.Id,
+				{ { scene.Id, scene.Name, scenePath } },
 				{ }
 			);
 			const auto runtimeManifestPath = Ludus::Engine::Persistence::Paths::RuntimeManifestFile(projectRoot, projectName);

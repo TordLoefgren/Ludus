@@ -15,7 +15,7 @@
 	<PropertyGroup Label="Globals">
 		<VCProjectVersion>17.0</VCProjectVersion>
 		<Keyword>Win32Proj</Keyword>
-		<ProjectGuid>{7D744EE7-F882-4E58-98CA-9F2D994A4DA5}</ProjectGuid>
+		<ProjectGuid>{${LUDUS_RUNTIME_HOST_PROJECT_GUID}}</ProjectGuid>
 		<RootNamespace>Runtime Host</RootNamespace>
 		<WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 	</PropertyGroup>

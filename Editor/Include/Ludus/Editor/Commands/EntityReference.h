@@ -4,7 +4,7 @@
 #include <functional>
 #include <variant>
 
-#include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Id.h>
 
 namespace Ludus::Editor::Commands
 {
@@ -18,11 +18,11 @@ namespace Ludus::Editor::Commands
 	struct EntityReference
 	{
 		struct New { TempReference Temp; };
-		std::variant<Ludus::Engine::Core::EntityHandle, New> Value;
+		std::variant<Ludus::Engine::Core::EntityId, New> Value;
 
 		EntityReference() = default;
-		EntityReference(Ludus::Engine::Core::EntityHandle handle)
-			: Value(handle)
+		EntityReference(Ludus::Engine::Core::EntityId id)
+			: Value(id)
 		{ }
 
 		static EntityReference Temporary(TempReference temp)

@@ -10,6 +10,7 @@
 #include <Ludus/Editor/Core/ProjectManifest.h>
 #include <Ludus/Editor/Core/SceneSessionState.h>
 #include <Ludus/Editor/Core/SelectionManager.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/RenderViewRegistry.h>
 #include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
 #include <Ludus/Engine/Core/Scene.h>
@@ -24,17 +25,17 @@ namespace Ludus::Editor::Core
 	struct ProjectSessionEditorState
 	{
 		SceneSessionState ActiveSceneState;
-		Ludus::Engine::Core::SceneHandle ActiveSceneHandle;
+		Ludus::Engine::Core::SceneId ActiveSceneId;
 		Ludus::Editor::Core::SelectionManager Selection;
 
 		static ProjectSessionEditorState Create(
-			Ludus::Engine::Core::SceneHandle activeSceneHandle,
+			Ludus::Engine::Core::SceneId activeSceneId,
 			std::optional<std::filesystem::path> activeSceneSavePath = std::nullopt
 		)
 		{
 			return {
 				.ActiveSceneState = { .IsDirty = false, .SavePath = std::move(activeSceneSavePath) },
-				.ActiveSceneHandle = activeSceneHandle,
+				.ActiveSceneId = activeSceneId,
 				.Selection = { }
 			};
 		}
@@ -51,7 +52,7 @@ namespace Ludus::Editor::Core
 		static ProjectSession Create(
 			Ludus::Editor::Core::ProjectManifest projectManifest,
 			std::unique_ptr<Ludus::Engine::Runtime::RuntimeInstance> editorRuntime,
-			Ludus::Engine::Core::SceneHandle activeSceneHandle
+			Ludus::Engine::Core::SceneId activeSceneId
 		);
 
 #pragma region Editor Helpers
@@ -105,28 +106,27 @@ namespace Ludus::Editor::Core
 
 		Ludus::Engine::Runtime::RuntimeManifest& GetEditorManifest();
 
-		Ludus::Engine::Core::Scene& GetEditorScene(Ludus::Engine::Core::SceneHandle sceneHandle);
-		const Ludus::Engine::Core::Scene& GetEditorScene(Ludus::Engine::Core::SceneHandle sceneHandle) const;
+		Ludus::Engine::Core::Scene& GetEditorScene(Ludus::Engine::Core::SceneId sceneId);
+		const Ludus::Engine::Core::Scene& GetEditorScene(Ludus::Engine::Core::SceneId sceneId) const;
 
-		std::optional<std::filesystem::path> TryGetEditorScenePath(Ludus::Engine::Core::SceneHandle sceneHandle) const;
+		std::optional<std::filesystem::path> TryGetEditorScenePath(Ludus::Engine::Core::SceneId sceneId) const;
 		void AddOrUpdateEditorSceneReference(
-			Ludus::Engine::Core::SceneHandle handle,
+			Ludus::Engine::Core::SceneId id,
 			std::string name,
 			std::filesystem::path path
 		);
 
-		bool HasEditorScriptReference(Ludus::Engine::Components::ScriptHandle handle) const;
+		bool HasEditorScriptReference(Ludus::Engine::Core::ScriptId id) const;
 
 		bool HasEditorScriptReference(std::string_view name) const;
 
 		bool AddOrUpdateEditorScriptReference(
-			Ludus::Engine::Components::ScriptHandle handle,
+			Ludus::Engine::Core::ScriptId id,
 			std::string name
 		);
 
-		bool RemoveEditorScriptReference(Ludus::Engine::Components::ScriptHandle handle);
-		Ludus::Engine::Components::ScriptHandle AllocateEditorScriptHandle() const;
-		std::optional<Ludus::Engine::Components::ScriptHandle> TryFindEditorScriptHandleByName(std::string_view name) const;
+		bool RemoveEditorScriptReference(Ludus::Engine::Core::ScriptId id);
+		Ludus::Engine::Core::ScriptId AllocateEditorScriptId() const;
 		std::vector<std::string> GetEditorScriptNames() const;
 
 #pragma endregion

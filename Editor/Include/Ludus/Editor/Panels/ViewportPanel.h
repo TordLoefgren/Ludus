@@ -7,7 +7,7 @@
 #include <Ludus/Editor/Core/ProjectSessionContext.h>
 #include <Ludus/Editor/Core/ViewportDisplayMode.h>
 #include <Ludus/Editor/Panels/IPanel.h>
-#include <Ludus/Engine/Core/Scene.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Graphics/Camera2D.h>
 #include <Ludus/Engine/Graphics/RenderPresentationSettings.h>
 #include <Ludus/Engine/Graphics/RenderTarget.h>
@@ -28,7 +28,7 @@ namespace Ludus::Editor::Panels
 		std::optional<Ludus::Engine::Graphics::RenderTarget> m_Target;
 		Ludus::Engine::Math::Size<int> m_PreviousTargetSize;
 		Ludus::Editor::Core::ViewportDisplayMode m_DisplayMode;
-		std::optional<Ludus::Engine::Core::SceneHandle> m_SelectedSceneHandle = std::nullopt;
+		std::optional<Ludus::Engine::Core::SceneId> m_SelectedSceneId = std::nullopt;
 
 		bool m_IsCameraPanning = false;
 		bool m_FollowActiveScene = true;

@@ -13,7 +13,7 @@
 #include <Ludus/Editor/Core/EditorExecutionFlags.h>
 #include <Ludus/Editor/Core/ExecutionMode.h>
 #include <Ludus/Editor/Panels/PanelKind.h>
-#include <Ludus/Engine/Core/Scene.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/UI/Theme/ThemeId.h>
 
 namespace Ludus::Editor::Commands
@@ -33,16 +33,16 @@ namespace Ludus::Editor::Commands
 		struct CreateScene { };
 		struct CreateSceneAs { std::filesystem::path Path; };
 		struct OpenScene { std::filesystem::path Path; bool Additive = false; };
-		struct SaveScene { Ludus::Engine::Core::SceneHandle SceneHandle; };
-		struct SaveSceneAs { Ludus::Engine::Core::SceneHandle SceneHandle; std::filesystem::path Path; };
-		struct RenameScene { Ludus::Engine::Core::SceneHandle SceneHandle; std::filesystem::path Path; };
+		struct SaveScene { Ludus::Engine::Core::SceneId SceneId; };
+		struct SaveSceneAs { Ludus::Engine::Core::SceneId SceneId; std::filesystem::path Path; };
+		struct RenameScene { Ludus::Engine::Core::SceneId SceneId; std::filesystem::path Path; };
 
 		struct CreateProject { std::string Name; };
 		struct CreateProjectAs { std::string Name; std::filesystem::path ProjectRoot; };
 		struct OpenProject { std::filesystem::path Path; };
 		struct CloseProject { };
 
-		struct CreateScript { EntityReference EntityReference; Ludus::Engine::Core::SceneHandle SceneHandle; std::string Name; };
+		struct CreateScript { Ludus::Engine::Core::SceneId SceneId; EntityReference EntityReference; std::string Name; };
 
 		struct RunTargetBuildCommand
 		{

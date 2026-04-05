@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/Mask.h>
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Scripting/ScriptSystem.h>
@@ -16,7 +17,7 @@ namespace Ludus::Engine::Scripting
 			return;
 		}
 
-		state.Definition->OnDestroy(m_ScriptEngine.GetContext(), state.OwnerHandle);
+		state.Definition->OnDestroy(m_ScriptEngine.GetContext(), state.OwnerId.Value);
 	}
 
 	void ScriptSystem::DestroyAllInstances()
@@ -47,16 +48,16 @@ namespace Ludus::Engine::Scripting
 			return;
 		}
 
-		std::unordered_map<Ludus::Engine::Core::EntityHandle, Ludus::Scripting::ABI::Collision2DData> currentCollisions;
+		std::unordered_map<Ludus::Engine::Core::EntityId, Ludus::Scripting::ABI::Collision2DData> currentCollisions;
 
-		for (const auto& contact : m_QueryCache->GetContacts(state.OwnerHandle))
+		for (const auto& contact : m_QueryCache->GetContacts(state.OwnerId))
 		{
-			const auto selfIsA = contact.EntityHandleA == state.OwnerHandle;
-			const auto otherHandle = selfIsA ? contact.EntityHandleB : contact.EntityHandleA;
+			const auto selfIsA = contact.EntityIdA == state.OwnerId;
+			const auto otherId = selfIsA ? contact.EntityIdB : contact.EntityIdA;
 
 			Ludus::Scripting::ABI::Collision2DData collision
 			{
-				.Other = otherHandle,
+				.Other = otherId.Value,
 				.LocalSelf = {
 					selfIsA ? contact.Point.LocalA.X : contact.Point.LocalB.X,
 					selfIsA ? contact.Point.LocalA.Y : contact.Point.LocalB.Y
@@ -73,18 +74,18 @@ namespace Ludus::Engine::Scripting
 				.IsTrigger = contact.IsTriggerPair
 			};
 
-			currentCollisions[otherHandle] = collision;
+			currentCollisions[otherId] = collision;
 		}
 
 		auto context = m_ScriptEngine.GetContext();
 
-		for (const auto& [otherHandle, collision] : currentCollisions)
+		for (const auto& [otherId, collision] : currentCollisions)
 		{
-			if (!state.ActiveCollisions.contains(otherHandle))
+			if (!state.ActiveCollisions.contains(otherId))
 			{
 				if (state.Definition->OnCollisionEnter)
 				{
-					state.Definition->OnCollisionEnter(context, state.OwnerHandle, &collision);
+					state.Definition->OnCollisionEnter(context, state.OwnerId.Value, &collision);
 				}
 
 				continue;
@@ -92,24 +93,41 @@ namespace Ludus::Engine::Scripting
 
 			if (state.Definition->OnCollisionStay)
 			{
-				state.Definition->OnCollisionStay(context, state.OwnerHandle, &collision);
+				state.Definition->OnCollisionStay(context, state.OwnerId.Value, &collision);
 			}
 		}
 
-		for (const auto& [otherHandle, collision] : state.ActiveCollisions)
+		for (const auto& [otherId, collision] : state.ActiveCollisions)
 		{
-			if (currentCollisions.contains(otherHandle))
+			if (currentCollisions.contains(otherId))
 			{
 				continue;
 			}
 
 			if (state.Definition->OnCollisionExit)
 			{
-				state.Definition->OnCollisionExit(context, state.OwnerHandle, &collision);
+				state.Definition->OnCollisionExit(context, state.OwnerId.Value, &collision);
 			}
 		}
 
 		state.ActiveCollisions = std::move(currentCollisions);
+	}
+
+	void ScriptSystem::BuildDefinitions()
+	{
+		m_DefinitionsById.clear();
+		m_DefinitionsById.reserve(m_ScriptReferences.size());
+
+		for (const auto& scriptReference : m_ScriptReferences)
+		{
+			const auto* definition = m_LoadedScriptModule.TryFindDefinition(scriptReference.Name);
+			if (!definition)
+			{
+				continue;
+			}
+
+			m_DefinitionsById.emplace(scriptReference.Id, definition);
+		}
 	}
 
 	bool ScriptSystem::LoadModule()
@@ -120,6 +138,11 @@ namespace Ludus::Engine::Scripting
 		}
 
 		m_IsModuleLoaded = m_LoadedScriptModule.LoadScriptModule(m_ScriptModulePath);
+		if (m_IsModuleLoaded)
+		{
+			BuildDefinitions();
+		}
+
 		return m_IsModuleLoaded;
 	}
 
@@ -133,18 +156,19 @@ namespace Ludus::Engine::Scripting
 		DestroyAllInstances();
 
 		const auto success = m_LoadedScriptModule.UnloadScriptModule();
+		m_DefinitionsById.clear();
 		m_IsModuleLoaded = false;
 		return success;
 	}
 
 	ScriptInstanceState& ScriptSystem::FindOrCreateInstanceState(
-		Ludus::Engine::Core::SceneHandle sceneHandle,
-		Ludus::Engine::Core::EntityHandle ownerHandle
+		Ludus::Engine::Core::SceneId sceneId,
+		Ludus::Engine::Core::EntityId ownerId
 	)
 	{
 		for (auto& state : m_InstanceStates)
 		{
-			if (state.SceneHandle == sceneHandle && state.OwnerHandle == ownerHandle)
+			if (state.SceneId == sceneId && state.OwnerId == ownerId)
 			{
 				return state;
 			}
@@ -152,8 +176,8 @@ namespace Ludus::Engine::Scripting
 
 		m_InstanceStates.push_back(ScriptInstanceState
 			{
-				.SceneHandle = sceneHandle,
-				.OwnerHandle = ownerHandle,
+				.SceneId = sceneId,
+				.OwnerId = ownerId,
 				.Definition = nullptr,
 				.HasCreated = false,
 				.ActiveCollisions = { },
@@ -182,13 +206,15 @@ namespace Ludus::Engine::Scripting
 	ScriptSystem::ScriptSystem(
 		Ludus::Engine::Runtime::IHostContext& hostContext,
 		Ludus::Engine::Core::SceneRegistry& sceneRegistry,
-		Ludus::Engine::Core::SceneHandle& activeSceneHandle,
+		std::vector<Ludus::Engine::Runtime::ScriptReference> scriptReferences,
+		Ludus::Engine::Core::SceneId& activeSceneId,
 		Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* queryCache,
 		const std::filesystem::path& scriptModulePath
 	) :
 		m_HostContext(hostContext),
 		m_SceneRegistry(sceneRegistry),
-		m_ScriptEngine(m_SceneRegistry, m_HostContext.GetInput(), activeSceneHandle),
+		m_ScriptReferences(std::move(scriptReferences)),
+		m_ScriptEngine(m_SceneRegistry, m_HostContext.GetInput(), activeSceneId),
 		m_QueryCache(queryCache),
 		m_ScriptModulePath(scriptModulePath)
 	{ }
@@ -236,18 +262,24 @@ namespace Ludus::Engine::Scripting
 
 		for (auto& scene : m_SceneRegistry.ViewMutable())
 		{
-			m_ScriptEngine.SetActiveScene(scene.Handle);
+			m_ScriptEngine.SetActiveScene(scene.Id);
 			auto* context = m_ScriptEngine.GetContext();
 
 			for (auto& script : scene.EntityComponentSystem.Scripts.ViewMutable())
 			{
-				const auto* definition = m_LoadedScriptModule.TryFindDefinition(script.Name);
+				const auto iter = m_DefinitionsById.find(script.Id);
+				if (iter == m_DefinitionsById.end())
+				{
+					continue;
+				}
+
+				const auto* definition = iter->second;
 				if (!definition)
 				{
 					continue;
 				}
 
-				auto& state = FindOrCreateInstanceState(scene.Handle, script.OwnerHandle);
+				auto& state = FindOrCreateInstanceState(scene.Id, script.OwnerId);
 				state.LastSeenFrame = currentFrame;
 
 				if (state.Definition != definition)
@@ -262,7 +294,7 @@ namespace Ludus::Engine::Scripting
 				{
 					if (definition->OnCreate)
 					{
-						definition->OnCreate(context, script.OwnerHandle);
+						definition->OnCreate(context, script.OwnerId.Value);
 					}
 					state.HasCreated = true;
 				}
@@ -271,7 +303,7 @@ namespace Ludus::Engine::Scripting
 
 				if (definition->OnUpdate)
 				{
-					definition->OnUpdate(context, script.OwnerHandle, deltaTime);
+					definition->OnUpdate(context, script.OwnerId.Value, deltaTime);
 				}
 			}
 		}

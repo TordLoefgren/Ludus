@@ -3,8 +3,7 @@
 #include <utility>
 #include <variant>
 
-#include <Ludus/Engine/Core/Entity.h>
-#include <Ludus/Engine/Core/Scene.h>
+#include <Ludus/Engine/Core/Id.h>
 
 namespace Ludus::Editor::Commands
 {
@@ -13,9 +12,9 @@ namespace Ludus::Editor::Commands
 
 	struct UICommand
 	{
-		struct OpenAddScriptDialog { Ludus::Engine::Core::EntityHandle EntityHandle; Ludus::Engine::Core::SceneHandle SceneHandle; };
+		struct OpenAddScriptDialog { Ludus::Engine::Core::SceneId SceneId; Ludus::Engine::Core::EntityId EntityId; };
 		struct OpenCreateProjectDialog { };
-		struct OpenRenameSceneDialog { Ludus::Engine::Core::SceneHandle SceneHandle; };
+		struct OpenRenameSceneDialog { Ludus::Engine::Core::SceneId SceneId; };
 
 		using Variant = std::variant<OpenAddScriptDialog, OpenCreateProjectDialog, OpenRenameSceneDialog>;
 

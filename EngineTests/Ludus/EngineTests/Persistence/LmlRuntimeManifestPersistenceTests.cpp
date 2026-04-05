@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <string_view>
 
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/FileSystem/FileSystem.h>
 #include <Ludus/Engine/Persistence/IRuntimeManifestPersistence.h>
 #include <Ludus/Engine/Persistence/LmlRuntimeManifestPersistence.h>
@@ -11,11 +12,13 @@
 
 namespace Ludus::EngineTests::Persistence
 {
+	using LmlRuntimeManifestPersistence = Ludus::Engine::Persistence::LmlRuntimeManifestPersistence;
 	using RuntimeManifest = Ludus::Engine::Runtime::RuntimeManifest;
+	using RuntimeManifestPersistence = Ludus::Engine::Persistence::IRuntimeManifestPersistence;
 	using SceneReference = Ludus::Engine::Runtime::SceneReference;
 	using ScriptReference = Ludus::Engine::Runtime::ScriptReference;
-	using RuntimeManifestPersistence = Ludus::Engine::Persistence::IRuntimeManifestPersistence;
-	using LmlRuntimeManifestPersistence = Ludus::Engine::Persistence::LmlRuntimeManifestPersistence;
+	using SceneId = Ludus::Engine::Core::SceneId;
+	using ScriptId = Ludus::Engine::Core::ScriptId;
 	namespace FileSystem = Ludus::Engine::FileSystem;
 
 	static std::filesystem::path MakeUniqueTempDir()
@@ -28,34 +31,40 @@ namespace Ludus::EngineTests::Persistence
 		return FileSystem::DirectoryDeleteScope { MakeUniqueTempDir() };
 	}
 
-	static SceneReference MakeSceneReference(uint64_t sceneHandle, std::string_view name, std::string_view path)
+	static SceneReference MakeSceneReference(
+		SceneId id,
+		std::string_view name,
+		std::string_view path
+	)
 	{
-		SceneReference reference;
-		reference.Handle = sceneHandle;
-		reference.Name = std::string(name);
-		reference.Path = std::filesystem::path(path);
-		return reference;
+		return {
+			.Id = id,
+			.Name = std::string(name),
+			.Path = std::filesystem::path(path)
+		};
 	}
 
-	static ScriptReference MakeScriptReference(uint64_t scriptHandle, std::string_view name)
+	static ScriptReference MakeScriptReference(ScriptId id, std::string_view name)
 	{
-		ScriptReference reference;
-		reference.Handle = scriptHandle;
-		reference.Name = std::string(name);
-		return reference;
+		return {
+			.Id = id,
+			.Name = std::string(name)
+		};
 	}
 
 	static RuntimeManifest MakeRuntimeManifest()
 	{
+		auto scenes = std::vector<SceneReference> {
+			MakeSceneReference({ 1 }, "MainMenu", "Scenes/MainMenu.ludus.scene"),
+			MakeSceneReference({ 2 }, "Gameplay", "Scenes/Gameplay.ludus.scene")
+		};
+
 		return RuntimeManifest::Create(
-			222,
+			SceneId { 2 },
+			std::move(scenes),
 			{
-				MakeSceneReference(111, "MainMenu", "Scenes/MainMenu.ludus.scene"),
-				MakeSceneReference(222, "Gameplay", "Scenes/Gameplay.ludus.scene")
-			},
-			{
-				MakeScriptReference(1001, "PlayerScript"),
-				MakeScriptReference(1002, "CameraScript")
+				MakeScriptReference({ 11 }, "PlayerScript"),
+				MakeScriptReference({ 12 }, "CameraScript")
 			}
 		);
 	}
@@ -77,32 +86,9 @@ namespace Ludus::EngineTests::Persistence
 		const auto loaded = persistence.Load(runtimeManifestPath);
 
 		// Assert.
-		ASSERT_EQ(loaded.EntrySceneHandle, runtimeManifest.EntrySceneHandle);
+		ASSERT_EQ(loaded.EntrySceneId, runtimeManifest.EntrySceneId);
 		ASSERT_EQ(loaded.Scenes.size(), runtimeManifest.Scenes.size());
 		ASSERT_EQ(loaded.Scripts.size(), runtimeManifest.Scripts.size());
-	}
-
-	TEST(LmlRuntimeManifestPersistence, SaveAndLoad_PreservesEntrySceneHandle_When_RuntimeManifestIsValid)
-	{
-		// Arrange.
-		const auto tempDirectoryScoped = CreateTestDirectory();
-		std::filesystem::create_directories(tempDirectoryScoped.Path);
-		const auto runtimeManifestPath = tempDirectoryScoped.Path / "Game.ludus.runtime";
-
-		auto runtimeManifest = RuntimeManifest::Create(
-			777,
-			{ MakeSceneReference(777, "MainMenu", "Scenes/MainMenu.ludus.scene") }
-		);
-
-		LmlRuntimeManifestPersistence implementation;
-		RuntimeManifestPersistence& persistence = implementation;
-
-		// Act.
-		persistence.Save(runtimeManifest, runtimeManifestPath);
-		const auto loaded = persistence.Load(runtimeManifestPath);
-
-		// Assert.
-		ASSERT_EQ(loaded.EntrySceneHandle, runtimeManifest.EntrySceneHandle);
 	}
 
 	TEST(LmlRuntimeManifestPersistence, SaveAndLoad_PreservesSceneReferences_When_RuntimeManifestIsValid)
@@ -112,13 +98,7 @@ namespace Ludus::EngineTests::Persistence
 		std::filesystem::create_directories(tempDirectoryScoped.Path);
 		const auto runtimeManifestPath = tempDirectoryScoped.Path / "Game.ludus.runtime";
 
-		auto runtimeManifest = RuntimeManifest::Create(
-			111,
-			{
-				MakeSceneReference(111, "MainMenu", "Scenes/MainMenu.ludus.scene"),
-				MakeSceneReference(222, "Gameplay", "Scenes/Gameplay.ludus.scene")
-			}
-		);
+		const auto runtimeManifest = MakeRuntimeManifest();
 
 		LmlRuntimeManifestPersistence implementation;
 		RuntimeManifestPersistence& persistence = implementation;
@@ -132,7 +112,7 @@ namespace Ludus::EngineTests::Persistence
 
 		for (size_t i = 0; i < runtimeManifest.Scenes.size(); ++i)
 		{
-			ASSERT_EQ(loaded.Scenes[i].Handle, runtimeManifest.Scenes[i].Handle);
+			ASSERT_EQ(loaded.Scenes[i].Id, runtimeManifest.Scenes[i].Id);
 			ASSERT_EQ(loaded.Scenes[i].Name, runtimeManifest.Scenes[i].Name);
 			ASSERT_EQ(loaded.Scenes[i].Path, runtimeManifest.Scenes[i].Path);
 		}
@@ -145,14 +125,7 @@ namespace Ludus::EngineTests::Persistence
 		std::filesystem::create_directories(tempDirectoryScoped.Path);
 		const auto runtimeManifestPath = tempDirectoryScoped.Path / "Game.ludus.runtime";
 
-		auto runtimeManifest = RuntimeManifest::Create(
-			0,
-			{ },
-			{
-				MakeScriptReference(1001, "PlayerScript"),
-				MakeScriptReference(1002, "CameraScript")
-			}
-		);
+		const auto runtimeManifest = MakeRuntimeManifest();
 
 		LmlRuntimeManifestPersistence implementation;
 		RuntimeManifestPersistence& persistence = implementation;
@@ -166,7 +139,7 @@ namespace Ludus::EngineTests::Persistence
 
 		for (size_t i = 0; i < runtimeManifest.Scripts.size(); ++i)
 		{
-			ASSERT_EQ(loaded.Scripts[i].Handle, runtimeManifest.Scripts[i].Handle);
+			ASSERT_EQ(loaded.Scripts[i].Id, runtimeManifest.Scripts[i].Id);
 			ASSERT_EQ(loaded.Scripts[i].Name, runtimeManifest.Scripts[i].Name);
 		}
 	}
@@ -178,7 +151,7 @@ namespace Ludus::EngineTests::Persistence
 		std::filesystem::create_directories(tempDirectoryScoped.Path);
 		const auto runtimeManifestPath = tempDirectoryScoped.Path / "Game.ludus.runtime";
 
-		FileSystem::WriteAllText(runtimeManifestPath, "EntrySceneHandle: 1, Scenes: [], Scripts: []");
+		FileSystem::WriteAllText(runtimeManifestPath, "EntrySceneId: 1, Scenes: [], Scripts: []");
 
 		LmlRuntimeManifestPersistence implementation;
 		RuntimeManifestPersistence& persistence = implementation;
@@ -204,7 +177,7 @@ namespace Ludus::EngineTests::Persistence
 		const auto loaded = persistence.Load(runtimeManifestPath);
 
 		// Assert.
-		ASSERT_EQ(loaded.EntrySceneHandle, runtimeManifest.EntrySceneHandle);
+		ASSERT_EQ(loaded.EntrySceneId, runtimeManifest.EntrySceneId);
 		ASSERT_TRUE(loaded.Scenes.empty());
 		ASSERT_TRUE(loaded.Scripts.empty());
 	}

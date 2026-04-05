@@ -20,6 +20,7 @@
 #include <Ludus/Engine/Components/Transform2DComponent.h>
 #include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Enums.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
@@ -54,7 +55,6 @@
 
 namespace Ludus::Editor::Panels
 {
-
 	namespace
 	{
 		namespace Component = Ludus::Engine::Components;
@@ -76,25 +76,29 @@ namespace Ludus::Editor::Panels
 
 		bool InputFloatFill(
 			const std::string& label,
-			float* value,
-			float step = 0.0f,
-			float step_fast = 0.0f,
-			const char* format = "%.2f",
-			Ludus::UI::Flags::InputText flags = Ludus::UI::Flags::InputText::None
+			float* value
 		)
 		{
 			Ludus::UI::Context::LayoutContext::SetNextItemWidthFill();
-			return Ludus::UI::Widgets::InputFloat(label, value, step, step_fast, format, flags);
+			return Ludus::UI::Widgets::InputFloat(label, value);
+		}
+
+		bool InputIntFill(
+			const std::string& label,
+			int* value
+		)
+		{
+			Ludus::UI::Context::LayoutContext::SetNextItemWidthFill();
+			return Ludus::UI::Widgets::InputInt(label, value);
 		}
 
 		bool InputTextFill(
 			const std::string& label,
-			std::string& text,
-			Ludus::UI::Flags::InputText flags = Ludus::UI::Flags::InputText::None
+			std::string& text
 		)
 		{
 			Ludus::UI::Context::LayoutContext::SetNextItemWidthFill();
-			return Ludus::UI::Widgets::InputText(label, text, flags);
+			return Ludus::UI::Widgets::InputText(label, text);
 		}
 
 		template<typename TEnum>
@@ -136,8 +140,8 @@ namespace Ludus::Editor::Panels
 				{
 					context.Shell.State.Commands.AddEditCommand(
 						Ludus::Editor::Commands::EditCommand::RemoveComponent<TComponent>(
-							component.OwnerHandle,
-							context.ProjectSession.GetActiveRuntime().GetScenePresentationState().CurrentSceneHandle
+							context.ProjectSession.GetActiveRuntime().GetScenePresentationState().CurrentSceneId,
+							component.OwnerId
 						)
 					);
 
@@ -257,9 +261,13 @@ namespace Ludus::Editor::Panels
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
 				DrawInspectorLabel("Orthographic Size");
-
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				changed |= InputFloatFill("##Camera2D_Panel_OrthographicSize", &component.OrthographicSize);
+
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				DrawInspectorLabel("Priority");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
+				changed |= InputIntFill("##Camera2D_Panel_Priority", &component.Priority);
 			}
 		}
 
@@ -393,7 +401,8 @@ namespace Ludus::Editor::Panels
 				DrawInspectorLabel("Name");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 
-				auto scriptReferences = context.ProjectSession.GetEditorManifest().Scripts;
+				const auto& editorManifest = context.ProjectSession.GetEditorManifest();
+				const auto& scriptReferences = editorManifest.Scripts;
 				if (scriptReferences.empty())
 				{
 					const auto noneValues = { "None" };
@@ -407,50 +416,38 @@ namespace Ludus::Editor::Panels
 					// The variable passed to Combo must be an integer. 
 					auto currentIndex = -1;
 
-					// Check for handle.
 					for (auto i = 0; i < static_cast<int>(scriptReferences.size()); i++)
 					{
 						const auto& reference = scriptReferences[static_cast<size_t>(i)];
-						if (reference.Handle == component.Handle)
+						if (reference.Id == component.Id)
 						{
 							currentIndex = i;
 							break;
 						}
 					}
 
-					// Check for name.
 					if (currentIndex < 0)
 					{
-						for (auto i = 0; i < static_cast<int>(scriptReferences.size()); i++)
+						const auto missingValues = { "Missing Script Reference" };
+						auto missingIndex = 0;
+
+						Ludus::UI::Scope::DisabledScope disabled(true);
+						auto _ = ComboFill("##Script_Panel_Name", &missingIndex, missingValues);
+					}
+					else
+					{
+						auto items = Ludus::UI::Widgets::GetCStringItems(scriptReferences, [](const Ludus::Engine::Runtime::ScriptReference& item)
 						{
-							const auto& reference = scriptReferences[static_cast<size_t>(i)];
-							if (reference.Name == component.Name)
-							{
-								currentIndex = i;
-								break;
-							}
+							return item.Name.c_str();
+						});
+
+						if (ComboFill("##Script_Panel_Name", &currentIndex, items))
+						{
+							const auto& selected = scriptReferences[static_cast<size_t>(currentIndex)];
+							component.Id = selected.Id;
+
+							changed = true;
 						}
-					}
-
-					// Default to first item.
-					if (currentIndex < 0)
-					{
-						currentIndex = 0;
-					}
-
-					auto items = Ludus::UI::Widgets::GetCStringItems(scriptReferences, [](const Ludus::Engine::Runtime::ScriptReference& item)
-					{
-						return item.Name.c_str();
-					});
-
-					if (ComboFill("##Script_Panel_Name", &currentIndex, items))
-					{
-						const auto& selected = scriptReferences[static_cast<size_t>(currentIndex)];
-
-						component.Name = selected.Name;
-						component.Handle = selected.Handle;
-
-						changed = true;
 					}
 				}
 			}
@@ -535,17 +532,17 @@ namespace Ludus::Editor::Panels
 
 			auto& registry = context.ProjectSession.GetSceneRegistry();
 
-			auto activeSceneHandle = context.ProjectSession.EditorState.ActiveSceneHandle;
-			if (!registry.Contains(activeSceneHandle))
+			auto activeSceneId = context.ProjectSession.EditorState.ActiveSceneId;
+			if (!registry.Contains(activeSceneId))
 			{
 				return true;
 			}
 
-			auto& scene = registry.GetScene(activeSceneHandle);
+			auto& scene = registry.GetScene(activeSceneId);
 
 			auto& ecs = scene.EntityComponentSystem;
-			auto entityHandle = *selection.SelectedEntity;
-			if (!ecs.IndexOf(entityHandle))
+			auto entityId = *selection.SelectedEntityId;
+			if (!ecs.IndexOf(entityId))
 			{
 				context.Shell.State.Commands.AddEditCommand(
 					Ludus::Editor::Commands::EditCommand::ClearSelection { }
@@ -556,8 +553,8 @@ namespace Ludus::Editor::Panels
 			bool changed = false;
 
 			// Draw required components.
-			auto* transformPtr = ecs.Transforms.TryGetByOwnerMutable(entityHandle);
-			auto* displayNamePtr = ecs.DisplayNames.TryGetByOwnerMutable(entityHandle);
+			auto* transformPtr = ecs.Transforms.TryGetByOwnerMutable(entityId);
+			auto* displayNamePtr = ecs.DisplayNames.TryGetByOwnerMutable(entityId);
 
 			if (!displayNamePtr || !transformPtr)
 			{
@@ -568,12 +565,12 @@ namespace Ludus::Editor::Panels
 			changed |= DrawTransform2D(*transformPtr);
 
 			// Draw remaining components.
-			auto* colliderPtr = ecs.Colliders.TryGetByOwnerMutable(entityHandle);
-			auto* rigidBodyPtr = ecs.RigidBodies.TryGetByOwnerMutable(entityHandle);
-			auto* scriptPtr = ecs.Scripts.TryGetByOwnerMutable(entityHandle);
-			auto* spritePtr = ecs.Sprites.TryGetByOwnerMutable(entityHandle);
-			auto* textPtr = ecs.Texts.TryGetByOwnerMutable(entityHandle);
-			auto* cameraPtr = ecs.Cameras.TryGetByOwnerMutable(entityHandle);
+			auto* colliderPtr = ecs.Colliders.TryGetByOwnerMutable(entityId);
+			auto* rigidBodyPtr = ecs.RigidBodies.TryGetByOwnerMutable(entityId);
+			auto* scriptPtr = ecs.Scripts.TryGetByOwnerMutable(entityId);
+			auto* spritePtr = ecs.Sprites.TryGetByOwnerMutable(entityId);
+			auto* textPtr = ecs.Texts.TryGetByOwnerMutable(entityId);
+			auto* cameraPtr = ecs.Cameras.TryGetByOwnerMutable(entityId);
 
 			if (cameraPtr)
 			{
@@ -637,57 +634,57 @@ namespace Ludus::Editor::Panels
 			{
 				auto isComponentAdded = false;
 
-				if (!ecs.Cameras.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Camera 2D"))
+				if (!ecs.Cameras.ContainsOwner(entityId) && Ludus::UI::Widgets::MenuItem("Camera 2D"))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Camera2DComponent> {
-						.EntityReference = entityHandle, .SceneHandle = activeSceneHandle
+						.SceneId = activeSceneId, .EntityReference = entityId
 					});
 					isComponentAdded = true;
 				}
 
-				if (!ecs.Colliders.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Collider 2D"))
+				if (!ecs.Colliders.ContainsOwner(entityId) && Ludus::UI::Widgets::MenuItem("Collider 2D"))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Collider2DComponent> {
-						.EntityReference = entityHandle, .SceneHandle = activeSceneHandle
+						.SceneId = activeSceneId, .EntityReference = entityId
 					});
 					isComponentAdded = true;
 				}
 
-				if (!ecs.RigidBodies.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Rigid Body 2D"))
+				if (!ecs.RigidBodies.ContainsOwner(entityId) && Ludus::UI::Widgets::MenuItem("Rigid Body 2D"))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::RigidBody2DComponent> {
-						.EntityReference = entityHandle, .SceneHandle = activeSceneHandle
+						.SceneId = activeSceneId, .EntityReference = entityId
 					});
 					isComponentAdded = true;
 				}
 
-				if (!ecs.Scripts.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Script"))
+				if (!ecs.Scripts.ContainsOwner(entityId) && Ludus::UI::Widgets::MenuItem("Script"))
 				{
 					Commands::EnqueueUI(context.Shell.State.Commands, Commands::UICommand::OpenAddScriptDialog {
-						.EntityHandle = entityHandle, .SceneHandle = activeSceneHandle
+						.SceneId = activeSceneId, .EntityId = entityId
 						});
 					// The added component will be selected later as part of the command chain.
 				}
 
-				if (!ecs.Sprites.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Sprite 2D"))
+				if (!ecs.Sprites.ContainsOwner(entityId) && Ludus::UI::Widgets::MenuItem("Sprite 2D"))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Sprite2DComponent> {
-						.EntityReference = entityHandle, .SceneHandle = activeSceneHandle
+						.SceneId = activeSceneId, .EntityReference = entityId
 					});
 					isComponentAdded = true;
 				}
 
-				if (!ecs.Texts.ContainsOwner(entityHandle) && Ludus::UI::Widgets::MenuItem("Text 2D"))
+				if (!ecs.Texts.ContainsOwner(entityId) && Ludus::UI::Widgets::MenuItem("Text 2D"))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Text2DComponent> {
-						.EntityReference = entityHandle, .SceneHandle = activeSceneHandle
+						.SceneId = activeSceneId, .EntityReference = entityId
 					});
 					isComponentAdded = true;
 				}
 
 				if (isComponentAdded)
 				{
-					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::SelectEntity { .EntityReference = entityHandle });
+					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::SelectEntity { .EntityReference = entityId });
 					Ludus::UI::Context::PopupContext::CloseCurrentPopup();
 				}
 			}

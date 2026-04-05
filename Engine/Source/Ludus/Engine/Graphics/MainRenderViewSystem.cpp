@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Graphics/MainRenderViewSystem.h>
 
 namespace Ludus::Engine::Graphics
@@ -21,7 +22,7 @@ namespace Ludus::Engine::Graphics
 
 		Ludus::Engine::Graphics::RenderViewRequest2D renderViewRequest {
 			.Camera = std::nullopt,
-			.SceneHandle = m_ScenePresentationState.CurrentSceneHandle,
+			.SceneId = m_ScenePresentationState.CurrentSceneId,
 			.Target = &target,
 			.ViewportRect = Ludus::Engine::Math::Rect::Create(
 				{ 0.0f, 0.0f },

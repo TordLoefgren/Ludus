@@ -273,7 +273,7 @@ namespace Ludus::EngineTests::Events
 		auto event = ConcreteEventA();
 		auto handler = ConcreteHandler();
 
-		// Act && Assert.
+		// Act & Assert.
 		EXPECT_NO_THROW(bus.Unsubscribe(event.Type, handler));
 	}
 

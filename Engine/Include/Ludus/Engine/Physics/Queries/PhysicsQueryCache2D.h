@@ -4,24 +4,24 @@
 #include <unordered_map>
 #include <vector>
 
-#include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Physics/Narrowphase/ContactPair2D.h>
 #include <Ludus/Engine/Physics/Queries/IPhysicsQueryCache2D.h>
 
 namespace Ludus::Engine::Physics::Queries
 {
-	using EntityHandle = Ludus::Engine::Core::EntityHandle;
+	using EntityId = Ludus::Engine::Core::EntityId;
 	using ContactPair2D = Ludus::Engine::Physics::Narrowphase::ContactPair2D;
 
 	class PhysicsQueryCache2D : public Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D
 	{
 	private:
-		std::unordered_map<EntityHandle, std::vector<ContactPair2D>> m_ContactsByEntity;
+		std::unordered_map<EntityId, std::vector<ContactPair2D>> m_ContactsByEntity;
 
-		static bool PairInvolves(const ContactPair2D& pair, EntityHandle a, EntityHandle b)
+		static bool PairInvolves(const ContactPair2D& pair, EntityId a, EntityId b)
 		{
-			return (pair.EntityHandleA == a && pair.EntityHandleB == b) ||
-				(pair.EntityHandleA == b && pair.EntityHandleB == a);
+			return (pair.EntityIdA == a && pair.EntityIdB == b) ||
+				(pair.EntityIdA == b && pair.EntityIdB == a);
 		}
 
 	public:
@@ -33,17 +33,17 @@ namespace Ludus::Engine::Physics::Queries
 
 			for (const auto& contact : contactPairs)
 			{
-				const EntityHandle handleA = contact.EntityHandleA;
-				const EntityHandle handleB = contact.EntityHandleB;
+				const EntityId idA = contact.EntityIdA;
+				const EntityId idB = contact.EntityIdB;
 
-				m_ContactsByEntity[handleA].push_back(contact);
-				m_ContactsByEntity[handleB].push_back(contact);
+				m_ContactsByEntity[idA].push_back(contact);
+				m_ContactsByEntity[idB].push_back(contact);
 			}
 		}
 
-		virtual std::span<const ContactPair2D> GetContacts(EntityHandle handle) const override
+		virtual std::span<const ContactPair2D> GetContacts(EntityId id) const override
 		{
-			auto iter = m_ContactsByEntity.find(handle);
+			auto iter = m_ContactsByEntity.find(id);
 			if (iter == m_ContactsByEntity.end())
 			{
 				return { };
@@ -52,9 +52,9 @@ namespace Ludus::Engine::Physics::Queries
 			return iter->second;
 		}
 
-		virtual bool IsColliding(EntityHandle handle) const override
+		virtual bool IsColliding(EntityId id) const override
 		{
-			auto iter = m_ContactsByEntity.find(handle);
+			auto iter = m_ContactsByEntity.find(id);
 			if (iter == m_ContactsByEntity.end())
 			{
 				return false;
@@ -63,9 +63,9 @@ namespace Ludus::Engine::Physics::Queries
 			return !iter->second.empty();
 		}
 
-		virtual bool IsColliding(EntityHandle handleA, EntityHandle handleB) const override
+		virtual bool IsColliding(EntityId idA, EntityId idB) const override
 		{
-			auto iter = m_ContactsByEntity.find(handleA);
+			auto iter = m_ContactsByEntity.find(idA);
 			if (iter == m_ContactsByEntity.end())
 			{
 				return false;
@@ -75,16 +75,16 @@ namespace Ludus::Engine::Physics::Queries
 			return std::any_of(
 				contacts.begin(),
 				contacts.end(),
-				[handleA, handleB](const ContactPair2D& pair)
+				[idA, idB](const ContactPair2D& pair)
 			{
-				return PairInvolves(pair, handleA, handleB);
+				return PairInvolves(pair, idA, idB);
 			}
 			);
 		}
 
-		virtual bool IsTriggering(EntityHandle handle) const override
+		virtual bool IsTriggering(EntityId id) const override
 		{
-			auto iter = m_ContactsByEntity.find(handle);
+			auto iter = m_ContactsByEntity.find(id);
 			if (iter == m_ContactsByEntity.end())
 			{
 				return false;
@@ -101,9 +101,9 @@ namespace Ludus::Engine::Physics::Queries
 			);
 		}
 
-		virtual bool IsTriggering(EntityHandle handleA, EntityHandle handleB) const override
+		virtual bool IsTriggering(EntityId idA, EntityId idB) const override
 		{
-			auto iter = m_ContactsByEntity.find(handleA);
+			auto iter = m_ContactsByEntity.find(idA);
 			if (iter == m_ContactsByEntity.end())
 			{
 				return false;
@@ -114,9 +114,9 @@ namespace Ludus::Engine::Physics::Queries
 			return std::any_of(
 				contacts.begin(),
 				contacts.end(),
-				[handleA, handleB](const ContactPair2D& pair)
+				[idA, idB](const ContactPair2D& pair)
 			{
-				return pair.IsTriggerPair && PairInvolves(pair, handleA, handleB);
+				return pair.IsTriggerPair && PairInvolves(pair, idA, idB);
 			}
 			);
 		}

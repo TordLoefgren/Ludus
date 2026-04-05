@@ -3,14 +3,14 @@
 #include <string>
 #include <utility>
 
-#include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Id.h>
 
 namespace Ludus::Engine::Components
 {
 	struct DisplayNameComponent
 	{
 	public:
-		Ludus::Engine::Core::EntityHandle OwnerHandle { };
+		Ludus::Engine::Core::EntityId OwnerId { Ludus::Engine::Core::EntityId::Invalid() };
 		std::string Name = "";
 
 		DisplayNameComponent() = default;
@@ -22,15 +22,15 @@ namespace Ludus::Engine::Components
 		{ }
 
 		DisplayNameComponent(
-			Ludus::Engine::Core::EntityHandle owner,
+			Ludus::Engine::Core::EntityId owner,
 			std::string name = ""
 		) :
-			OwnerHandle(owner),
+			OwnerId(owner),
 			Name(std::move(name))
 		{ }
 
 		~DisplayNameComponent() = default;
 
-		bool operator==(const DisplayNameComponent& other) const { return OwnerHandle == other.OwnerHandle; }
+		bool operator==(const DisplayNameComponent& other) const { return OwnerId == other.OwnerId; }
 	};
 }

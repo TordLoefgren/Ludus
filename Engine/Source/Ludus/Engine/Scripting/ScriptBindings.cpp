@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Scripting/ScriptBindings.h>
@@ -13,7 +14,7 @@ namespace Ludus::Engine::Scripting
 {
 	using ScriptContext = Ludus::Scripting::ABI::ScriptContext;
 	using ScriptAPI = Ludus::Scripting::ABI::ScriptAPI;
-	using EntityHandle = Ludus::Scripting::ABI::EntityHandle;
+	using ABIEntityId = Ludus::Scripting::ABI::EntityHandle;
 	using Key = Ludus::Scripting::ABI::Key;
 	using MouseButton = Ludus::Scripting::ABI::MouseButton;
 	using DisplayNameData = Ludus::Scripting::ABI::DisplayNameData;
@@ -26,7 +27,7 @@ namespace Ludus::Engine::Scripting
 	{
 		Ludus::Engine::Core::SceneRegistry& SceneRegistry;
 		Ludus::Engine::Windowing::Input& Input;
-		Ludus::Engine::Core::SceneHandle ActiveSceneHandle;
+		Ludus::Engine::Core::SceneId ActiveSceneId;
 	};
 
 	struct ScriptBindingsState
@@ -50,15 +51,25 @@ namespace Ludus::Engine::Scripting
 
 		Ludus::Engine::Core::Scene& ResolveScene(const ScriptHost& host)
 		{
-			return host.SceneRegistry.GetScene(host.ActiveSceneHandle);
+			return host.SceneRegistry.GetScene(host.ActiveSceneId);
+		}
+
+		Ludus::Engine::Core::EntityId FromABI(ABIEntityId id)
+		{
+			return Ludus::Engine::Core::EntityId { id };
+		}
+
+		ABIEntityId ToABI(Ludus::Engine::Core::EntityId id)
+		{
+			return id.Value;
 		}
 
 #pragma region Entity bindings
 
-		static bool GetEntityByName(ScriptContext* context, const char* name, EntityHandle* entityHandle)
+		static bool GetEntityByName(ScriptContext* context, const char* name, ABIEntityId* entityId)
 		{
-			LUDUS_ASSERT(entityHandle != nullptr, "Script binding output entity handle must not be null.");
-			if (!entityHandle)
+			LUDUS_ASSERT(entityId != nullptr, "Script binding output entity id must not be null.");
+			if (!entityId)
 			{
 				return false;
 			}
@@ -70,7 +81,7 @@ namespace Ludus::Engine::Scripting
 			{
 				if (displayName.Name == name)
 				{
-					*entityHandle = displayName.OwnerHandle;
+					*entityId = ToABI(displayName.OwnerId);
 					return true;
 				}
 			}
@@ -146,7 +157,7 @@ namespace Ludus::Engine::Scripting
 			destination.Name = source.Name;
 		}
 
-		static bool OnGetDisplayName(ScriptContext* context, EntityHandle entityHandle, DisplayNameData* displayNameOut)
+		static bool OnGetDisplayName(ScriptContext* context, ABIEntityId entityId, DisplayNameData* displayNameOut)
 		{
 			LUDUS_ASSERT(displayNameOut != nullptr, "Script binding output display name must not be null.");
 			if (!displayNameOut)
@@ -157,7 +168,7 @@ namespace Ludus::Engine::Scripting
 			auto& host = ResolveHost(context);
 			const auto& scene = ResolveScene(host);
 
-			const auto* displayName = scene.EntityComponentSystem.DisplayNames.TryGetByOwner(entityHandle);
+			const auto* displayName = scene.EntityComponentSystem.DisplayNames.TryGetByOwner(FromABI(entityId));
 			if (!displayName)
 			{
 				return false;
@@ -168,7 +179,7 @@ namespace Ludus::Engine::Scripting
 			return true;
 		}
 
-		static bool OnSetDisplayName(ScriptContext* context, EntityHandle entityHandle, const DisplayNameData* displayNameIn)
+		static bool OnSetDisplayName(ScriptContext* context, ABIEntityId entityId, const DisplayNameData* displayNameIn)
 		{
 			LUDUS_ASSERT(displayNameIn != nullptr, "Script binding input display name must not be null.");
 			if (!displayNameIn)
@@ -179,7 +190,7 @@ namespace Ludus::Engine::Scripting
 			auto& host = ResolveHost(context);
 			auto& scene = ResolveScene(host);
 
-			auto* displayName = scene.EntityComponentSystem.DisplayNames.TryGetByOwnerMutable(entityHandle);
+			auto* displayName = scene.EntityComponentSystem.DisplayNames.TryGetByOwnerMutable(FromABI(entityId));
 			if (!displayName)
 			{
 				return false;
@@ -216,7 +227,7 @@ namespace Ludus::Engine::Scripting
 			destination.BodyType = static_cast<Ludus::Engine::Physics::Core::BodyType>(source.BodyType);
 		}
 
-		static bool OnGetRigidBody(ScriptContext* context, EntityHandle entityHandle, RigidBody2DData* rigidBodyOut)
+		static bool OnGetRigidBody(ScriptContext* context, ABIEntityId entityId, RigidBody2DData* rigidBodyOut)
 		{
 			LUDUS_ASSERT(rigidBodyOut != nullptr, "Script binding output rigid body must not be null.");
 			if (!rigidBodyOut)
@@ -227,7 +238,7 @@ namespace Ludus::Engine::Scripting
 			auto& host = ResolveHost(context);
 			const auto& scene = ResolveScene(host);
 
-			const auto* rigidBody = scene.EntityComponentSystem.RigidBodies.TryGetByOwner(entityHandle);
+			const auto* rigidBody = scene.EntityComponentSystem.RigidBodies.TryGetByOwner(FromABI(entityId));
 			if (!rigidBody)
 			{
 				return false;
@@ -238,7 +249,7 @@ namespace Ludus::Engine::Scripting
 			return true;
 		}
 
-		static bool OnSetRigidBody(ScriptContext* context, EntityHandle entityHandle, const RigidBody2DData* rigidBodyIn)
+		static bool OnSetRigidBody(ScriptContext* context, ABIEntityId entityId, const RigidBody2DData* rigidBodyIn)
 		{
 			LUDUS_ASSERT(rigidBodyIn != nullptr, "Script binding input rigid body must not be null.");
 			if (!rigidBodyIn)
@@ -249,7 +260,7 @@ namespace Ludus::Engine::Scripting
 			auto& host = ResolveHost(context);
 			auto& scene = ResolveScene(host);
 
-			auto* rigidBody = scene.EntityComponentSystem.RigidBodies.TryGetByOwnerMutable(entityHandle);
+			auto* rigidBody = scene.EntityComponentSystem.RigidBodies.TryGetByOwnerMutable(FromABI(entityId));
 			if (!rigidBody)
 			{
 				return false;
@@ -284,7 +295,7 @@ namespace Ludus::Engine::Scripting
 			destination.HorizontalTextAlignment = static_cast<Ludus::Engine::Graphics::HorizontalTextAlignment>(source.HorizontalTextAlignment);
 		}
 
-		static bool OnGetText(ScriptContext* context, EntityHandle entityHandle, Text2DData* textOut)
+		static bool OnGetText(ScriptContext* context, ABIEntityId entityId, Text2DData* textOut)
 		{
 			LUDUS_ASSERT(textOut != nullptr, "Script binding output text must not be null.");
 			if (!textOut)
@@ -295,7 +306,7 @@ namespace Ludus::Engine::Scripting
 			auto& host = ResolveHost(context);
 			const auto& scene = ResolveScene(host);
 
-			const auto* text = scene.EntityComponentSystem.Texts.TryGetByOwner(entityHandle);
+			const auto* text = scene.EntityComponentSystem.Texts.TryGetByOwner(FromABI(entityId));
 			if (!text)
 			{
 				return false;
@@ -306,7 +317,7 @@ namespace Ludus::Engine::Scripting
 			return true;
 		}
 
-		static bool OnSetText(ScriptContext* context, EntityHandle entityHandle, const Text2DData* textIn)
+		static bool OnSetText(ScriptContext* context, ABIEntityId entityId, const Text2DData* textIn)
 		{
 			LUDUS_ASSERT(textIn != nullptr, "Script binding input text must not be null.");
 			if (!textIn)
@@ -317,7 +328,7 @@ namespace Ludus::Engine::Scripting
 			auto& host = ResolveHost(context);
 			auto& scene = ResolveScene(host);
 
-			auto* text = scene.EntityComponentSystem.Texts.TryGetByOwnerMutable(entityHandle);
+			auto* text = scene.EntityComponentSystem.Texts.TryGetByOwnerMutable(FromABI(entityId));
 			if (!text)
 			{
 				return false;
@@ -352,7 +363,7 @@ namespace Ludus::Engine::Scripting
 			destination.Rotation = source.Rotation;
 		}
 
-		static bool OnGetTransform(ScriptContext* context, EntityHandle entityHandle, Transform2DData* transformOut)
+		static bool OnGetTransform(ScriptContext* context, ABIEntityId entityId, Transform2DData* transformOut)
 		{
 			LUDUS_ASSERT(transformOut != nullptr, "Script binding output transform must not be null.");
 			if (!transformOut)
@@ -363,7 +374,7 @@ namespace Ludus::Engine::Scripting
 			auto& host = ResolveHost(context);
 			const auto& scene = ResolveScene(host);
 
-			const auto* transform = scene.EntityComponentSystem.Transforms.TryGetByOwner(entityHandle);
+			const auto* transform = scene.EntityComponentSystem.Transforms.TryGetByOwner(FromABI(entityId));
 			if (!transform)
 			{
 				return false;
@@ -374,7 +385,7 @@ namespace Ludus::Engine::Scripting
 			return true;
 		}
 
-		static bool OnSetTransform(ScriptContext* context, EntityHandle entityHandle, const Transform2DData* transformIn)
+		static bool OnSetTransform(ScriptContext* context, ABIEntityId entityId, const Transform2DData* transformIn)
 		{
 			LUDUS_ASSERT(transformIn != nullptr, "Script binding input transform must not be null.");
 			if (!transformIn)
@@ -385,7 +396,7 @@ namespace Ludus::Engine::Scripting
 			auto& host = ResolveHost(context);
 			auto& scene = ResolveScene(host);
 
-			auto* transform = scene.EntityComponentSystem.Transforms.TryGetByOwnerMutable(entityHandle);
+			auto* transform = scene.EntityComponentSystem.Transforms.TryGetByOwnerMutable(FromABI(entityId));
 			if (!transform)
 			{
 				return false;
@@ -403,12 +414,12 @@ namespace Ludus::Engine::Scripting
 	ScriptBindingsState* CreateScriptBindingsState(
 		Ludus::Engine::Core::SceneRegistry& sceneRegistry,
 		Ludus::Engine::Windowing::Input& input,
-		Ludus::Engine::Core::SceneHandle activeSceneHandle
+		Ludus::Engine::Core::SceneId activeSceneId
 	)
 	{
 		auto* state = new ScriptBindingsState
 		{
-			.Host = { sceneRegistry, input, activeSceneHandle },
+			.Host = { sceneRegistry, input, activeSceneId },
 			.API = {
 				.Version = Ludus::Scripting::ABI::CurrentAPIVersion,
 				.GetEntityByName = &GetEntityByName,
@@ -438,9 +449,9 @@ namespace Ludus::Engine::Scripting
 		delete state;
 	}
 
-	void SetActiveScene(ScriptBindingsState* state, Ludus::Engine::Core::SceneHandle sceneHandle)
+	void SetActiveScene(ScriptBindingsState* state, Ludus::Engine::Core::SceneId sceneId)
 	{
-		state->Host.ActiveSceneHandle = sceneHandle;
+		state->Host.ActiveSceneId = sceneId;
 	}
 
 	const ScriptAPI* GetScriptAPI(const ScriptBindingsState* state)

@@ -15,8 +15,7 @@
 #include <Ludus/Engine/Components/Sprite2DComponent.h>
 #include <Ludus/Engine/Components/Text2DComponent.h>
 #include <Ludus/Engine/Components/Transform2DComponent.h>
-#include <Ludus/Engine/Core/Entity.h>
-#include <Ludus/Engine/Core/Scene.h>
+#include <Ludus/Engine/Core/Id.h>
 
 namespace Ludus::Editor::Commands
 {
@@ -27,8 +26,7 @@ namespace Ludus::Editor::Commands
 
 #pragma region Component Commands
 
-		using EntityHandle = Ludus::Engine::Core::EntityHandle;
-		using SceneHandle = Ludus::Engine::Core::SceneHandle;
+		using SceneId = Ludus::Engine::Core::SceneId;
 		using Camera2DComponent = Ludus::Engine::Components::Camera2DComponent;
 		using Collider2DComponent = Ludus::Engine::Components::Collider2DComponent;
 		using DisplayNameComponent = Ludus::Engine::Components::DisplayNameComponent;
@@ -41,20 +39,20 @@ namespace Ludus::Editor::Commands
 		struct UseDefault { };
 
 		template<typename TComponent>
-		struct AddComponent { EntityReference EntityReference { }; SceneHandle SceneHandle; std::variant<UseDefault, TComponent> Init { UseDefault { } }; };
+		struct AddComponent { SceneId SceneId; EntityReference EntityReference { }; std::variant<UseDefault, TComponent> Init { UseDefault { } }; };
 
 		template<typename TComponent>
-		struct RemoveComponent { EntityReference EntityReference; SceneHandle SceneHandle; };
+		struct RemoveComponent { SceneId SceneId; EntityReference EntityReference; };
 
 		template<typename TComponent>
-		struct UpdateComponent { EntityReference EntityReference; SceneHandle SceneHandle; TComponent Before; TComponent After; };
+		struct UpdateComponent { SceneId SceneId; EntityReference EntityReference; TComponent Before; TComponent After; };
 
 #pragma endregion
 
 #pragma region Entity Commands
 
-		struct AddEntity { EntityReference EntityReference; SceneHandle SceneHandle; };
-		struct RemoveEntity { EntityReference EntityReference; SceneHandle SceneHandle; };
+		struct AddEntity { SceneId SceneId; EntityReference EntityReference; };
+		struct RemoveEntity { SceneId SceneId; EntityReference EntityReference; };
 
 #pragma endregion
 

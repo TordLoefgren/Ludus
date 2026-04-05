@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string_view>
 
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Serialization/Core/DomDocument.h>
 #include <Ludus/Engine/Serialization/Core/DomNode.h>
@@ -18,6 +19,9 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	using DomTokenStreamReader = Ludus::Engine::Serialization::Core::DomTokenStreamReader;
 	using Scene = Ludus::Engine::Core::Scene;
 	using SceneSchema = Ludus::Engine::Serialization::Schemas::SceneSchema;
+	using EntityId = Ludus::Engine::Core::EntityId;
+	using SceneId = Ludus::Engine::Core::SceneId;
+	using ScriptId = Ludus::Engine::Core::ScriptId;
 	using Token = Ludus::Engine::Serialization::Core::Token;
 
 	using Ludus::Engine::Serialization::Core::AsObject;
@@ -26,10 +30,10 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	using Ludus::Engine::Serialization::Core::DomNode;
 	using Ludus::Engine::Serialization::Core::DomObject;
 
-	static const Ludus::Engine::Core::SceneHandle GetId()
+	static SceneId GetId()
 	{
 		Ludus::Engine::Core::Random random;
-		return random.NextId();
+		return { random.NextId() };
 	}
 
 	static const DomNode* FindMember(const DomObject& object, std::string_view key)
@@ -49,20 +53,11 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	{
 		const auto& entityObject = AsObject(entity);
 
-		const auto* handleNode = FindMember(entityObject, "Handle");
-		ASSERT_NE(handleNode, nullptr);
-
-		const auto entityHandle = std::get<uint64_t>(AsValue(*handleNode));
-
 		const auto* componentNode = FindMember(entityObject, component);
 		ASSERT_NE(componentNode, nullptr);
 
 		const auto& componentObject = AsObject(*componentNode);
-		const auto* ownerNode = FindMember(componentObject, "OwnerHandle");
-		ASSERT_NE(ownerNode, nullptr);
-
-		const auto componentHandle = std::get<uint64_t>(AsValue(*ownerNode));
-		ASSERT_EQ(entityHandle, componentHandle);
+		ASSERT_EQ(componentObject.empty(), false);
 	}
 
 	TEST(SceneSchema, Serialize_WritesSceneWithEntitiesArray_When_SceneHasEntities)
@@ -144,7 +139,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		}
 	}
 
-	TEST(SceneSchema, Deserialize_CreatesEntitiesWithSameHandles_When_ArchiveIsValid)
+	TEST(SceneSchema, Deserialize_CreatesEntitiesWithSameIds_When_ArchiveIsValid)
 	{
 		// Arrange.
 		DomDocument document;
@@ -184,29 +179,29 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		Scene scene(GetId());
 
-		const auto handle1 = scene.EntityComponentSystem.AddEntity();
-		scene.EntityComponentSystem.AttachCamera(handle1);
+		const auto entityId1 = scene.EntityComponentSystem.AddEntity();
+		scene.EntityComponentSystem.AttachCamera(entityId1);
 
-		const auto handle2 = scene.EntityComponentSystem.AddEntity();
-		scene.EntityComponentSystem.AttachCollider(handle2);
+		const auto entityId2 = scene.EntityComponentSystem.AddEntity();
+		scene.EntityComponentSystem.AttachCollider(entityId2);
 
-		const auto handle3 = scene.EntityComponentSystem.AddEntity();
-		scene.EntityComponentSystem.AttachDisplayName(handle3);
+		const auto entityId3 = scene.EntityComponentSystem.AddEntity();
+		scene.EntityComponentSystem.AttachDisplayName(entityId3);
 
-		const auto handle4 = scene.EntityComponentSystem.AddEntity();
-		scene.EntityComponentSystem.AttachRigidBody(handle4);
+		const auto entityId4 = scene.EntityComponentSystem.AddEntity();
+		scene.EntityComponentSystem.AttachRigidBody(entityId4);
 
-		const auto handle5 = scene.EntityComponentSystem.AddEntity();
-		scene.EntityComponentSystem.AttachSprite(handle5);
+		const auto entityId5 = scene.EntityComponentSystem.AddEntity();
+		scene.EntityComponentSystem.AttachSprite(entityId5);
 
-		const auto handle6 = scene.EntityComponentSystem.AddEntity();
-		scene.EntityComponentSystem.AttachText(handle6);
+		const auto entityId6 = scene.EntityComponentSystem.AddEntity();
+		scene.EntityComponentSystem.AttachText(entityId6);
 
-		const auto handle7 = scene.EntityComponentSystem.AddEntity();
-		scene.EntityComponentSystem.AttachScript(handle7);
+		const auto entityId7 = scene.EntityComponentSystem.AddEntity();
+		scene.EntityComponentSystem.AttachScript(entityId7, ScriptId { 1 });
 
-		const auto handle8 = scene.EntityComponentSystem.AddEntity();
-		scene.EntityComponentSystem.AttachTransform(handle8);
+		const auto entityId8 = scene.EntityComponentSystem.AddEntity();
+		scene.EntityComponentSystem.AttachTransform(entityId8);
 
 		SceneSchema::Serialize(writer, scene);
 		DomTokenStreamReader reader(document);
@@ -218,14 +213,16 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		ASSERT_TRUE(result.HasValue());
 
 		const auto& loadedEcs = result.GetValue().EntityComponentSystem;
-		ASSERT_TRUE(loadedEcs.Cameras.ContainsOwner(handle1));
-		ASSERT_TRUE(loadedEcs.Colliders.ContainsOwner(handle2));
-		ASSERT_TRUE(loadedEcs.DisplayNames.ContainsOwner(handle3));
-		ASSERT_TRUE(loadedEcs.RigidBodies.ContainsOwner(handle4));
-		ASSERT_TRUE(loadedEcs.Sprites.ContainsOwner(handle5));
-		ASSERT_TRUE(loadedEcs.Texts.ContainsOwner(handle6));
-		ASSERT_TRUE(loadedEcs.Scripts.ContainsOwner(handle7));
-		ASSERT_TRUE(loadedEcs.Transforms.ContainsOwner(handle8));
+		const auto loadedEntities = loadedEcs.View();
+		ASSERT_EQ(loadedEntities.size(), 8u);
+		ASSERT_TRUE(loadedEcs.Cameras.ContainsOwner(loadedEntities[0].Id));
+		ASSERT_TRUE(loadedEcs.Colliders.ContainsOwner(loadedEntities[1].Id));
+		ASSERT_TRUE(loadedEcs.DisplayNames.ContainsOwner(loadedEntities[2].Id));
+		ASSERT_TRUE(loadedEcs.RigidBodies.ContainsOwner(loadedEntities[3].Id));
+		ASSERT_TRUE(loadedEcs.Sprites.ContainsOwner(loadedEntities[4].Id));
+		ASSERT_TRUE(loadedEcs.Texts.ContainsOwner(loadedEntities[5].Id));
+		ASSERT_TRUE(loadedEcs.Scripts.ContainsOwner(loadedEntities[6].Id));
+		ASSERT_TRUE(loadedEcs.Transforms.ContainsOwner(loadedEntities[7].Id));
 	}
 
 	TEST(SceneSchema, RoundTrip_PreservesEntitiesAndComponents_When_SavedAndLoaded)
@@ -275,8 +272,6 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Handle" });
-		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Entities" });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::EndObject { });
@@ -290,13 +285,13 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		ASSERT_FALSE(result.HasValue());
 	}
 
-	TEST(SceneSchema, Deserialize_SkipsEntity_When_EntityHandleIsMissing)
+	TEST(SceneSchema, Deserialize_SkipsEntity_When_EntityIdIsMissing)
 	{
 		// Arrange.
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Handle" });
+		writer.Emit(Token::Key { "Id" });
 		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Entities" });
 		writer.Emit(Token::StartArray { });
@@ -314,18 +309,18 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		ASSERT_EQ(result.GetValue().EntityComponentSystem.GetEntityCount(), 0u);
 	}
 
-	TEST(SceneSchema, Deserialize_SkipsEntity_When_ComponentIsInvalid)
+	TEST(SceneSchema, Deserialize_DefaultsComponent_When_ComponentPayloadIsEmptyObject)
 	{
 		// Arrange.
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Handle" });
+		writer.Emit(Token::Key { "Id" });
 		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Entities" });
 		writer.Emit(Token::StartArray { });
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Handle" });
+		writer.Emit(Token::Key { "Id" });
 		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Transform2D" });
 		writer.Emit(Token::StartObject { });
@@ -340,6 +335,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 
 		// Assert.
 		ASSERT_TRUE(result.HasValue());
-		ASSERT_EQ(result.GetValue().EntityComponentSystem.GetEntityCount(), 0u);
+		ASSERT_EQ(result.GetValue().EntityComponentSystem.GetEntityCount(), 1u);
+		EXPECT_TRUE(result.GetValue().EntityComponentSystem.Transforms.ContainsOwner(EntityId { 1 }));
 	}
 }

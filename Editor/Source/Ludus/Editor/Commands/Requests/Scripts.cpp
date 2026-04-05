@@ -8,6 +8,7 @@
 #include <Ludus/Editor/Commands/Requests/Scripts.h>
 #include <Ludus/Editor/Panels/PanelHelpers.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
+#include <Ludus/Engine/Core/Id.h>
 
 namespace Ludus::Editor::Commands::Requests::Scripts
 {
@@ -26,9 +27,9 @@ namespace Ludus::Editor::Commands::Requests::Scripts
 			throw std::runtime_error("Script source file already exists: " + scriptSourcePath.string());
 		}
 
-		const auto handle = context.ProjectSession.AllocateEditorScriptHandle();
+		const auto id = context.ProjectSession.AllocateEditorScriptId();
 		auto& runtimeManifest = context.ProjectSession.GetEditorManifest();
-		context.ProjectSession.AddOrUpdateEditorScriptReference(handle, command.Name);
+		context.ProjectSession.AddOrUpdateEditorScriptReference(id, command.Name);
 		context.RuntimeManifestPersistence.Save(runtimeManifest, context.ProjectSession.ProjectManifest.RuntimeManifestPath);
 
 		auto& build = context.Shell.Build;
@@ -40,7 +41,7 @@ namespace Ludus::Editor::Commands::Requests::Scripts
 		catch (...)
 		{
 			// Make sure to roll back persistence in case of exceptions.
-			context.ProjectSession.RemoveEditorScriptReference(handle);
+			context.ProjectSession.RemoveEditorScriptReference(id);
 			context.RuntimeManifestPersistence.Save(runtimeManifest, context.ProjectSession.ProjectManifest.RuntimeManifestPath);
 			Ludus::Editor::Panels::RefreshContentPanel(projectRoot, context.PanelRegistry);
 
@@ -49,9 +50,7 @@ namespace Ludus::Editor::Commands::Requests::Scripts
 
 		context.Shell.State.Commands.AddEditCommand(
 			Ludus::Editor::Commands::EditCommand::AddComponent<Ludus::Engine::Components::ScriptComponent> {
-			.EntityReference = command.EntityReference,
-				.SceneHandle = command.SceneHandle,
-				.Init = Ludus::Engine::Components::ScriptComponent { command.Name, handle }
+			.SceneId = command.SceneId, .EntityReference = command.EntityReference, .Init = Ludus::Engine::Components::ScriptComponent { id }
 		});
 
 		Ludus::Editor::Panels::RefreshContentPanel(projectRoot, context.PanelRegistry);

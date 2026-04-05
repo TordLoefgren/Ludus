@@ -6,6 +6,7 @@
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Dialogs/RenameSceneDialog.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/PopupContext.h>
 #include <Ludus/UI/Context/ThemeContext.h>
@@ -17,8 +18,8 @@
 
 namespace Ludus::Editor::Dialogs
 {
-	RenameSceneDialog::RenameSceneDialog(Ludus::Engine::Core::SceneHandle sceneHandle, std::filesystem::path currentPath)
-		: SceneHandle(sceneHandle), CurrentPath(currentPath)
+	RenameSceneDialog::RenameSceneDialog(Ludus::Engine::Core::SceneId sceneId, std::filesystem::path currentPath)
+		: SceneId(sceneId), CurrentPath(currentPath)
 	{ }
 
 	RenameSceneDialog::Outcome RenameSceneDialog::Draw()
@@ -55,7 +56,7 @@ namespace Ludus::Editor::Dialogs
 				if (Error.empty())
 				{
 					IsOpen = false;
-					return Outcome::Confirm({ .SceneHandle = SceneHandle, .Path = NewPath });
+					return Outcome::Confirm({ .SceneId = SceneId, .Path = NewPath });
 				}
 			}
 
@@ -91,7 +92,7 @@ namespace Ludus::Editor::Dialogs
 			else if constexpr (std::is_same_v<Alt, typename Outcome::Confirmed>)
 			{
 				out.RequestCommands.emplace_back(
-					Ludus::Editor::Commands::RequestCommand::RenameScene { value.Payload.SceneHandle, value.Payload.Path }
+					Ludus::Editor::Commands::RequestCommand::RenameScene { value.Payload.SceneId, value.Payload.Path }
 				);
 			}
 		}, outcome.Data);

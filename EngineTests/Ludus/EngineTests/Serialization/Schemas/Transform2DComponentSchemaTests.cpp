@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include <Ludus/Engine/Components/Transform2DComponent.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Serialization/Core/DomDocument.h>
 #include <Ludus/Engine/Serialization/Core/DomNode.h>
 #include <Ludus/Engine/Serialization/Core/DomTokenStreamReader.h>
@@ -17,6 +18,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	using DomTokenStreamReader = Ludus::Engine::Serialization::Core::DomTokenStreamReader;
 	using Transform2DComponentSchema = Ludus::Engine::Serialization::Schemas::Transform2DComponentSchema;
 	using Token = Ludus::Engine::Serialization::Core::Token;
+	using EntityId = Ludus::Engine::Core::EntityId;
 
 	using Ludus::Engine::Serialization::Core::AsObject;
 	using Ludus::Engine::Serialization::Core::AsValue;
@@ -39,7 +41,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	TEST(Transform2DComponentSchema, Serialize_WritesExpectedComponentValues)
 	{
 		// Arrange.
-		Ludus::Engine::Components::Transform2DComponent transform(1, { 5, 10 }, { 2, 4 }, 45);
+		Ludus::Engine::Components::Transform2DComponent transform(EntityId { 1 }, { 5, 10 }, { 2, 4 }, 45);
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 
@@ -52,17 +54,13 @@ namespace Ludus::EngineTests::Serialization::Schemas
 
 		const auto& transformObject = AsObject(*root);
 
-		const auto* ownerNode = FindMember(transformObject, "OwnerHandle");
 		const auto* positionNode = FindMember(transformObject, "Position");
 		const auto* scaleNode = FindMember(transformObject, "Scale");
 		const auto* rotationNode = FindMember(transformObject, "Rotation");
 
-		ASSERT_NE(ownerNode, nullptr);
 		ASSERT_NE(positionNode, nullptr);
 		ASSERT_NE(scaleNode, nullptr);
 		ASSERT_NE(rotationNode, nullptr);
-
-		const auto ownerHandle = std::get<uint64_t>(AsValue(*ownerNode));
 
 		const auto& positionObject = AsObject(*positionNode);
 		const auto positionX = std::get<double>(AsValue(*FindMember(positionObject, "X")));
@@ -74,7 +72,6 @@ namespace Ludus::EngineTests::Serialization::Schemas
 
 		const auto rotation = std::get<double>(AsValue(*rotationNode));
 
-		ASSERT_EQ(ownerHandle, 1u);
 		ASSERT_EQ(positionX, 5.0f);
 		ASSERT_EQ(positionY, 10.0f);
 		ASSERT_EQ(scaleX, 2.0f);
@@ -85,11 +82,10 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	TEST(Transform2DComponentSchema, Deserialize_ReadsFields_When_ComponentHasValues)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Position" });
 		writer.Emit(Token::StartObject { });
 		writer.Emit(Token::Key { "X" });
@@ -110,13 +106,13 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Transform2DComponentSchema::Deserialize(reader);
+		const auto result = Transform2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
 		ASSERT_TRUE(result.HasValue());
 
 		const auto& transformResult = result.GetValue();
-		ASSERT_EQ(transformResult.OwnerHandle, 1u);
+		ASSERT_EQ(transformResult.OwnerId, ownerId);
 		ASSERT_EQ(transformResult.Position.X, 5.0f);
 		ASSERT_EQ(transformResult.Position.Y, 10.0f);
 		ASSERT_EQ(transformResult.Scale.X, 2.0f);
@@ -127,22 +123,21 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	TEST(Transform2DComponentSchema, Deserialize_DefaultsOptionalFields_When_Missing)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Transform2DComponentSchema::Deserialize(reader);
+		const auto result = Transform2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
 		ASSERT_TRUE(result.HasValue());
 
 		const auto& transformResult = result.GetValue();
-		ASSERT_EQ(transformResult.OwnerHandle, 1u);
+		ASSERT_EQ(transformResult.OwnerId, ownerId);
 		ASSERT_EQ(transformResult.Position.X, 0.0f);
 		ASSERT_EQ(transformResult.Position.Y, 0.0f);
 		ASSERT_EQ(transformResult.Scale.X, 1.0f);
@@ -150,9 +145,10 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		ASSERT_EQ(transformResult.Rotation, 0.0f);
 	}
 
-	TEST(Transform2DComponentSchema, Deserialize_Fails_When_RequiredFieldsAreMissing)
+	TEST(Transform2DComponentSchema, Deserialize_DefaultsFields_When_AllPayloadFieldsAreMissing)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
@@ -160,22 +156,29 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Transform2DComponentSchema::Deserialize(reader);
+		const auto result = Transform2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
-		ASSERT_FALSE(result.HasValue());
+		ASSERT_TRUE(result.HasValue());
+		ASSERT_EQ(result.GetValue().OwnerId, ownerId);
+		ASSERT_EQ(result.GetValue().Position.X, 0.0f);
+		ASSERT_EQ(result.GetValue().Position.Y, 0.0f);
+		ASSERT_EQ(result.GetValue().Scale.X, 1.0f);
+		ASSERT_EQ(result.GetValue().Scale.Y, 1.0f);
+		ASSERT_EQ(result.GetValue().Rotation, 0.0f);
 	}
 
 	TEST(Transform2DComponentSchema, Deserialize_Fails_When_ComponentHeaderIsMissing)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::Int { 1 });
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Transform2DComponentSchema::Deserialize(reader);
+		const auto result = Transform2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
 		ASSERT_FALSE(result.HasValue());
