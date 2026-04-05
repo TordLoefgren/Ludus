@@ -4,6 +4,7 @@
 #include <string>
 
 #include <Ludus/Engine/Components/Text2DComponent.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
 #include <Ludus/Engine/Serialization/Core/DomDocument.h>
 #include <Ludus/Engine/Serialization/Core/DomNode.h>
@@ -20,6 +21,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	using Text2DComponentSchema = Ludus::Engine::Serialization::Schemas::Text2DComponentSchema;
 	using Token = Ludus::Engine::Serialization::Core::Token;
 	using HorizontalTextAlignment = Ludus::Engine::Graphics::HorizontalTextAlignment;
+	using EntityId = Ludus::Engine::Core::EntityId;
 
 	using Ludus::Engine::Serialization::Core::AsObject;
 	using Ludus::Engine::Serialization::Core::AsValue;
@@ -42,7 +44,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	TEST(Text2DComponentSchema, Serialize_WritesExpectedComponentValues)
 	{
 		// Arrange.
-		Ludus::Engine::Components::Text2DComponent text(1);
+		Ludus::Engine::Components::Text2DComponent text(EntityId { 1 });
 		text.Text = "Hello";
 		text.Color = { 0.1f, 0.2f, 0.3f, 0.4f };
 		text.HorizontalTextAlignment = HorizontalTextAlignment::Center;
@@ -59,17 +61,14 @@ namespace Ludus::EngineTests::Serialization::Schemas
 
 		const auto& textObject = AsObject(*root);
 
-		const auto* ownerNode = FindMember(textObject, "OwnerHandle");
 		const auto* textNode = FindMember(textObject, "Text");
 		const auto* colorNode = FindMember(textObject, "Color");
 		const auto* alignNode = FindMember(textObject, "HorizontalTextAlignment");
 
-		ASSERT_NE(ownerNode, nullptr);
 		ASSERT_NE(textNode, nullptr);
 		ASSERT_NE(colorNode, nullptr);
 		ASSERT_NE(alignNode, nullptr);
 
-		const auto ownerHandle = std::get<uint64_t>(AsValue(*ownerNode));
 		const auto textValue = std::get<std::string>(AsValue(*textNode));
 		const auto alignment = std::get<std::string>(AsValue(*alignNode));
 
@@ -79,7 +78,6 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		const auto colorB = std::get<double>(AsValue(*FindMember(colorObject, "B")));
 		const auto colorA = std::get<double>(AsValue(*FindMember(colorObject, "A")));
 
-		ASSERT_EQ(ownerHandle, 1u);
 		ASSERT_EQ(textValue, "Hello");
 		ASSERT_EQ(alignment, "Center");
 		ASSERT_EQ(colorR, 0.1f);
@@ -91,11 +89,10 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	TEST(Text2DComponentSchema, Deserialize_ReadsFields_When_ComponentHasValues)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "Text" });
 		writer.Emit(Token::String { "Hello" });
 		writer.Emit(Token::Key { "Color" });
@@ -115,13 +112,13 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Text2DComponentSchema::Deserialize(reader);
+		const auto result = Text2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
 		ASSERT_TRUE(result.HasValue());
 
 		const auto& textResult = result.GetValue();
-		ASSERT_EQ(textResult.OwnerHandle, 1u);
+		ASSERT_EQ(textResult.OwnerId, ownerId);
 		ASSERT_EQ(textResult.Text, "Hello");
 		ASSERT_EQ(textResult.Color.R, 0.1f);
 		ASSERT_EQ(textResult.Color.G, 0.2f);
@@ -133,22 +130,21 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	TEST(Text2DComponentSchema, Deserialize_DefaultsOptionalFields_When_Missing)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "OwnerHandle" });
-		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Text2DComponentSchema::Deserialize(reader);
+		const auto result = Text2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
 		ASSERT_TRUE(result.HasValue());
 
 		const auto& textResult = result.GetValue();
-		ASSERT_EQ(textResult.OwnerHandle, 1u);
+		ASSERT_EQ(textResult.OwnerId, ownerId);
 		ASSERT_EQ(textResult.Text, "");
 		ASSERT_EQ(textResult.Color.R, 1.0f);
 		ASSERT_EQ(textResult.Color.G, 1.0f);
@@ -156,9 +152,10 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		ASSERT_EQ(textResult.Color.A, 1.0f);
 	}
 
-	TEST(Text2DComponentSchema, Deserialize_Fails_When_RequiredFieldsAreMissing)
+	TEST(Text2DComponentSchema, Deserialize_DefaultsFields_When_AllPayloadFieldsAreMissing)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
@@ -166,22 +163,29 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Text2DComponentSchema::Deserialize(reader);
+		const auto result = Text2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
-		ASSERT_FALSE(result.HasValue());
+		ASSERT_TRUE(result.HasValue());
+		ASSERT_EQ(result.GetValue().OwnerId, ownerId);
+		ASSERT_EQ(result.GetValue().Text, "");
+		ASSERT_EQ(result.GetValue().Color.R, 1.0f);
+		ASSERT_EQ(result.GetValue().Color.G, 1.0f);
+		ASSERT_EQ(result.GetValue().Color.B, 1.0f);
+		ASSERT_EQ(result.GetValue().Color.A, 1.0f);
 	}
 
 	TEST(Text2DComponentSchema, Deserialize_Fails_When_ComponentHeaderIsMissing)
 	{
 		// Arrange.
+		const EntityId ownerId { 1 };
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::Int { 1 });
 		DomTokenStreamReader reader(document);
 
 		// Act.
-		const auto result = Text2DComponentSchema::Deserialize(reader);
+		const auto result = Text2DComponentSchema::Deserialize(reader, ownerId);
 
 		// Assert.
 		ASSERT_FALSE(result.HasValue());

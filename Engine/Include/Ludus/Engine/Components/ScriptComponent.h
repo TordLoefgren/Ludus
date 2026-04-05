@@ -1,43 +1,31 @@
 #pragma once
 
-#include <string>
-#include <string_view>
-
-#include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Id.h>
 
 namespace Ludus::Engine::Components
 {
-	using ScriptHandle = uint64_t;
-
 	struct ScriptComponent
 	{
 	public:
-		Ludus::Engine::Core::EntityHandle OwnerHandle {};
-		std::string Name = "";
-		ScriptHandle Handle {};
+		Ludus::Engine::Core::EntityId OwnerId { Ludus::Engine::Core::EntityId::Invalid() };
+		Ludus::Engine::Core::ScriptId Id { Ludus::Engine::Core::ScriptId::Invalid() };
 
 		ScriptComponent() = default;
 
-		explicit ScriptComponent(
-			std::string_view name,
-			ScriptHandle handle = {}
-		) :
-			Name(name),
-			Handle(handle)
+		explicit ScriptComponent(Ludus::Engine::Core::ScriptId id)
+			: Id(id)
 		{ }
 
 		ScriptComponent(
-			Ludus::Engine::Core::EntityHandle ownerHandle,
-			std::string_view name = "",
-			ScriptHandle handle = {}
+			Ludus::Engine::Core::EntityId ownerId,
+			Ludus::Engine::Core::ScriptId id = Ludus::Engine::Core::ScriptId::Invalid()
 		) :
-			OwnerHandle(ownerHandle),
-			Name(name),
-			Handle(handle == ScriptHandle {} ? static_cast<ScriptHandle>(ownerHandle) : handle)
+			OwnerId(ownerId),
+			Id(id)
 		{ }
 
 		~ScriptComponent() = default;
 
-		bool operator==(const ScriptComponent& other) const { return Handle == other.Handle; }
+		bool operator==(const ScriptComponent& other) const { return Id == other.Id; }
 	};
 }

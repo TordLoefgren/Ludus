@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/Random.h>
 #include <Ludus/Engine/Debug/Debug.h>
 
@@ -15,9 +16,9 @@ namespace Ludus::Engine::Core
 	struct EntityRegistry
 	{
 	private:
-		std::vector<Entity> m_Data;										// Entity Storage.
-		std::vector<EntityHandle> m_Handles;							// Index -> entity handle.
-		std::unordered_map<EntityHandle, size_t> m_HandleToIndex;		// Entity handle -> index.
+		std::vector<Entity> m_Data;									// Entity Storage.
+		std::vector<EntityId> m_Ids;								// Index -> entity id.
+		std::unordered_map<EntityId, size_t> m_IdToIndex;			// Entity id -> index.
 		Ludus::Engine::Core::Random m_Random;
 		static constexpr size_t MaxUniqueIdAttempts = 32;
 
@@ -27,62 +28,76 @@ namespace Ludus::Engine::Core
 			if (index != lastIndex)
 			{
 				std::swap(m_Data[index], m_Data[lastIndex]);
-				std::swap(m_Handles[index], m_Handles[lastIndex]);
+				std::swap(m_Ids[index], m_Ids[lastIndex]);
 
 				// Fix the indices of the moved element.
-				const EntityHandle movedHandle = m_Handles[index];
+				const EntityId movedId = m_Ids[index];
 
-				m_HandleToIndex[movedHandle] = index;
+				m_IdToIndex[movedId] = index;
 			}
 
-			m_HandleToIndex.erase(m_Handles[lastIndex]);
+			m_IdToIndex.erase(m_Ids[lastIndex]);
 
 			m_Data.pop_back();
-			m_Handles.pop_back();
+			m_Ids.pop_back();
 		}
 
-		EntityHandle CommitEntity(Entity entity)
+		EntityId CommitEntity(Entity entity)
 		{
-			const auto handle = entity.Handle;
-			LUDUS_ASSERT(!m_HandleToIndex.contains(handle), "Entity handle collision.");
+			const auto id = CreateUniqueId();
+			entity.Id = id;
 
 			m_Data.push_back(std::move(entity));
-			m_Handles.push_back(handle);
-			m_HandleToIndex[handle] = m_Data.size() - 1;
+			m_Ids.push_back(id);
+			m_IdToIndex[id] = m_Data.size() - 1;
 
-			return handle;
+			return id;
 		}
 
-		EntityHandle CreateUniqueId()
+		EntityId CreateUniqueId()
 		{
 			// Retry a fixed number of times to avoid collision loop.
 			for (size_t attempt = 0; attempt < MaxUniqueIdAttempts; ++attempt)
 			{
-				const auto handle = m_Random.NextId();
-				if (!m_HandleToIndex.contains(handle))
+				const auto id = EntityId { m_Random.NextId() };
+				if (!m_IdToIndex.contains(id))
 				{
-					return handle;
+					return id;
 				}
 			}
 
-			LUDUS_ASSERT(false, "Failed to generate a unique entity handle.");
-			return m_Random.NextId();
+			LUDUS_ASSERT(false, "Failed to generate a unique entity id.");
+			return EntityId { m_Random.NextId() };
 		}
 
 	public:
-		void AddEntity(EntityHandle handle)
+		EntityId AddEntity(Entity entity)
 		{
-			(void)CommitEntity(Entity { handle });
+			return CommitEntity(std::move(entity));
 		}
 
-		EntityHandle CreateEntity()
+		EntityId CreateEntity()
 		{
-			return CommitEntity(Entity { CreateUniqueId() });
+			return CommitEntity(Entity { EntityId::Invalid() });
 		}
 
-		bool DestroyEntity(EntityHandle handle)
+		EntityId RestoreEntity(EntityId id)
 		{
-			if (auto iter = m_HandleToIndex.find(handle); iter != m_HandleToIndex.end())
+			LUDUS_ASSERT(id.IsValid(), "Cannot restore an invalid entity id.");
+			LUDUS_ASSERT(!m_IdToIndex.contains(id), "Cannot restore a duplicate entity id.");
+
+			auto entity = Entity { id };
+
+			m_Data.push_back(entity);
+			m_Ids.push_back(id);
+			m_IdToIndex[id] = m_Data.size() - 1;
+
+			return id;
+		}
+
+		bool DestroyEntity(EntityId id)
+		{
+			if (auto iter = m_IdToIndex.find(id); iter != m_IdToIndex.end())
 			{
 				RemoveAndReorderIndices(iter->second);
 
@@ -92,9 +107,9 @@ namespace Ludus::Engine::Core
 			return false;
 		}
 
-		Entity* TryGet(EntityHandle handle)
+		Entity* TryGet(EntityId id)
 		{
-			if (auto iter = m_HandleToIndex.find(handle); iter != m_HandleToIndex.end())
+			if (auto iter = m_IdToIndex.find(id); iter != m_IdToIndex.end())
 			{
 				return &m_Data[iter->second];
 			}
@@ -102,9 +117,9 @@ namespace Ludus::Engine::Core
 			return nullptr;
 		}
 
-		const Entity* TryGet(EntityHandle handle) const
+		const Entity* TryGet(EntityId id) const
 		{
-			if (auto iter = m_HandleToIndex.find(handle); iter != m_HandleToIndex.end())
+			if (auto iter = m_IdToIndex.find(id); iter != m_IdToIndex.end())
 			{
 				return &m_Data[iter->second];
 			}
@@ -114,9 +129,9 @@ namespace Ludus::Engine::Core
 
 		std::span<const Entity> View() const { return { m_Data.data(), m_Data.size() }; }
 
-		std::optional<size_t> IndexOf(EntityHandle handle) const
+		std::optional<size_t> IndexOf(EntityId id) const
 		{
-			if (auto iter = m_HandleToIndex.find(handle); iter != m_HandleToIndex.end())
+			if (auto iter = m_IdToIndex.find(id); iter != m_IdToIndex.end())
 			{
 				return iter->second;
 			}

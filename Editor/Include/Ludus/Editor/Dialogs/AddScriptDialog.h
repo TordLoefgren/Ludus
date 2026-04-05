@@ -1,15 +1,14 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include <Ludus/Editor/Commands/CommandSet.h>
 #include <Ludus/Editor/Dialogs/DialogOutcome.h>
 #include <Ludus/Engine/Components/ScriptComponent.h>
-#include <Ludus/Engine/Core/Entity.h>
-#include <Ludus/Engine/Core/Scene.h>
+#include <Ludus/Engine/Core/Id.h>
+#include <Ludus/Engine/Runtime/RuntimeManifest.h>
 
 namespace Ludus::Editor::Dialogs
 {
@@ -25,19 +24,19 @@ namespace Ludus::Editor::Dialogs
 		std::string SelectName;
 		AddScriptTab ActiveTab = AddScriptTab::Create;
 
-		Ludus::Engine::Core::EntityHandle EntityHandle;
-		Ludus::Engine::Core::SceneHandle SceneHandle;
+		Ludus::Engine::Core::SceneId SceneId;
+		Ludus::Engine::Core::EntityId EntityId;
 		std::vector<std::string> ScriptNames;
-		std::unordered_map<std::string, Ludus::Engine::Components::ScriptHandle> ScriptHandlesByName;
+		std::vector<Ludus::Engine::Runtime::ScriptReference> ScriptReferences;
 
 		using Outcome = DialogOutcome<std::string>;
 
 	public:
 		AddScriptDialog(
-			Ludus::Engine::Core::EntityHandle entityHandle,
-			Ludus::Engine::Core::SceneHandle sceneHandle,
+			Ludus::Engine::Core::SceneId sceneId,
+			Ludus::Engine::Core::EntityId entityId,
 			std::vector<std::string> scriptNames,
-			std::unordered_map<std::string, Ludus::Engine::Components::ScriptHandle> scriptHandlesByName
+			std::vector<Ludus::Engine::Runtime::ScriptReference> scriptReferences
 		);
 
 		Outcome Draw();

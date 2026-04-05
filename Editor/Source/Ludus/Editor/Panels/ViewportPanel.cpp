@@ -8,6 +8,7 @@
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Core/ViewportDisplayMode.h>
 #include <Ludus/Editor/Panels/ViewportPanel.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Graphics/Color.h>
@@ -186,10 +187,10 @@ namespace Ludus::Editor::Panels
 
 			auto& registry = context.ProjectSession.GetSceneRegistry();
 
-			auto active = context.ProjectSession.EditorState.ActiveSceneHandle;
-			if (!m_SelectedSceneHandle || !registry.Contains(*m_SelectedSceneHandle))
+			auto active = context.ProjectSession.EditorState.ActiveSceneId;
+			if (!m_SelectedSceneId || !registry.Contains(*m_SelectedSceneId))
 			{
-				m_SelectedSceneHandle = active;
+				m_SelectedSceneId = active;
 			}
 
 			const auto& renderPresentationSettings = context.ProjectSession.GetRenderPresentationSettings();
@@ -233,7 +234,7 @@ namespace Ludus::Editor::Panels
 
 			Ludus::Engine::Graphics::RenderViewRequest2D renderViewRequest {
 				.Camera = camera,
-				.SceneHandle = m_SelectedSceneHandle,
+				.SceneId = m_SelectedSceneId,
 				.Target = &*m_Target,
 				.ViewportRect = Ludus::Engine::Math::Rect::Create(viewportPosition, aspectSize)
 			};

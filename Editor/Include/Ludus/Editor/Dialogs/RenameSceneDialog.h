@@ -5,6 +5,7 @@
 
 #include <Ludus/Editor/Commands/CommandSet.h>
 #include <Ludus/Editor/Dialogs/DialogOutcome.h>
+#include <Ludus/Engine/Core/Id.h>
 
 namespace Ludus::Editor::Dialogs
 {
@@ -13,7 +14,7 @@ namespace Ludus::Editor::Dialogs
 	private:
 		struct RenameOutcome
 		{
-			Ludus::Engine::Core::SceneHandle SceneHandle;
+			Ludus::Engine::Core::SceneId SceneId;
 			std::filesystem::path Path;
 		};
 
@@ -24,13 +25,13 @@ namespace Ludus::Editor::Dialogs
 		std::string Name;
 		std::filesystem::path NewPath;
 
-		Ludus::Engine::Core::SceneHandle SceneHandle;
+		Ludus::Engine::Core::SceneId SceneId;
 		std::filesystem::path CurrentPath;
 
 		using Outcome = DialogOutcome<RenameOutcome>;
 
 	public:
-		RenameSceneDialog(Ludus::Engine::Core::SceneHandle sceneHandle, std::filesystem::path currentPath);
+		RenameSceneDialog(Ludus::Engine::Core::SceneId sceneId, std::filesystem::path currentPath);
 
 		Outcome Draw();
 		void Resolve(const Outcome& outcome, Ludus::Editor::Commands::CommandSet& out);

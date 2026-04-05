@@ -1,12 +1,10 @@
 #pragma once
 
-#include <cstdint>
-#include <filesystem>
-#include <string>
+#include <string_view>
 
 #include <Ludus/Engine/Components/ScriptComponent.h>
-#include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Expected.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamReader.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamWriter.h>
 #include <Ludus/Engine/Serialization/Core/SerializationException.h>
@@ -26,57 +24,42 @@ namespace Ludus::Engine::Serialization::Schemas
 		{
 			writer.Emit(Token::StartObject { });
 
-			writer.Emit(Token::Key { "OwnerHandle" });
-			writer.Emit(Token::Uint { script.OwnerHandle });
-
-			writer.Emit(Token::Key { "Handle" });
-			writer.Emit(Token::Uint { script.Handle });
-
-			writer.Emit(Token::Key { "Name" });
-			writer.Emit(Token::String { script.Name });
+			writer.Emit(Token::Key { "Id" });
+			writer.Emit(Token::Uint { script.Id.Value });
 
 			writer.Emit(Token::EndObject { });
 		}
 
-		inline static Ludus::Engine::Core::Expected<Script, SerializationException> Deserialize(ITokenStreamReader& reader)
+		inline static Ludus::Engine::Core::Expected<Script, SerializationException> Deserialize(
+			ITokenStreamReader& reader,
+			Ludus::Engine::Core::EntityId ownerId
+		)
 		{
 			try
 			{
 				Script script;
-				bool hasOwner = false;
-				bool hasHandle = false;
+				script.OwnerId = ownerId;
+				bool hasId = false;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 				{
-					if (key == "OwnerHandle")
+					if (key == "Id")
 					{
-						script.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
-						hasOwner = true;
-						return;
-					}
-					if (key == "Handle")
-					{
-						script.Handle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
-						hasHandle = true;
-						return;
-					}
-					if (key == "Name")
-					{
-						script.Name = std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
+						script.Id = { Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader) };
+						if (!script.Id.IsValid())
+						{
+							throw SerializationException("Invalid script id.");
+						}
+						hasId = true;
 						return;
 					}
 
 					Ludus::Engine::Serialization::Core::SkipValue(reader);
 				});
 
-				if (!hasOwner)
+				if (!hasId)
 				{
-					throw SerializationException("No owner handle found.");
-				}
-
-				if (!hasHandle)
-				{
-					throw SerializationException("No script handle found.");
+					throw SerializationException("No script id found.");
 				}
 
 				return script;

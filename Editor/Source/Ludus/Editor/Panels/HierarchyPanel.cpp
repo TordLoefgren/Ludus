@@ -8,6 +8,7 @@
 #include <Ludus/Editor/Commands/Enqueue.h>
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Panels/HierarchyPanel.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Debug/Debug.h>
@@ -41,36 +42,36 @@ namespace Ludus::Editor::Panels
 		}
 	}
 
-	void HierarchyPanel::DrawEntityRow(Ludus::Editor::Core::ProjectSessionContext& context, Ludus::Engine::Core::Scene& scene, Ludus::Engine::Core::EntityHandle entityHandle)
+	void HierarchyPanel::DrawEntityRow(Ludus::Editor::Core::ProjectSessionContext& context, Ludus::Engine::Core::Scene& scene, Ludus::Engine::Core::EntityId entityId)
 	{
 		auto& selection = context.ProjectSession.EditorState.Selection;
 		auto& ecs = scene.EntityComponentSystem;
-		const auto sceneHandle = scene.Handle;
+		const auto sceneId = scene.Id;
 
-		const auto* displayNamePtr = ecs.DisplayNames.TryGetByOwner(entityHandle);
+		const auto* displayNamePtr = ecs.DisplayNames.TryGetByOwner(entityId);
 		LUDUS_ASSERT(displayNamePtr != nullptr, "An entity must have a DisplayNameComponent.");
 		const auto entityLabel = displayNamePtr != nullptr
-			? Ludus::UI::CreateLabelWithIcon(ICON_CUBE, displayNamePtr->Name, std::to_string(entityHandle))
-			: Ludus::UI::CreateLabelWithIcon(ICON_CUBE, std::format("Entity {}", entityHandle), std::to_string(entityHandle));
+			? Ludus::UI::CreateLabelWithIcon(ICON_CUBE, displayNamePtr->Name, std::to_string(entityId.Value))
+			: Ludus::UI::CreateLabelWithIcon(ICON_CUBE, std::format("Entity {}", entityId.Value), std::to_string(entityId.Value));
 
-		if (Ludus::UI::Widgets::Selectable(entityLabel.c_str(), selection.IsSelected(entityHandle)))
+		if (Ludus::UI::Widgets::Selectable(entityLabel.c_str(), selection.IsSelected(entityId)))
 		{
-			Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::SelectEntity { entityHandle });
+			Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::SelectEntity { entityId });
 		}
 
 		if (Ludus::UI::Scope::PopupContextItemScope contextItem; contextItem)
 		{
 			if (Ludus::UI::Widgets::MenuItem("Select"))
 			{
-				Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::SelectEntity { entityHandle });
+				Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::SelectEntity { entityId });
 			}
 
 			Ludus::UI::Context::LayoutContext::Separator();
 
 			if (Ludus::UI::Widgets::MenuItem("Remove"))
 			{
-				Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::RemoveEntity { .EntityReference = entityHandle, .SceneHandle = sceneHandle });
-				Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::DeselectEntity { entityHandle });
+				Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::RemoveEntity { .SceneId = sceneId, .EntityReference = entityId });
+				Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::DeselectEntity { entityId });
 			}
 
 			Ludus::UI::Context::LayoutContext::Separator();
@@ -79,57 +80,57 @@ namespace Ludus::Editor::Panels
 			{
 				auto isComponentAdded = false;
 
-				if (MenuItemConditional("Camera 2D", !ecs.Cameras.ContainsOwner(entityHandle)))
+				if (MenuItemConditional("Camera 2D", !ecs.Cameras.ContainsOwner(entityId)))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Camera2DComponent> {
-						.EntityReference = entityHandle, .SceneHandle = sceneHandle
+						.SceneId = sceneId, .EntityReference = entityId
 					});
 					isComponentAdded = true;
 				}
 
-				if (MenuItemConditional("Collider 2D", !ecs.Colliders.ContainsOwner(entityHandle)))
+				if (MenuItemConditional("Collider 2D", !ecs.Colliders.ContainsOwner(entityId)))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Collider2DComponent> {
-						.EntityReference = entityHandle, .SceneHandle = sceneHandle
+						.SceneId = sceneId, .EntityReference = entityId
 					});
 					isComponentAdded = true;
 				}
 
-				if (MenuItemConditional("Rigidbody 2D", !ecs.RigidBodies.ContainsOwner(entityHandle)))
+				if (MenuItemConditional("Rigidbody 2D", !ecs.RigidBodies.ContainsOwner(entityId)))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::RigidBody2DComponent> {
-						.EntityReference = entityHandle, .SceneHandle = sceneHandle
+						.SceneId = sceneId, .EntityReference = entityId
 					});
 					isComponentAdded = true;
 				}
 
-				if (MenuItemConditional("Script", !ecs.Scripts.ContainsOwner(entityHandle)))
+				if (MenuItemConditional("Script", !ecs.Scripts.ContainsOwner(entityId)))
 				{
 					Commands::EnqueueUI(context.Shell.State.Commands, Commands::UICommand::OpenAddScriptDialog {
-						.EntityHandle = entityHandle, .SceneHandle = sceneHandle
+						.SceneId = sceneId, .EntityId = entityId
 						});
 					// The added component will be selected later as part of the command chain.
 				}
 
-				if (MenuItemConditional("Sprite 2D", !ecs.Sprites.ContainsOwner(entityHandle)))
+				if (MenuItemConditional("Sprite 2D", !ecs.Sprites.ContainsOwner(entityId)))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Sprite2DComponent> {
-						.EntityReference = entityHandle, .SceneHandle = sceneHandle
+						.SceneId = sceneId, .EntityReference = entityId
 					});
 					isComponentAdded = true;
 				}
 
-				if (MenuItemConditional("Text 2D", !ecs.Texts.ContainsOwner(entityHandle)))
+				if (MenuItemConditional("Text 2D", !ecs.Texts.ContainsOwner(entityId)))
 				{
 					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component::Text2DComponent> {
-						.EntityReference = entityHandle, .SceneHandle = sceneHandle
+						.SceneId = sceneId, .EntityReference = entityId
 					});
 					isComponentAdded = true;
 				}
 
 				if (isComponentAdded)
 				{
-					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::SelectEntity { .EntityReference = entityHandle });
+					Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::SelectEntity { .EntityReference = entityId });
 				}
 			}
 		}
@@ -143,21 +144,19 @@ namespace Ludus::Editor::Panels
 		if (Ludus::UI::Scope::PopupContextWindowScope contextWindow("HierarchyWindowContext", flags); contextWindow)
 		{
 			auto entityReference = Commands::EntityReference::Temporary(Commands::TempReference { m_Random.NextId() });
-			const auto sceneHandle = scene.Handle;
+			const auto sceneId = scene.Id;
 			bool isEntityAdded = false;
 
 			auto enqueueAddEntity = [&](const Commands::EntityReference& reference)
 			{
-				Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddEntity { .EntityReference = reference, .SceneHandle = sceneHandle });
+				Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddEntity { .SceneId = sceneId, .EntityReference = reference });
 			};
 
 			auto enqueueAddComponent = [&](auto init)
 			{
 				using Component = std::decay_t<decltype(init)>;
 				Commands::EnqueueEdit(context.Shell.State.Commands, Commands::EditCommand::AddComponent<Component> {
-					.EntityReference = entityReference,
-						.SceneHandle = sceneHandle,
-						.Init = std::move(init)
+					.SceneId = sceneId, .EntityReference = entityReference, .Init = std::move(init)
 				});
 			};
 
@@ -244,12 +243,12 @@ namespace Ludus::Editor::Panels
 			{
 				if (Ludus::UI::Widgets::MenuItem("Rename"))
 				{
-					Commands::EnqueueUI(context.Shell.State.Commands, Commands::UICommand::OpenRenameSceneDialog { .SceneHandle = scene.Handle });
+					Commands::EnqueueUI(context.Shell.State.Commands, Commands::UICommand::OpenRenameSceneDialog { .SceneId = scene.Id });
 				}
 
 				if (Ludus::UI::Widgets::MenuItem("Save"))
 				{
-					Commands::EnqueueRequest(context.Shell.State.Commands, Commands::RequestCommand::SaveScene { .SceneHandle = scene.Handle });
+					Commands::EnqueueRequest(context.Shell.State.Commands, Commands::RequestCommand::SaveScene { .SceneId = scene.Id });
 				}
 			}
 
@@ -257,7 +256,7 @@ namespace Ludus::Editor::Panels
 
 			for (const auto& entity : scene.EntityComponentSystem.View())
 			{
-				DrawEntityRow(context, scene, entity.Handle);
+				DrawEntityRow(context, scene, entity.Id);
 			}
 
 			if (Ludus::UI::Context::InputContext::IsMouseClicked(Ludus::Engine::Windowing::MouseButton::Left) &&
@@ -276,7 +275,7 @@ namespace Ludus::Editor::Panels
 		{
 			auto& registry = context.ProjectSession.GetSceneRegistry();
 
-			const auto selectedScene = context.ProjectSession.EditorState.ActiveSceneHandle;
+			const auto selectedScene = context.ProjectSession.EditorState.ActiveSceneId;
 			if (!registry.Contains(selectedScene))
 			{
 				// No scene available.

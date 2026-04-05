@@ -15,6 +15,7 @@
 #include <Ludus/Editor/Panels/DockPanel.h>
 #include <Ludus/Editor/Panels/PanelRegistry.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Platform/Modals.h>
@@ -95,15 +96,15 @@ namespace Ludus::Editor::Panels
 
 					if (Ludus::UI::Widgets::MenuItem("Save"))
 					{
-						const auto activeHandle = context.ProjectSession.EditorState.ActiveSceneHandle;
-						if (!context.ProjectSession.GetSceneRegistry().Contains(activeHandle))
+						const auto activeSceneId = context.ProjectSession.EditorState.ActiveSceneId;
+						if (!context.ProjectSession.GetSceneRegistry().Contains(activeSceneId))
 						{
 							return;
 						}
 
 						if (context.ProjectSession.ActiveSceneHasSavePath())
 						{
-							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveScene { .SceneHandle = activeHandle });
+							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveScene { .SceneId = activeSceneId });
 						}
 						else
 						{
@@ -115,15 +116,15 @@ namespace Ludus::Editor::Panels
 								"Untitled"
 							))
 							{
-								context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveSceneAs { .SceneHandle = activeHandle, .Path = path });
+								context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveSceneAs { .SceneId = activeSceneId, .Path = path });
 							}
 						}
 					}
 
 					if (Ludus::UI::Widgets::MenuItem("Save As"))
 					{
-						const auto activeHandle = context.ProjectSession.EditorState.ActiveSceneHandle;
-						if (!context.ProjectSession.GetSceneRegistry().Contains(activeHandle))
+						const auto activeSceneId = context.ProjectSession.EditorState.ActiveSceneId;
+						if (!context.ProjectSession.GetSceneRegistry().Contains(activeSceneId))
 						{
 							return;
 						}
@@ -136,7 +137,7 @@ namespace Ludus::Editor::Panels
 							"Untitled"
 						))
 						{
-							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveSceneAs { .SceneHandle = activeHandle, .Path = path });
+							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveSceneAs { .SceneId = activeSceneId, .Path = path });
 						}
 					}
 				}
@@ -164,6 +165,13 @@ namespace Ludus::Editor::Panels
 
 				if (Ludus::UI::Widgets::MenuItem("Close Project"))
 				{
+					if (context.Shell.State.Execution.ExecutionMode != Ludus::Editor::Core::ExecutionMode::Stop)
+					{
+						context.Shell.State.Commands.AddRequestCommand(
+							Ludus::Editor::Commands::RequestCommand::SetExecutionMode { Ludus::Editor::Core::ExecutionMode::Stop }
+						);
+					}
+
 					context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::CloseProject { });
 				}
 			}

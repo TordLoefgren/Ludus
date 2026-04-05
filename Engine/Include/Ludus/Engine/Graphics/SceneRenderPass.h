@@ -20,18 +20,18 @@ namespace Ludus::Engine::Graphics
 
 		virtual bool Enabled(Ludus::Engine::Graphics::RenderContext2D& context) override
 		{
-			return context.RenderView.SceneHandle
+			return context.RenderView.SceneId.has_value()
 				&& context.RenderView.CameraSource != CameraSource::None;
 		};
 
 		virtual void Execute(Ludus::Engine::Graphics::RenderContext2D& context, Ludus::Engine::Graphics::Renderer2D& renderer) override
 		{
-			if (!context.RenderView.SceneHandle)
+			if (!context.RenderView.SceneId)
 			{
 				return;
 			}
 
-			const auto* scene = context.SceneRegistry.TryGetScene(*context.RenderView.SceneHandle);
+			const auto* scene = context.SceneRegistry.TryGetScene(*context.RenderView.SceneId);
 			if (!scene)
 			{
 				return;
@@ -45,7 +45,7 @@ namespace Ludus::Engine::Graphics
 			const auto& ecs = scene->EntityComponentSystem;
 			for (const auto& sprite : ecs.Sprites.View())
 			{
-				const auto* transform = ecs.Transforms.TryGetByOwner(sprite.OwnerHandle);
+				const auto* transform = ecs.Transforms.TryGetByOwner(sprite.OwnerId);
 				if (!transform)
 				{
 					continue;
@@ -64,7 +64,7 @@ namespace Ludus::Engine::Graphics
 
 			for (const auto& text : ecs.Texts.View())
 			{
-				const auto* transform = ecs.Transforms.TryGetByOwner(text.OwnerHandle);
+				const auto* transform = ecs.Transforms.TryGetByOwner(text.OwnerId);
 				if (transform)
 				{
 					renderer.DrawText(*transform, text.Text, text.Color, text.HorizontalTextAlignment);

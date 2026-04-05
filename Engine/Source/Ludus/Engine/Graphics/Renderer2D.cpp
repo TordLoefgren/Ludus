@@ -190,7 +190,7 @@ namespace Ludus::Engine::Graphics
 			const Ludus::Engine::Math::Vector2D quadScale { width, height };
 
 			DrawQuadInternal(
-				Ludus::Engine::Components::Transform2DComponent(transform.OwnerHandle, quadCenter, quadScale, transform.Rotation),
+				Ludus::Engine::Components::Transform2DComponent(transform.OwnerId, quadCenter, quadScale, transform.Rotation),
 				color,
 				&const_cast<Glyph*>(glyph)->Texture,
 				0,

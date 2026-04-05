@@ -31,9 +31,11 @@ namespace Ludus::EngineTests::Serialization::Core
 
 		DomTokenStreamReader reader(document);
 
-		// Act & Assert.
+		// Act.
 		const auto& firstPeek = reader.Peek();
 		const auto& secondPeek = reader.Peek();
+
+		// Assert.
 		ASSERT_TRUE(std::holds_alternative<Token::StartObject>(firstPeek.Data));
 		ASSERT_TRUE(std::holds_alternative<Token::StartObject>(secondPeek.Data));
 
@@ -70,7 +72,7 @@ namespace Ludus::EngineTests::Serialization::Core
 
 		DomTokenStreamReader reader(document);
 
-		// Act & Assert.
+		// Act.
 		ASSERT_TRUE(std::holds_alternative<Token::StartArray>(reader.Peek().Data));
 		reader.Consume();
 		ASSERT_TRUE(std::holds_alternative<Token::Int>(reader.Peek().Data));
@@ -80,6 +82,7 @@ namespace Ludus::EngineTests::Serialization::Core
 		ASSERT_TRUE(std::holds_alternative<Token::EndArray>(reader.Peek().Data));
 		reader.Consume();
 
+		// Assert.
 		ASSERT_TRUE(reader.IsComplete());
 	}
 
@@ -107,7 +110,7 @@ namespace Ludus::EngineTests::Serialization::Core
 
 		DomTokenStreamReader reader(document);
 
-		// Act + Assert.
+		// Act.
 		ASSERT_TRUE(std::holds_alternative<Token::StartObject>(reader.Peek().Data));
 		reader.Consume();
 		ASSERT_TRUE(std::holds_alternative<Token::Key>(reader.Peek().Data));
@@ -141,6 +144,7 @@ namespace Ludus::EngineTests::Serialization::Core
 		ASSERT_TRUE(std::holds_alternative<Token::EndObject>(reader.Peek().Data));
 		reader.Consume();
 
+		// Assert.
 		ASSERT_TRUE(reader.IsComplete());
 	}
 
@@ -150,7 +154,7 @@ namespace Ludus::EngineTests::Serialization::Core
 		// Arrange.
 		DomDocument document;
 
-		// Act + Assert.
+		// Act & Assert.
 		ASSERT_DEATH({ DomTokenStreamReader reader(document); }, R"(The DOM document is empty\.)");
 	}
 
@@ -168,7 +172,7 @@ namespace Ludus::EngineTests::Serialization::Core
 		reader.Consume();
 		ASSERT_TRUE(reader.IsComplete());
 
-		// Act + Assert.
+		// Act & Assert.
 		ASSERT_DEATH({ reader.Peek(); }, R"(Peek cannot be called on a completed DOM document\.)");
 	}
 #endif

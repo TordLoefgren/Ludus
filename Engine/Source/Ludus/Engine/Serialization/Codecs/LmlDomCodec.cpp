@@ -24,6 +24,20 @@ namespace
 	constexpr size_t InlineObjectMaxPairs = 2;
 	constexpr size_t MaxLineLength = 100;
 
+	std::string_view StripUtf8Bom(std::string_view input)
+	{
+		// Be tolerant of text files touched by external tools or shell commands that may add a UTF-8 BOM.
+		if (input.size() >= 3 &&
+			static_cast<unsigned char>(input[0]) == 0xEF &&
+			static_cast<unsigned char>(input[1]) == 0xBB &&
+			static_cast<unsigned char>(input[2]) == 0xBF)
+		{
+			input.remove_prefix(3);
+		}
+
+		return input;
+	}
+
 	struct WriterContext
 	{
 		std::string Text;
@@ -600,11 +614,11 @@ namespace
 
 			auto trimView = [](std::string_view raw)
 			{
-				while (!raw.empty() && raw.front() == ' ')
+				while (!raw.empty() && (raw.front() == ' ' || raw.front() == '\r'))
 				{
 					raw.remove_prefix(1);
 				}
-				while (!raw.empty() && raw.back() == ' ')
+				while (!raw.empty() && (raw.back() == ' ' || raw.back() == '\r'))
 				{
 					raw.remove_suffix(1);
 				}
@@ -612,6 +626,10 @@ namespace
 			};
 
 			std::string_view line = Input.substr(lineStart + indent, lineLimit - (lineStart + indent));
+			if (!line.empty() && line.back() == '\r')
+			{
+				line.remove_suffix(1);
+			}
 			if (!line.empty() && line.front() == '-')
 			{
 				std::string_view value = { };
@@ -709,11 +727,11 @@ namespace
 	private:
 		static std::string_view TrimView(std::string_view raw)
 		{
-			while (!raw.empty() && raw.front() == ' ')
+			while (!raw.empty() && (raw.front() == ' ' || raw.front() == '\r'))
 			{
 				raw.remove_prefix(1);
 			}
-			while (!raw.empty() && raw.back() == ' ')
+			while (!raw.empty() && (raw.back() == ' ' || raw.back() == '\r'))
 			{
 				raw.remove_suffix(1);
 			}
@@ -1183,7 +1201,7 @@ namespace Ludus::Engine::Serialization::Codecs
 
 	Ludus::Engine::Serialization::Core::DomNode LmlDomCodec::Decode(const std::string& data)
 	{
-		Parser parser(data);
+		Parser parser(StripUtf8Bom(data));
 		return parser.ReadRoot();
 	}
 }

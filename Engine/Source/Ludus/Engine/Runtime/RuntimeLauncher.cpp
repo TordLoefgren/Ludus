@@ -31,20 +31,48 @@ namespace
 		};
 	}
 
-	const Ludus::Engine::Runtime::SceneReference& FindEntrySceneReference(
+	Ludus::Engine::Core::Scene LoadEntryScene(
+		Ludus::Engine::Persistence::IScenePersistence& scenePersistence,
+		const Ludus::Engine::Runtime::RuntimeEnvironment& runtimeEnvironment,
 		const Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest
 	)
 	{
-		for (const auto& scene : runtimeManifest.Scenes)
+		const Ludus::Engine::Runtime::SceneReference* entrySceneReference = nullptr;
+		if (runtimeManifest.EntrySceneId.IsValid())
 		{
-			if (scene.Handle == runtimeManifest.EntrySceneHandle)
+			for (const auto& sceneReference : runtimeManifest.Scenes)
 			{
-				return scene;
+				if (sceneReference.Id == runtimeManifest.EntrySceneId)
+				{
+					entrySceneReference = &sceneReference;
+					break;
+				}
 			}
 		}
 
-		throw std::runtime_error("Runtime manifest entry scene was not found.");
+		if (!entrySceneReference)
+		{
+			throw std::runtime_error("Runtime manifest entry scene was not found.");
+		}
+
+		const auto scenePath = Ludus::Engine::Persistence::Paths::ResolveRuntimeScenePath(
+			runtimeEnvironment.RuntimeRootDirectory,
+			entrySceneReference->Path
+		);
+
+		auto scene = scenePersistence.Load(scenePath);
+
+		for (const auto& script : scene.EntityComponentSystem.Scripts.View())
+		{
+			if (!runtimeManifest.TryGetScriptReference(script.Id))
+			{
+				throw std::runtime_error("Scene contains script id that is not present in the runtime manifest.");
+			}
+		}
+
+		return scene;
 	}
+
 }
 
 namespace Ludus::Engine::Runtime
@@ -56,14 +84,12 @@ namespace Ludus::Engine::Runtime
 		Ludus::Engine::Persistence::LmlRuntimeManifestPersistence runtimeManifestPersistence;
 		const auto runtimeManifest = runtimeManifestPersistence.Load(runtimeEnvironment.RuntimeManifestPath);
 
-		const auto& entrySceneReference = FindEntrySceneReference(runtimeManifest);
-		const auto entryScenePath = Ludus::Engine::Persistence::Paths::ResolveRuntimeScenePath(
-			runtimeEnvironment.RuntimeRootDirectory,
-			entrySceneReference.Path
-		);
-
 		Ludus::Engine::Persistence::LmlScenePersistence scenePersistence;
-		auto entryScene = scenePersistence.Load(entryScenePath);
+		auto entryScene = ::LoadEntryScene(
+			scenePersistence,
+			runtimeEnvironment,
+			runtimeManifest
+		);
 
 		Ludus::Engine::Windowing::WindowOptions windowOptions;
 		windowOptions.Title = runtimeName;

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Ludus/Engine/Components/Transform2DComponent.h>
-#include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Expected.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamReader.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamWriter.h>
 #include <Ludus/Engine/Serialization/Core/SerializationException.h>
@@ -21,9 +21,6 @@ namespace Ludus::Engine::Serialization::Schemas
 		inline static void Serialize(ITokenStreamWriter& writer, const Transform& transform)
 		{
 			writer.Emit(Token::StartObject { });
-
-			writer.Emit(Token::Key { "OwnerHandle" });
-			writer.Emit(Token::Uint { transform.OwnerHandle });
 
 			{
 				writer.Emit(Token::Key { "Position" });
@@ -51,21 +48,18 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::EndObject { });
 		}
 
-		inline static Ludus::Engine::Core::Expected<Transform, SerializationException> Deserialize(ITokenStreamReader& reader)
+		inline static Ludus::Engine::Core::Expected<Transform, SerializationException> Deserialize(
+			ITokenStreamReader& reader,
+			Ludus::Engine::Core::EntityId ownerId
+		)
 		{
 			try
 			{
 				Transform transform;
-				bool hasOwner = false;
+				transform.OwnerId = ownerId;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 				{
-					if (key == "OwnerHandle")
-					{
-						transform.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
-						hasOwner = true;
-						return;
-					}
 					if (key == "Position")
 					{
 						Ludus::Engine::Serialization::Core::ReadObject(reader,
@@ -114,11 +108,6 @@ namespace Ludus::Engine::Serialization::Schemas
 
 					Ludus::Engine::Serialization::Core::SkipValue(reader);
 				});
-
-				if (!hasOwner)
-				{
-					throw SerializationException("No owner handle found.");
-				}
 
 				return transform;
 			}

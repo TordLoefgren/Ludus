@@ -3,7 +3,7 @@
 #include <span>
 #include <vector>
 
-#include <Ludus/Engine/Core/Scene.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Graphics/RenderView2D.h>
 
 namespace Ludus::Engine::Core
@@ -21,13 +21,13 @@ namespace Ludus::Engine::Core
 			m_RenderViews.push_back(renderView);
 		}
 
-		void RegisterFullscreen(std::optional<SceneHandle> sceneHandle, const Ludus::Engine::Graphics::Camera2D& camera, Ludus::Engine::Graphics::RenderTarget& target)
+		void RegisterFullscreen(std::optional<SceneId> sceneId, const Ludus::Engine::Graphics::Camera2D& camera, Ludus::Engine::Graphics::RenderTarget& target)
 		{
 			const auto [width, height] = target.Framebuffer.GetSize();
 
 			Ludus::Engine::Graphics::RenderView2D renderView {
 				.Camera = camera,
-				.SceneHandle = sceneHandle,
+				.SceneId = sceneId,
 				.Target = &target,
 				.ViewportRect = Ludus::Engine::Math::Rect::Create(
 					{ 0.0f, 0.0f },

@@ -107,7 +107,7 @@ namespace Ludus::Engine::Graphics
 
 				return {
 					.Camera = camera,
-					.SceneHandle = request.SceneHandle,
+					.SceneId = request.SceneId,
 					.Target = request.Target,
 					.ViewportRect = request.ViewportRect,
 					.CameraSource = Ludus::Engine::Graphics::CameraSource::Explicit
@@ -115,9 +115,9 @@ namespace Ludus::Engine::Graphics
 			}
 
 			// Resolve camera from scene -> Scene primary camera view.
-			if (request.SceneHandle)
+			if (request.SceneId)
 			{
-				auto* scene = sceneRegistry.TryGetScene(*request.SceneHandle);
+				auto* scene = sceneRegistry.TryGetScene(*request.SceneId);
 				if (scene)
 				{
 					if (auto primaryCamera = scene->TryGetPrimaryCamera2D(); primaryCamera)
@@ -130,7 +130,7 @@ namespace Ludus::Engine::Graphics
 
 						return {
 							.Camera = camera,
-							.SceneHandle = request.SceneHandle,
+							.SceneId = request.SceneId,
 							.Target = request.Target,
 							.ViewportRect = request.ViewportRect,
 							.CameraSource = Ludus::Engine::Graphics::CameraSource::Scene
@@ -141,7 +141,7 @@ namespace Ludus::Engine::Graphics
 				// Scene exists but no camera component -> default empty view.
 				return {
 					.Camera = CreateDefaultCamera(targetWidth, targetHeight),
-					.SceneHandle = request.SceneHandle,
+					.SceneId = request.SceneId,
 					.Target = request.Target,
 					.ViewportRect = request.ViewportRect,
 					.CameraSource = Ludus::Engine::Graphics::CameraSource::None
@@ -151,7 +151,7 @@ namespace Ludus::Engine::Graphics
 			// No camera and no scene -> Overlay and no-scene views.
 			return {
 				.Camera = CreateDefaultCamera(targetWidth, targetHeight),
-				.SceneHandle = std::nullopt,
+				.SceneId = std::nullopt,
 				.Target = request.Target,
 				.ViewportRect = request.ViewportRect,
 				.CameraSource = Ludus::Engine::Graphics::CameraSource::None

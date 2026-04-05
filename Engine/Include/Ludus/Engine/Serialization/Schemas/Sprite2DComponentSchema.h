@@ -5,6 +5,7 @@
 #include <Ludus/Engine/Components/Sprite2DComponent.h>
 #include <Ludus/Engine/Core/Enums.h>
 #include <Ludus/Engine/Core/Expected.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Graphics/Shape.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamReader.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamWriter.h>
@@ -24,9 +25,6 @@ namespace Ludus::Engine::Serialization::Schemas
 		inline static void Serialize(ITokenStreamWriter& writer, const Sprite& sprite)
 		{
 			writer.Emit(Token::StartObject { });
-
-			writer.Emit(Token::Key { "OwnerHandle" });
-			writer.Emit(Token::Uint { sprite.OwnerHandle });
 
 			const std::string shape = Ludus::Engine::Core::Enums::GetDisplayName(sprite.Shape);
 			writer.Emit(Token::Key { "Shape" });
@@ -54,21 +52,18 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::EndObject { });
 		}
 
-		inline static Ludus::Engine::Core::Expected<Sprite, SerializationException> Deserialize(ITokenStreamReader& reader)
+		inline static Ludus::Engine::Core::Expected<Sprite, SerializationException> Deserialize(
+			ITokenStreamReader& reader,
+			Ludus::Engine::Core::EntityId ownerId
+		)
 		{
 			try
 			{
 				Sprite sprite;
-				bool hasOwner = false;
+				sprite.OwnerId = ownerId;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 				{
-					if (key == "OwnerHandle")
-					{
-						sprite.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
-						hasOwner = true;
-						return;
-					}
 					if (key == "Shape")
 					{
 						std::string shapeValue = std::string(
@@ -118,11 +113,6 @@ namespace Ludus::Engine::Serialization::Schemas
 
 					Ludus::Engine::Serialization::Core::SkipValue(reader);
 				});
-
-				if (!hasOwner)
-				{
-					throw SerializationException("No owner handle found.");
-				}
 
 				return sprite;
 			}

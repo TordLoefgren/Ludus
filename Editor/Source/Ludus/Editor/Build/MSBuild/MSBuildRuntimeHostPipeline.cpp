@@ -1,6 +1,5 @@
 #include "pch.h"
 
-#include <algorithm>
 #include <stdexcept>
 #include <string>
 
@@ -16,6 +15,7 @@
 #include <Ludus/Engine/FileSystem/FileSystem.h>
 #include <Ludus/Engine/Persistence/LmlRuntimeManifestPersistence.h>
 #include <Ludus/Engine/Persistence/Paths.h>
+#include <Ludus/Engine/Platform/Guid.h>
 #include <Ludus/Engine/Platform/Process.h>
 #include <Ludus/Engine/Runtime/RuntimeManifest.h>
 
@@ -37,6 +37,7 @@ namespace
 		static constexpr std::string_view EngineResourcesDirectoryToken = "${LUDUS_RUNTIME_HOST_ENGINE_RESOURCES_DIR}";
 		static constexpr std::string_view EngineProjectPathToken = "${LUDUS_RUNTIME_HOST_ENGINE_PROJECT_PATH}";
 		static constexpr std::string_view RuntimeNameToken = "${LUDUS_RUNTIME_NAME}";
+		static constexpr std::string_view ProjectGuidToken = "${LUDUS_RUNTIME_HOST_PROJECT_GUID}";
 
 		static constexpr std::string_view BuildCommand = "Build";
 		static constexpr std::string_view RebuildCommand = "Rebuild";
@@ -84,7 +85,8 @@ namespace Ludus::Editor::Build::MSBuild
 		}
 
 		const auto sourcePath = templateRoot / std::string(templateFileName);
-		const auto text = Ludus::Engine::FileSystem::ReadAllText(sourcePath);
+		auto text = Ludus::Engine::FileSystem::ReadAllText(sourcePath);
+		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::ProjectGuidToken, Ludus::Engine::Platform::CreateGuid().ToString());
 		Ludus::Engine::FileSystem::WriteAllText(destinationPath, text);
 	}
 

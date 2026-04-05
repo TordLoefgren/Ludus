@@ -101,7 +101,7 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		ASSERT_NE(FindMember(manifestObject, "RuntimeManifestPath"), nullptr);
 		ASSERT_EQ(FindMember(manifestObject, "Scenes"), nullptr);
 		ASSERT_EQ(FindMember(manifestObject, "Scripts"), nullptr);
-		ASSERT_EQ(FindMember(manifestObject, "EntrySceneHandle"), nullptr);
+		ASSERT_EQ(FindMember(manifestObject, "EntrySceneId"), nullptr);
 	}
 
 	TEST(ProjectManifestSchema, Deserialize_ReadsVersionProjectRootAndRuntimeManifestPath_When_ArchiveIsValid)

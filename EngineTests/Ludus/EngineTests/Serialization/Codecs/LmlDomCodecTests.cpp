@@ -590,6 +590,55 @@ namespace Ludus::EngineTests::Serialization::Codecs
 		ExpectIntLikeValue(object[1].second.get(), 2);
 	}
 
+	TEST(LmlDomCodec, Decode_IgnoresUtf8BomAtStartOfDocument)
+	{
+		// Arrange.
+		const auto input = std::string(
+			"\xEF\xBB\xBF"
+			"A: ValueA\n"
+			"B: 2\n"
+		);
+
+		// Act.
+		LmlDomCodec codec;
+		DomNode root = codec.Decode(input);
+
+		// Assert.
+		ASSERT_TRUE(std::holds_alternative<DomObject>(root.NodeData));
+
+		const auto& object = AsObject(root);
+		ASSERT_EQ(object.size(), 2u);
+
+		EXPECT_EQ(object[0].first, "A");
+		ExpectStringValue(object[0].second.get(), "ValueA");
+
+		EXPECT_EQ(object[1].first, "B");
+		ExpectIntLikeValue(object[1].second.get(), 2);
+	}
+
+	TEST(LmlDomCodec, Decode_ParsesCrLfLineEndings)
+	{
+		// Arrange.
+		const auto input = std::string(
+			"Name: Example\r\n"
+			"Enabled: true\r\n"
+			"Value: 0.50\r\n"
+		);
+
+		// Act.
+		LmlDomCodec codec;
+		DomNode root = codec.Decode(input);
+
+		// Assert.
+		ASSERT_TRUE(std::holds_alternative<DomObject>(root.NodeData));
+
+		const auto& object = AsObject(root);
+		ASSERT_EQ(object.size(), 3u);
+		ExpectStringValue(object[0].second.get(), "Example");
+		ExpectBoolValue(object[1].second.get(), true);
+		ExpectFloatValue(object[2].second.get(), 0.5f);
+	}
+
 	TEST(LmlDomCodec, Decode_QuotesAndEscapesStrings)
 	{
 		// Arrange.
@@ -1013,7 +1062,7 @@ namespace Ludus::EngineTests::Serialization::Codecs
 			"   Child: 1\n"
 		);
 
-		// Act + Assert.
+		// Act & Assert.
 		LmlDomCodec codec;
 		ASSERT_THROW(codec.Decode(input), std::runtime_error);
 	}
@@ -1027,7 +1076,7 @@ namespace Ludus::EngineTests::Serialization::Codecs
 			"  Other: 1\n"
 		);
 
-		// Act + Assert.
+		// Act & Assert.
 		LmlDomCodec codec;
 		ASSERT_THROW(codec.Decode(input), std::runtime_error);
 	}
@@ -1039,7 +1088,7 @@ namespace Ludus::EngineTests::Serialization::Codecs
 			"Message: \"unterminated\n"
 		);
 
-		// Act + Assert.
+		// Act & Assert.
 		LmlDomCodec codec;
 		ASSERT_THROW(codec.Decode(input), std::runtime_error);
 	}
@@ -1051,7 +1100,7 @@ namespace Ludus::EngineTests::Serialization::Codecs
 			"Values: [1, 2,]\n"
 		);
 
-		// Act + Assert.
+		// Act & Assert.
 		LmlDomCodec codec;
 		ASSERT_THROW(codec.Decode(input), std::runtime_error);
 	}
@@ -1063,7 +1112,7 @@ namespace Ludus::EngineTests::Serialization::Codecs
 			"Obj: { A: 1, }\n"
 		);
 
-		// Act + Assert.
+		// Act & Assert.
 		LmlDomCodec codec;
 		ASSERT_THROW(codec.Decode(input), std::runtime_error);
 	}
@@ -1075,7 +1124,7 @@ namespace Ludus::EngineTests::Serialization::Codecs
 			"Mixed: [1, { A: 2 }]\n"
 		);
 
-		// Act + Assert.
+		// Act & Assert.
 		LmlDomCodec codec;
 		ASSERT_THROW(codec.Decode(input), std::runtime_error);
 	}

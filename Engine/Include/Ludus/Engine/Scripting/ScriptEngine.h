@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Ludus/Engine/Core/Scene.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Scripting/ScriptBindings.h>
 #include <Ludus/Scripting/ABI/ScriptContext.h>
 #include <Ludus/Scripting/ABI/Types.h>
@@ -30,13 +30,13 @@ namespace Ludus::Engine::Scripting
 		ScriptEngine(
 			Ludus::Engine::Core::SceneRegistry& sceneRegistry,
 			Ludus::Engine::Windowing::Input& input,
-			Ludus::Engine::Core::SceneHandle activeSceneHandle
+			Ludus::Engine::Core::SceneId activeSceneId
 		);
 
 		~ScriptEngine();
 
 		Ludus::Scripting::ABI::ScriptContext* GetContext();
 
-		void SetActiveScene(Ludus::Engine::Core::SceneHandle sceneHandle);
+		void SetActiveScene(Ludus::Engine::Core::SceneId sceneId);
 	};
 }

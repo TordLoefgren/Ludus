@@ -4,8 +4,8 @@
 #include <variant>
 
 #include <Ludus/Engine/Components/Camera2DComponent.h>
-#include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Expected.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamReader.h>
 #include <Ludus/Engine/Serialization/Core/ITokenStreamWriter.h>
 #include <Ludus/Engine/Serialization/Core/SerializationException.h>
@@ -25,9 +25,6 @@ namespace Ludus::Engine::Serialization::Schemas
 		{
 			writer.Emit(Token::StartObject { });
 
-			writer.Emit(Token::Key { "OwnerHandle" });
-			writer.Emit(Token::Uint { camera.OwnerHandle });
-
 			writer.Emit(Token::Key { "OrthographicSize" });
 			writer.Emit(Token::Double { camera.OrthographicSize });
 
@@ -37,21 +34,18 @@ namespace Ludus::Engine::Serialization::Schemas
 			writer.Emit(Token::EndObject { });
 		}
 
-		inline static Ludus::Engine::Core::Expected<Camera, SerializationException> Deserialize(ITokenStreamReader& reader)
+		inline static Ludus::Engine::Core::Expected<Camera, SerializationException> Deserialize(
+			ITokenStreamReader& reader,
+			Ludus::Engine::Core::EntityId ownerId
+		)
 		{
 			try
 			{
 				Camera camera;
-				bool hasOwner = false;
+				camera.OwnerId = ownerId;
 
 				Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 				{
-					if (key == "OwnerHandle")
-					{
-						camera.OwnerHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
-						hasOwner = true;
-						return;
-					}
 					if (key == "OrthographicSize")
 					{
 						camera.OrthographicSize = Ludus::Engine::Serialization::Core::ConsumeFloatLike(reader);
@@ -65,11 +59,6 @@ namespace Ludus::Engine::Serialization::Schemas
 
 					Ludus::Engine::Serialization::Core::SkipValue(reader);
 				});
-
-				if (!hasOwner)
-				{
-					throw SerializationException("No owner handle found.");
-				}
 
 				return camera;
 			}

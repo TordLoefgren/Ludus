@@ -30,8 +30,8 @@ namespace Ludus::Engine::Serialization::Schemas
 		writer.Emit(Token::Uint { runtimeManifest.Version.Patch });
 		writer.Emit(Token::EndObject { });
 
-		writer.Emit(Token::Key { "EntrySceneHandle" });
-		writer.Emit(Token::Uint { runtimeManifest.EntrySceneHandle });
+		writer.Emit(Token::Key { "EntrySceneId" });
+		writer.Emit(Token::Uint { runtimeManifest.EntrySceneId.Value });
 
 		writer.Emit(Token::Key { "Scenes" });
 		writer.Emit(Token::StartArray { });
@@ -40,8 +40,8 @@ namespace Ludus::Engine::Serialization::Schemas
 		{
 			writer.Emit(Token::StartObject { });
 
-			writer.Emit(Token::Key { "Handle" });
-			writer.Emit(Token::Uint { scene.Handle });
+			writer.Emit(Token::Key { "Id" });
+			writer.Emit(Token::Uint { scene.Id.Value });
 			writer.Emit(Token::Key { "Name" });
 			writer.Emit(Token::String { scene.Name });
 
@@ -61,8 +61,8 @@ namespace Ludus::Engine::Serialization::Schemas
 		{
 			writer.Emit(Token::StartObject { });
 
-			writer.Emit(Token::Key { "Handle" });
-			writer.Emit(Token::Uint { script.Handle });
+			writer.Emit(Token::Key { "Id" });
+			writer.Emit(Token::Uint { script.Id.Value });
 			writer.Emit(Token::Key { "Name" });
 			writer.Emit(Token::String { script.Name });
 
@@ -81,6 +81,7 @@ namespace Ludus::Engine::Serialization::Schemas
 		try
 		{
 			bool hasVersion = false;
+			bool hasEntrySceneId = false;
 
 			Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 			{
@@ -118,6 +119,12 @@ namespace Ludus::Engine::Serialization::Schemas
 					{
 						throw SerializationException("RuntimeManifest version is incomplete.");
 					}
+					if (runtimeManifest.Version.Major != RuntimeManifest::CurrentVersion.Major ||
+						runtimeManifest.Version.Minor != RuntimeManifest::CurrentVersion.Minor ||
+						runtimeManifest.Version.Patch != RuntimeManifest::CurrentVersion.Patch)
+					{
+						throw SerializationException("RuntimeManifest version does not match the current schema version.");
+					}
 
 					hasVersion = true;
 					return;
@@ -129,16 +136,20 @@ namespace Ludus::Engine::Serialization::Schemas
 					while (!Ludus::Engine::Serialization::Core::Is<Token::EndArray>(reader.Peek()))
 					{
 						SceneReference scene;
-						bool hasHandle = false;
+						bool hasId = false;
 						bool hasName = false;
 						bool hasPath = false;
 
 						Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view sceneKey)
 						{
-							if (sceneKey == "Handle")
+							if (sceneKey == "Id")
 							{
-								scene.Handle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
-								hasHandle = true;
+								scene.Id = { Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader) };
+								if (!scene.Id.IsValid())
+								{
+									throw SerializationException("RuntimeManifest scene id is invalid.");
+								}
+								hasId = true;
 								return;
 							}
 							if (sceneKey == "Name")
@@ -159,7 +170,7 @@ namespace Ludus::Engine::Serialization::Schemas
 							Ludus::Engine::Serialization::Core::SkipValue(reader);
 						});
 
-						if (!hasHandle || !hasName || !hasPath)
+						if (!hasId || !hasName || !hasPath)
 						{
 							throw SerializationException("RuntimeManifest scene entry is incomplete.");
 						}
@@ -170,9 +181,10 @@ namespace Ludus::Engine::Serialization::Schemas
 					Ludus::Engine::Serialization::Core::ConsumeAs<Token::EndArray>(reader);
 					return;
 				}
-				if (key == "EntrySceneHandle")
+				if (key == "EntrySceneId")
 				{
-					runtimeManifest.EntrySceneHandle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
+					runtimeManifest.EntrySceneId = { Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader) };
+					hasEntrySceneId = true;
 					return;
 				}
 				if (key == "Scripts")
@@ -182,15 +194,19 @@ namespace Ludus::Engine::Serialization::Schemas
 					while (!Ludus::Engine::Serialization::Core::Is<Token::EndArray>(reader.Peek()))
 					{
 						ScriptReference script;
-						bool hasHandle = false;
+						bool hasId = false;
 						bool hasName = false;
 
 						Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view scriptKey)
 						{
-							if (scriptKey == "Handle")
+							if (scriptKey == "Id")
 							{
-								script.Handle = Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader);
-								hasHandle = true;
+								script.Id = { Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader) };
+								if (!script.Id.IsValid())
+								{
+									throw SerializationException("RuntimeManifest script id is invalid.");
+								}
+								hasId = true;
 								return;
 							}
 							if (scriptKey == "Name")
@@ -203,7 +219,7 @@ namespace Ludus::Engine::Serialization::Schemas
 							Ludus::Engine::Serialization::Core::SkipValue(reader);
 						});
 
-						if (!hasHandle || !hasName)
+						if (!hasId || !hasName)
 						{
 							throw SerializationException("RuntimeManifest script entry is incomplete.");
 						}
@@ -222,8 +238,24 @@ namespace Ludus::Engine::Serialization::Schemas
 			{
 				throw SerializationException("RuntimeManifest version not found.");
 			}
+			if (!hasEntrySceneId)
+			{
+				throw SerializationException("RuntimeManifest entry scene id not found.");
+			}
+			if (!runtimeManifest.EntrySceneId.IsValid())
+			{
+				return runtimeManifest;
+			}
 
-			return runtimeManifest;
+			for (const auto& scene : runtimeManifest.Scenes)
+			{
+				if (scene.Id == runtimeManifest.EntrySceneId)
+				{
+					return runtimeManifest;
+				}
+			}
+
+			throw SerializationException("RuntimeManifest entry scene id was not found in scene references.");
 		}
 		catch (const SerializationException& ex)
 		{

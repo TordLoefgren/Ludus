@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Scripting/ScriptBindings.h>
@@ -27,8 +28,8 @@ namespace Ludus::Engine::Scripting
 	ScriptEngine::ScriptEngine(
 		Ludus::Engine::Core::SceneRegistry& sceneRegistry,
 		Ludus::Engine::Windowing::Input& input,
-		Ludus::Engine::Core::SceneHandle activeSceneHandle
-	) : m_BindingsState(CreateScriptBindingsState(sceneRegistry, input, activeSceneHandle))
+		Ludus::Engine::Core::SceneId activeSceneId
+	) : m_BindingsState(CreateScriptBindingsState(sceneRegistry, input, activeSceneId))
 	{
 		CreateContext();
 	}
@@ -45,8 +46,8 @@ namespace Ludus::Engine::Scripting
 		return m_ScriptContext;
 	}
 
-	void ScriptEngine::SetActiveScene(Ludus::Engine::Core::SceneHandle sceneHandle)
+	void ScriptEngine::SetActiveScene(Ludus::Engine::Core::SceneId sceneId)
 	{
-		Ludus::Engine::Scripting::SetActiveScene(m_BindingsState, sceneHandle);
+		Ludus::Engine::Scripting::SetActiveScene(m_BindingsState, sceneId);
 	}
 }

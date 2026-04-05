@@ -111,7 +111,8 @@ namespace Ludus::Engine::Runtime
 			auto scriptingSystem = std::make_unique<Ludus::Engine::Scripting::ScriptSystem>(
 				runtime->GetHostContext(),
 				runtime->GetSceneRegistry(),
-				runtime->GetScenePresentationState().CurrentSceneHandle,
+				runtime->GetRuntimeManifest().Scripts,
+				runtime->GetScenePresentationState().CurrentSceneId,
 				runtime->GetPhysicsConfiguration().QueryCache.get(),
 				runtime->GetRuntimeEnvironment().ScriptModulePath
 			);

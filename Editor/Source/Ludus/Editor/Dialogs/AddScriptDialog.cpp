@@ -2,13 +2,13 @@
 
 #include <string>
 #include <type_traits>
-#include <unordered_map>
 #include <vector>
 
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Dialogs/AddScriptDialog.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/PopupContext.h>
@@ -27,15 +27,15 @@
 namespace Ludus::Editor::Dialogs
 {
 	AddScriptDialog::AddScriptDialog(
-		Ludus::Engine::Core::EntityHandle entityHandle,
-		Ludus::Engine::Core::SceneHandle sceneHandle,
+		Ludus::Engine::Core::SceneId sceneId,
+		Ludus::Engine::Core::EntityId entityId,
 		std::vector<std::string> scriptNames,
-		std::unordered_map<std::string, Ludus::Engine::Components::ScriptHandle> scriptHandlesByName
+		std::vector<Ludus::Engine::Runtime::ScriptReference> scriptReferences
 	) :
-		EntityHandle(entityHandle),
-		SceneHandle(sceneHandle),
+		SceneId(sceneId),
+		EntityId(entityId),
 		ScriptNames(std::move(scriptNames)),
-		ScriptHandlesByName(std::move(scriptHandlesByName))
+		ScriptReferences(std::move(scriptReferences))
 	{ }
 
 	AddScriptDialog::Outcome AddScriptDialog::Draw()
@@ -127,9 +127,16 @@ namespace Ludus::Editor::Dialogs
 					if (ActiveTab == AddScriptTab::Create)
 					{
 						Error = Ludus::Editor::Persistence::ProjectPaths::ValidateFileName(CreateName);
-						if (Error.empty() && ScriptHandlesByName.find(CreateName) != ScriptHandlesByName.end())
+						if (Error.empty())
 						{
-							Error = "Script already exists.";
+							for (const auto& scriptReference : ScriptReferences)
+							{
+								if (scriptReference.Name == CreateName)
+								{
+									Error = "Script already exists.";
+									break;
+								}
+							}
 						}
 
 						if (!Error.empty())
@@ -180,21 +187,24 @@ namespace Ludus::Editor::Dialogs
 				if (ActiveTab == AddScriptTab::Create)
 				{
 					out.RequestCommands.emplace_back(
-						Ludus::Editor::Commands::RequestCommand::CreateScript { EntityHandle, SceneHandle, value.Payload }
+						Ludus::Editor::Commands::RequestCommand::CreateScript { SceneId, EntityId, value.Payload }
 					);
 					return;
 				}
 
-				const auto handle = ScriptHandlesByName.find(value.Payload);
-				if (handle == ScriptHandlesByName.end())
+				for (const auto& scriptReference : ScriptReferences)
 				{
+					if (scriptReference.Name != value.Payload)
+					{
+						continue;
+					}
+
+					out.EditCommands.emplace_back(
+						Ludus::Editor::Commands::EditCommand::AddComponent<Ludus::Engine::Components::ScriptComponent> {
+						.SceneId = SceneId, .EntityReference = EntityId, .Init = Ludus::Engine::Components::ScriptComponent { scriptReference.Id }
+					});
 					return;
 				}
-
-				out.EditCommands.emplace_back(
-					Ludus::Editor::Commands::EditCommand::AddComponent<Ludus::Engine::Components::ScriptComponent> {
-					.EntityReference = EntityHandle, .SceneHandle = SceneHandle, .Init = Ludus::Engine::Components::ScriptComponent { value.Payload, handle->second }
-				});
 			}
 		}, outcome.Data);
 	}

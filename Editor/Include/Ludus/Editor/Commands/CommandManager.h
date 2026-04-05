@@ -5,7 +5,7 @@
 
 #include <Ludus/Editor/Commands/CommandSet.h>
 #include <Ludus/Editor/Commands/EntityReference.h>
-#include <Ludus/Engine/Core/Entity.h>
+#include <Ludus/Engine/Core/Id.h>
 
 namespace Ludus::Editor::Commands
 {
@@ -14,7 +14,7 @@ namespace Ludus::Editor::Commands
 	private:
 		struct TempEntityBinding
 		{
-			Ludus::Engine::Core::EntityHandle Handle { };
+			Ludus::Engine::Core::EntityId Id { Ludus::Engine::Core::EntityId::Invalid() };
 			std::uint64_t LastSeenFrame = 0;
 		};
 
@@ -30,8 +30,8 @@ namespace Ludus::Editor::Commands
 		void AddRequestCommand(Ludus::Editor::Commands::RequestCommand command);
 		void AddUICommand(Ludus::Editor::Commands::UICommand command);
 
-		Ludus::Engine::Core::EntityHandle ResolveEntity(const EntityReference& reference) const;
-		void BindEntityReference(TempReference temp, Ludus::Engine::Core::EntityHandle handle);
+		Ludus::Engine::Core::EntityId ResolveEntity(const EntityReference& reference) const;
+		void BindEntityReference(TempReference temp, Ludus::Engine::Core::EntityId id);
 		void ClearEntityReferences();
 	};
 }
