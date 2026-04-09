@@ -21,7 +21,7 @@ namespace Ludus::Editor::Panels
 
 			if (auto openedFilePath = m_ContentBrowser.ConsumeOpenedFilePath(); openedFilePath)
 			{
-				if (openedFilePath->filename().generic_string().ends_with(".ludus.scene"))
+				if (openedFilePath->filename().generic_string().ends_with(".scene.ludus"))
 				{
 					context.Shell.State.Commands.AddRequestCommand(
 						Ludus::Editor::Commands::RequestCommand::OpenScene { *openedFilePath }

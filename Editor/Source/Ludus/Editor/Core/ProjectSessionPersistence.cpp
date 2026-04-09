@@ -1,0 +1,210 @@
+#include <pch.h>
+
+#include <filesystem>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
+
+#include <Ludus/Editor/Core/ProjectManifest.h>
+#include <Ludus/Editor/Core/ProjectSessionPersistence.h>
+#include <Ludus/Editor/Persistence/ProjectPaths.h>
+#include <Ludus/Engine/Core/Id.h>
+#include <Ludus/Engine/Core/Random.h>
+#include <Ludus/Engine/Persistence/Paths.h>
+#include <Ludus/Engine/Runtime/RuntimeLaunchSettings.h>
+#include <Ludus/Engine/Runtime/RuntimeManifest.h>
+
+namespace Ludus::Editor::Core
+{
+	ProjectSessionPersistence::ProjectSessionPersistence(
+		Ludus::Editor::Core::ProjectManifest projectManifest,
+		Ludus::Engine::Runtime::RuntimeManifest runtimeManifest,
+		Ludus::Engine::Runtime::RuntimeLaunchSettings runtimeLaunchSettings
+	) :
+		m_ProjectManifest(std::move(projectManifest)),
+		m_RuntimeManifest(std::move(runtimeManifest)),
+		m_RuntimeLaunchSettings(std::move(runtimeLaunchSettings))
+	{ }
+
+	ProjectSessionPersistence ProjectSessionPersistence::Create(
+		Ludus::Editor::Core::ProjectManifest projectManifest,
+		Ludus::Engine::Runtime::RuntimeManifest runtimeManifest,
+		Ludus::Engine::Runtime::RuntimeLaunchSettings runtimeLaunchSettings
+	)
+	{
+		return { std::move(projectManifest), std::move(runtimeManifest), std::move(runtimeLaunchSettings) };
+	}
+
+	const std::string ProjectSessionPersistence::GetProjectName() const
+	{
+		// Remove ".runtime.ludus" to get the project name.
+		return m_ProjectManifest.RuntimeManifestPath.stem().stem().string();
+	}
+
+	const std::filesystem::path ProjectSessionPersistence::GetProjectManifestPath() const
+	{
+		return Ludus::Editor::Persistence::ProjectPaths::ProjectManifestFile(
+			GetProjectRoot(),
+			GetProjectName()
+		);
+	}
+
+	const std::filesystem::path ProjectSessionPersistence::GetRuntimeLaunchSettingsPath() const
+	{
+		return Ludus::Engine::Persistence::Paths::RuntimeLaunchSettingsFile(
+			GetProjectRoot(),
+			GetProjectName()
+		);
+	}
+
+	std::optional<std::filesystem::path> ProjectSessionPersistence::TryGetScenePath(Ludus::Engine::Core::SceneId sceneId) const
+	{
+		std::filesystem::path scenePath;
+
+		for (const auto& sceneReference : m_RuntimeManifest.Scenes)
+		{
+			if (sceneReference.Id == sceneId)
+			{
+				scenePath = sceneReference.Path;
+				break;
+			}
+		}
+
+		if (scenePath.empty())
+		{
+			return std::nullopt;
+		}
+
+		return scenePath;
+	}
+
+	bool ProjectSessionPersistence::AddOrUpdateSceneReference(
+		Ludus::Engine::Core::SceneId id,
+		std::string name,
+		std::filesystem::path path
+	)
+	{
+		for (auto& sceneReference : m_RuntimeManifest.Scenes)
+		{
+			if (sceneReference.Id == id)
+			{
+				if (sceneReference.Name == name && sceneReference.Path == path)
+				{
+					return false;
+				}
+
+				sceneReference.Name = std::move(name);
+				sceneReference.Path = std::move(path);
+
+				return true;
+			}
+		}
+
+		m_RuntimeManifest.Scenes.push_back({ id, std::move(name), std::move(path) });
+
+		return true;
+	}
+
+	bool ProjectSessionPersistence::AddOrUpdateScriptReference(Ludus::Engine::Core::ScriptId id, std::string name)
+	{
+		for (auto& scriptReference : m_RuntimeManifest.Scripts)
+		{
+			if (scriptReference.Id == id)
+			{
+				if (scriptReference.Name == name)
+				{
+					return false;
+				}
+
+				scriptReference.Name = std::move(name);
+				return true;
+			}
+		}
+
+		m_RuntimeManifest.Scripts.push_back({ id, std::move(name) });
+		return true;
+	}
+
+	bool ProjectSessionPersistence::RemoveScriptReference(Ludus::Engine::Core::ScriptId id)
+	{
+		auto& scripts = m_RuntimeManifest.Scripts;
+		for (auto iter = scripts.begin(); iter != scripts.end(); ++iter)
+		{
+			if (iter->Id == id)
+			{
+				scripts.erase(iter);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool ProjectSessionPersistence::HasScriptReference(Ludus::Engine::Core::ScriptId id) const
+	{
+		for (const auto& scriptReference : m_RuntimeManifest.Scripts)
+		{
+			if (scriptReference.Id == id)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool ProjectSessionPersistence::HasScriptReference(std::string_view name) const
+	{
+		for (const auto& scriptReference : m_RuntimeManifest.Scripts)
+		{
+			if (scriptReference.Name == name)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	Ludus::Engine::Core::ScriptId ProjectSessionPersistence::AllocateScriptId() const
+	{
+		auto random = Ludus::Engine::Core::Random();
+		auto id = Ludus::Engine::Core::ScriptId { random.NextId() };
+
+		while (HasScriptReference(id))
+		{
+			id = Ludus::Engine::Core::ScriptId { random.NextId() };
+		}
+
+		return id;
+	}
+
+	const std::vector<std::string> ProjectSessionPersistence::GetScriptNames() const
+	{
+		std::vector<std::string> names;
+		names.reserve(m_RuntimeManifest.Scripts.size());
+
+		for (const auto& scriptReference : m_RuntimeManifest.Scripts)
+		{
+			names.push_back(scriptReference.Name);
+		}
+
+		return names;
+	}
+
+	bool ProjectSessionPersistence::UpdateRuntimeLaunchSettings(
+		const Ludus::Engine::Runtime::RuntimeLaunchSettings& runtimeLaunchSettings
+	)
+	{
+		if (runtimeLaunchSettings == m_RuntimeLaunchSettings)
+		{
+			return false;
+		}
+
+		m_RuntimeLaunchSettings = runtimeLaunchSettings;
+
+		return true;
+	}
+}

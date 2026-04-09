@@ -6,6 +6,7 @@
 #include <Ludus/Editor/Build/RuntimePackage/RuntimeHostPackagePipeline.h>
 #include <Ludus/Editor/Persistence/BuildPaths.h>
 #include <Ludus/Engine/FileSystem/FileSystem.h>
+#include <Ludus/Engine/Persistence/LmlRuntimeLaunchSettingsPersistence.h>
 #include <Ludus/Engine/Persistence/LmlRuntimeManifestPersistence.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Runtime/RuntimeManifest.h>
@@ -26,6 +27,21 @@ namespace
 		runtimeManifestPersistence.Save(
 			runtimeManifest,
 			Ludus::Engine::Persistence::Paths::RuntimeManifestFile(outputRoot, runtimeName)
+		);
+	}
+
+	void StagePackagedRuntimeLaunchSettings(
+		const std::filesystem::path& settingsFrom,
+		const std::filesystem::path& outputRoot,
+		std::string_view runtimeName
+	)
+	{
+		Ludus::Engine::Persistence::LmlRuntimeLaunchSettingsPersistence runtimeLaunchSettingsPersistence;
+		auto runtimeLaunchSettings = runtimeLaunchSettingsPersistence.Load(settingsFrom);
+
+		runtimeLaunchSettingsPersistence.Save(
+			runtimeLaunchSettings,
+			Ludus::Engine::Persistence::Paths::RuntimeLaunchSettingsFile(outputRoot, runtimeName)
 		);
 	}
 }
@@ -68,6 +84,11 @@ namespace Ludus::Editor::Build::RuntimePackage
 		);
 		StagePackagedRuntimeManifest(
 			Ludus::Engine::Persistence::Paths::RuntimeManifestFile(projectRoot, projectRoot.filename().string()),
+			buildOutputDirectory,
+			projectRoot.filename().string()
+		);
+		StagePackagedRuntimeLaunchSettings(
+			Ludus::Engine::Persistence::Paths::RuntimeLaunchSettingsFile(projectRoot, projectRoot.filename().string()),
 			buildOutputDirectory,
 			projectRoot.filename().string()
 		);

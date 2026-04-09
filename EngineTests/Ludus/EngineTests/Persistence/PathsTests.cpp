@@ -15,7 +15,7 @@ namespace Ludus::EngineTests::Persistence
 		const auto path = Ludus::Engine::Persistence::Paths::RuntimeManifestFile(runtimeName);
 
 		// Assert.
-		ASSERT_EQ(path, std::filesystem::path("Sandbox.ludus.runtime"));
+		ASSERT_EQ(path, std::filesystem::path("Sandbox.runtime.ludus"));
 	}
 
 	TEST(Paths, RuntimeManifestFile_WithRoot_Should_ReturnPathUnderRuntimeRoot)
@@ -28,7 +28,7 @@ namespace Ludus::EngineTests::Persistence
 		const auto path = Ludus::Engine::Persistence::Paths::RuntimeManifestFile(runtimeRootDirectory, runtimeName);
 
 		// Assert.
-		ASSERT_EQ(path, runtimeRootDirectory / "Sandbox.ludus.runtime");
+		ASSERT_EQ(path, runtimeRootDirectory / "Sandbox.runtime.ludus");
 	}
 
 	TEST(Paths, AssetsDirectory_Should_ReturnAssetsPath)
@@ -65,19 +65,19 @@ namespace Ludus::EngineTests::Persistence
 		const auto path = Ludus::Engine::Persistence::Paths::SceneFile(runtimeRootDirectory, sceneName);
 
 		// Assert.
-		ASSERT_EQ(path, runtimeRootDirectory / "Scenes" / "MainMenu.ludus.scene");
+		ASSERT_EQ(path, runtimeRootDirectory / "Scenes" / "MainMenu.scene.ludus");
 	}
 
 	TEST(Paths, RuntimeRelativeSceneFile_Should_ReturnScenePathRelativeToRuntimeRoot)
 	{
 		// Arrange.
-		const auto scenePath = std::filesystem::path("C:/Projects/Sandbox/Scenes/MainMenu.ludus.scene");
+		const auto scenePath = std::filesystem::path("C:/Projects/Sandbox/Scenes/MainMenu.scene.ludus");
 
 		// Act.
 		const auto path = Ludus::Engine::Persistence::Paths::RuntimeRelativeSceneFile(scenePath);
 
 		// Assert.
-		ASSERT_EQ(path, std::filesystem::path("Scenes") / "MainMenu.ludus.scene");
+		ASSERT_EQ(path, std::filesystem::path("Scenes") / "MainMenu.scene.ludus");
 	}
 
 	TEST(Paths, ShadersDirectory_Should_ReturnShadersPath)

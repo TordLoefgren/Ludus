@@ -44,7 +44,7 @@ namespace Ludus::Editor::Panels
 
 	void HierarchyPanel::DrawEntityRow(Ludus::Editor::Core::ProjectSessionContext& context, Ludus::Engine::Core::Scene& scene, Ludus::Engine::Core::EntityId entityId)
 	{
-		auto& selection = context.ProjectSession.EditorState.Selection;
+		auto& selection = context.ProjectSession.EditorState.GetSelection();
 		auto& ecs = scene.EntityComponentSystem;
 		const auto sceneId = scene.Id;
 
@@ -231,7 +231,7 @@ namespace Ludus::Editor::Panels
 	void HierarchyPanel::DrawSceneRow(Ludus::Editor::Core::ProjectSessionContext& context, Ludus::Engine::Core::Scene& scene)
 	{
 		auto sceneHeader = scene.Name;
-		if (context.ProjectSession.IsSceneDirty())
+		if (context.ProjectSession.EditorState.IsSceneDirty() && !context.ProjectSession.RuntimeState.IsSimulationActive())
 		{
 			sceneHeader.append("*");
 		}
@@ -273,9 +273,9 @@ namespace Ludus::Editor::Panels
 		auto windowTitle = CreateWindowTitleWithIcon(ICON_DIAGRAM_PROJECT, "Hierarchy");
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
 		{
-			auto& registry = context.ProjectSession.GetSceneRegistry();
+			auto& registry = context.ProjectSession.RuntimeState.GetActiveSceneRegistry();
 
-			const auto selectedScene = context.ProjectSession.EditorState.ActiveSceneId;
+			const auto selectedScene = context.ProjectSession.RuntimeState.GetActiveScenePresentationState().CurrentSceneId;
 			if (!registry.Contains(selectedScene))
 			{
 				// No scene available.

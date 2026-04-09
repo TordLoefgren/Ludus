@@ -8,17 +8,17 @@ namespace Ludus::Editor::Commands::Edit::Selection
 	void SelectEntity(const EditCommand::SelectEntity& command, ProjectSessionCommandContext& context)
 	{
 		const auto entity = context.Shell.State.Commands.ResolveEntity(command.EntityReference);
-		context.ProjectSession.EditorState.Selection.SelectEntity(entity);
+		context.ProjectSession.EditorState.GetSelection().SelectEntity(entity);
 	}
 
 	void DeselectEntity(const EditCommand::DeselectEntity& command, ProjectSessionCommandContext& context)
 	{
 		const auto entity = context.Shell.State.Commands.ResolveEntity(command.EntityReference);
-		context.ProjectSession.EditorState.Selection.DeselectEntity(entity);
+		context.ProjectSession.EditorState.GetSelection().DeselectEntity(entity);
 	}
 
 	void ClearSelection(const EditCommand::ClearSelection& command, ProjectSessionCommandContext& context)
 	{
-		context.ProjectSession.EditorState.Selection.ClearSelection();
+		context.ProjectSession.EditorState.GetSelection().ClearSelection();
 	}
 }

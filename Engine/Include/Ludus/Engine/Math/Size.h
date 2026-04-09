@@ -13,5 +13,10 @@ namespace Ludus::Engine::Math
 	{
 		T Width;
 		T Height;
+
+		bool operator==(const Size<T>& other) const
+		{
+			return Width == other.Width && Height == other.Height;
+		}
 	};
 }

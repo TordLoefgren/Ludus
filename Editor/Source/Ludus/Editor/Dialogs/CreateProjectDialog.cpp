@@ -4,6 +4,7 @@
 
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Dialogs/CreateProjectDialog.h>
+#include <Ludus/Editor/Dialogs/DialogHelpers.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/PopupContext.h>
@@ -22,6 +23,7 @@ namespace Ludus::Editor::Dialogs
 
 		if (JustOpened)
 		{
+			Ludus::Editor::Dialogs::CenterNextDialogOnMainViewport();
 			Ludus::UI::Context::PopupContext::OpenPopup(popupLabel.c_str(), Ludus::UI::Flags::Popup::None);
 			JustOpened = false;
 		}

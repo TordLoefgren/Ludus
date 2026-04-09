@@ -185,15 +185,15 @@ namespace Ludus::Editor::Panels
 			auto displayModeLabel = Ludus::UI::CreateLabel("Display Mode", "DisplayMode_Combo");
 			auto _ = Ludus::UI::Widgets::ComboEnum(displayModeLabel.c_str(), m_DisplayMode);
 
-			auto& registry = context.ProjectSession.GetSceneRegistry();
+			auto& registry = context.ProjectSession.RuntimeState.GetActiveSceneRegistry();
 
-			auto active = context.ProjectSession.EditorState.ActiveSceneId;
+			auto activeSceneId = context.ProjectSession.RuntimeState.GetActiveScenePresentationState().CurrentSceneId;
 			if (!m_SelectedSceneId || !registry.Contains(*m_SelectedSceneId))
 			{
-				m_SelectedSceneId = active;
+				m_SelectedSceneId = activeSceneId;
 			}
 
-			const auto& renderPresentationSettings = context.ProjectSession.GetRenderPresentationSettings();
+			const auto& renderPresentationSettings = context.ProjectSession.RuntimeState.GetActiveRenderPresentationSettings();
 			const auto targetAspectRatio = ResolveTargetAspectRatio(renderPresentationSettings);
 			const auto aspectSize = GetViewportAspectSize(targetAspectRatio);
 			const auto desiredSize = ResolveRenderTargetSize(context, renderPresentationSettings, aspectSize);
@@ -239,7 +239,7 @@ namespace Ludus::Editor::Panels
 				.ViewportRect = Ludus::Engine::Math::Rect::Create(viewportPosition, aspectSize)
 			};
 
-			context.ProjectSession.GetRenderViewRequestRegistry().Register(renderViewRequest);
+			context.ProjectSession.RuntimeState.GetActiveRenderViewRequestRegistry().Register(renderViewRequest);
 		}
 
 		return m_Open;

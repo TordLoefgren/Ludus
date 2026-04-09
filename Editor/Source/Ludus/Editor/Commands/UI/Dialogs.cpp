@@ -22,8 +22,8 @@ namespace Ludus::Editor::Commands::UI::Dialogs
 		Ludus::Editor::Dialogs::AddScriptDialog dialog(
 			command.SceneId,
 			command.EntityId,
-			context.ProjectSession.GetEditorScriptNames(),
-			context.ProjectSession.GetEditorManifest().Scripts
+			context.ProjectSession.Persistence.GetScriptNames(),
+			context.ProjectSession.Persistence.GetScripts()
 		);
 		context.Shell.State.Dialogs.Open(dialog);
 	}
@@ -35,7 +35,7 @@ namespace Ludus::Editor::Commands::UI::Dialogs
 
 	void OpenRenameSceneDialog(const UICommand::OpenRenameSceneDialog& command, ProjectSessionCommandContext& context)
 	{
-		const auto scenePath = context.ProjectSession.TryGetEditorScenePath(command.SceneId);
+		const auto scenePath = context.ProjectSession.Persistence.TryGetScenePath(command.SceneId);
 		if (!scenePath)
 		{
 			throw std::runtime_error("Scene does not have a path.");

@@ -140,7 +140,7 @@ namespace Ludus::Editor::Panels
 				{
 					context.Shell.State.Commands.AddEditCommand(
 						Ludus::Editor::Commands::EditCommand::RemoveComponent<TComponent>(
-							context.ProjectSession.GetActiveRuntime().GetScenePresentationState().CurrentSceneId,
+							context.ProjectSession.RuntimeState.GetActiveScenePresentationState().CurrentSceneId,
 							component.OwnerId
 						)
 					);
@@ -262,7 +262,7 @@ namespace Ludus::Editor::Panels
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
 				DrawInspectorLabel("Orthographic Size");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
-				changed |= InputFloatFill("##Camera2D_Panel_OrthographicSize", &component.OrthographicSize);
+				changed |= Ludus::Editor::Widgets::DrawAxisFloatField("Camera2D_Panel_OrthographicSize", &component.OrthographicSize, Ludus::Editor::Core::Axis::Y);
 
 				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
 				DrawInspectorLabel("Priority");
@@ -401,8 +401,7 @@ namespace Ludus::Editor::Panels
 				DrawInspectorLabel("Name");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 
-				const auto& editorManifest = context.ProjectSession.GetEditorManifest();
-				const auto& scriptReferences = editorManifest.Scripts;
+				const auto& scriptReferences = context.ProjectSession.Persistence.GetScripts();
 				if (scriptReferences.empty())
 				{
 					const auto noneValues = { "None" };
@@ -524,15 +523,14 @@ namespace Ludus::Editor::Panels
 		auto windowTitle = CreateWindowTitleWithIcon(ICON_SLIDERS, "Inspector");
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
 		{
-			auto& selection = context.ProjectSession.EditorState.Selection;
+			auto& selection = context.ProjectSession.EditorState.GetSelection();
 			if (!selection.HasEntity())
 			{
 				return true;
 			}
 
-			auto& registry = context.ProjectSession.GetSceneRegistry();
-
-			auto activeSceneId = context.ProjectSession.EditorState.ActiveSceneId;
+			auto& registry = context.ProjectSession.RuntimeState.GetActiveSceneRegistry();
+			auto activeSceneId = context.ProjectSession.RuntimeState.GetActiveScenePresentationState().CurrentSceneId;
 			if (!registry.Contains(activeSceneId))
 			{
 				return true;
@@ -604,7 +602,7 @@ namespace Ludus::Editor::Panels
 
 			if (changed)
 			{
-				context.ProjectSession.MarkSceneDirty();
+				context.ProjectSession.MarkActiveSceneDirty();
 			}
 
 			Ludus::UI::Context::LayoutContext::Separator();

@@ -6,8 +6,10 @@
 #include <utility>
 
 #include <Ludus/Editor/Core/ProjectSession.h>
+#include <Ludus/Editor/Core/ProjectSessionEditorState.h>
+#include <Ludus/Editor/Core/ProjectSessionPersistence.h>
+#include <Ludus/Editor/Core/ProjectSessionRuntimeState.h>
 #include <Ludus/Engine/Core/Id.h>
-#include <Ludus/Engine/Core/Random.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Runtime/RuntimeInstanceBuilder.h>
 
@@ -16,6 +18,7 @@ namespace Ludus::Editor::Core
 	ProjectSession ProjectSession::Create(
 		Ludus::Editor::Core::ProjectManifest projectManifest,
 		std::unique_ptr<Ludus::Engine::Runtime::RuntimeInstance> editorRuntime,
+		Ludus::Engine::Runtime::RuntimeLaunchSettings runtimeLaunchSettings,
 		Ludus::Engine::Core::SceneId activeSceneId
 	)
 	{
@@ -41,251 +44,109 @@ namespace Ludus::Editor::Core
 			}
 		}
 
-		return {
-			.ProjectManifest = std::move(projectManifest),
-			.EditorManifest = Ludus::Engine::Runtime::RuntimeManifest::Create(
-				runtimeManifest.EntrySceneId,
-				runtimeManifest.Scenes,
-				runtimeManifest.Scripts
-			),
-			.EditorRuntime = std::move(editorRuntime),
-			.SimulationRuntime = nullptr,
-			.EditorState = Ludus::Editor::Core::ProjectSessionEditorState::Create(
-				activeSceneId,
-				std::move(activeSceneSavePath)
-			)
-		};
+		auto runtimeManifestCopy = Ludus::Engine::Runtime::RuntimeManifest::Create(
+			runtimeManifest.EntrySceneId,
+			runtimeManifest.Scenes,
+			runtimeManifest.Scripts
+		);
+
+		return ProjectSession(
+			ProjectSessionPersistence::Create(std::move(projectManifest), std::move(runtimeManifestCopy), std::move(runtimeLaunchSettings)),
+			ProjectSessionEditorState::Create(activeSceneId, std::move(activeSceneSavePath)),
+			ProjectSessionRuntimeState::Create(std::move(editorRuntime))
+		);
 	}
 
 	void ProjectSession::SetActiveScene(Ludus::Engine::Core::Scene scene, std::optional<std::filesystem::path> sceneSavePath)
 	{
-		auto& sceneRegistry = GetEditorRuntime().GetSceneRegistry();
+		auto& sceneRegistry = RuntimeState.GetEditorSceneRegistry();
 		sceneRegistry.Clear();
 
 		const auto sceneId = scene.Id;
 		sceneRegistry.AddScene(std::move(scene));
 
-		EditorState.ActiveSceneId = sceneId;
-		EditorState.ActiveSceneState = {
-			.IsDirty = false,
-			.SavePath = sceneSavePath ? sceneSavePath : TryGetEditorScenePath(sceneId)
-		};
-		GetEditorRuntime().GetScenePresentationState().CurrentSceneId = sceneId;
+		EditorState.SetActiveScene(sceneId, sceneSavePath ? sceneSavePath : Persistence.TryGetScenePath(sceneId));
+		RuntimeState.GetEditorScenePresentationState().CurrentSceneId = sceneId;
 	}
 
 	void ProjectSession::StartSimulation(Ludus::Engine::Runtime::IHostContext& hostContext)
 	{
-		if (SimulationRuntime)
-		{
-			hostContext.AttachRuntime(SimulationRuntime.get());
-			return;
-		}
-
-		const auto& editorRuntime = *EditorRuntime;
-		const auto& editorManifest = GetEditorManifest();
-		const auto activeSceneId = EditorState.ActiveSceneId;
-		const auto& activeScene = editorRuntime.GetSceneRegistry().GetScene(activeSceneId);
-
-		auto simulationRuntime = Ludus::Engine::Runtime::RuntimeInstanceBuilder::Create()
-			.UseDefaultPhysics2D()
-			.UseDefaultRendering2D()
-			.UseDefaultScripting()
-			.WithRuntimeManifest(editorManifest)
-			.WithRuntimeEnvironment(editorRuntime.GetRuntimeEnvironment())
-			.WithExplicitScene(Ludus::Engine::Core::Scene::Clone(activeScene))
-			.Build(hostContext);
-
-		SimulationRuntime = std::move(simulationRuntime);
-
-		hostContext.AttachRuntime(SimulationRuntime.get());
+		RuntimeState.StartSimulation(
+			hostContext,
+			Persistence.GetRuntimeManifest(),
+			EditorState.GetActiveSceneId()
+		);
 	}
 
 	void ProjectSession::PauseSimulation(Ludus::Engine::Runtime::IHostContext& hostContext)
 	{
-		if (!SimulationRuntime)
-		{
-			return;
-		}
-
-		hostContext.AttachRuntime(SimulationRuntime.get());
+		RuntimeState.PauseSimulation(hostContext);
 	}
 
 	void ProjectSession::StopSimulation(Ludus::Engine::Runtime::IHostContext& hostContext)
 	{
-		if (SimulationRuntime)
-		{
-			hostContext.AttachRuntime(EditorRuntime.get());
-			SimulationRuntime->Shutdown();
-			SimulationRuntime.reset();
-
-			return;
-		}
-
-		hostContext.AttachRuntime(EditorRuntime.get());
+		RuntimeState.StopSimulation(hostContext);
 	}
 
 	void ProjectSession::ShutdownRuntimes()
 	{
-		if (SimulationRuntime)
+		RuntimeState.ShutdownRuntimes();
+	}
+
+	bool ProjectSession::UpdateRuntimeLaunchSettings(const Ludus::Engine::Runtime::RuntimeLaunchSettings& runtimeLaunchSettings)
+	{
+		const auto changed = Persistence.UpdateRuntimeLaunchSettings(runtimeLaunchSettings);
+		if (changed)
 		{
-			SimulationRuntime->Shutdown();
-			SimulationRuntime.reset();
+			RuntimeState.ApplyRuntimeLaunchSettings(runtimeLaunchSettings);
+			EditorState.SetRuntimeLaunchSettingsDirty(true);
 		}
 
-		if (EditorRuntime)
-		{
-			EditorRuntime->Shutdown();
-		}
+		return changed;
 	}
 
-	const Ludus::Engine::Runtime::RuntimeManifest& ProjectSession::GetEditorManifest() const
-	{
-		return EditorManifest;
-	}
-
-	Ludus::Engine::Runtime::RuntimeManifest& ProjectSession::GetEditorManifest()
-	{
-		return EditorManifest;
-	}
-
-	Ludus::Engine::Core::Scene& ProjectSession::GetEditorScene(Ludus::Engine::Core::SceneId sceneId)
-	{
-		return GetEditorRuntime().GetSceneRegistry().GetScene(sceneId);
-	}
-
-	const Ludus::Engine::Core::Scene& ProjectSession::GetEditorScene(Ludus::Engine::Core::SceneId sceneId) const
-	{
-		return GetEditorRuntime().GetSceneRegistry().GetScene(sceneId);
-	}
-
-	std::optional<std::filesystem::path> ProjectSession::TryGetEditorScenePath(Ludus::Engine::Core::SceneId sceneId) const
-	{
-		std::filesystem::path scenePath;
-
-		for (const auto& sceneReference : GetEditorManifest().Scenes)
-		{
-			if (sceneReference.Id == sceneId)
-			{
-				scenePath = sceneReference.Path;
-				break;
-			}
-		}
-
-		if (scenePath.empty())
-		{
-			return std::nullopt;
-		}
-
-		return scenePath;
-	}
-
-	void ProjectSession::AddOrUpdateEditorSceneReference(
+	bool ProjectSession::AddOrUpdateSceneReference(
 		Ludus::Engine::Core::SceneId id,
 		std::string name,
 		std::filesystem::path path
 	)
 	{
-		for (auto& sceneReference : GetEditorManifest().Scenes)
+		const auto changed = Persistence.AddOrUpdateSceneReference(id, name, path);
+		if (changed)
 		{
-			if (sceneReference.Id == id)
-			{
-				sceneReference.Name = std::move(name);
-				sceneReference.Path = std::move(path);
-
-				return;
-			}
+			EditorState.SetRuntimeManifestDirty(true);
 		}
 
-		GetEditorManifest().Scenes.push_back({ id, std::move(name), std::move(path) });
+		return changed;
 	}
 
-	bool ProjectSession::HasEditorScriptReference(Ludus::Engine::Core::ScriptId id) const
+	bool ProjectSession::AddOrUpdateScriptReference(Ludus::Engine::Core::ScriptId id, std::string name)
 	{
-		for (const auto& scriptReference : GetEditorManifest().Scripts)
+		const auto changed = Persistence.AddOrUpdateScriptReference(id, name);
+		if (changed)
 		{
-			if (scriptReference.Id == id)
-			{
-				return true;
-			}
+			EditorState.SetRuntimeManifestDirty(true);
 		}
 
-		return false;
+		return changed;
 	}
 
-	bool ProjectSession::HasEditorScriptReference(std::string_view name) const
+	bool ProjectSession::RemoveScriptReference(Ludus::Engine::Core::ScriptId id)
 	{
-		for (const auto& scriptReference : GetEditorManifest().Scripts)
+		const auto changed = Persistence.RemoveScriptReference(id);
+		if (changed)
 		{
-			if (scriptReference.Name == name)
-			{
-				return true;
-			}
+			EditorState.SetRuntimeManifestDirty(true);
 		}
 
-		return false;
+		return changed;
 	}
 
-	bool ProjectSession::AddOrUpdateEditorScriptReference(
-		Ludus::Engine::Core::ScriptId id,
-		std::string name
-	)
+	void ProjectSession::MarkActiveSceneDirty()
 	{
-		for (auto& scriptReference : GetEditorManifest().Scripts)
+		if (!RuntimeState.IsSimulationActive())
 		{
-			if (scriptReference.Id == id)
-			{
-				if (scriptReference.Name == name)
-				{
-					return false;
-				}
-
-				scriptReference.Name = std::move(name);
-				return true;
-			}
+			EditorState.SetSceneDirty(true);
 		}
-
-		GetEditorManifest().Scripts.push_back({ id, std::move(name) });
-		return true;
-	}
-
-	bool ProjectSession::RemoveEditorScriptReference(Ludus::Engine::Core::ScriptId id)
-	{
-		auto& scripts = GetEditorManifest().Scripts;
-		for (auto iter = scripts.begin(); iter != scripts.end(); ++iter)
-		{
-			if (iter->Id == id)
-			{
-				scripts.erase(iter);
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	Ludus::Engine::Core::ScriptId ProjectSession::AllocateEditorScriptId() const
-	{
-		auto random = Ludus::Engine::Core::Random();
-		auto id = Ludus::Engine::Core::ScriptId { random.NextId() };
-
-		while (HasEditorScriptReference(id))
-		{
-			id = Ludus::Engine::Core::ScriptId { random.NextId() };
-		}
-
-		return id;
-	}
-
-	std::vector<std::string> ProjectSession::GetEditorScriptNames() const
-	{
-		std::vector<std::string> names;
-		names.reserve(GetEditorManifest().Scripts.size());
-
-		for (const auto& scriptReference : GetEditorManifest().Scripts)
-		{
-			names.push_back(scriptReference.Name);
-		}
-
-		return names;
 	}
 }

@@ -21,9 +21,9 @@
 namespace Ludus::Engine::Platform::Modals
 {
 	static constexpr std::array<COMDLG_FILTERSPEC, 4> fileTypes =
-	{ { { L"Ludus Project File (*.ludus.project)", L"*.ludus.project" },
-		{ L"Ludus Runtime File (*.ludus.runtime)", L"*.ludus.runtime" },
-		{ L"Ludus Scene File (*.ludus.scene)", L"*.ludus.scene" },
+	{ { { L"Ludus Project File (*.project.ludus)", L"*.project.ludus" },
+		{ L"Ludus Runtime File (*.runtime.ludus)", L"*.runtime.ludus" },
+		{ L"Ludus Scene File (*.scene.ludus)", L"*.scene.ludus" },
 		{ L"All Files (*.*)", L"*.*" } }
 	};
 
@@ -39,15 +39,15 @@ namespace Ludus::Engine::Platform::Modals
 			extension.remove_prefix(1);
 		}
 
-		if (extension == "ludus.project")
+		if (extension == "project.ludus")
 		{
 			return INDEX_LUDUSPROJECT;
 		}
-		if (extension == "ludus.runtime")
+		if (extension == "runtime.ludus")
 		{
 			return INDEX_LUDUSRUNTIME;
 		}
-		if (extension == "ludus.scene")
+		if (extension == "scene.ludus")
 		{
 			return INDEX_LUDUSSCENE;
 		}

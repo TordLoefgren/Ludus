@@ -55,8 +55,8 @@ namespace Ludus::EngineTests::Persistence
 	static RuntimeManifest MakeRuntimeManifest()
 	{
 		auto scenes = std::vector<SceneReference> {
-			MakeSceneReference({ 1 }, "MainMenu", "Scenes/MainMenu.ludus.scene"),
-			MakeSceneReference({ 2 }, "Gameplay", "Scenes/Gameplay.ludus.scene")
+			MakeSceneReference({ 1 }, "MainMenu", "Scenes/MainMenu.scene.ludus"),
+			MakeSceneReference({ 2 }, "Gameplay", "Scenes/Gameplay.scene.ludus")
 		};
 
 		return RuntimeManifest::Create(
@@ -74,7 +74,7 @@ namespace Ludus::EngineTests::Persistence
 		// Arrange.
 		const auto tempDirectoryScoped = CreateTestDirectory();
 		std::filesystem::create_directories(tempDirectoryScoped.Path);
-		const auto runtimeManifestPath = tempDirectoryScoped.Path / "Game.ludus.runtime";
+		const auto runtimeManifestPath = tempDirectoryScoped.Path / "Game.runtime.ludus";
 
 		const auto runtimeManifest = MakeRuntimeManifest();
 
@@ -96,7 +96,7 @@ namespace Ludus::EngineTests::Persistence
 		// Arrange.
 		const auto tempDirectoryScoped = CreateTestDirectory();
 		std::filesystem::create_directories(tempDirectoryScoped.Path);
-		const auto runtimeManifestPath = tempDirectoryScoped.Path / "Game.ludus.runtime";
+		const auto runtimeManifestPath = tempDirectoryScoped.Path / "Game.runtime.ludus";
 
 		const auto runtimeManifest = MakeRuntimeManifest();
 
@@ -123,7 +123,7 @@ namespace Ludus::EngineTests::Persistence
 		// Arrange.
 		const auto tempDirectoryScoped = CreateTestDirectory();
 		std::filesystem::create_directories(tempDirectoryScoped.Path);
-		const auto runtimeManifestPath = tempDirectoryScoped.Path / "Game.ludus.runtime";
+		const auto runtimeManifestPath = tempDirectoryScoped.Path / "Game.runtime.ludus";
 
 		const auto runtimeManifest = MakeRuntimeManifest();
 
@@ -149,7 +149,7 @@ namespace Ludus::EngineTests::Persistence
 		// Arrange.
 		const auto tempDirectoryScoped = CreateTestDirectory();
 		std::filesystem::create_directories(tempDirectoryScoped.Path);
-		const auto runtimeManifestPath = tempDirectoryScoped.Path / "Game.ludus.runtime";
+		const auto runtimeManifestPath = tempDirectoryScoped.Path / "Game.runtime.ludus";
 
 		FileSystem::WriteAllText(runtimeManifestPath, "EntrySceneId: 1, Scenes: [], Scripts: []");
 
@@ -165,7 +165,7 @@ namespace Ludus::EngineTests::Persistence
 		// Arrange.
 		const auto tempDirectoryScoped = CreateTestDirectory();
 		std::filesystem::create_directories(tempDirectoryScoped.Path);
-		const auto runtimeManifestPath = tempDirectoryScoped.Path / "Game.ludus.runtime";
+		const auto runtimeManifestPath = tempDirectoryScoped.Path / "Game.runtime.ludus";
 
 		auto runtimeManifest = RuntimeManifest::Create();
 

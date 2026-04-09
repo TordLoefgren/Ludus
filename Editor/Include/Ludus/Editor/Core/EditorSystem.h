@@ -13,6 +13,7 @@
 #include <Ludus/Editor/Panels/PanelRegistry.h>
 #include <Ludus/Editor/Persistence/LmlProjectManifestPersistence.h>
 #include <Ludus/Editor/Persistence/ProjectSessionLoader.h>
+#include <Ludus/Engine/Persistence/LmlRuntimeLaunchSettingsPersistence.h>
 #include <Ludus/Engine/Persistence/LmlRuntimeManifestPersistence.h>
 #include <Ludus/Engine/Persistence/LmlScenePersistence.h>
 #include <Ludus/Engine/Runtime/IHostContext.h>
@@ -29,6 +30,7 @@ namespace Ludus::Editor::Core
 		Ludus::Engine::Runtime::IHostContext& m_HostContext;
 		Ludus::Engine::Persistence::LmlScenePersistence m_ScenePersistence;
 		Ludus::Engine::Persistence::LmlRuntimeManifestPersistence m_RuntimeManifestPersistence;
+		Ludus::Engine::Persistence::LmlRuntimeLaunchSettingsPersistence m_RuntimeLaunchSettingsPersistence;
 		Ludus::Editor::Persistence::LmlProjectManifestPersistence m_ProjectManifestPersistence;
 		Ludus::Editor::Persistence::ProjectSessionLoader m_ProjectSessionLoader;
 		Ludus::Editor::Core::EditorSession m_Session;
@@ -51,6 +53,7 @@ namespace Ludus::Editor::Core
 		void FlushCommands();
 		void UpdateDialogs();
 		void UpdatePanels();
+		void UpdateWindowTitle();
 
 		void UpdateStartup();
 		void UpdateProjectSession();
