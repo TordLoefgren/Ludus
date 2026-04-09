@@ -11,6 +11,7 @@ namespace Ludus::Engine::Runtime
 		std::filesystem::path ShadersDirectory;
 		std::filesystem::path DefaultFontPath;
 		std::filesystem::path RuntimeManifestPath;
+		std::filesystem::path RuntimeLaunchSettingsPath;
 		std::filesystem::path ScriptModulePath;
 	};
 }

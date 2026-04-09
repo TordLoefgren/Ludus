@@ -61,7 +61,7 @@ namespace Ludus::EditorTests::Persistence
 		const auto path = ProjectPaths::ProjectManifestFile("Sandbox");
 
 		// Assert.
-		ASSERT_EQ(path, std::filesystem::path("Sandbox.ludus.project"));
+		ASSERT_EQ(path, std::filesystem::path("Sandbox.project.ludus"));
 	}
 
 	TEST(ProjectPaths, ProjectManifestFile_WithRoot_Should_ReturnProjectManifestPath)
@@ -73,7 +73,7 @@ namespace Ludus::EditorTests::Persistence
 		const auto path = ProjectPaths::ProjectManifestFile(projectRoot, "Sandbox");
 
 		// Assert.
-		ASSERT_EQ(path, projectRoot / "Sandbox.ludus.project");
+		ASSERT_EQ(path, projectRoot / "Sandbox.project.ludus");
 	}
 
 	TEST(ProjectPaths, ValidateFileName_Should_ReturnError_WhenNameIsEmpty)
@@ -100,7 +100,7 @@ namespace Ludus::EditorTests::Persistence
 		const auto path = ProjectPaths::SceneFileName("Sandbox");
 
 		// Assert.
-		ASSERT_EQ(path, std::filesystem::path("Sandbox.ludus.scene"));
+		ASSERT_EQ(path, std::filesystem::path("Sandbox.scene.ludus"));
 	}
 
 	TEST(ProjectPaths, SceneFile_Should_ReturnProjectScenePath)
@@ -112,7 +112,7 @@ namespace Ludus::EditorTests::Persistence
 		const auto path = ProjectPaths::SceneFile(projectRoot, "Main");
 
 		// Assert.
-		ASSERT_EQ(path, projectRoot / "Scenes" / "Main.ludus.scene");
+		ASSERT_EQ(path, projectRoot / "Scenes" / "Main.scene.ludus");
 	}
 
 	TEST(ProjectPaths, SceneFileInDirectory_Should_ReturnScenePathUnderDirectory)
@@ -124,13 +124,13 @@ namespace Ludus::EditorTests::Persistence
 		const auto path = ProjectPaths::SceneFileInDirectory(directory, "Main");
 
 		// Assert.
-		ASSERT_EQ(path, directory / "Main.ludus.scene");
+		ASSERT_EQ(path, directory / "Main.scene.ludus");
 	}
 
 	TEST(ProjectPaths, SceneName_Should_ReturnSceneNameFromPath)
 	{
 		// Arrange & Act.
-		const auto name = ProjectPaths::SceneName("C:/Projects/Sandbox/Scenes/Main.ludus.scene");
+		const auto name = ProjectPaths::SceneName("C:/Projects/Sandbox/Scenes/Main.scene.ludus");
 
 		// Assert.
 		ASSERT_EQ(name, "Main");

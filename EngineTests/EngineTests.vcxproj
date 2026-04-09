@@ -128,6 +128,7 @@
     <ClCompile Include="Ludus\EngineTests\Serialization\Schemas\Camera2DComponentSchemaTests.cpp" />
     <ClCompile Include="Ludus\EngineTests\Serialization\Schemas\Collider2DComponentSchemaTests.cpp" />
     <ClCompile Include="Ludus\EngineTests\Serialization\Schemas\DisplayNameComponentSchemaTests.cpp" />
+    <ClCompile Include="Ludus\EngineTests\Serialization\Schemas\RuntimeLaunchSettingsSchemaTests.cpp" />
     <ClCompile Include="Ludus\EngineTests\Serialization\Schemas\RuntimeManifestSchemaTests.cpp" />
     <ClCompile Include="Ludus\EngineTests\Serialization\Schemas\RigidBody2DComponentSchemaTests.cpp" />
     <ClCompile Include="Ludus\EngineTests\Serialization\Schemas\ScriptComponentSchemaTests.cpp" />

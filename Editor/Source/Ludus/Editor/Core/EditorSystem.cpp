@@ -61,10 +61,12 @@ namespace Ludus::Editor::Core
 		m_HostContext(hostContext),
 		m_ScenePersistence(),
 		m_RuntimeManifestPersistence(),
+		m_RuntimeLaunchSettingsPersistence(),
 		m_ProjectManifestPersistence(),
 		m_ProjectSessionLoader(
 			m_ScenePersistence,
 			m_RuntimeManifestPersistence,
+			m_RuntimeLaunchSettingsPersistence,
 			m_ProjectManifestPersistence
 		),
 		m_Session(
@@ -83,6 +85,7 @@ namespace Ludus::Editor::Core
 			.HostContext = m_HostContext,
 			.ScenePersistence = m_ScenePersistence,
 			.RuntimeManifestPersistence = m_RuntimeManifestPersistence,
+			.RuntimeLaunchSettingsPersistence = m_RuntimeLaunchSettingsPersistence,
 			.ProjectManifestPersistence = m_ProjectManifestPersistence,
 			.PanelRegistry = m_PanelRegistry
 		};
@@ -98,6 +101,7 @@ namespace Ludus::Editor::Core
 			.HostContext = m_HostContext,
 			.ScenePersistence = m_ScenePersistence,
 			.RuntimeManifestPersistence = m_RuntimeManifestPersistence,
+			.RuntimeLaunchSettingsPersistence = m_RuntimeLaunchSettingsPersistence,
 			.ProjectManifestPersistence = m_ProjectManifestPersistence,
 			.PanelRegistry = m_PanelRegistry
 		};
@@ -209,6 +213,23 @@ namespace Ludus::Editor::Core
 		m_PanelRegistry.ApplyRemovals();
 	}
 
+	void EditorSystem::UpdateWindowTitle()
+	{
+		if (!m_ProjectSession)
+		{
+			m_HostContext.SetWindowTitle("Ludus Editor");
+			return;
+		}
+
+		auto title = std::string("Ludus Editor - ") + m_ProjectSession->Persistence.GetProjectName();
+		if (m_ProjectSession->EditorState.HasUnsavedChanges())
+		{
+			title += "*";
+		}
+
+		m_HostContext.SetWindowTitle(title);
+	}
+
 	void Ludus::Editor::Core::EditorSystem::ApplyStartupOptions()
 	{
 		if (m_EditorStartupOptions.StartupProjectPath)
@@ -250,6 +271,8 @@ namespace Ludus::Editor::Core
 
 	void EditorSystem::UpdateStartup()
 	{
+		UpdateWindowTitle();
+
 		if (auto commands = m_WelcomeWindow.Update())
 		{
 			m_Shell.State.Commands.EnqueueCommands(std::move(*commands));
@@ -269,14 +292,17 @@ namespace Ludus::Editor::Core
 
 		// Resolve transition-based commands.
 		FlushCommands();
+		UpdateWindowTitle();
 
 		// Update panels and resolve commands.
 		UpdatePanels();
 		FlushCommands();
+		UpdateWindowTitle();
 
 		// Update dialogs and resolve commands.
 		UpdateDialogs();
 		FlushCommands();
+		UpdateWindowTitle();
 
 		m_Shell.State.Commands.ClearEntityReferences();
 	}

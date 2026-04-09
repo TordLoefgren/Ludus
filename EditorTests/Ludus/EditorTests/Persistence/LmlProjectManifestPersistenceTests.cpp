@@ -30,11 +30,11 @@ namespace Ludus::EditorTests::Persistence
 		// Arrange.
 		const auto tempDirectoryScoped = CreateTestDirectory();
 		std::filesystem::create_directories(tempDirectoryScoped.Path);
-		const auto manifestPath = tempDirectoryScoped.Path / "Game.ludus.project";
+		const auto manifestPath = tempDirectoryScoped.Path / "Game.project.ludus";
 
 		auto manifest = ProjectManifest::Create(
 			std::filesystem::path("Projects/Game"),
-			std::filesystem::path("Game.ludus.runtime")
+			std::filesystem::path("Game.runtime.ludus")
 		);
 
 		LmlProjectManifestPersistence implementation;
@@ -54,11 +54,11 @@ namespace Ludus::EditorTests::Persistence
 		// Arrange.
 		const auto tempDirectoryScoped = CreateTestDirectory();
 		std::filesystem::create_directories(tempDirectoryScoped.Path);
-		const auto manifestPath = tempDirectoryScoped.Path / "Game.ludus.project";
+		const auto manifestPath = tempDirectoryScoped.Path / "Game.project.ludus";
 
 		auto manifest = ProjectManifest::Create(
 			std::filesystem::path("Projects/Game"),
-			std::filesystem::path("Nested/Game.ludus.runtime")
+			std::filesystem::path("Nested/Game.runtime.ludus")
 		);
 
 		LmlProjectManifestPersistence implementation;
@@ -78,7 +78,7 @@ namespace Ludus::EditorTests::Persistence
 		// Arrange.
 		const auto tempDirectoryScoped = CreateTestDirectory();
 		std::filesystem::create_directories(tempDirectoryScoped.Path);
-		const auto manifestPath = tempDirectoryScoped.Path / "Game.ludus.project";
+		const auto manifestPath = tempDirectoryScoped.Path / "Game.project.ludus";
 
 		FileSystem::WriteAllText(manifestPath, "Version: { Major: 0, Minor: 2, Patch: 0 }");
 
@@ -94,7 +94,7 @@ namespace Ludus::EditorTests::Persistence
 		// Arrange.
 		const auto tempDirectoryScoped = CreateTestDirectory();
 		std::filesystem::create_directories(tempDirectoryScoped.Path);
-		const auto manifestPath = tempDirectoryScoped.Path / "Game.ludus.project";
+		const auto manifestPath = tempDirectoryScoped.Path / "Game.project.ludus";
 
 		auto manifest = ProjectManifest::Create(std::filesystem::path(), std::filesystem::path());
 

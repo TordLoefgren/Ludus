@@ -34,7 +34,7 @@ namespace Ludus::Editor::Core
 			return false;
 		}
 
-		void SetVisible(const Ludus::Editor::Panels::PanelKind panelKind, const bool isVisible)
+		void SetVisible(const Ludus::Editor::Panels::PanelKind panelKind, bool isVisible)
 		{
 			switch (panelKind)
 			{

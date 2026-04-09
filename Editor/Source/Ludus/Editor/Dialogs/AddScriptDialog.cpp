@@ -6,6 +6,7 @@
 
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Dialogs/AddScriptDialog.h>
+#include <Ludus/Editor/Dialogs/DialogHelpers.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/Engine/Core/Entity.h>
 #include <Ludus/Engine/Core/Id.h>
@@ -54,6 +55,7 @@ namespace Ludus::Editor::Dialogs
 				SelectName = ScriptNames[0];
 			}
 
+			Ludus::Editor::Dialogs::CenterNextDialogOnMousePosition();
 			Ludus::UI::Context::PopupContext::OpenPopup(popupLabel.c_str(), Ludus::UI::Flags::Popup::None);
 			JustOpened = false;
 		}

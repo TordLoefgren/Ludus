@@ -48,7 +48,7 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		ProjectManifest manifest;
 		manifest.Version = { 7, 8, 9 };
 		manifest.ProjectRoot = std::filesystem::path("Projects/Game");
-		manifest.RuntimeManifestPath = std::filesystem::path("Game.ludus.runtime");
+		manifest.RuntimeManifestPath = std::filesystem::path("Game.runtime.ludus");
 
 		// Act.
 		ProjectManifestSchema::Serialize(writer, manifest);
@@ -75,7 +75,7 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		ASSERT_EQ(projectRoot, "Projects/Game");
 
 		const auto runtimeManifestPath = std::get<std::string>(AsValue(*runtimeManifestPathNode));
-		ASSERT_EQ(runtimeManifestPath, "Game.ludus.runtime");
+		ASSERT_EQ(runtimeManifestPath, "Game.runtime.ludus");
 	}
 
 	TEST(ProjectManifestSchema, Serialize_WritesOnlyPersistedMembers_When_ProjectManifestIsValid)
@@ -85,7 +85,7 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		ProjectManifest manifest;
 		manifest.ProjectRoot = std::filesystem::path("Projects/Game");
-		manifest.RuntimeManifestPath = std::filesystem::path("Game.ludus.runtime");
+		manifest.RuntimeManifestPath = std::filesystem::path("Game.runtime.ludus");
 
 		// Act.
 		ProjectManifestSchema::Serialize(writer, manifest);
@@ -122,7 +122,7 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		writer.Emit(Token::Key { "ProjectRoot" });
 		writer.Emit(Token::String { "Projects/Game" });
 		writer.Emit(Token::Key { "RuntimeManifestPath" });
-		writer.Emit(Token::String { "Game.ludus.runtime" });
+		writer.Emit(Token::String { "Game.runtime.ludus" });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 
@@ -137,7 +137,7 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		ASSERT_EQ(manifest.Version.Minor, 8u);
 		ASSERT_EQ(manifest.Version.Patch, 9u);
 		ASSERT_EQ(manifest.ProjectRoot, std::filesystem::path("Projects/Game"));
-		ASSERT_EQ(manifest.RuntimeManifestPath, std::filesystem::path("Game.ludus.runtime"));
+		ASSERT_EQ(manifest.RuntimeManifestPath, std::filesystem::path("Game.runtime.ludus"));
 	}
 
 	TEST(ProjectManifestSchema, RoundTrip_PreservesProjectRootAndRuntimeManifestPath_When_SerializedAndDeserialized)
@@ -147,7 +147,7 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		DomTokenStreamWriter writer(document);
 		ProjectManifest manifest;
 		manifest.ProjectRoot = std::filesystem::path("Projects/Game");
-		manifest.RuntimeManifestPath = std::filesystem::path("Game.ludus.runtime");
+		manifest.RuntimeManifestPath = std::filesystem::path("Game.runtime.ludus");
 
 		// Act.
 		ProjectManifestSchema::Serialize(writer, manifest);
@@ -189,7 +189,7 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		writer.Emit(Token::Key { "ProjectRoot" });
 		writer.Emit(Token::String { "Projects/Game" });
 		writer.Emit(Token::Key { "RuntimeManifestPath" });
-		writer.Emit(Token::String { "Game.ludus.runtime" });
+		writer.Emit(Token::String { "Game.runtime.ludus" });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 
@@ -243,7 +243,7 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		writer.Emit(Token::Int { 0 });
 		writer.Emit(Token::EndObject { });
 		writer.Emit(Token::Key { "RuntimeManifestPath" });
-		writer.Emit(Token::String { "Game.ludus.runtime" });
+		writer.Emit(Token::String { "Game.runtime.ludus" });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 
@@ -301,7 +301,7 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		writer.Emit(Token::Key { "ProjectRoot" });
 		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "RuntimeManifestPath" });
-		writer.Emit(Token::String { "Game.ludus.runtime" });
+		writer.Emit(Token::String { "Game.runtime.ludus" });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);
 

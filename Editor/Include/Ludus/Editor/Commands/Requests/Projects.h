@@ -17,5 +17,6 @@ namespace Ludus::Editor::Commands::Requests::Projects
 	void CreateProject(const RequestCommand::CreateProject& command, ProjectSessionCommandContext& context);
 	void CreateProjectAs(const RequestCommand::CreateProjectAs& command, ProjectSessionCommandContext& context);
 	void OpenProject(const RequestCommand::OpenProject& command, ProjectSessionCommandContext& context);
+	void SaveProject(ProjectSessionCommandContext& context);
 	void CloseProject(ProjectSessionCommandContext& context);
 }

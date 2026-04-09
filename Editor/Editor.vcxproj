@@ -27,6 +27,9 @@
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\EditorState.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Scripts.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\EditorSession.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Core\ProjectSessionEditorState.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Core\ProjectSessionPersistence.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Core\ProjectSessionRuntimeState.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Dialogs\RenameSceneDialog.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Persistence\ProjectSessionLoader.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Serialization\ProjectManifestSchema.cpp" />
@@ -90,7 +93,10 @@
     <ClInclude Include="Include\Ludus\Editor\Core\ProjectSession.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ProjectSessionContext.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\PendingProjectTransition.h" />
-    <ClInclude Include="Include\Ludus\Editor\Core\SceneSessionState.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\ActiveSceneSession.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\ProjectSessionEditorState.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\ProjectSessionPersistence.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\ProjectSessionRuntimeState.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ProjectTemplates.h" />
     <ClInclude Include="Include\Ludus\Editor\Build\BuildCommand.h" />
     <ClInclude Include="Include\Ludus\Editor\Build\BuildConfiguration.h" />
@@ -130,9 +136,11 @@
     <ClInclude Include="Include\Ludus\Editor\Core\ExecutionMode.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ProjectManifest.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorStartupOptions.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\UnsavedChangesState.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ViewportDisplayMode.h" />
     <ClInclude Include="Include\Ludus\Editor\Dialogs\AddScriptDialog.h" />
     <ClInclude Include="Include\Ludus\Editor\Dialogs\CreateProjectDialog.h" />
+    <ClInclude Include="Include\Ludus\Editor\Dialogs\DialogHelpers.h" />
     <ClInclude Include="Include\Ludus\Editor\Dialogs\DialogManager.h" />
     <ClInclude Include="Include\Ludus\Editor\Dialogs\DialogOutcome.h" />
     <ClInclude Include="Include\Ludus\Editor\Dialogs\RenameSceneDialog.h" />

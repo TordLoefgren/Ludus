@@ -17,5 +17,10 @@ namespace Ludus::UI::Types
 		Ludus::Engine::Math::Vector2D WorkPosition;
 		Ludus::Engine::Math::Vector2D WorkSize;
 		float DpiScale;
+
+		const Ludus::Engine::Math::Vector2D GetCenter() const
+		{
+			return { Position.X + Size.X * 0.5f, Position.Y + Size.Y * 0.5f };
+		}
 	};
 }

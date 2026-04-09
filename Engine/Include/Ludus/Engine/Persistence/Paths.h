@@ -18,8 +18,9 @@ namespace Ludus::Engine::Persistence::Paths
 
 		inline constexpr std::string_view ScriptsModuleFile = "Scripts.dll";
 
-		inline constexpr std::string_view RuntimeManifestExtension = ".ludus.runtime";
-		inline constexpr std::string_view SceneExtension = ".ludus.scene";
+		inline constexpr std::string_view RuntimeManifestExtension = ".runtime.ludus";
+		inline constexpr std::string_view RuntimeLaunchSettingsExtension = ".settings.ludus";
+		inline constexpr std::string_view SceneExtension = ".scene.ludus";
 	}
 
 	inline std::filesystem::path AssetsDirectory(const std::filesystem::path& runtimeRootDirectory)
@@ -85,6 +86,16 @@ namespace Ludus::Engine::Persistence::Paths
 	inline std::filesystem::path RuntimeManifestFile(const std::filesystem::path& runtimeRootDirectory, std::string_view runtimeName)
 	{
 		return runtimeRootDirectory / RuntimeManifestFile(runtimeName);
+	}
+
+	inline std::filesystem::path RuntimeLaunchSettingsFile(std::string_view runtimeName)
+	{
+		return std::string(runtimeName) + std::string(Constants::RuntimeLaunchSettingsExtension);
+	}
+
+	inline std::filesystem::path RuntimeLaunchSettingsFile(const std::filesystem::path& runtimeRootDirectory, std::string_view runtimeName)
+	{
+		return runtimeRootDirectory / RuntimeLaunchSettingsFile(runtimeName);
 	}
 
 	inline std::filesystem::path ScriptsDllFile(const std::filesystem::path& runtimeRootDirectory)

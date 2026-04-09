@@ -4,6 +4,7 @@
 
 #include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 #include <Ludus/Editor/Commands/RequestCommand.h>
+#include <Ludus/Editor/Commands/Requests/Projects.h>
 #include <Ludus/Editor/Panels/PanelHelpers.h>
 #include <Ludus/Engine/Debug/Debug.h>
 
@@ -11,9 +12,12 @@ namespace Ludus::Editor::Commands::Requests::Builds
 {
 	void RunTargetBuildCommand(const RequestCommand::RunTargetBuildCommand& command, ProjectSessionCommandContext& context)
 	{
-		LUDUS_ASSERT(!context.ProjectSession.IsSimulating(), "Build command cannot be executed while the simulation session is active.");
+		LUDUS_ASSERT(
+			!context.ProjectSession.RuntimeState.IsSimulationActive(),
+			"Build command cannot be executed while the simulation session is active."
+		);
 
-		const auto projectRoot = context.ProjectSession.GetProjectRoot();
+		const auto projectRoot = context.ProjectSession.Persistence.GetProjectRoot();
 		auto& build = context.Shell.Build;
 		build.RunTargetBuildCommand(projectRoot, command.BuildTarget, command.BuildCommand, command.BuildConfiguration);
 
@@ -22,9 +26,18 @@ namespace Ludus::Editor::Commands::Requests::Builds
 
 	void BuildRuntime(const RequestCommand::BuildRuntime& command, ProjectSessionCommandContext& context)
 	{
-		LUDUS_ASSERT(!context.ProjectSession.IsSimulating(), "Build command cannot be executed while the simulation session is active.");
+		LUDUS_ASSERT(
+			!context.ProjectSession.RuntimeState.IsSimulationActive(),
+			"Build command cannot be executed while the simulation session is active."
+		);
 
-		const auto projectRoot = context.ProjectSession.GetProjectRoot();
+		if (context.ProjectSession.EditorState.HasUnsavedChanges())
+		{
+			LUDUS_LOG_WARN("Build command cannot be executed when the project has unsaved changes.");
+			return;
+		}
+
+		const auto projectRoot = context.ProjectSession.Persistence.GetProjectRoot();
 		auto& build = context.Shell.Build;
 		build.BuildRuntime(projectRoot, command.BuildConfiguration);
 
@@ -33,9 +46,12 @@ namespace Ludus::Editor::Commands::Requests::Builds
 
 	void CleanRuntime(ProjectSessionCommandContext& context)
 	{
-		LUDUS_ASSERT(!context.ProjectSession.IsSimulating(), "Build command cannot be executed while the simulation session is active.");
+		LUDUS_ASSERT(
+			!context.ProjectSession.RuntimeState.IsSimulationActive(),
+			"Build command cannot be executed while the simulation session is active."
+		);
 
-		const auto projectRoot = context.ProjectSession.GetProjectRoot();
+		const auto projectRoot = context.ProjectSession.Persistence.GetProjectRoot();
 		auto& build = context.Shell.Build;
 		build.CleanRuntime(projectRoot);
 

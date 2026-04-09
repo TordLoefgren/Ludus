@@ -145,7 +145,7 @@ namespace Ludus::Editor::Core
 
 			if (Ludus::Engine::Platform::Modals::OpenFileDialog(
 				path,
-				"ludus.project",
+				"project.ludus",
 				Ludus::Editor::Persistence::ProjectPaths::ProjectsRoot()))
 			{
 				Ludus::Editor::Commands::CommandSet out;

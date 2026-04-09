@@ -62,13 +62,34 @@ namespace Ludus::Editor::Panels
 				);
 			}
 		};
+
+		bool EnqueueSaveSceneAsFromDialog(
+			Ludus::Editor::Core::ProjectSessionContext& context,
+			Ludus::Engine::Core::SceneId activeSceneId,
+			const std::filesystem::path& projectRoot
+		)
+		{
+			std::filesystem::path path;
+			if (Ludus::Engine::Platform::Modals::SaveFileDialog(
+				path,
+				"scene.ludus",
+				Ludus::Engine::Persistence::Paths::ScenesDirectory(projectRoot),
+				"Untitled"
+			))
+			{
+				context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveSceneAs { .SceneId = activeSceneId, .Path = path });
+				return true;
+			}
+
+			return false;
+		}
 	}
 
 	void DockPanel::DrawMenuBar(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
 		if (Ludus::UI::Scope::MenuBarScope menuBar; menuBar)
 		{
-			const auto projectRoot = context.ProjectSession.GetProjectRoot();
+			const auto projectRoot = context.ProjectSession.Persistence.GetProjectRoot();
 
 			if (Ludus::UI::Scope::MenuScope fileMenu("File"); fileMenu)
 			{
@@ -84,7 +105,7 @@ namespace Ludus::Editor::Panels
 						std::filesystem::path path;
 						if (Ludus::Engine::Platform::Modals::OpenFileDialog(
 							path,
-							"ludus.scene",
+							"scene.ludus",
 							Ludus::Engine::Persistence::Paths::ScenesDirectory(projectRoot)
 						))
 						{
@@ -96,49 +117,31 @@ namespace Ludus::Editor::Panels
 
 					if (Ludus::UI::Widgets::MenuItem("Save"))
 					{
-						const auto activeSceneId = context.ProjectSession.EditorState.ActiveSceneId;
-						if (!context.ProjectSession.GetSceneRegistry().Contains(activeSceneId))
+						const auto activeSceneId = context.ProjectSession.EditorState.GetActiveSceneId();
+						if (!context.ProjectSession.RuntimeState.GetEditorSceneRegistry().Contains(activeSceneId))
 						{
 							return;
 						}
 
-						if (context.ProjectSession.ActiveSceneHasSavePath())
+						if (context.ProjectSession.EditorState.ActiveSceneHasSavePath())
 						{
 							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveScene { .SceneId = activeSceneId });
 						}
 						else
 						{
-							std::filesystem::path path;
-							if (Ludus::Engine::Platform::Modals::SaveFileDialog(
-								path,
-								"ludus.scene",
-								Ludus::Engine::Persistence::Paths::ScenesDirectory(projectRoot),
-								"Untitled"
-							))
-							{
-								context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveSceneAs { .SceneId = activeSceneId, .Path = path });
-							}
+							(void)EnqueueSaveSceneAsFromDialog(context, activeSceneId, projectRoot);
 						}
 					}
 
 					if (Ludus::UI::Widgets::MenuItem("Save As"))
 					{
-						const auto activeSceneId = context.ProjectSession.EditorState.ActiveSceneId;
-						if (!context.ProjectSession.GetSceneRegistry().Contains(activeSceneId))
+						const auto activeSceneId = context.ProjectSession.EditorState.GetActiveSceneId();
+						if (!context.ProjectSession.RuntimeState.GetEditorSceneRegistry().Contains(activeSceneId))
 						{
 							return;
 						}
 
-						std::filesystem::path path;
-						if (Ludus::Engine::Platform::Modals::SaveFileDialog(
-							path,
-							"ludus.scene",
-							Ludus::Engine::Persistence::Paths::ScenesDirectory(projectRoot),
-							"Untitled"
-						))
-						{
-							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveSceneAs { .SceneId = activeSceneId, .Path = path });
-						}
+						(void)EnqueueSaveSceneAsFromDialog(context, activeSceneId, projectRoot);
 					}
 				}
 
@@ -155,12 +158,17 @@ namespace Ludus::Editor::Panels
 					std::filesystem::path path;
 					if (Ludus::Engine::Platform::Modals::OpenFileDialog(
 						path,
-						"ludus.project",
+						"project.ludus",
 						Ludus::Editor::Persistence::ProjectPaths::ProjectsRoot()
 					))
 					{
 						context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::OpenProject { path });
 					}
+				}
+
+				if (Ludus::UI::Widgets::MenuItem("Save Project"))
+				{
+					context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveProject { });
 				}
 
 				if (Ludus::UI::Widgets::MenuItem("Close Project"))

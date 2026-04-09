@@ -12,7 +12,7 @@ namespace Ludus::Editor::Commands::Edit::Entities
 {
 	void AddEntity(const EditCommand::AddEntity& command, ProjectSessionCommandContext& context)
 	{
-		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneId);
+		auto* scene = context.ProjectSession.RuntimeState.GetActiveSceneRegistry().TryGetScene(command.SceneId);
 		if (!scene)
 		{
 			return;
@@ -33,12 +33,12 @@ namespace Ludus::Editor::Commands::Edit::Entities
 			}
 		}, command.EntityReference.Value);
 
-		context.ProjectSession.MarkSceneDirty();
+		context.ProjectSession.MarkActiveSceneDirty();
 	}
 
 	void RemoveEntity(const EditCommand::RemoveEntity& command, ProjectSessionCommandContext& context)
 	{
-		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneId);
+		auto* scene = context.ProjectSession.RuntimeState.GetActiveSceneRegistry().TryGetScene(command.SceneId);
 		if (!scene)
 		{
 			return;
@@ -47,6 +47,6 @@ namespace Ludus::Editor::Commands::Edit::Entities
 		const auto id = context.Shell.State.Commands.ResolveEntity(command.EntityReference);
 		scene->EntityComponentSystem.DestroyEntity(id);
 
-		context.ProjectSession.MarkSceneDirty();
+		context.ProjectSession.MarkActiveSceneDirty();
 	}
 }

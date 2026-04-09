@@ -5,8 +5,10 @@
 #include <Ludus/Editor/Core/ProjectManifest.h>
 #include <Ludus/Editor/Persistence/IProjectManifestPersistence.h>
 #include <Ludus/Engine/Core/Scene.h>
+#include <Ludus/Engine/Persistence/IRuntimeLaunchSettingsPersistence.h>
 #include <Ludus/Engine/Persistence/IRuntimeManifestPersistence.h>
 #include <Ludus/Engine/Persistence/IScenePersistence.h>
+#include <Ludus/Engine/Runtime/RuntimeLaunchSettings.h>
 #include <Ludus/Engine/Runtime/RuntimeManifest.h>
 
 namespace Ludus::Editor::Persistence
@@ -15,6 +17,7 @@ namespace Ludus::Editor::Persistence
 	{
 		Ludus::Editor::Core::ProjectManifest ProjectManifest;
 		Ludus::Engine::Runtime::RuntimeManifest RuntimeManifest;
+		Ludus::Engine::Runtime::RuntimeLaunchSettings RuntimeLaunchSettings;
 		Ludus::Engine::Core::Scene EntryScene;
 	};
 
@@ -23,12 +26,14 @@ namespace Ludus::Editor::Persistence
 	private:
 		Ludus::Engine::Persistence::IScenePersistence& m_ScenePersistence;
 		Ludus::Engine::Persistence::IRuntimeManifestPersistence& m_RuntimeManifestPersistence;
+		Ludus::Engine::Persistence::IRuntimeLaunchSettingsPersistence& m_RuntimeLaunchSettingsPersistence;
 		Ludus::Editor::Persistence::IProjectManifestPersistence& m_ProjectManifestPersistence;
 
 	public:
 		ProjectSessionLoader(
 			Ludus::Engine::Persistence::IScenePersistence& scenePersistence,
 			Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence,
+			Ludus::Engine::Persistence::IRuntimeLaunchSettingsPersistence& runtimeLaunchSettingsPersistence,
 			Ludus::Editor::Persistence::IProjectManifestPersistence& projectManifestPersistence
 		);
 

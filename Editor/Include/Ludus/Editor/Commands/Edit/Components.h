@@ -77,7 +77,7 @@ namespace Ludus::Editor::Commands::Edit::Components
 	template<typename TComponent>
 	void AddComponent(const EditCommand::AddComponent<TComponent>& command, ProjectSessionCommandContext& context)
 	{
-		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneId);
+		auto* scene = context.ProjectSession.RuntimeState.GetActiveSceneRegistry().TryGetScene(command.SceneId);
 		if (!scene)
 		{
 			return;
@@ -102,13 +102,13 @@ namespace Ludus::Editor::Commands::Edit::Components
 			}
 		}, command.Init);
 
-		context.ProjectSession.MarkSceneDirty();
+		context.ProjectSession.MarkActiveSceneDirty();
 	}
 
 	template<typename TComponent>
 	void RemoveComponent(const EditCommand::RemoveComponent<TComponent>& command, ProjectSessionCommandContext& context)
 	{
-		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneId);
+		auto* scene = context.ProjectSession.RuntimeState.GetActiveSceneRegistry().TryGetScene(command.SceneId);
 		if (!scene)
 		{
 			return;
@@ -119,13 +119,13 @@ namespace Ludus::Editor::Commands::Edit::Components
 
 		registry.RemoveByOwner(owner);
 
-		context.ProjectSession.MarkSceneDirty();
+		context.ProjectSession.MarkActiveSceneDirty();
 	}
 
 	template<typename TComponent>
 	void UpdateComponent(const EditCommand::UpdateComponent<TComponent>& command, ProjectSessionCommandContext& context)
 	{
-		auto* scene = context.ProjectSession.GetSceneRegistry().TryGetScene(command.SceneId);
+		auto* scene = context.ProjectSession.RuntimeState.GetActiveSceneRegistry().TryGetScene(command.SceneId);
 		if (!scene)
 		{
 			return;
@@ -140,6 +140,6 @@ namespace Ludus::Editor::Commands::Edit::Components
 		registry.RemoveByOwner(owner);
 		registry.Add(after);
 
-		context.ProjectSession.MarkSceneDirty();
+		context.ProjectSession.MarkActiveSceneDirty();
 	}
 }

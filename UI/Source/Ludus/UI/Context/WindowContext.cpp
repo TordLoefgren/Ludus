@@ -5,12 +5,16 @@
 
 namespace Ludus::UI::Context::WindowContext
 {
-	void SetNextWindowPosition(Ludus::Engine::Math::Vector2D position)
+	void SetNextWindowPosition(
+		const Ludus::Engine::Math::Vector2D& position,
+		WindowCondition condition,
+		const Ludus::Engine::Math::Vector2D& pivot
+	)
 	{
-		ImGui::SetNextWindowPos({ position.X, position.Y });
+		ImGui::SetNextWindowPos({ position.X, position.Y }, static_cast<int>(condition), { pivot.X, pivot.Y });
 	}
 
-	void SetNextWindowSize(Ludus::Engine::Math::Vector2D size)
+	void SetNextWindowSize(const Ludus::Engine::Math::Vector2D& size)
 	{
 		ImGui::SetNextWindowSize({ size.X, size.Y });
 	}
@@ -20,7 +24,7 @@ namespace Ludus::UI::Context::WindowContext
 		ImGui::SetNextWindowViewport(viewportId);
 	}
 
-	void SetCursorPosition(Ludus::Engine::Math::Vector2D position)
+	void SetCursorPosition(const Ludus::Engine::Math::Vector2D& position)
 	{
 		ImGui::SetCursorPos({ position.X, position.Y });
 	}
@@ -32,7 +36,7 @@ namespace Ludus::UI::Context::WindowContext
 
 	void SetCursorPositionY(float y)
 	{
-		ImGui::SetCursorPosX(y);
+		ImGui::SetCursorPosY(y);
 	}
 
 	Ludus::Engine::Math::Vector2D GetCursorPosition()

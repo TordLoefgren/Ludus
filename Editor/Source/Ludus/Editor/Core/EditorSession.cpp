@@ -18,6 +18,7 @@
 #include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Runtime/IHostContext.h>
 #include <Ludus/Engine/Runtime/RuntimeInstanceBuilder.h>
+#include <Ludus/Engine/Runtime/RuntimeLaunchSettings.h>
 #include <Ludus/Engine/Runtime/RuntimeManifest.h>
 
 namespace Ludus::Editor::Core
@@ -43,6 +44,7 @@ namespace Ludus::Editor::Core
 			Ludus::Engine::Runtime::IHostContext& hostContext,
 			Ludus::Engine::Runtime::RuntimeEnvironment runtimeEnvironment,
 			Ludus::Engine::Runtime::RuntimeManifest runtimeManifest,
+			Ludus::Engine::Runtime::RuntimeLaunchSettings runtimeLaunchSettings,
 			Ludus::Editor::Core::ProjectManifest projectManifest,
 			Ludus::Engine::Core::Scene entryScene
 		)
@@ -50,12 +52,17 @@ namespace Ludus::Editor::Core
 			auto renderingConfiguration = Ludus::Engine::Graphics::RenderingConfiguration2D { };
 			renderingConfiguration.AddPass(std::make_unique<Ludus::Editor::Core::EditorGridRenderPass>());
 
+			Ludus::Engine::Graphics::RenderPresentationSettings renderPresentationSettings;
+			renderPresentationSettings.InternalResolution = runtimeLaunchSettings.PresentationSettings.InternalResolution;
+			renderPresentationSettings.UseFixedRenderResolution = runtimeLaunchSettings.PresentationSettings.UseFixedRenderResolution;
+
 			// Build runtime instance.
 			auto runtime = Ludus::Engine::Runtime::RuntimeInstanceBuilder::Create()
 				.UseDefaultPhysics2D()
 				.WithRenderingConfiguration(std::move(renderingConfiguration))
 				.UseDefaultRendering2D()
 				.UseDefaultScripting()
+				.WithRenderPresentationSettings(renderPresentationSettings)
 				.WithRuntimeManifest(std::move(runtimeManifest))
 				.WithRuntimeEnvironment(std::move(runtimeEnvironment))
 				.WithEntryScene(std::move(entryScene))
@@ -66,6 +73,7 @@ namespace Ludus::Editor::Core
 			return Ludus::Editor::Core::ProjectSession::Create(
 				std::move(projectManifest),
 				std::move(runtime),
+				std::move(runtimeLaunchSettings),
 				entrySceneId
 			);
 		}
@@ -76,6 +84,7 @@ namespace Ludus::Editor::Core
 	)
 	{
 		const auto engineResourcesDirectory = Ludus::Editor::Persistence::RepositoryPaths::EngineResourcesDirectory();
+		const auto runtimeName = projectManifest.ProjectRoot.filename().string();
 
 		auto runtimeEnvironment = Ludus::Engine::Runtime::RuntimeEnvironment
 		{
@@ -84,6 +93,7 @@ namespace Ludus::Editor::Core
 			.ShadersDirectory = Ludus::Engine::Persistence::Paths::ShadersDirectory(engineResourcesDirectory.parent_path()),
 			.DefaultFontPath = Ludus::Engine::Persistence::Paths::DefaultFontFile(engineResourcesDirectory.parent_path()),
 			.RuntimeManifestPath = projectManifest.RuntimeManifestPath,
+			.RuntimeLaunchSettingsPath = Ludus::Engine::Persistence::Paths::RuntimeLaunchSettingsFile(projectManifest.ProjectRoot, runtimeName),
 			.ScriptModulePath = Ludus::Editor::Persistence::BuildPaths::ScriptsDllFile(projectManifest.ProjectRoot)
 		};
 
@@ -93,6 +103,7 @@ namespace Ludus::Editor::Core
 			m_HostContext,
 			std::move(runtimeEnvironment),
 			std::move(loadedProject.RuntimeManifest),
+			std::move(loadedProject.RuntimeLaunchSettings),
 			std::move(loadedProject.ProjectManifest),
 			std::move(loadedProject.EntryScene)
 		);
@@ -134,12 +145,12 @@ namespace Ludus::Editor::Core
 			{
 				ShutdownProjectSession(m_HostContext, out);
 				out = LoadProjectSession(value.ProjectManifest);
-				m_HostContext.AttachRuntime(out->EditorRuntime.get());
+				out->RuntimeState.AttachEditorRuntime(m_HostContext);
 
 				// Reset state.
 				m_Shell.State.Mode = Ludus::Editor::Core::EditorMode::Session;
 				pendingTransition = Ludus::Editor::Core::PendingProjectTransition::NoneState();
-				m_HostContext.SetWindowTitle("Ludus Editor - " + out->ProjectManifest.ProjectRoot.filename().string());
+				m_HostContext.SetWindowTitle("Ludus Editor - " + out->Persistence.GetProjectName());
 			}
 		}, pendingTransition.Data);
 	}

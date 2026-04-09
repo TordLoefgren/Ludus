@@ -74,8 +74,8 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		return RuntimeManifest::Create(
 			SceneId { 2 },
 			{
-				MakeSceneReference({ 1 }, "Bootstrap", "Scenes/Bootstrap.ludus.scene"),
-				MakeSceneReference({ 2 }, "Gameplay", "Scenes/Gameplay.ludus.scene")
+				MakeSceneReference({ 1 }, "Bootstrap", "Scenes/Bootstrap.scene.ludus"),
+				MakeSceneReference({ 2 }, "Gameplay", "Scenes/Gameplay.scene.ludus")
 			},
 			{
 				MakeScriptReference({ 10 }, "PlayerScript"),
@@ -212,7 +212,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		writer.Emit(Token::Key { "Name" });
 		writer.Emit(Token::String { "Scene" });
 		writer.Emit(Token::Key { "Path" });
-		writer.Emit(Token::String { "Scenes/Scene.ludus.scene" });
+		writer.Emit(Token::String { "Scenes/Scene.scene.ludus" });
 		writer.Emit(Token::EndObject { });
 		writer.Emit(Token::EndArray { });
 		writer.Emit(Token::Key { "Scripts" });

@@ -18,7 +18,7 @@ namespace Ludus::Editor::Persistence::ProjectPaths
 		inline constexpr std::string_view ScriptsModuleSourceFile = "ScriptsModule.cpp";
 		inline constexpr std::string_view ScriptsProjectFile = "Scripts.vcxproj";
 		inline constexpr std::string_view CppExtension = ".cpp";
-		inline constexpr std::string_view ProjectManifestExtension = ".ludus.project";
+		inline constexpr std::string_view ProjectManifestExtension = ".project.ludus";
 		inline constexpr std::string_view ScriptsDirectory = "Scripts";
 	}
 

@@ -2,7 +2,11 @@
 
 #include <filesystem>
 #include <stdexcept>
+#include <utility>
+#include <vector>
 
+#include <Ludus/Engine/Debug/Debug.h>
+#include <Ludus/Engine/Persistence/LmlRuntimeLaunchSettingsPersistence.h>
 #include <Ludus/Engine/Persistence/LmlRuntimeManifestPersistence.h>
 #include <Ludus/Engine/Persistence/LmlScenePersistence.h>
 #include <Ludus/Engine/Persistence/Paths.h>
@@ -11,6 +15,7 @@
 #include <Ludus/Engine/Runtime/RuntimeEnvironment.h>
 #include <Ludus/Engine/Runtime/RuntimeInstanceBuilder.h>
 #include <Ludus/Engine/Runtime/RuntimeLauncher.h>
+#include <Ludus/Engine/Runtime/RuntimeLaunchSettings.h>
 #include <Ludus/Engine/Runtime/RuntimeManifest.h>
 #include <Ludus/Engine/Windowing/WindowOptions.h>
 
@@ -27,6 +32,7 @@ namespace
 			.ShadersDirectory = Ludus::Engine::Persistence::Paths::ShadersDirectory(runtimeRootDirectory),
 			.DefaultFontPath = Ludus::Engine::Persistence::Paths::DefaultFontFile(runtimeRootDirectory),
 			.RuntimeManifestPath = Ludus::Engine::Persistence::Paths::RuntimeManifestFile(runtimeRootDirectory, runtimeName),
+			.RuntimeLaunchSettingsPath = Ludus::Engine::Persistence::Paths::RuntimeLaunchSettingsFile(runtimeRootDirectory, runtimeName),
 			.ScriptModulePath = Ludus::Engine::Persistence::Paths::ScriptsDllFile(runtimeRootDirectory)
 		};
 	}
@@ -62,17 +68,47 @@ namespace
 
 		auto scene = scenePersistence.Load(scenePath);
 
+		std::vector<Ludus::Engine::Core::EntityId> unresolvedScriptOwners;
 		for (const auto& script : scene.EntityComponentSystem.Scripts.View())
 		{
 			if (!runtimeManifest.TryGetScriptReference(script.Id))
 			{
-				throw std::runtime_error("Scene contains script id that is not present in the runtime manifest.");
+				LUDUS_LOG_WARN("Scene contains script id that is not present in the runtime manifest. The script component will be ignored at runtime.");
+				unresolvedScriptOwners.push_back(script.OwnerId);
 			}
+		}
+
+		for (const auto ownerId : unresolvedScriptOwners)
+		{
+			scene.EntityComponentSystem.Scripts.RemoveByOwner(ownerId);
 		}
 
 		return scene;
 	}
 
+	Ludus::Engine::Windowing::WindowOptions ToWindowOptions(
+		const Ludus::Engine::Runtime::RuntimeLaunchSettings& runtimeLaunchSettings,
+		std::string_view runtimeName
+	)
+	{
+		Ludus::Engine::Windowing::WindowOptions windowOptions;
+		windowOptions.Title = runtimeName;
+		windowOptions.StartupWidth = runtimeLaunchSettings.WindowSettings.StartupWidth;
+		windowOptions.StartupHeight = runtimeLaunchSettings.WindowSettings.StartupHeight;
+		windowOptions.IsResizeable = runtimeLaunchSettings.WindowSettings.IsResizeable;
+		windowOptions.IsMaximized = runtimeLaunchSettings.WindowSettings.IsMaximized;
+
+		return windowOptions;
+	}
+
+	Ludus::Engine::Graphics::RenderPresentationSettings ToRenderPresentationSettings(const Ludus::Engine::Runtime::RuntimeLaunchSettings& runtimeLaunchSettings)
+	{
+		Ludus::Engine::Graphics::RenderPresentationSettings renderPresentationSettings;
+		renderPresentationSettings.InternalResolution = runtimeLaunchSettings.PresentationSettings.InternalResolution;
+		renderPresentationSettings.UseFixedRenderResolution = runtimeLaunchSettings.PresentationSettings.UseFixedRenderResolution;
+
+		return renderPresentationSettings;
+	}
 }
 
 namespace Ludus::Engine::Runtime
@@ -91,11 +127,13 @@ namespace Ludus::Engine::Runtime
 			runtimeManifest
 		);
 
-		Ludus::Engine::Windowing::WindowOptions windowOptions;
-		windowOptions.Title = runtimeName;
+		Ludus::Engine::Persistence::LmlRuntimeLaunchSettingsPersistence runtimeLaunchSettingsPersistence;
+		const auto runtimeLaunchSettings = runtimeLaunchSettingsPersistence.Load(runtimeEnvironment.RuntimeLaunchSettingsPath);
+		auto windowOptions = ToWindowOptions(runtimeLaunchSettings, runtimeName);
+		auto renderPresentationSettings = ToRenderPresentationSettings(runtimeLaunchSettings);
 
 		auto host = Ludus::Engine::Runtime::ApplicationHostBuilder::Create()
-			.WithWindowOptions(windowOptions)
+			.WithWindowOptions(std::move(windowOptions))
 			.Build();
 
 		auto runtime = Ludus::Engine::Runtime::RuntimeInstanceBuilder::Create()
@@ -103,6 +141,7 @@ namespace Ludus::Engine::Runtime
 			.UseDefaultRendering2D()
 			.UseDefaultScripting()
 			.UseDefaultMainRenderView()
+			.WithRenderPresentationSettings(std::move(renderPresentationSettings))
 			.WithRuntimeEnvironment(std::move(runtimeEnvironment))
 			.WithRuntimeManifest(runtimeManifest)
 			.WithEntryScene(std::move(entryScene))
