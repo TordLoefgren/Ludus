@@ -1,16 +1,18 @@
 #pragma once
 
+#include <string_view>
+
 #include <Ludus/Engine/Core/Random.h>
 #include <Ludus/Engine/Core/Scene.h>
 
 namespace Ludus::Editor::Core::ProjectTemplates
 {
-	inline Ludus::Engine::Core::Scene CreateDefaultScene()
+	inline Ludus::Engine::Core::Scene CreateDefaultScene(std::string_view name = "Sample Scene")
 	{
 		auto random = Ludus::Engine::Core::Random();
 		Ludus::Engine::Core::Scene scene(
 			{ random.NextId() },
-			"Sample Scene"
+			name
 		);
 
 		const auto entityId = scene.EntityComponentSystem.AddEntity();

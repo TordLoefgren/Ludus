@@ -82,7 +82,11 @@ namespace Ludus::Engine::Runtime
 
 		virtual Ludus::Engine::Core::FlagSet& GetExecutionFlags() override;
 
+		virtual void SetWindowShouldClose() override;
 		virtual void SetWindowTitle(std::string_view title) override;
+
+		virtual void SubscribeWindowCloseEvent(Ludus::Engine::Events::EventHandler& handler) override;
+		virtual void UnsubscribeWindowCloseEvent(Ludus::Engine::Events::EventHandler& handler) override;
 
 #pragma endregion
 

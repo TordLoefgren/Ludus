@@ -27,12 +27,20 @@ namespace Ludus::Editor::Core
 	{
 		void ShutdownProjectSession(
 			Ludus::Engine::Runtime::IHostContext& hostContext,
+			Ludus::Editor::Core::ExecutionManager& execution,
 			std::optional<Ludus::Editor::Core::ProjectSession>& projectSession
 		)
 		{
 			if (!projectSession)
 			{
 				return;
+			}
+
+			// Ensure that any running simulation is stopped.
+			if (execution.ExecutionMode != Ludus::Editor::Core::ExecutionMode::Stop)
+			{
+				execution.ExecutionMode = Ludus::Editor::Core::ExecutionMode::Stop;
+				execution.Apply(hostContext.GetExecutionFlags(), Ludus::Editor::Core::ExecutionMode::Stop);
 			}
 
 			hostContext.DetachRuntime();
@@ -136,14 +144,14 @@ namespace Ludus::Editor::Core
 			}
 			else if constexpr (std::is_same_v<Alt, typename Ludus::Editor::Core::PendingProjectTransition::Close>)
 			{
-				ShutdownProjectSession(m_HostContext, out);
+				ShutdownProjectSession(m_HostContext, m_Shell.State.Execution, out);
 				m_Shell.State.Mode = Ludus::Editor::Core::EditorMode::Startup;
 				pendingTransition = Ludus::Editor::Core::PendingProjectTransition::NoneState();
 				m_HostContext.SetWindowTitle("Ludus Editor");
 			}
 			else if constexpr (std::is_same_v<Alt, typename Ludus::Editor::Core::PendingProjectTransition::Open>)
 			{
-				ShutdownProjectSession(m_HostContext, out);
+				ShutdownProjectSession(m_HostContext, m_Shell.State.Execution, out);
 				out = LoadProjectSession(value.ProjectManifest);
 				out->RuntimeState.AttachEditorRuntime(m_HostContext);
 

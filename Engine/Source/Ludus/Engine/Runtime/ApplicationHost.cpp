@@ -1,15 +1,8 @@
 #include "pch.h"
 
-#include <memory>
-#include <utility>
-
 #include <Ludus/Engine/Events/WindowEvents.h>
 #include <Ludus/Engine/Runtime/ApplicationHost.h>
 #include <Ludus/Engine/Runtime/RuntimeInstance.h>
-#include <Ludus/Engine/Runtime/RuntimeOptions.h>
-#include <Ludus/Engine/Runtime/SystemScheduler.h>
-#include <Ludus/Engine/Windowing/Window.h>
-#include <Ludus/Engine/Windowing/WindowOptions.h>
 
 namespace Ludus::Engine::Runtime
 {
@@ -39,9 +32,13 @@ namespace Ludus::Engine::Runtime
 		{
 			case EventType::WindowCloseEvent:
 			{
-				m_Window.SetWindowShouldClose();
+				if (m_EventBus.GetHandlerCount(EventType::WindowCloseEvent) == 1)
+				{
+					m_Window.SetWindowShouldClose();
+					return true;
+				}
 
-				return true;
+				return false;
 			}
 
 			case EventType::FramebufferSizeEvent:
@@ -229,9 +226,24 @@ namespace Ludus::Engine::Runtime
 		return m_ExecutionFlags;
 	}
 
+	void ApplicationHost::SetWindowShouldClose()
+	{
+		m_Window.SetWindowShouldClose();
+	}
+
 	void ApplicationHost::SetWindowTitle(std::string_view title)
 	{
 		m_Window.SetTitle(title);
+	}
+
+	void ApplicationHost::SubscribeWindowCloseEvent(Ludus::Engine::Events::EventHandler& handler)
+	{
+		m_EventBus.Subscribe(Ludus::Engine::Events::EventType::WindowCloseEvent, handler);
+	}
+
+	void ApplicationHost::UnsubscribeWindowCloseEvent(Ludus::Engine::Events::EventHandler& handler)
+	{
+		m_EventBus.Unsubscribe(Ludus::Engine::Events::EventType::WindowCloseEvent, handler);
 	}
 
 #pragma endregion

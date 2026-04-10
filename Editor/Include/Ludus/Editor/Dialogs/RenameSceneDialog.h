@@ -18,15 +18,15 @@ namespace Ludus::Editor::Dialogs
 			std::filesystem::path Path;
 		};
 
-		bool IsOpen = true;
-		bool JustOpened = true;
-		std::string Error;
+		bool m_IsOpen = true;
+		bool m_JustOpened = true;
+		std::string m_Error;
 
-		std::string Name;
-		std::filesystem::path NewPath;
+		std::string m_Name;
+		std::filesystem::path m_NewPath;
 
-		Ludus::Engine::Core::SceneId SceneId;
-		std::filesystem::path CurrentPath;
+		Ludus::Engine::Core::SceneId m_SceneId;
+		std::filesystem::path m_CurrentPath;
 
 		using Outcome = DialogOutcome<RenameOutcome>;
 

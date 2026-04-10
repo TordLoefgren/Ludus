@@ -14,6 +14,11 @@ namespace Ludus::Engine::Graphics
 	struct RenderTarget;
 }
 
+namespace Ludus::Engine::Events
+{
+	struct EventHandler;
+}
+
 namespace Ludus::Engine::Runtime
 {
 	class RuntimeInstance;
@@ -43,6 +48,9 @@ namespace Ludus::Engine::Runtime
 		virtual Ludus::Engine::Core::FlagSet& GetExecutionFlags() = 0;
 		virtual Ludus::Engine::Windowing::Input& GetInput() = 0;
 
+		virtual void SetWindowShouldClose() = 0;
 		virtual void SetWindowTitle(std::string_view title) = 0;
+		virtual void SubscribeWindowCloseEvent(Ludus::Engine::Events::EventHandler& handler) = 0;
+		virtual void UnsubscribeWindowCloseEvent(Ludus::Engine::Events::EventHandler& handler) = 0;
 	};
 }

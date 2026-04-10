@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -23,14 +23,20 @@
     <ClCompile Include="Source\Ludus\Editor\Build\MSBuild\MSBuildRuntimeHostPipeline.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Build\MSBuild\MSBuildPipeline.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Build\RuntimePackage\RuntimeHostPackagePipeline.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\Requests\BuildActions.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Builds.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\Requests\DeferredAction.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\EditorState.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\Requests\EditorStateActions.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\Requests\ProjectActions.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Commands\Requests\SceneActions.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Scripts.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\EditorSession.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\ProjectSessionEditorState.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\ProjectSessionPersistence.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\ProjectSessionRuntimeState.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Dialogs\RenameSceneDialog.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Dialogs\UnsavedChangesDialog.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Persistence\ProjectSessionLoader.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Serialization\ProjectManifestSchema.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Persistence\LmlProjectManifestPersistence.cpp" />
@@ -84,8 +90,12 @@
     <ClInclude Include="Include\Ludus\Editor\Build\MSBuild\RuntimeHostBuildSettings.h" />
     <ClInclude Include="Include\Ludus\Editor\Build\RuntimePackage\RuntimeHostPackagePipeline.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\ProjectSessionCommandContext.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Requests\BuildActions.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Builds.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\EditorState.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Requests\EditorStateActions.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Requests\ProjectActions.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Requests\SceneActions.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Scripts.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\StartupCommandContext.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSession.h" />
@@ -127,6 +137,7 @@
     <ClInclude Include="Include\Ludus\Editor\Core\EditorConfiguration.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorExecutionFlags.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ExecutionManager.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\SceneQueries.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\SelectionManager.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorState.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSystem.h" />
@@ -144,6 +155,10 @@
     <ClInclude Include="Include\Ludus\Editor\Dialogs\DialogManager.h" />
     <ClInclude Include="Include\Ludus\Editor\Dialogs\DialogOutcome.h" />
     <ClInclude Include="Include\Ludus\Editor\Dialogs\RenameSceneDialog.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Requests\DeferredAction.h" />
+    <ClInclude Include="Include\Ludus\Editor\Commands\Requests\ProjectTransitionContext.h" />
+    <ClInclude Include="Include\Ludus\Editor\Dialogs\UnsavedChangesDialog.h" />
+    <ClInclude Include="Include\Ludus\Editor\Dialogs\UnsavedChangesResult.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelRegistry.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\Constants.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\DockPanel.h" />

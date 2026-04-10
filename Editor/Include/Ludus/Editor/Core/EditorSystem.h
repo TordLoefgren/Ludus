@@ -13,16 +13,16 @@
 #include <Ludus/Editor/Panels/PanelRegistry.h>
 #include <Ludus/Editor/Persistence/LmlProjectManifestPersistence.h>
 #include <Ludus/Editor/Persistence/ProjectSessionLoader.h>
+#include <Ludus/Engine/Events/EventHandler.h>
 #include <Ludus/Engine/Persistence/LmlRuntimeLaunchSettingsPersistence.h>
 #include <Ludus/Engine/Persistence/LmlRuntimeManifestPersistence.h>
 #include <Ludus/Engine/Persistence/LmlScenePersistence.h>
 #include <Ludus/Engine/Runtime/IHostContext.h>
 #include <Ludus/Engine/Runtime/ISystem.h>
-#include <Ludus/Engine/Runtime/RuntimeEnvironment.h>
 
 namespace Ludus::Editor::Core
 {
-	class EditorSystem final : public Ludus::Engine::Runtime::ISystem
+	class EditorSystem final : public Ludus::Engine::Runtime::ISystem, public Ludus::Engine::Events::EventHandler
 	{
 	private:
 		EditorShell m_Shell;
@@ -70,5 +70,7 @@ namespace Ludus::Editor::Core
 		virtual void OnDetachImpl() override;
 
 		virtual void UpdateImpl(float deltaTime) override;
+
+		virtual bool ProcessEvent(const Ludus::Engine::Events::Event& event) override;
 	};
 }
