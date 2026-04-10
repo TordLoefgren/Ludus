@@ -5,8 +5,10 @@
 #include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/UICommand.h>
 #include <Ludus/Editor/Core/Constants.h>
+#include <Ludus/Editor/Core/ProjectManifest.h>
 #include <Ludus/Editor/Core/WelcomeWindow.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
+#include <Ludus/Engine/Core/Version.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/Engine/Platform/Modals.h>
 #include <Ludus/UI/Context/LayoutContext.h>
@@ -79,7 +81,9 @@ namespace Ludus::Editor::Core
 
 		const std::string title = "LUDUS";
 		const std::string subtitle = "Create or open a project";
-		const std::string version = "v0.2.0";
+		const std::string version = Ludus::Engine::Core::Version::ToString(
+			Ludus::Editor::Core::ProjectManifest::CurrentVersion
+		);
 		const auto buttonSize = Ludus::Editor::Core::Constants::WelcomeActionButtonSize;
 
 		const auto centerTextAtY = [&](const std::string& text, float y)

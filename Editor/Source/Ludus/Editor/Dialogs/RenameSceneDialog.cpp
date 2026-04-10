@@ -20,45 +20,45 @@
 namespace Ludus::Editor::Dialogs
 {
 	RenameSceneDialog::RenameSceneDialog(Ludus::Engine::Core::SceneId sceneId, std::filesystem::path currentPath)
-		: SceneId(sceneId), CurrentPath(currentPath)
+		: m_SceneId(sceneId), m_CurrentPath(currentPath)
 	{ }
 
 	RenameSceneDialog::Outcome RenameSceneDialog::Draw()
 	{
 		const auto popupLabel = Ludus::UI::CreateLabel("Rename Scene", "Rename Scene");
 
-		if (JustOpened)
+		if (m_JustOpened)
 		{
 			Ludus::Editor::Dialogs::CenterNextDialogOnMousePosition();
 			Ludus::UI::Context::PopupContext::OpenPopup(popupLabel.c_str(), Ludus::UI::Flags::Popup::None);
-			JustOpened = false;
+			m_JustOpened = false;
 		}
 
-		if (Ludus::UI::Scope::PopupModalScope dialogScope(popupLabel.c_str(), &IsOpen, Ludus::UI::Flags::Window::AlwaysAutoResize); dialogScope)
+		if (Ludus::UI::Scope::PopupModalScope dialogScope(popupLabel.c_str(), &m_IsOpen, Ludus::UI::Flags::Window::AlwaysAutoResize); dialogScope)
 		{
 			Ludus::UI::Widgets::TextUnformatted("Please write a new scene name:");
-			if (Ludus::UI::Widgets::InputText("##NewScene", Name))
+			if (Ludus::UI::Widgets::InputText("##NewScene", m_Name))
 			{
-				NewPath = Ludus::Editor::Persistence::ProjectPaths::SceneFileInDirectory(CurrentPath.parent_path(), Name);
+				m_NewPath = Ludus::Editor::Persistence::ProjectPaths::SceneFileInDirectory(m_CurrentPath.parent_path(), m_Name);
 			}
 
-			if (!Error.empty())
+			if (!m_Error.empty())
 			{
-				Ludus::UI::Widgets::TextUnformattedColor(Error.c_str(), Ludus::UI::Context::ThemeContext::Error());
+				Ludus::UI::Widgets::TextUnformattedColor(m_Error.c_str(), Ludus::UI::Context::ThemeContext::Error());
 			}
 
 			if (Ludus::UI::Widgets::Button("Rename", Ludus::Editor::Core::Constants::ModalActionButtonSize))
 			{
-				Error = Ludus::Editor::Persistence::ProjectPaths::ValidateFileName(Name);
-				if (Error.empty())
+				m_Error = Ludus::Editor::Persistence::ProjectPaths::ValidateFileName(m_Name);
+				if (m_Error.empty())
 				{
-					Error = Ludus::Editor::Persistence::ProjectPaths::ValidateAvailablePath(NewPath);
+					m_Error = Ludus::Editor::Persistence::ProjectPaths::ValidateAvailablePath(m_NewPath);
 				}
 
-				if (Error.empty())
+				if (m_Error.empty())
 				{
-					IsOpen = false;
-					return Outcome::Confirm({ .SceneId = SceneId, .Path = NewPath });
+					m_IsOpen = false;
+					return Outcome::Confirm({ .SceneId = m_SceneId, .Path = m_NewPath });
 				}
 			}
 
@@ -66,8 +66,8 @@ namespace Ludus::Editor::Dialogs
 
 			if (Ludus::UI::Widgets::Button("Cancel", Ludus::Editor::Core::Constants::ModalActionButtonSize))
 			{
-				Name.clear();
-				IsOpen = false;
+				m_Name.clear();
+				m_IsOpen = false;
 				return Outcome::Cancel();
 			}
 
@@ -102,6 +102,6 @@ namespace Ludus::Editor::Dialogs
 
 	bool RenameSceneDialog::ShouldClose(const Outcome&) const
 	{
-		return !IsOpen;
+		return !m_IsOpen;
 	}
 }

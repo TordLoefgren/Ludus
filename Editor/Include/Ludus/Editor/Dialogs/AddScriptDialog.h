@@ -17,17 +17,17 @@ namespace Ludus::Editor::Dialogs
 	private:
 		enum class AddScriptTab { Create, Select };
 
-		bool IsOpen = true;
-		bool JustOpened = true;
-		std::string Error;
-		std::string CreateName;
-		std::string SelectName;
-		AddScriptTab ActiveTab = AddScriptTab::Create;
+		bool m_IsOpen = true;
+		bool m_JustOpened = true;
+		std::string m_Error;
+		std::string m_CreateName;
+		std::string m_SelectName;
+		AddScriptTab m_ActiveTab = AddScriptTab::Create;
 
-		Ludus::Engine::Core::SceneId SceneId;
-		Ludus::Engine::Core::EntityId EntityId;
-		std::vector<std::string> ScriptNames;
-		std::vector<Ludus::Engine::Runtime::ScriptReference> ScriptReferences;
+		Ludus::Engine::Core::SceneId m_SceneId;
+		Ludus::Engine::Core::EntityId m_EntityId;
+		std::vector<std::string> m_ScriptNames;
+		std::vector<Ludus::Engine::Runtime::ScriptReference> m_ScriptReferences;
 
 		using Outcome = DialogOutcome<std::string>;
 

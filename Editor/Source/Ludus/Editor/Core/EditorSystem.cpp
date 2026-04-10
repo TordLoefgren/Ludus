@@ -1,7 +1,8 @@
 #include "pch.h"
 
-#include <memory>
+#include <stdexcept>
 #include <utility>
+#include <vector>
 
 #include <Ludus/Editor/Commands/EditCommand.h>
 #include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
@@ -10,11 +11,9 @@
 #include <Ludus/Editor/Commands/UICommand.h>
 #include <Ludus/Editor/Core/EditorExecutionFlags.h>
 #include <Ludus/Editor/Core/EditorSystem.h>
-#include <Ludus/Editor/Core/WelcomeWindow.h>
 #include <Ludus/Engine/Debug/Debug.h>
-#include <Ludus/Engine/Persistence/Paths.h>
-#include <Ludus/Engine/Runtime/IHostContext.h>
-#include <Ludus/Engine/Runtime/RuntimeInstanceBuilder.h>
+#include <Ludus/Engine/Events/Event.h>
+#include <Ludus/Engine/Events/EventType.h>
 
 namespace Ludus::Editor::Core
 {
@@ -145,7 +144,7 @@ namespace Ludus::Editor::Core
 
 		LUDUS_ASSERT(
 			m_Shell.State.Commands.PendingCommands.EditCommands.empty(),
-			"Edit commands cannot execute without an open project."
+			"Edit commands are only valid while a project session is active."
 		);
 	}
 
@@ -260,13 +259,29 @@ namespace Ludus::Editor::Core
 
 	void Ludus::Editor::Core::EditorSystem::OnAttachImpl()
 	{
+		m_HostContext.SubscribeWindowCloseEvent(*this);
 		ApplyStartupOptions();
 		RegisterPanels();
 	}
 
 	void Ludus::Editor::Core::EditorSystem::OnDetachImpl()
 	{
+		m_HostContext.UnsubscribeWindowCloseEvent(*this);
 		m_PanelRegistry.Clear();
+	}
+
+	bool EditorSystem::ProcessEvent(const Ludus::Engine::Events::Event& event)
+	{
+		if (event.Type != Ludus::Engine::Events::EventType::WindowCloseEvent)
+		{
+			return false;
+		}
+
+		m_Shell.State.Commands.AddRequestCommand(
+			Ludus::Editor::Commands::RequestCommand::CloseApplication { }
+		);
+
+		return true;
 	}
 
 	void EditorSystem::UpdateStartup()

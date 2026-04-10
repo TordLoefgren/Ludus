@@ -173,13 +173,6 @@ namespace Ludus::Editor::Panels
 
 				if (Ludus::UI::Widgets::MenuItem("Close Project"))
 				{
-					if (context.Shell.State.Execution.ExecutionMode != Ludus::Editor::Core::ExecutionMode::Stop)
-					{
-						context.Shell.State.Commands.AddRequestCommand(
-							Ludus::Editor::Commands::RequestCommand::SetExecutionMode { Ludus::Editor::Core::ExecutionMode::Stop }
-						);
-					}
-
 					context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::CloseProject { });
 				}
 			}

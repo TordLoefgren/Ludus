@@ -33,57 +33,57 @@ namespace Ludus::Editor::Dialogs
 		std::vector<std::string> scriptNames,
 		std::vector<Ludus::Engine::Runtime::ScriptReference> scriptReferences
 	) :
-		SceneId(sceneId),
-		EntityId(entityId),
-		ScriptNames(std::move(scriptNames)),
-		ScriptReferences(std::move(scriptReferences))
+		m_SceneId(sceneId),
+		m_EntityId(entityId),
+		m_ScriptNames(std::move(scriptNames)),
+		m_ScriptReferences(std::move(scriptReferences))
 	{ }
 
 	AddScriptDialog::Outcome AddScriptDialog::Draw()
 	{
 		const auto popupLabel = Ludus::UI::CreateLabel("Add Script", "Add Script");
 
-		if (JustOpened)
+		if (m_JustOpened)
 		{
-			if (ScriptNames.empty())
+			if (m_ScriptNames.empty())
 			{
-				SelectName = "None";
-				ScriptNames.push_back(SelectName);
+				m_SelectName = "None";
+				m_ScriptNames.push_back(m_SelectName);
 			}
 			else
 			{
-				SelectName = ScriptNames[0];
+				m_SelectName = m_ScriptNames[0];
 			}
 
 			Ludus::Editor::Dialogs::CenterNextDialogOnMousePosition();
 			Ludus::UI::Context::PopupContext::OpenPopup(popupLabel.c_str(), Ludus::UI::Flags::Popup::None);
-			JustOpened = false;
+			m_JustOpened = false;
 		}
 
-		if (Ludus::UI::Scope::PopupModalScope dialogScope(popupLabel.c_str(), &IsOpen, Ludus::UI::Flags::Window::AlwaysAutoResize); dialogScope)
+		if (Ludus::UI::Scope::PopupModalScope dialogScope(popupLabel.c_str(), &m_IsOpen, Ludus::UI::Flags::Window::AlwaysAutoResize); dialogScope)
 		{
 			if (Ludus::UI::Scope::TabBarScope tabBarScope("##TabBar"); tabBarScope)
 			{
 				if (Ludus::UI::Scope::TabItemScope createTabItemScope("Create##Create_TabItem", nullptr); createTabItemScope)
 				{
-					ActiveTab = AddScriptTab::Create;
+					m_ActiveTab = AddScriptTab::Create;
 
 					Ludus::UI::Widgets::TextUnformatted("Create");
-					Ludus::UI::Widgets::InputText("##CreateName", CreateName);
+					Ludus::UI::Widgets::InputText("##CreateName", m_CreateName);
 
-					if (!Error.empty())
+					if (!m_Error.empty())
 					{
-						Ludus::UI::Widgets::TextUnformattedColor(Error.c_str(), Ludus::UI::Context::ThemeContext::Error());
+						Ludus::UI::Widgets::TextUnformattedColor(m_Error.c_str(), Ludus::UI::Context::ThemeContext::Error());
 					}
 				}
 
 				if (Ludus::UI::Scope::TabItemScope selectTabItemScope("Select##Select_TabItem", nullptr); selectTabItemScope)
 				{
-					ActiveTab = AddScriptTab::Select;
-					Error.clear();
+					m_ActiveTab = AddScriptTab::Select;
+					m_Error.clear();
 
 					auto currentIndex = -1;
-					auto names = Ludus::UI::Widgets::GetCStringItems(ScriptNames, [](const std::string& item)
+					auto names = Ludus::UI::Widgets::GetCStringItems(m_ScriptNames, [](const std::string& item)
 					{
 						return item.c_str();
 					});
@@ -93,7 +93,7 @@ namespace Ludus::Editor::Dialogs
 						for (auto i = 0; i < static_cast<int>(names.size()); i++)
 						{
 							const auto& name = names[static_cast<size_t>(i)];
-							if (std::string(name) == SelectName)
+							if (std::string(name) == m_SelectName)
 							{
 								currentIndex = i;
 								break;
@@ -108,10 +108,10 @@ namespace Ludus::Editor::Dialogs
 					}
 
 					Ludus::UI::Widgets::TextUnformatted("Select");
-					Ludus::UI::Scope::DisabledScope disabled(ActiveTab == AddScriptTab::Select && SelectName == "None");
+					Ludus::UI::Scope::DisabledScope disabled(m_ActiveTab == AddScriptTab::Select && m_SelectName == "None");
 					if (Ludus::UI::Widgets::Combo("##Select_Combo", &currentIndex, names))
 					{
-						SelectName = ScriptNames[currentIndex];
+						m_SelectName = m_ScriptNames[currentIndex];
 					}
 				}
 			}
@@ -120,35 +120,35 @@ namespace Ludus::Editor::Dialogs
 
 			{
 				Ludus::UI::Scope::DisabledScope disabled(
-					ActiveTab == AddScriptTab::Create && CreateName.empty() ||
-					ActiveTab == AddScriptTab::Select && SelectName == "None"
+					m_ActiveTab == AddScriptTab::Create && m_CreateName.empty() ||
+					m_ActiveTab == AddScriptTab::Select && m_SelectName == "None"
 				);
 
 				if (Ludus::UI::Widgets::Button("Create", Ludus::Editor::Core::Constants::ModalActionButtonSize))
 				{
-					if (ActiveTab == AddScriptTab::Create)
+					if (m_ActiveTab == AddScriptTab::Create)
 					{
-						Error = Ludus::Editor::Persistence::ProjectPaths::ValidateFileName(CreateName);
-						if (Error.empty())
+						m_Error = Ludus::Editor::Persistence::ProjectPaths::ValidateFileName(m_CreateName);
+						if (m_Error.empty())
 						{
-							for (const auto& scriptReference : ScriptReferences)
+							for (const auto& scriptReference : m_ScriptReferences)
 							{
-								if (scriptReference.Name == CreateName)
+								if (scriptReference.Name == m_CreateName)
 								{
-									Error = "Script already exists.";
+									m_Error = "Script already exists.";
 									break;
 								}
 							}
 						}
 
-						if (!Error.empty())
+						if (!m_Error.empty())
 						{
 							return Outcome::NoneState();
 						}
 					}
 
-					IsOpen = false;
-					return Outcome::Confirm(ActiveTab == AddScriptTab::Create ? CreateName : SelectName);
+					m_IsOpen = false;
+					return Outcome::Confirm(m_ActiveTab == AddScriptTab::Create ? m_CreateName : m_SelectName);
 				}
 			}
 
@@ -156,10 +156,10 @@ namespace Ludus::Editor::Dialogs
 
 			if (Ludus::UI::Widgets::Button("Cancel", Ludus::Editor::Core::Constants::ModalActionButtonSize))
 			{
-				CreateName.clear();
-				SelectName.clear();
-				ScriptNames.clear();
-				IsOpen = false;
+				m_CreateName.clear();
+				m_SelectName.clear();
+				m_ScriptNames.clear();
+				m_IsOpen = false;
 
 				return Outcome::Cancel();
 			}
@@ -186,15 +186,15 @@ namespace Ludus::Editor::Dialogs
 			}
 			else if constexpr (std::is_same_v<Alt, typename Outcome::Confirmed>)
 			{
-				if (ActiveTab == AddScriptTab::Create)
+				if (m_ActiveTab == AddScriptTab::Create)
 				{
 					out.RequestCommands.emplace_back(
-						Ludus::Editor::Commands::RequestCommand::CreateScript { SceneId, EntityId, value.Payload }
+						Ludus::Editor::Commands::RequestCommand::CreateScript { m_SceneId, m_EntityId, value.Payload }
 					);
 					return;
 				}
 
-				for (const auto& scriptReference : ScriptReferences)
+				for (const auto& scriptReference : m_ScriptReferences)
 				{
 					if (scriptReference.Name != value.Payload)
 					{
@@ -203,7 +203,7 @@ namespace Ludus::Editor::Dialogs
 
 					out.EditCommands.emplace_back(
 						Ludus::Editor::Commands::EditCommand::AddComponent<Ludus::Engine::Components::ScriptComponent> {
-						.SceneId = SceneId, .EntityReference = EntityId, .Init = Ludus::Engine::Components::ScriptComponent { scriptReference.Id }
+						.SceneId = m_SceneId, .EntityReference = m_EntityId, .Init = Ludus::Engine::Components::ScriptComponent { scriptReference.Id }
 					});
 					return;
 				}
@@ -213,6 +213,6 @@ namespace Ludus::Editor::Dialogs
 
 	bool AddScriptDialog::ShouldClose(const Outcome&) const
 	{
-		return !IsOpen;
+		return !m_IsOpen;
 	}
 }

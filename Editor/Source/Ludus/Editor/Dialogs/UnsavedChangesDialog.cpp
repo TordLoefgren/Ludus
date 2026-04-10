@@ -1,25 +1,30 @@
 #include "pch.h"
 
 #include <type_traits>
+#include <utility>
 
+#include <Ludus/Editor/Commands/Requests/DeferredAction.h>
 #include <Ludus/Editor/Core/Constants.h>
-#include <Ludus/Editor/Dialogs/CreateProjectDialog.h>
 #include <Ludus/Editor/Dialogs/DialogHelpers.h>
-#include <Ludus/Editor/Persistence/ProjectPaths.h>
+#include <Ludus/Editor/Dialogs/UnsavedChangesDialog.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/PopupContext.h>
-#include <Ludus/UI/Context/ThemeContext.h>
 #include <Ludus/UI/Labels.h>
 #include <Ludus/UI/Scope/ModalScope.h>
 #include <Ludus/UI/Widgets/Buttons.h>
-#include <Ludus/UI/Widgets/Input.h>
 #include <Ludus/UI/Widgets/Text.h>
 
 namespace Ludus::Editor::Dialogs
 {
-	CreateProjectDialog::Outcome CreateProjectDialog::Draw()
+	UnsavedChangesDialog::UnsavedChangesDialog(
+		Ludus::Editor::Commands::Requests::DeferredAction deferredAction
+	) :
+		m_DeferredAction(std::move(deferredAction))
+	{ }
+
+	UnsavedChangesDialog::Outcome UnsavedChangesDialog::Draw()
 	{
-		const auto popupLabel = Ludus::UI::CreateLabel("Create Project", "Create Project");
+		const auto popupLabel = Ludus::UI::CreateLabel("Unsaved Changes", "Unsaved Changes");
 
 		if (m_JustOpened)
 		{
@@ -30,38 +35,28 @@ namespace Ludus::Editor::Dialogs
 
 		if (Ludus::UI::Scope::PopupModalScope dialogScope(popupLabel.c_str(), &m_IsOpen, Ludus::UI::Flags::Window::AlwaysAutoResize); dialogScope)
 		{
-			const auto projectDirectory = Ludus::Editor::Persistence::ProjectPaths::ProjectRoot(m_Name);
+			Ludus::UI::Widgets::TextUnformatted("Save changes?");
 
-			Ludus::UI::Widgets::TextUnformatted("Please write a project name:");
-			Ludus::UI::Widgets::InputText("##NewProjectName", m_Name);
-
-			if (!m_Error.empty())
+			if (Ludus::UI::Widgets::Button("Save", Ludus::Editor::Core::Constants::ModalActionButtonSize))
 			{
-				Ludus::UI::Widgets::TextUnformattedColor(m_Error.c_str(), Ludus::UI::Context::ThemeContext::Error());
+				m_IsOpen = false;
+				return Outcome::Confirm(UnsavedChangesResult::Save);
 			}
 
-			if (Ludus::UI::Widgets::Button("Create", Ludus::Editor::Core::Constants::ModalActionButtonSize))
-			{
-				m_Error = Ludus::Editor::Persistence::ProjectPaths::ValidateFileName(m_Name);
-				if (m_Error.empty())
-				{
-					m_Error = Ludus::Editor::Persistence::ProjectPaths::ValidateAvailablePath(projectDirectory);
-				}
+			Ludus::UI::Context::LayoutContext::SameLine(0.0f, Ludus::Editor::Core::Constants::StandardInlineSpacing);
 
-				if (m_Error.empty())
-				{
-					m_IsOpen = false;
-					return Outcome::Confirm(m_Name);
-				}
+			if (Ludus::UI::Widgets::Button("Don't save", Ludus::Editor::Core::Constants::ModalActionButtonSize))
+			{
+				m_IsOpen = false;
+				return Outcome::Confirm(UnsavedChangesResult::DontSave);
 			}
 
 			Ludus::UI::Context::LayoutContext::SameLine(0.0f, Ludus::Editor::Core::Constants::StandardInlineSpacing);
 
 			if (Ludus::UI::Widgets::Button("Cancel", Ludus::Editor::Core::Constants::ModalActionButtonSize))
 			{
-				m_Name.clear();
 				m_IsOpen = false;
-				return Outcome::Cancel();
+				return Outcome::Confirm(UnsavedChangesResult::Cancel);
 			}
 
 			return Outcome::NoneState();
@@ -70,7 +65,7 @@ namespace Ludus::Editor::Dialogs
 		return Outcome::NoneState();
 	}
 
-	void CreateProjectDialog::Resolve(const Outcome& outcome, Ludus::Editor::Commands::CommandSet& out)
+	void UnsavedChangesDialog::Resolve(const Outcome& outcome, Ludus::Editor::Commands::CommandSet& out)
 	{
 		std::visit([&](auto&& value)
 		{
@@ -87,13 +82,13 @@ namespace Ludus::Editor::Dialogs
 			else if constexpr (std::is_same_v<Alt, typename Outcome::Confirmed>)
 			{
 				out.RequestCommands.emplace_back(
-					Ludus::Editor::Commands::RequestCommand::CreateProject { value.Payload }
+					Ludus::Editor::Commands::RequestCommand::ResolveUnsavedChanges { .DeferredAction = m_DeferredAction, .Result = value.Payload }
 				);
 			}
 		}, outcome.Data);
 	}
 
-	bool CreateProjectDialog::ShouldClose(const Outcome&) const
+	bool UnsavedChangesDialog::ShouldClose(const Outcome&) const
 	{
 		return !m_IsOpen;
 	}
