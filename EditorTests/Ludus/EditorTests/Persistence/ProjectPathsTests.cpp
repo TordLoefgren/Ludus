@@ -232,6 +232,18 @@ namespace Ludus::EditorTests::Persistence
 		ASSERT_EQ(path, projectRoot / "Scripts" / "Source" / "Scripts.vcxproj");
 	}
 
+	TEST(ProjectPaths, ScriptsSolutionFile_Should_ReturnScriptsSolutionPath)
+	{
+		// Arrange.
+		const auto projectRoot = std::filesystem::path("C:/Solutions/Sandbox");
+
+		// Act.
+		const auto path = ProjectPaths::ScriptsSolutionFile(projectRoot);
+
+		// Assert.
+		ASSERT_EQ(path, projectRoot / "Scripts" / "Source" / "Scripts.sln");
+	}
+
 	TEST(ProjectPaths, EnsureProjectRootExists_Should_CreateProjectRoot)
 	{
 		// Arrange.

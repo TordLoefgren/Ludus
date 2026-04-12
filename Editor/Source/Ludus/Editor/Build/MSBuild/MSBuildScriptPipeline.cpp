@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <algorithm>
 #include <stdexcept>
 #include <string>
 
@@ -21,8 +22,10 @@ namespace
 	{
 		static constexpr std::string_view ScriptCppExtension = ".cpp";
 		static constexpr std::string_view ScriptSourceTemplateFile = "Script.cpp.template";
+		static constexpr std::string_view ScriptsSolutionTemplateFile = "Scripts.sln.template";
 		static constexpr std::string_view ScriptsProjectTemplateFile = "Scripts.vcxproj.template";
 		static constexpr std::string_view ScriptsModuleTemplateFile = "ScriptsModule.cpp.template";
+		static constexpr std::string_view ScriptsSolutionFileName = "Scripts.sln";
 		static constexpr std::string_view ScriptsProjectFileName = "Scripts.vcxproj";
 		static constexpr std::string_view ScriptsModuleFileName = "ScriptsModule.cpp";
 
@@ -54,6 +57,36 @@ namespace
 		Ludus::Engine::FileSystem::RemoveDirectoryIfEmpty(Ludus::Editor::Persistence::BuildPaths::BinDirectory(projectRoot));
 		Ludus::Engine::FileSystem::RemoveDirectoryIfEmpty(Ludus::Editor::Persistence::BuildPaths::ObjDirectory(projectRoot));
 	}
+
+	std::string ResolveScriptsProjectGuid(const std::filesystem::path& projectPath)
+	{
+		if (!std::filesystem::exists(projectPath))
+		{
+			return Ludus::Engine::Platform::CreateGuid().ToString();
+		}
+
+		const auto text = Ludus::Engine::FileSystem::ReadAllText(projectPath);
+		const auto begin = text.find("<ProjectGuid>{");
+		if (begin == std::string::npos)
+		{
+			throw std::runtime_error("Scripts.vcxproj is missing <ProjectGuid>.");
+		}
+
+		const auto guidBegin = begin + std::string_view("<ProjectGuid>{").size();
+		const auto guidEnd = text.find("}</ProjectGuid>", guidBegin);
+		if (guidEnd == std::string::npos)
+		{
+			throw std::runtime_error("Scripts.vcxproj contains an invalid <ProjectGuid>.");
+		}
+
+		auto guid = text.substr(guidBegin, guidEnd - guidBegin);
+		std::transform(guid.begin(), guid.end(), guid.begin(), [](unsigned char character)
+		{
+			return static_cast<char>(std::tolower(character));
+		});
+
+		return guid;
+	}
 }
 
 namespace Ludus::Editor::Build::MSBuild
@@ -72,6 +105,24 @@ namespace Ludus::Editor::Build::MSBuild
 		const auto sourcePath = templateRoot / std::string(templateFileName);
 		auto text = Ludus::Engine::FileSystem::ReadAllText(sourcePath);
 		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::ProjectGuidToken, Ludus::Engine::Platform::CreateGuid().ToString());
+		Ludus::Engine::FileSystem::WriteAllText(destinationPath, text);
+	}
+
+	void MSBuildScriptPipeline::CopyTemplateToDestinationIfMissing(
+		const std::filesystem::path& templateRoot,
+		std::string_view templateFileName,
+		const std::filesystem::path& destinationPath,
+		std::string_view projectGuid
+	) const
+	{
+		if (std::filesystem::exists(destinationPath))
+		{
+			return;
+		}
+
+		const auto sourcePath = templateRoot / std::string(templateFileName);
+		auto text = Ludus::Engine::FileSystem::ReadAllText(sourcePath);
+		text = Ludus::Engine::Core::Strings::ReplaceAll(text, Constants::ProjectGuidToken, projectGuid);
 		Ludus::Engine::FileSystem::WriteAllText(destinationPath, text);
 	}
 
@@ -139,11 +190,20 @@ namespace Ludus::Editor::Build::MSBuild
 
 		const auto templateRoot = Ludus::Editor::Persistence::RepositoryPaths::ScriptTemplatesDirectory();
 		const auto scriptSourceDirectory = Ludus::Editor::Persistence::ProjectPaths::ScriptsSourceDirectory(projectRoot);
+		const auto projectGuid = ResolveScriptsProjectGuid(Ludus::Editor::Persistence::ProjectPaths::ScriptsProjectFile(projectRoot));
 
 		CopyTemplateToDestinationIfMissing(
 			templateRoot,
 			Constants::ScriptsProjectTemplateFile,
-			scriptSourceDirectory / std::string(Constants::ScriptsProjectFileName)
+			scriptSourceDirectory / std::string(Constants::ScriptsProjectFileName),
+			projectGuid
+		);
+
+		CopyTemplateToDestinationIfMissing(
+			templateRoot,
+			Constants::ScriptsSolutionTemplateFile,
+			scriptSourceDirectory / std::string(Constants::ScriptsSolutionFileName),
+			projectGuid
 		);
 
 		CopyTemplateToDestinationIfMissing(
