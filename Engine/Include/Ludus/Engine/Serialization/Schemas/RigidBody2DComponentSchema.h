@@ -3,7 +3,7 @@
 #include <string>
 
 #include <Ludus/Engine/Components/RigidBody2DComponent.h>
-#include <Ludus/Engine/Core/Enums.h>
+#include <Ludus/Engine/Core/Enums/EnumTraits.h>
 #include <Ludus/Engine/Core/Expected.h>
 #include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Physics/Core/BodyType.h>

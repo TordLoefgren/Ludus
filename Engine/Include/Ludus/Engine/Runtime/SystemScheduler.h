@@ -7,7 +7,7 @@
 #include <utility>
 #include <vector>
 
-#include <Ludus/Engine/Core/FlagSet.h>
+#include <Ludus/Engine/Core/Enums/FlagSet.h>
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Runtime/ISystem.h>
 #include <Ludus/Engine/Runtime/SystemDescriptor.h>
@@ -33,7 +33,7 @@ namespace Ludus::Engine::Runtime
 
 		static bool SatisfiesConstraints(
 			const SystemConstraints& constraints,
-			const Ludus::Engine::Core::FlagSet& executionFlags
+			const Ludus::Engine::Core::Enums::FlagSet& executionFlags
 		)
 		{
 			if (executionFlags.HasAny(constraints.ForbidAny))
@@ -75,7 +75,7 @@ namespace Ludus::Engine::Runtime
 			SortPhase(phase);
 		}
 
-		bool ShouldBeActive(ISystem* system, const Ludus::Engine::Core::FlagSet& executionFlags) const
+		bool ShouldBeActive(ISystem* system, const Ludus::Engine::Core::Enums::FlagSet& executionFlags) const
 		{
 			const auto iter = m_ConstraintsBySystem.find(system);
 			if (iter == m_ConstraintsBySystem.end())
@@ -120,7 +120,7 @@ namespace Ludus::Engine::Runtime
 			}
 		}
 
-		void UpdateTransitions(const Ludus::Engine::Core::FlagSet& executionFlags)
+		void UpdateTransitions(const Ludus::Engine::Core::Enums::FlagSet& executionFlags)
 		{
 			std::vector<ISystem*> systemsToDeactivate;
 			std::vector<ISystem*> systemsToActivate;
@@ -153,7 +153,7 @@ namespace Ludus::Engine::Runtime
 			}
 		}
 
-		void Run(SystemPhase phase, Ludus::Engine::Core::FlagSet& executionFlags, float time = 0.0f)
+		void Run(SystemPhase phase, Ludus::Engine::Core::Enums::FlagSet& executionFlags, float time = 0.0f)
 		{
 			if (m_SystemsByPhase.contains(phase))
 			{

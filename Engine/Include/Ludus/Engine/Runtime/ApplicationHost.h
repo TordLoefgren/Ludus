@@ -34,7 +34,7 @@ namespace Ludus::Engine::Runtime
 	{
 	private:
 		Ludus::Engine::Events::EventBus m_EventBus;
-		Ludus::Engine::Core::FlagSet m_ExecutionFlags;
+		Ludus::Engine::Core::Enums::FlagSet m_ExecutionFlags;
 		Ludus::Engine::Windowing::Input m_Input;
 		Ludus::Engine::Core::Time m_Time;
 		Ludus::Engine::Windowing::Window m_Window;
@@ -80,7 +80,7 @@ namespace Ludus::Engine::Runtime
 
 		virtual Ludus::Engine::Graphics::RenderTarget& GetMainRenderTarget() override;
 
-		virtual Ludus::Engine::Core::FlagSet& GetExecutionFlags() override;
+		virtual Ludus::Engine::Core::Enums::FlagSet& GetExecutionFlags() override;
 
 		virtual void SetWindowShouldClose() override;
 		virtual void SetWindowTitle(std::string_view title) override;

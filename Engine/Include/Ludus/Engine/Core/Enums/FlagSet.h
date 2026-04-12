@@ -3,9 +3,9 @@
 #include <cstdint>
 #include <type_traits>
 
-#include <Ludus/Engine/Core/Mask.h>
+#include <Ludus/Engine/Core/Enums/EnumBits.h>
 
-namespace Ludus::Engine::Core
+namespace Ludus::Engine::Core::Enums
 {
 	struct FlagSet
 	{
@@ -21,15 +21,15 @@ namespace Ludus::Engine::Core
 		bool HasAll(uint32_t mask) const { return (Value & mask) == mask; }
 
 		template<typename TEnum>
-		void Set(TEnum flag) { Set(Ludus::Engine::Core::Mask(flag)); }
+		void Set(TEnum flag) { Set(Ludus::Engine::Core::Enums::ToUnderlyingType(flag)); }
 
 		template<typename TEnum>
-		void Unset(TEnum flag) { Unset(Ludus::Engine::Core::Mask(flag)); }
+		void Unset(TEnum flag) { Unset(Ludus::Engine::Core::Enums::ToUnderlyingType(flag)); }
 
 		template<typename TEnum>
-		bool HasAny(TEnum flag) const { return HasAny(Ludus::Engine::Core::Mask(flag)); }
+		bool HasAny(TEnum flag) const { return HasAny(Ludus::Engine::Core::Enums::ToUnderlyingType(flag)); }
 
 		template<typename TEnum>
-		bool HasAll(TEnum flag) const { return HasAll(Ludus::Engine::Core::Mask(flag)); }
+		bool HasAll(TEnum flag) const { return HasAll(Ludus::Engine::Core::Enums::ToUnderlyingType(flag)); }
 	};
 }

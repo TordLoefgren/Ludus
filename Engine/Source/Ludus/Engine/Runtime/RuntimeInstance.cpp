@@ -103,12 +103,12 @@ namespace Ludus::Engine::Runtime
 		m_Scheduler.DetachSystems();
 	}
 
-	void RuntimeInstance::UpdateTransitions(const Ludus::Engine::Core::FlagSet& executionFlags)
+	void RuntimeInstance::UpdateTransitions(const Ludus::Engine::Core::Enums::FlagSet& executionFlags)
 	{
 		m_Scheduler.UpdateTransitions(executionFlags);
 	}
 
-	void RuntimeInstance::Run(SystemPhase phase, Ludus::Engine::Core::FlagSet& executionFlags, float time)
+	void RuntimeInstance::Run(SystemPhase phase, Ludus::Engine::Core::Enums::FlagSet& executionFlags, float time)
 	{
 		m_Scheduler.Run(phase, executionFlags, time);
 	}

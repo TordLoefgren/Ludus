@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-#include <Ludus/Engine/Core/Enums.h>
+#include <Ludus/Engine/Core/Enums/EnumTraits.h>
 
 namespace Ludus::UI::Widgets
 {

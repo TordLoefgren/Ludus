@@ -4,7 +4,6 @@
 
 #include <Ludus/Engine/Core/ExecutionFlags.h>
 #include <Ludus/Engine/Core/Id.h>
-#include <Ludus/Engine/Core/Mask.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Physics/Queries/IPhysicsQueryCache2D.h>

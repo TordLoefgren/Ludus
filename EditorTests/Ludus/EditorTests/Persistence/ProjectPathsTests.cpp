@@ -235,7 +235,7 @@ namespace Ludus::EditorTests::Persistence
 	TEST(ProjectPaths, ScriptsSolutionFile_Should_ReturnScriptsSolutionPath)
 	{
 		// Arrange.
-		const auto projectRoot = std::filesystem::path("C:/Solutions/Sandbox");
+		const auto projectRoot = std::filesystem::path("C:/Projects/Sandbox");
 
 		// Act.
 		const auto path = ProjectPaths::ScriptsSolutionFile(projectRoot);

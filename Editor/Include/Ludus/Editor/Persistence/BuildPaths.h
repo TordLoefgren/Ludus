@@ -7,7 +7,7 @@
 #include <Ludus/Editor/Build/BuildConfiguration.h>
 #include <Ludus/Editor/Build/BuildOperatingSystem.h>
 #include <Ludus/Editor/Build/BuildPlatform.h>
-#include <Ludus/Engine/Core/Enums.h>
+#include <Ludus/Engine/Core/Enums/EnumTraits.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 
 namespace Ludus::Editor::Persistence::BuildPaths

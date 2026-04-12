@@ -19,7 +19,7 @@
 #include <Ludus/Engine/Components/Text2DComponent.h>
 #include <Ludus/Engine/Components/Transform2DComponent.h>
 #include <Ludus/Engine/Core/Entity.h>
-#include <Ludus/Engine/Core/Enums.h>
+#include <Ludus/Engine/Core/Enums/EnumTraits.h>
 #include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Graphics/Color.h>

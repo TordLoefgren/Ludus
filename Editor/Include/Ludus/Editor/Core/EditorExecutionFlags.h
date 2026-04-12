@@ -2,8 +2,8 @@
 
 #include <cstdint>
 
+#include <Ludus/Engine/Core/Enums/EnumBits.h>
 #include <Ludus/Engine/Core/ExecutionFlags.h>
-#include <Ludus/Engine/Core/Mask.h>
 
 namespace Ludus::Editor::Core
 {
@@ -15,7 +15,7 @@ namespace Ludus::Editor::Core
 	};
 
 	constexpr uint32_t DefaultEditorExecutionMask =
-		Ludus::Engine::Core::Mask(EditorExecutionFlags::None) |
-		Ludus::Engine::Core::Mask(EditorExecutionFlags::EditorToolsEnabled) |
-		Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::RenderingEnabled);
+		Ludus::Engine::Core::Enums::ToUnderlyingType(EditorExecutionFlags::None) |
+		Ludus::Engine::Core::Enums::ToUnderlyingType(EditorExecutionFlags::EditorToolsEnabled) |
+		Ludus::Engine::Core::Enums::ToUnderlyingType(Ludus::Engine::Core::ExecutionFlags::RenderingEnabled);
 }

@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <Ludus/Engine/Core/Enums.h>
+#include <Ludus/Engine/Core/Enums/EnumTraits.h>
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Events/Event.h>
 #include <Ludus/Engine/Events/EventBus.h>

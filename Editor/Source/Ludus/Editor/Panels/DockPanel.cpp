@@ -421,7 +421,7 @@ namespace Ludus::Editor::Panels
 			DrawMenuBar(context);
 			DrawToolBar(context);
 
-			Ludus::UI::Context::DockingContext::CreateDockSpace(windowTitle.c_str(), { 0.0f, 0.0f }, Ludus::UI::Flags::DockNode::None | Ludus::UI::Flags::DockNodeInternal::NoWindowMenuButton);
+			Ludus::UI::Context::DockingContext::CreateDockSpace(windowTitle.c_str(), { 0.0f, 0.0f }, Ludus::UI::Flags::DockNode::NoWindowMenuButton);
 		}
 
 		return true;

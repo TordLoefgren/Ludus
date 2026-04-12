@@ -10,7 +10,7 @@
 #include <Ludus/Editor/Persistence/BuildPaths.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/Editor/Persistence/RepositoryPaths.h>
-#include <Ludus/Engine/Core/Enums.h>
+#include <Ludus/Engine/Core/Enums/EnumTraits.h>
 #include <Ludus/Engine/Core/Strings.h>
 #include <Ludus/Engine/FileSystem/FileSystem.h>
 #include <Ludus/Engine/Platform/Guid.h>

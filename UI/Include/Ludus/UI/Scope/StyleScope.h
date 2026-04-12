@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <initializer_list>
 #include <variant>
 
@@ -9,7 +8,7 @@
 
 namespace Ludus::UI::Scope
 {
-	enum class Variable : uint32_t;
+	enum class Variable : int;
 
 	struct StyleVar
 	{
@@ -33,7 +32,7 @@ namespace Ludus::UI::Scope
 		~StyleVarScope();
 	};
 
-	enum class Variable : uint32_t
+	enum class Variable : int
 	{
 		Alpha,
 		DisabledAlpha,
@@ -78,7 +77,7 @@ namespace Ludus::UI::Scope
 		COUNT
 	};
 
-	enum class Color : uint32_t;
+	enum class Color : int;
 
 	Ludus::Engine::Graphics::Color GetStyleColor(Color color);
 
@@ -99,7 +98,7 @@ namespace Ludus::UI::Scope
 		~StyleColorScope();
 	};
 
-	enum class Color : uint32_t
+	enum class Color : int
 	{
 		Text,
 		TextDisabled,

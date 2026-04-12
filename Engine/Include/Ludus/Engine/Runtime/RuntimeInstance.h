@@ -4,7 +4,7 @@
 #include <memory>
 #include <utility>
 
-#include <Ludus/Engine/Core/FlagSet.h>
+#include <Ludus/Engine/Core/Enums/FlagSet.h>
 #include <Ludus/Engine/Core/RenderViewRegistry.h>
 #include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
 #include <Ludus/Engine/Core/Scene.h>
@@ -68,9 +68,9 @@ namespace Ludus::Engine::Runtime
 		void Initialize();
 		void Shutdown();
 
-		void UpdateTransitions(const Ludus::Engine::Core::FlagSet& executionFlags);
+		void UpdateTransitions(const Ludus::Engine::Core::Enums::FlagSet& executionFlags);
 
-		void Run(SystemPhase phase, Ludus::Engine::Core::FlagSet& executionFlags, float time = 0.0f);
+		void Run(SystemPhase phase, Ludus::Engine::Core::Enums::FlagSet& executionFlags, float time = 0.0f);
 
 #pragma region Getters
 

@@ -221,7 +221,7 @@ namespace Ludus::Engine::Runtime
 		return m_MainRenderTarget;
 	}
 
-	Ludus::Engine::Core::FlagSet& ApplicationHost::GetExecutionFlags()
+	Ludus::Engine::Core::Enums::FlagSet& ApplicationHost::GetExecutionFlags()
 	{
 		return m_ExecutionFlags;
 	}

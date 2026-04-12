@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <string_view>
 
-#include <Ludus/Engine/Core/Enums.h>
+#include <Ludus/Engine/Core/Enums/EnumTraits.h>
 
 namespace Ludus::Editor::Core
 {
