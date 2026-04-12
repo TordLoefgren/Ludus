@@ -6,7 +6,6 @@
 #include <vector>
 
 #include <Ludus/Engine/Core/ExecutionFlags.h>
-#include <Ludus/Engine/Core/Mask.h>
 #include <Ludus/Engine/Graphics/RenderingSystem2D.h>
 #include <Ludus/Engine/Graphics/RenderViewSystem.h>
 #include <Ludus/Engine/Physics/Core/PhysicsSystem2D.h>

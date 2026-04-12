@@ -11,24 +11,18 @@
 #include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
-#include <Ludus/Engine/Graphics/Color.h>
-#include <Ludus/Engine/Graphics/RenderView2D.h>
 #include <Ludus/Engine/Graphics/RenderViewRequest2D.h>
 #include <Ludus/Engine/Math/Size.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/Engine/Windowing/Input.h>
-#include <Ludus/Engine/Windowing/Window.h>
 #include <Ludus/UI/Context/ImageContext.h>
 #include <Ludus/UI/Context/InputContext.h>
 #include <Ludus/UI/Context/LayoutContext.h>
-#include <Ludus/UI/Context/SelectionContext.h>
 #include <Ludus/UI/Context/WindowContext.h>
 #include <Ludus/UI/Icons/FontAwesome.h>
 #include <Ludus/UI/Labels.h>
-#include <Ludus/UI/Scope/ComboScope.h>
 #include <Ludus/UI/Scope/StyleScope.h>
 #include <Ludus/UI/Scope/WindowScope.h>
-#include <Ludus/UI/Widgets/Menu.h>
 #include <Ludus/UI/Widgets/Selection.h>
 
 namespace Ludus::Editor::Panels
@@ -170,9 +164,17 @@ namespace Ludus::Editor::Panels
 
 	bool ViewportPanel::UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
-		const auto flags = Ludus::Editor::Core::Constants::PanelFlags
+		auto flags = Ludus::Editor::Core::Constants::PanelFlags
 			| Ludus::UI::Flags::Window::NoScrollbar
 			| Ludus::UI::Flags::Window::NoScrollWithMouse;
+
+		// While simulation is active, suppress UI navigation inputs in all viewport windows.
+		const auto isNavigationInputLocked =
+			context.ProjectSession.RuntimeState.IsSimulationActive();
+		if (isNavigationInputLocked)
+		{
+			flags |= Ludus::UI::Flags::Window::NoNavInputs;
+		}
 
 		Ludus::UI::Scope::StyleVarScope styleVar({ Ludus::UI::Scope::StyleVar::Vector(Ludus::UI::Scope::Variable::WindowPadding, { 0.0f, 0.0f }) });
 

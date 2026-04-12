@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include <Ludus/Engine/Core/Mask.h>
+#include <Ludus/Engine/Core/Enums/EnumBits.h>
 
 namespace Ludus::Engine::Core
 {
@@ -17,10 +17,10 @@ namespace Ludus::Engine::Core
 	};
 
 	constexpr uint32_t DefaultExecutionMask =
-		Ludus::Engine::Core::Mask(ExecutionFlags::None) |
-		Ludus::Engine::Core::Mask(ExecutionFlags::PhysicsEnabled) |
-		Ludus::Engine::Core::Mask(ExecutionFlags::RenderingEnabled) |
-		Ludus::Engine::Core::Mask(ExecutionFlags::ScriptingEnabled) |
-		Ludus::Engine::Core::Mask(ExecutionFlags::SimulationEnabled) |
-		Ludus::Engine::Core::Mask(ExecutionFlags::SimulationSessionEnabled);
+		Ludus::Engine::Core::Enums::ToUnderlyingType(ExecutionFlags::None) |
+		Ludus::Engine::Core::Enums::ToUnderlyingType(ExecutionFlags::PhysicsEnabled) |
+		Ludus::Engine::Core::Enums::ToUnderlyingType(ExecutionFlags::RenderingEnabled) |
+		Ludus::Engine::Core::Enums::ToUnderlyingType(ExecutionFlags::ScriptingEnabled) |
+		Ludus::Engine::Core::Enums::ToUnderlyingType(ExecutionFlags::SimulationEnabled) |
+		Ludus::Engine::Core::Enums::ToUnderlyingType(ExecutionFlags::SimulationSessionEnabled);
 }

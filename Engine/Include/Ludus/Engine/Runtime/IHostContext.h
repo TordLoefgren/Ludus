@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-#include <Ludus/Engine/Core/FlagSet.h>
+#include <Ludus/Engine/Core/Enums/FlagSet.h>
 #include <Ludus/Engine/Math/Size.h>
 
 #pragma region Forward Declarations
@@ -45,7 +45,7 @@ namespace Ludus::Engine::Runtime
 		virtual Ludus::Engine::Math::Size<int> GetWindowSize() const = 0;
 		virtual GLFWwindow* GetWindowHandle() const = 0;
 		virtual Ludus::Engine::Graphics::RenderTarget& GetMainRenderTarget() = 0;
-		virtual Ludus::Engine::Core::FlagSet& GetExecutionFlags() = 0;
+		virtual Ludus::Engine::Core::Enums::FlagSet& GetExecutionFlags() = 0;
 		virtual Ludus::Engine::Windowing::Input& GetInput() = 0;
 
 		virtual void SetWindowShouldClose() = 0;

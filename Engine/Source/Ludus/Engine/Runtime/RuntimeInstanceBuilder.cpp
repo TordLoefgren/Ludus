@@ -5,8 +5,8 @@
 #include <utility>
 #include <vector>
 
+#include <Ludus/Engine/Core/Enums/EnumBits.h>
 #include <Ludus/Engine/Core/ExecutionFlags.h>
-#include <Ludus/Engine/Core/Mask.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Graphics/MainRenderViewSystem.h>
 #include <Ludus/Engine/Graphics/RenderingSystem2D.h>
@@ -59,7 +59,7 @@ namespace Ludus::Engine::Runtime
 			auto& physicsConfiguration = runtime->GetPhysicsConfiguration();
 			auto physicsSystem = std::make_unique<Ludus::Engine::Physics::Core::PhysicsSystem2D>(physicsConfiguration, runtime->GetSceneRegistry());
 			auto constraints = Ludus::Engine::Runtime::SystemConstraints::Create()
-				.RequireAllOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::PhysicsEnabled) | Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::SimulationEnabled));
+				.RequireAllOf(Ludus::Engine::Core::Enums::ToUnderlyingType(Ludus::Engine::Core::ExecutionFlags::PhysicsEnabled) | Ludus::Engine::Core::Enums::ToUnderlyingType(Ludus::Engine::Core::ExecutionFlags::SimulationEnabled));
 
 			runtime->AddSystem(
 				Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::FixedUpdate, SystemPhaseOrder::Before, constraints },
@@ -77,7 +77,7 @@ namespace Ludus::Engine::Runtime
 				runtime->GetSceneRegistry()
 			);
 			auto constraints = Ludus::Engine::Runtime::SystemConstraints::Create()
-				.RequireAnyOf(Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::RenderingEnabled));
+				.RequireAnyOf(Ludus::Engine::Core::Enums::ToUnderlyingType(Ludus::Engine::Core::ExecutionFlags::RenderingEnabled));
 
 			runtime->AddSystem(
 				{
@@ -118,8 +118,8 @@ namespace Ludus::Engine::Runtime
 		{
 			auto constraints = Ludus::Engine::Runtime::SystemConstraints::Create()
 				.RequireAllOf(
-					Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::ScriptingEnabled) |
-					Ludus::Engine::Core::Mask(Ludus::Engine::Core::ExecutionFlags::SimulationSessionEnabled)
+					Ludus::Engine::Core::Enums::ToUnderlyingType(Ludus::Engine::Core::ExecutionFlags::ScriptingEnabled) |
+					Ludus::Engine::Core::Enums::ToUnderlyingType(Ludus::Engine::Core::ExecutionFlags::SimulationSessionEnabled)
 				);
 
 			auto scriptingSystem = std::make_unique<Ludus::Engine::Scripting::ScriptSystem>(

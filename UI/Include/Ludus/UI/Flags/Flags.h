@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cstdint>
+#include <Ludus/Engine/Core/Enums/EnumBits.h>
 
 namespace Ludus::UI::Flags
 {
-	enum class ColorEdit : uint32_t
+	enum class ColorEdit : int
 	{
 		None = 0,
 		NoAlpha = 1 << 1,
@@ -34,10 +34,13 @@ namespace Ludus::UI::Flags
 		InputRGB = 1 << 27,
 		InputHSV = 1 << 28,
 
-		DefaultOptions = Uint8 | DisplayRGB | InputRGB | PickerHueBar,
+		DefaultOptions = static_cast<int>(Uint8)
+		| static_cast<int>(DisplayRGB)
+		| static_cast<int>(InputRGB)
+		| static_cast<int>(PickerHueBar),
 	};
 
-	enum class Combo : uint32_t
+	enum class Combo : int
 	{
 		None = 0,
 		PopupAlignLeft = 1 << 0,
@@ -48,10 +51,13 @@ namespace Ludus::UI::Flags
 		NoArrowButton = 1 << 5,
 		NoPreview = 1 << 6,
 		WidthFitPreview = 1 << 7,
-		HeightMask_ = HeightSmall | HeightRegular | HeightLarge | HeightLargest,
+		HeightMask_ = static_cast<int>(HeightSmall)
+		| static_cast<int>(HeightRegular)
+		| static_cast<int>(HeightLarge)
+		| static_cast<int>(HeightLargest),
 	};
 
-	enum class DockNode : uint32_t
+	enum class DockNode : int
 	{
 		None = 0,
 		KeepAliveOnly = 1 << 0,
@@ -62,14 +68,12 @@ namespace Ludus::UI::Flags
 		NoResize = 1 << 5,
 		AutoHideTabBar = 1 << 6,
 		NoUndocking = 1 << 7,
-	};
 
-	enum class DockNodeInternal : uint32_t
-	{
+		// Internal
 		NoWindowMenuButton = 1 << 14
 	};
 
-	enum class Hovered : uint32_t
+	enum class Hovered : int
 	{
 		None = 0,
 
@@ -103,7 +107,7 @@ namespace Ludus::UI::Flags
 		NoSharedDelay = 1u << 17,
 	};
 
-	enum class InputText : uint32_t
+	enum class InputText : int
 	{
 		None = 0,
 		CharsDecimal = 1 << 0,
@@ -138,7 +142,7 @@ namespace Ludus::UI::Flags
 		WordWrap = 1 << 24,
 	};
 
-	enum class Popup : uint32_t
+	enum class Popup : int
 	{
 		None = 0,
 
@@ -159,7 +163,7 @@ namespace Ludus::UI::Flags
 		AnyPopup = AnyPopupId | AnyPopupLevel,
 	};
 
-	enum class TabBar : uint32_t
+	enum class TabBar : int
 	{
 		None = 0,
 		Reorderable = 1 << 0,
@@ -176,7 +180,7 @@ namespace Ludus::UI::Flags
 		FittingPolicyDefault_ = FittingPolicyMixed,
 	};
 
-	enum class TabItem : uint32_t
+	enum class TabItem : int
 	{
 		None = 0,
 		UnsavedDocument = 1 << 0,
@@ -190,7 +194,7 @@ namespace Ludus::UI::Flags
 		NoAssumedClosure = 1 << 8,
 	};
 
-	enum class Table : uint32_t
+	enum class Table : int
 	{
 		None = 0,
 
@@ -242,7 +246,7 @@ namespace Ludus::UI::Flags
 		HighlightHoveredColumn = 1u << 28,
 	};
 
-	enum class TableColumn : uint32_t
+	enum class TableColumn : int
 	{
 		None = 0,
 		Disabled = 1 << 0,
@@ -270,7 +274,7 @@ namespace Ludus::UI::Flags
 		IsHovered = 1 << 27,
 	};
 
-	enum class TreeNode : uint32_t
+	enum class TreeNode : int
 	{
 		None = 0,
 		Selected = 1 << 0,
@@ -296,7 +300,7 @@ namespace Ludus::UI::Flags
 		DrawLinesToNodes = 1 << 20,
 	};
 
-	enum class Viewport : uint32_t
+	enum class Viewport : int
 	{
 		None = 0,
 		IsPlatformWindow = 1 << 0,
@@ -316,7 +320,7 @@ namespace Ludus::UI::Flags
 		IsFocused = 1 << 13,
 	};
 
-	enum class Window : uint32_t
+	enum class Window : int
 	{
 		None = 0,
 
@@ -343,79 +347,54 @@ namespace Ludus::UI::Flags
 		UnsavedDocument = 1u << 18,
 		NoDocking = 1u << 19,
 
-		NoNav = NoNavInputs | NoNavFocus,
-		NoDecoration = NoTitleBar | NoResize | NoScrollbar | NoCollapse,
-		NoInputs = NoMouseInputs | NoNavInputs | NoNavFocus,
+		NoNav = static_cast<int>(NoNavInputs) | static_cast<int>(NoNavFocus),
+		NoDecoration = static_cast<int>(NoTitleBar) | static_cast<int>(NoResize) | static_cast<int>(NoScrollbar) | static_cast<int>(NoCollapse),
+		NoInputs = static_cast<int>(NoMouseInputs) | static_cast<int>(NoNavInputs) | static_cast<int>(NoNavFocus),
 	};
+}
 
-#pragma region Helpers
+#pragma region Template specializations
 
-	constexpr ColorEdit operator|(ColorEdit a, ColorEdit b)
-	{
-		return static_cast<ColorEdit>(
-			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
-	}
+namespace Ludus::Engine::Core::Enums
+{
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::ColorEdit> : std::true_type { };
 
-	constexpr Combo operator|(Combo a, Combo b)
-	{
-		return static_cast<Combo>(
-			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
-	}
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Combo> : std::true_type { };
 
-	constexpr DockNode operator|(DockNode a, DockNode b)
-	{
-		return static_cast<DockNode>(
-			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
-	}
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::DockNode> : std::true_type { };
 
-	constexpr DockNode operator|(DockNode a, DockNodeInternal b)
-	{
-		return static_cast<DockNode>(
-			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
-	}
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Hovered> : std::true_type { };
 
-	constexpr Hovered operator|(Hovered a, Hovered b)
-	{
-		return static_cast<Hovered>(
-			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
-	}
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::InputText> : std::true_type { };
 
-	constexpr InputText operator|(InputText a, InputText b)
-	{
-		return static_cast<InputText>(
-			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
-	}
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Popup> : std::true_type { };
 
-	constexpr Popup operator|(Popup a, Popup b)
-	{
-		return static_cast<Popup>(
-			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
-	}
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::TabBar> : std::true_type { };
 
-	constexpr Table operator|(Table a, Table b)
-	{
-		return static_cast<Table>(
-			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
-	}
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::TabItem> : std::true_type { };
 
-	constexpr TreeNode operator|(TreeNode a, TreeNode b)
-	{
-		return static_cast<TreeNode>(
-			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
-	}
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Table> : std::true_type { };
 
-	constexpr Viewport operator|(Viewport a, Viewport b)
-	{
-		return static_cast<Viewport>(
-			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
-	}
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::TableColumn> : std::true_type { };
 
-	constexpr Window operator|(Window a, Window b)
-	{
-		return static_cast<Window>(
-			static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
-	}
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::TreeNode> : std::true_type { };
+
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Viewport> : std::true_type { };
+
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Window> : std::true_type { };
+}
 
 #pragma endregion
-
-}
