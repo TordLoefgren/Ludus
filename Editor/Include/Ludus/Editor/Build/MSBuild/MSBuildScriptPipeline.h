@@ -21,6 +21,12 @@ namespace Ludus::Editor::Build::MSBuild
 			std::string_view templateFileName,
 			const std::filesystem::path& destinationPath
 		) const;
+		void CopyTemplateToDestinationIfMissing(
+			const std::filesystem::path& templateRoot,
+			std::string_view templateFileName,
+			const std::filesystem::path& destinationPath,
+			std::string_view projectGuid
+		) const;
 
 		void AddScript(std::string_view name, const std::filesystem::path& projectRoot);
 		void AddScriptsModuleReference(std::string_view name, const std::filesystem::path& projectRoot);

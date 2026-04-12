@@ -17,6 +17,7 @@ namespace Ludus::Editor::Persistence::ProjectPaths
 		inline constexpr std::string_view InvalidFileNameCharacters = "<>:\"/\\|?*";
 		inline constexpr std::string_view ScriptsModuleSourceFile = "ScriptsModule.cpp";
 		inline constexpr std::string_view ScriptsProjectFile = "Scripts.vcxproj";
+		inline constexpr std::string_view ScriptsSolutionFile = "Scripts.sln";
 		inline constexpr std::string_view CppExtension = ".cpp";
 		inline constexpr std::string_view ProjectManifestExtension = ".project.ludus";
 		inline constexpr std::string_view ScriptsDirectory = "Scripts";
@@ -142,6 +143,11 @@ namespace Ludus::Editor::Persistence::ProjectPaths
 	inline std::filesystem::path ScriptsProjectFile(const std::filesystem::path& projectRoot)
 	{
 		return ScriptsSourceDirectory(projectRoot) / std::string(Constants::ScriptsProjectFile);
+	}
+
+	inline std::filesystem::path ScriptsSolutionFile(const std::filesystem::path& projectRoot)
+	{
+		return ScriptsSourceDirectory(projectRoot) / std::string(Constants::ScriptsSolutionFile);
 	}
 
 	inline void EnsureProjectsRootExists()

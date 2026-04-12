@@ -190,6 +190,7 @@
     <None Include="Resources\Templates\RuntimeHost\RuntimeHost.vcxproj.template" />
     <None Include="Resources\Templates\RuntimeHost\RuntimeHostModule.cpp.template" />
     <None Include="Resources\Templates\Scripting\Script.cpp.template" />
+    <None Include="Resources\Templates\Scripting\Scripts.sln.template" />
     <None Include="Resources\Templates\Scripting\ScriptsModule.cpp.template" />
     <None Include="Resources\Templates\Scripting\Scripts.vcxproj.template" />
   </ItemGroup>
