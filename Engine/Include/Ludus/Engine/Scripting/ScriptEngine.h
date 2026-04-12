@@ -10,6 +10,12 @@ namespace Ludus::Engine::Core
 	struct SceneRegistry;
 }
 
+namespace Ludus::Engine::Runtime
+{
+	struct RuntimeManifest;
+	struct SceneRuntimeState;
+}
+
 namespace Ludus::Engine::Windowing
 {
 	class Input;
@@ -28,15 +34,16 @@ namespace Ludus::Engine::Scripting
 
 	public:
 		ScriptEngine(
+			const Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest,
 			Ludus::Engine::Core::SceneRegistry& sceneRegistry,
-			Ludus::Engine::Windowing::Input& input,
-			Ludus::Engine::Core::SceneId activeSceneId
+			Ludus::Engine::Runtime::SceneRuntimeState& sceneRuntimeState,
+			Ludus::Engine::Windowing::Input& input
 		);
 
 		~ScriptEngine();
 
 		Ludus::Scripting::ABI::ScriptContext* GetContext();
 
-		void SetActiveScene(Ludus::Engine::Core::SceneId sceneId);
+		void SetContextScene(Ludus::Engine::Core::SceneId sceneId);
 	};
 }

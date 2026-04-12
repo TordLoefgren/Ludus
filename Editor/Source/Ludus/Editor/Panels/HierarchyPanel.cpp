@@ -275,7 +275,7 @@ namespace Ludus::Editor::Panels
 		{
 			auto& registry = context.ProjectSession.RuntimeState.GetActiveSceneRegistry();
 
-			const auto selectedScene = context.ProjectSession.RuntimeState.GetActiveScenePresentationState().CurrentSceneId;
+			const auto selectedScene = context.ProjectSession.GetPresentedSceneId();
 			if (!registry.Contains(selectedScene))
 			{
 				// No scene available.

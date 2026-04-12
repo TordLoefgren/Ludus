@@ -140,7 +140,7 @@ namespace Ludus::Editor::Panels
 				{
 					context.Shell.State.Commands.AddEditCommand(
 						Ludus::Editor::Commands::EditCommand::RemoveComponent<TComponent>(
-							context.ProjectSession.RuntimeState.GetActiveScenePresentationState().CurrentSceneId,
+							context.ProjectSession.GetPresentedSceneId(),
 							component.OwnerId
 						)
 					);
@@ -530,7 +530,7 @@ namespace Ludus::Editor::Panels
 			}
 
 			auto& registry = context.ProjectSession.RuntimeState.GetActiveSceneRegistry();
-			auto activeSceneId = context.ProjectSession.RuntimeState.GetActiveScenePresentationState().CurrentSceneId;
+			auto activeSceneId = context.ProjectSession.GetPresentedSceneId();
 			if (!registry.Contains(activeSceneId))
 			{
 				return true;

@@ -10,7 +10,7 @@
 #include <Ludus/Engine/Runtime/IHostContext.h>
 #include <Ludus/Engine/Runtime/RuntimeInstance.h>
 #include <Ludus/Engine/Runtime/RuntimeLaunchSettings.h>
-#include <Ludus/Engine/Runtime/ScenePresentationState.h>
+#include <Ludus/Engine/Runtime/SceneRuntimeState.h>
 
 namespace Ludus::Editor::Core
 {
@@ -63,9 +63,9 @@ namespace Ludus::Editor::Core
 		Ludus::Engine::Core::RenderViewRequestRegistry& GetActiveRenderViewRequestRegistry() { return GetActiveRuntime().GetRenderViewRequestRegistry(); }
 		const Ludus::Engine::Core::RenderViewRequestRegistry& GetActiveRenderViewRequestRegistry() const { return GetActiveRuntime().GetRenderViewRequestRegistry(); }
 
-		Ludus::Engine::Runtime::ScenePresentationState& GetEditorScenePresentationState() { return m_EditorRuntime->GetScenePresentationState(); }
-		const Ludus::Engine::Runtime::ScenePresentationState& GetEditorScenePresentationState() const { return m_EditorRuntime->GetScenePresentationState(); }
-		Ludus::Engine::Runtime::ScenePresentationState& GetActiveScenePresentationState() { return GetActiveRuntime().GetScenePresentationState(); }
-		const Ludus::Engine::Runtime::ScenePresentationState& GetActiveScenePresentationState() const { return GetActiveRuntime().GetScenePresentationState(); }
+		Ludus::Engine::Runtime::SceneRuntimeState& GetEditorSceneRuntimeState() { return m_EditorRuntime->GetSceneRuntimeState(); }
+		const Ludus::Engine::Runtime::SceneRuntimeState& GetEditorSceneRuntimeState() const { return m_EditorRuntime->GetSceneRuntimeState(); }
+		Ludus::Engine::Runtime::SceneRuntimeState& GetActiveSceneRuntimeState() { return GetActiveRuntime().GetSceneRuntimeState(); }
+		const Ludus::Engine::Runtime::SceneRuntimeState& GetActiveSceneRuntimeState() const { return GetActiveRuntime().GetSceneRuntimeState(); }
 	};
 }

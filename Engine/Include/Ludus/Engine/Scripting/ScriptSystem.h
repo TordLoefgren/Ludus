@@ -2,20 +2,31 @@
 
 #include <cstdint>
 #include <filesystem>
-#include <string>
 #include <unordered_map>
 #include <vector>
 
-#include <Ludus/Engine/Core/ExecutionFlags.h>
 #include <Ludus/Engine/Core/Id.h>
-#include <Ludus/Engine/Core/SceneRegistry.h>
-#include <Ludus/Engine/Physics/Queries/IPhysicsQueryCache2D.h>
-#include <Ludus/Engine/Runtime/IHostContext.h>
 #include <Ludus/Engine/Runtime/ISystem.h>
-#include <Ludus/Engine/Runtime/RuntimeManifest.h>
 #include <Ludus/Engine/Scripting/LoadedScriptModule.h>
 #include <Ludus/Engine/Scripting/ScriptEngine.h>
 #include <Ludus/Engine/Scripting/ScriptInstanceState.h>
+
+namespace Ludus::Engine::Core
+{
+	struct SceneRegistry;
+}
+
+namespace Ludus::Engine::Physics::Queries
+{
+	class IPhysicsQueryCache2D;
+}
+
+namespace Ludus::Engine::Runtime
+{
+	class IHostContext;
+	struct RuntimeManifest;
+	struct SceneRuntimeState;
+}
 
 namespace Ludus::Engine::Scripting
 {
@@ -23,9 +34,9 @@ namespace Ludus::Engine::Scripting
 	{
 	private:
 		Ludus::Engine::Runtime::IHostContext& m_HostContext;
+		const Ludus::Engine::Runtime::RuntimeManifest& m_RuntimeManifest;
 		std::filesystem::path m_ScriptModulePath;
 		Ludus::Engine::Core::SceneRegistry& m_SceneRegistry;
-		std::vector<Ludus::Engine::Runtime::ScriptReference> m_ScriptReferences;
 		std::unordered_map<Ludus::Engine::Core::ScriptId, const LoadedScriptDefinition*> m_DefinitionsById;
 		Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* m_QueryCache;
 		ScriptEngine m_ScriptEngine;
@@ -53,9 +64,9 @@ namespace Ludus::Engine::Scripting
 	public:
 		ScriptSystem(
 			Ludus::Engine::Runtime::IHostContext& hostContext,
+			const Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest,
 			Ludus::Engine::Core::SceneRegistry& sceneRegistry,
-			std::vector<Ludus::Engine::Runtime::ScriptReference> scriptReferences,
-			Ludus::Engine::Core::SceneId& activeSceneId,
+			Ludus::Engine::Runtime::SceneRuntimeState& sceneRuntimeState,
 			Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* queryCache,
 			const std::filesystem::path& scriptModulePath
 		);

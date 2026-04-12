@@ -187,7 +187,7 @@ namespace Ludus::Editor::Panels
 
 			auto& registry = context.ProjectSession.RuntimeState.GetActiveSceneRegistry();
 
-			auto activeSceneId = context.ProjectSession.RuntimeState.GetActiveScenePresentationState().CurrentSceneId;
+			auto activeSceneId = context.ProjectSession.GetPresentedSceneId();
 			if (!m_SelectedSceneId || !registry.Contains(*m_SelectedSceneId))
 			{
 				m_SelectedSceneId = activeSceneId;

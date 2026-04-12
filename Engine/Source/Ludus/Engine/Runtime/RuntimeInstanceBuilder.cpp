@@ -15,6 +15,7 @@
 #include <Ludus/Engine/Runtime/ISystem.h>
 #include <Ludus/Engine/Runtime/RuntimeInstance.h>
 #include <Ludus/Engine/Runtime/RuntimeInstanceBuilder.h>
+#include <Ludus/Engine/Runtime/SceneSystem.h>
 #include <Ludus/Engine/Runtime/SystemConstraints.h>
 #include <Ludus/Engine/Runtime/SystemDescriptor.h>
 #include <Ludus/Engine/Runtime/SystemPhase.h>
@@ -48,7 +49,7 @@ namespace Ludus::Engine::Runtime
 				std::make_unique<Ludus::Engine::Graphics::MainRenderViewSystem>(
 					runtime->GetHostContext(),
 					runtime->GetRenderViewRequestRegistry(),
-					runtime->GetScenePresentationState()
+					runtime->GetSceneRuntimeState().Presentation
 				)
 			);
 		}
@@ -100,6 +101,19 @@ namespace Ludus::Engine::Runtime
 			);
 		}
 
+		if (m_UseDefaultSceneManagement)
+		{
+			auto sceneSystem = std::make_unique<Ludus::Engine::Runtime::SceneSystem>(
+				runtime->GetSceneRegistry(),
+				runtime->GetSceneRuntimeState()
+			);
+
+			runtime->AddSystem(
+				Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::BeginFrame, SystemPhaseOrder::Before },
+				std::move(sceneSystem)
+			);
+		}
+
 		if (m_UseDefaultScripting)
 		{
 			auto constraints = Ludus::Engine::Runtime::SystemConstraints::Create()
@@ -110,9 +124,9 @@ namespace Ludus::Engine::Runtime
 
 			auto scriptingSystem = std::make_unique<Ludus::Engine::Scripting::ScriptSystem>(
 				runtime->GetHostContext(),
+				runtime->GetRuntimeManifest(),
 				runtime->GetSceneRegistry(),
-				runtime->GetRuntimeManifest().Scripts,
-				runtime->GetScenePresentationState().CurrentSceneId,
+				runtime->GetSceneRuntimeState(),
 				runtime->GetPhysicsConfiguration().QueryCache.get(),
 				runtime->GetRuntimeEnvironment().ScriptModulePath
 			);
@@ -229,6 +243,18 @@ namespace Ludus::Engine::Runtime
 		}
 
 		m_UseDefaultRendering2D = true;
+
+		return *this;
+	}
+
+	RuntimeInstanceBuilder& RuntimeInstanceBuilder::UseDefaultSceneManagement()
+	{
+		if (m_UseDefaultSceneManagement)
+		{
+			LUDUS_LOG_WARN("Invalid operation: Cannot add default scene system more than once.");
+		}
+
+		m_UseDefaultSceneManagement = true;
 
 		return *this;
 	}

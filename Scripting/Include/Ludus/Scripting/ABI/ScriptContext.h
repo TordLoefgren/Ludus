@@ -10,6 +10,7 @@ namespace Ludus::Scripting::ABI
 		Version Version { };
 
 		GetEntityByNameFn GetEntityByName = nullptr;
+		LoadSceneByNameFn LoadSceneByName = nullptr;
 
 		DebugFn Debug = nullptr;
 		PrintFn Print = nullptr;

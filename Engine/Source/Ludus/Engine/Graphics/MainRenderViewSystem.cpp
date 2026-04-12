@@ -8,11 +8,12 @@ namespace Ludus::Engine::Graphics
 	MainRenderViewSystem::MainRenderViewSystem(
 		Ludus::Engine::Runtime::IHostContext& hostContext,
 		Ludus::Engine::Core::RenderViewRequestRegistry& renderViewRequestRegistry,
-		Ludus::Engine::Runtime::ScenePresentationState& scenePresentationState
+		Ludus::Engine::Runtime::ScenePresentation& scenePresentation
+
 	) :
 		m_HostContext(hostContext),
 		m_RenderViewRequestRegistry(renderViewRequestRegistry),
-		m_ScenePresentationState(scenePresentationState)
+		m_ScenePresentation(scenePresentation)
 	{ }
 
 	void MainRenderViewSystem::UpdateImpl(float)
@@ -22,7 +23,7 @@ namespace Ludus::Engine::Graphics
 
 		Ludus::Engine::Graphics::RenderViewRequest2D renderViewRequest {
 			.Camera = std::nullopt,
-			.SceneId = m_ScenePresentationState.CurrentSceneId,
+			.SceneId = m_ScenePresentation.CurrentSceneId,
 			.Target = &target,
 			.ViewportRect = Ludus::Engine::Math::Rect::Create(
 				{ 0.0f, 0.0f },

@@ -1,10 +1,14 @@
 #include "pch.h"
 
+#include <filesystem>
+
 #include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 #include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/Requests/DeferredAction.h>
 #include <Ludus/Editor/Commands/Requests/SceneActions.h>
 #include <Ludus/Editor/Commands/Requests/Scenes.h>
+#include <Ludus/Engine/Persistence/Paths.h>
+#include <Ludus/Engine/Platform/Modals.h>
 
 namespace Ludus::Editor::Commands::Requests::Scenes
 {
@@ -43,6 +47,26 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 
 	void SaveScene(const RequestCommand::SaveScene& command, ProjectSessionCommandContext& context)
 	{
+		const auto scenePath = context.ProjectSession.Persistence.TryGetScenePath(command.SceneId);
+		if (!scenePath)
+		{
+			// Unsaved scenes need a first-time Save As path before they can be saved to a path implicitly.
+			std::filesystem::path path;
+			if (Ludus::Engine::Platform::Modals::SaveFileDialog(
+				path,
+				"scene.ludus",
+				Ludus::Engine::Persistence::Paths::ScenesDirectory(context.ProjectSession.Persistence.GetProjectRoot()),
+				"Untitled"
+			))
+			{
+				context.Shell.State.Commands.AddRequestCommand(
+					Ludus::Editor::Commands::RequestCommand::SaveSceneAs { .SceneId = command.SceneId, .Path = path }
+				);
+			}
+
+			return;
+		}
+
 		SaveSceneAction(command.SceneId, context);
 	}
 

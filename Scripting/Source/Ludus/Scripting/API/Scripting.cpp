@@ -39,6 +39,17 @@ namespace Ludus::Scripting::API
 		return api && api->GetEntityByName ? api->GetEntityByName(context, name, entityHandle) : false;
 	}
 
+	bool LoadSceneByName(ScriptContext* context, const char* name)
+	{
+		const auto* api = ResolveAPI(context);
+		if (!api || !api->LoadSceneByName)
+		{
+			return false;
+		}
+
+		return api->LoadSceneByName(context, name);
+	}
+
 	void Debug(ScriptContext* context, const char* message)
 	{
 		const auto* api = ResolveAPI(context);
