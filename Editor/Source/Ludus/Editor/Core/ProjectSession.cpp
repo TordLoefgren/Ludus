@@ -66,7 +66,17 @@ namespace Ludus::Editor::Core
 		sceneRegistry.AddScene(std::move(scene));
 
 		EditorState.SetActiveScene(sceneId, sceneSavePath ? sceneSavePath : Persistence.TryGetScenePath(sceneId));
-		RuntimeState.GetEditorScenePresentationState().CurrentSceneId = sceneId;
+		RuntimeState.GetEditorSceneRuntimeState().Presentation.CurrentSceneId = sceneId;
+	}
+
+	Ludus::Engine::Core::SceneId ProjectSession::GetPresentedSceneId() const
+	{
+		if (RuntimeState.IsSimulationActive())
+		{
+			return RuntimeState.GetActiveSceneRuntimeState().Presentation.CurrentSceneId;
+		}
+
+		return EditorState.GetActiveSceneId();
 	}
 
 	void ProjectSession::StartSimulation(Ludus::Engine::Runtime::IHostContext& hostContext)

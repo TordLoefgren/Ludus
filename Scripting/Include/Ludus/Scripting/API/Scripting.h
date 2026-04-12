@@ -24,6 +24,7 @@ namespace Ludus::Scripting::API
 	using ABI::Vector2F;
 
 	bool GetEntityByName(ScriptContext* context, const char* name, EntityHandle* entityHandle);
+	bool LoadSceneByName(ScriptContext* context, const char* name);
 
 	void Debug(ScriptContext* context, const char* message);
 	void Print(ScriptContext* context, const char* message);

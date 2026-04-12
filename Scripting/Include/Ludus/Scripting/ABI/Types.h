@@ -230,6 +230,7 @@ namespace Ludus::Scripting::ABI
 	};
 
 	using GetEntityByNameFn = bool(*)(ScriptContext* context, const char* name, EntityHandle* entityHandle);
+	using LoadSceneByNameFn = bool(*)(ScriptContext* context, const char* name);
 
 	using DebugFn = void(*)(ScriptContext* context, const char* message);
 	using PrintFn = void(*)(ScriptContext* context, const char* message);

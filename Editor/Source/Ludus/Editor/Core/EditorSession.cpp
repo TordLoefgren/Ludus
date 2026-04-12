@@ -69,6 +69,7 @@ namespace Ludus::Editor::Core
 				.UseDefaultPhysics2D()
 				.WithRenderingConfiguration(std::move(renderingConfiguration))
 				.UseDefaultRendering2D()
+				.UseDefaultSceneManagement()
 				.UseDefaultScripting()
 				.WithRenderPresentationSettings(renderPresentationSettings)
 				.WithRuntimeManifest(std::move(runtimeManifest))
@@ -76,7 +77,7 @@ namespace Ludus::Editor::Core
 				.WithEntryScene(std::move(entryScene))
 				.Build(hostContext);
 
-			const auto entrySceneId = runtime->GetScenePresentationState().CurrentSceneId;
+			const auto entrySceneId = runtime->GetSceneRuntimeState().Presentation.CurrentSceneId;
 
 			return Ludus::Editor::Core::ProjectSession::Create(
 				std::move(projectManifest),

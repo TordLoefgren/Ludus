@@ -1,10 +1,14 @@
 #include "pch.h"
 
+#include <stdexcept>
 #include <string>
 
 #include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
+#include <Ludus/Engine/Debug/Debug.h>
+#include <Ludus/Engine/Runtime/RuntimeManifest.h>
+#include <Ludus/Engine/Runtime/SceneRuntimeState.h>
 #include <Ludus/Engine/Scripting/ScriptBindings.h>
 #include <Ludus/Engine/Windowing/Input.h>
 #include <Ludus/Scripting/ABI/ScriptContext.h>
@@ -19,15 +23,16 @@ namespace Ludus::Engine::Scripting
 	using MouseButton = Ludus::Scripting::ABI::MouseButton;
 	using DisplayNameData = Ludus::Scripting::ABI::DisplayNameData;
 	using RigidBody2DData = Ludus::Scripting::ABI::RigidBody2DData;
-	using ScriptContext = Ludus::Scripting::ABI::ScriptContext;
 	using Text2DData = Ludus::Scripting::ABI::Text2DData;
 	using Transform2DData = Ludus::Scripting::ABI::Transform2DData;
 
 	struct ScriptHost
 	{
+		const Ludus::Engine::Runtime::RuntimeManifest& RuntimeManifest;
 		Ludus::Engine::Core::SceneRegistry& SceneRegistry;
+		Ludus::Engine::Runtime::SceneRuntimeState& SceneRuntimeState;
 		Ludus::Engine::Windowing::Input& Input;
-		Ludus::Engine::Core::SceneId ActiveSceneId;
+		Ludus::Engine::Core::SceneId ContextSceneId;
 	};
 
 	struct ScriptBindingsState
@@ -51,7 +56,7 @@ namespace Ludus::Engine::Scripting
 
 		Ludus::Engine::Core::Scene& ResolveScene(const ScriptHost& host)
 		{
-			return host.SceneRegistry.GetScene(host.ActiveSceneId);
+			return host.SceneRegistry.GetScene(host.ContextSceneId);
 		}
 
 		Ludus::Engine::Core::EntityId FromABI(ABIEntityId id)
@@ -64,13 +69,19 @@ namespace Ludus::Engine::Scripting
 			return id.Value;
 		}
 
-#pragma region Entity bindings
+#pragma region Entity and Scene bindings
 
 		static bool GetEntityByName(ScriptContext* context, const char* name, ABIEntityId* entityId)
 		{
 			LUDUS_ASSERT(entityId != nullptr, "Script binding output entity id must not be null.");
 			if (!entityId)
 			{
+				return false;
+			}
+
+			if (!name || *name == '\0')
+			{
+				LUDUS_LOG_WARN("GetEntityByName requires a non-empty entity name.");
 				return false;
 			}
 
@@ -87,6 +98,36 @@ namespace Ludus::Engine::Scripting
 			}
 
 			return false;
+		}
+
+		static bool LoadSceneByName(ScriptContext* context, const char* name)
+		{
+			auto& host = ResolveHost(context);
+			if (!name || *name == '\0')
+			{
+				LUDUS_LOG_WARN("LoadSceneByName requires a non-empty scene name.");
+				return false;
+			}
+
+			std::filesystem::path scenePath;
+			for (const auto& reference : host.RuntimeManifest.Scenes)
+			{
+				if (reference.Name == name)
+				{
+					scenePath = reference.Path;
+					break;
+				}
+			}
+
+			if (scenePath.empty())
+			{
+				LUDUS_LOG_WARN("LoadSceneByName could not find scene: " + std::string(name));
+				return false;
+			}
+
+			host.SceneRuntimeState.PendingTransition = Ludus::Engine::Runtime::PendingSceneTransition::LoadScene(scenePath);
+
+			return true;
 		}
 
 #pragma endregion
@@ -412,17 +453,19 @@ namespace Ludus::Engine::Scripting
 	}
 
 	ScriptBindingsState* CreateScriptBindingsState(
+		const Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest,
 		Ludus::Engine::Core::SceneRegistry& sceneRegistry,
-		Ludus::Engine::Windowing::Input& input,
-		Ludus::Engine::Core::SceneId activeSceneId
+		Ludus::Engine::Runtime::SceneRuntimeState& sceneRuntimeState,
+		Ludus::Engine::Windowing::Input& input
 	)
 	{
 		auto* state = new ScriptBindingsState
 		{
-			.Host = { sceneRegistry, input, activeSceneId },
+			.Host = { runtimeManifest, sceneRegistry, sceneRuntimeState, input, sceneRuntimeState.Presentation.CurrentSceneId },
 			.API = {
 				.Version = Ludus::Scripting::ABI::CurrentAPIVersion,
 				.GetEntityByName = &GetEntityByName,
+				.LoadSceneByName = &LoadSceneByName,
 				.Debug = &OnDebugImpl,
 				.Print = &OnPrintImpl,
 				.GetKey = &OnGetKey,
@@ -449,9 +492,9 @@ namespace Ludus::Engine::Scripting
 		delete state;
 	}
 
-	void SetActiveScene(ScriptBindingsState* state, Ludus::Engine::Core::SceneId sceneId)
+	void SetContextScene(ScriptBindingsState* state, Ludus::Engine::Core::SceneId sceneId)
 	{
-		state->Host.ActiveSceneId = sceneId;
+		state->Host.ContextSceneId = sceneId;
 	}
 
 	const ScriptAPI* GetScriptAPI(const ScriptBindingsState* state)

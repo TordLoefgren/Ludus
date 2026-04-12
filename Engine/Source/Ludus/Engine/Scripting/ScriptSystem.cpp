@@ -2,9 +2,14 @@
 
 #include <unordered_map>
 
+#include <Ludus/Engine/Core/ExecutionFlags.h>
 #include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/Mask.h>
+#include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Debug/Debug.h>
+#include <Ludus/Engine/Physics/Queries/IPhysicsQueryCache2D.h>
+#include <Ludus/Engine/Runtime/IHostContext.h>
+#include <Ludus/Engine/Runtime/RuntimeManifest.h>
 #include <Ludus/Engine/Scripting/ScriptSystem.h>
 #include <Ludus/Scripting/ABI/Types.h>
 
@@ -116,9 +121,9 @@ namespace Ludus::Engine::Scripting
 	void ScriptSystem::BuildDefinitions()
 	{
 		m_DefinitionsById.clear();
-		m_DefinitionsById.reserve(m_ScriptReferences.size());
+		m_DefinitionsById.reserve(m_RuntimeManifest.Scripts.size());
 
-		for (const auto& scriptReference : m_ScriptReferences)
+		for (const auto& scriptReference : m_RuntimeManifest.Scripts)
 		{
 			const auto* definition = m_LoadedScriptModule.TryFindDefinition(scriptReference.Name);
 			if (!definition)
@@ -205,16 +210,16 @@ namespace Ludus::Engine::Scripting
 
 	ScriptSystem::ScriptSystem(
 		Ludus::Engine::Runtime::IHostContext& hostContext,
+		const Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest,
 		Ludus::Engine::Core::SceneRegistry& sceneRegistry,
-		std::vector<Ludus::Engine::Runtime::ScriptReference> scriptReferences,
-		Ludus::Engine::Core::SceneId& activeSceneId,
+		Ludus::Engine::Runtime::SceneRuntimeState& sceneRuntimeState,
 		Ludus::Engine::Physics::Queries::IPhysicsQueryCache2D* queryCache,
 		const std::filesystem::path& scriptModulePath
 	) :
 		m_HostContext(hostContext),
 		m_SceneRegistry(sceneRegistry),
-		m_ScriptReferences(std::move(scriptReferences)),
-		m_ScriptEngine(m_SceneRegistry, m_HostContext.GetInput(), activeSceneId),
+		m_RuntimeManifest(runtimeManifest),
+		m_ScriptEngine(runtimeManifest, m_SceneRegistry, sceneRuntimeState, m_HostContext.GetInput()),
 		m_QueryCache(queryCache),
 		m_ScriptModulePath(scriptModulePath)
 	{ }
@@ -262,7 +267,7 @@ namespace Ludus::Engine::Scripting
 
 		for (auto& scene : m_SceneRegistry.ViewMutable())
 		{
-			m_ScriptEngine.SetActiveScene(scene.Id);
+			m_ScriptEngine.SetContextScene(scene.Id);
 			auto* context = m_ScriptEngine.GetContext();
 
 			for (auto& script : scene.EntityComponentSystem.Scripts.ViewMutable())

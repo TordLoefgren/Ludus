@@ -52,6 +52,7 @@ namespace Ludus::Editor::Core
 		auto simulationRuntime = Ludus::Engine::Runtime::RuntimeInstanceBuilder::Create()
 			.UseDefaultPhysics2D()
 			.UseDefaultRendering2D()
+			.UseDefaultSceneManagement()
 			.UseDefaultScripting()
 			.WithRenderPresentationSettings(editorRuntime.GetRenderPresentationSettings())
 			.WithRuntimeManifest(runtimeManifest)

@@ -3,6 +3,8 @@
 #include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
+#include <Ludus/Engine/Runtime/RuntimeManifest.h>
+#include <Ludus/Engine/Runtime/SceneRuntimeState.h>
 #include <Ludus/Engine/Scripting/ScriptBindings.h>
 #include <Ludus/Engine/Scripting/ScriptEngine.h>
 #include <Ludus/Engine/Windowing/Input.h>
@@ -26,10 +28,11 @@ namespace Ludus::Engine::Scripting
 	}
 
 	ScriptEngine::ScriptEngine(
+		const Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest,
 		Ludus::Engine::Core::SceneRegistry& sceneRegistry,
-		Ludus::Engine::Windowing::Input& input,
-		Ludus::Engine::Core::SceneId activeSceneId
-	) : m_BindingsState(CreateScriptBindingsState(sceneRegistry, input, activeSceneId))
+		Ludus::Engine::Runtime::SceneRuntimeState& sceneRuntimeState,
+		Ludus::Engine::Windowing::Input& input
+	) : m_BindingsState(CreateScriptBindingsState(runtimeManifest, sceneRegistry, sceneRuntimeState, input))
 	{
 		CreateContext();
 	}
@@ -46,8 +49,8 @@ namespace Ludus::Engine::Scripting
 		return m_ScriptContext;
 	}
 
-	void ScriptEngine::SetActiveScene(Ludus::Engine::Core::SceneId sceneId)
+	void ScriptEngine::SetContextScene(Ludus::Engine::Core::SceneId sceneId)
 	{
-		Ludus::Engine::Scripting::SetActiveScene(m_BindingsState, sceneId);
+		Ludus::Engine::Scripting::SetContextScene(m_BindingsState, sceneId);
 	}
 }

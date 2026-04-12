@@ -15,7 +15,7 @@
 #include <Ludus/Engine/Runtime/InitialSceneMode.h>
 #include <Ludus/Engine/Runtime/RuntimeEnvironment.h>
 #include <Ludus/Engine/Runtime/RuntimeManifest.h>
-#include <Ludus/Engine/Runtime/ScenePresentationState.h>
+#include <Ludus/Engine/Runtime/SceneRuntimeState.h>
 #include <Ludus/Engine/Runtime/SystemPhase.h>
 #include <Ludus/Engine/Runtime/SystemScheduler.h>
 
@@ -34,7 +34,7 @@ namespace Ludus::Engine::Runtime
 		Ludus::Engine::Core::RenderViewRegistry m_RenderViewRegistry;
 		Ludus::Engine::Core::RenderViewRequestRegistry m_RenderViewRequestRegistry;
 		Ludus::Engine::Core::SceneRegistry m_SceneRegistry;
-		ScenePresentationState m_ScenePresentationState;
+		SceneRuntimeState m_SceneRuntimeState;
 		SystemScheduler m_Scheduler;
 
 		RuntimeInstance(
@@ -92,8 +92,8 @@ namespace Ludus::Engine::Runtime
 		Ludus::Engine::Core::SceneRegistry& GetSceneRegistry() { return m_SceneRegistry; }
 		const Ludus::Engine::Core::SceneRegistry& GetSceneRegistry() const { return m_SceneRegistry; }
 
-		ScenePresentationState& GetScenePresentationState() { return m_ScenePresentationState; }
-		const ScenePresentationState& GetScenePresentationState() const { return m_ScenePresentationState; }
+		SceneRuntimeState& GetSceneRuntimeState() { return m_SceneRuntimeState; }
+		const SceneRuntimeState& GetSceneRuntimeState() const { return m_SceneRuntimeState; }
 
 		IHostContext& GetHostContext() { return m_HostContext; }
 		const IHostContext& GetHostContext() const { return m_HostContext; }

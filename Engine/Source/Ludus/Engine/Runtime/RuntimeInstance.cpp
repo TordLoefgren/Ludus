@@ -37,7 +37,7 @@ namespace Ludus::Engine::Runtime
 		m_RenderViewRegistry(),
 		m_RenderViewRequestRegistry(),
 		m_SceneRegistry(),
-		m_ScenePresentationState(),
+		m_SceneRuntimeState(),
 		m_Scheduler()
 	{
 		if (initialSceneMode == InitialSceneMode::Entry)
@@ -48,7 +48,7 @@ namespace Ludus::Engine::Runtime
 			);
 		}
 
-		m_ScenePresentationState.CurrentSceneId = m_SceneRegistry.AddScene(std::move(initialScene));
+		m_SceneRuntimeState.Presentation.CurrentSceneId = m_SceneRegistry.AddScene(std::move(initialScene));
 	}
 
 	RuntimeInstance::~RuntimeInstance() = default;
@@ -91,7 +91,7 @@ namespace Ludus::Engine::Runtime
 	void RuntimeInstance::Initialize()
 	{
 		LUDUS_ASSERT(
-			m_SceneRegistry.Contains(m_ScenePresentationState.CurrentSceneId),
+			m_SceneRegistry.Contains(m_SceneRuntimeState.Presentation.CurrentSceneId),
 			"The current scene was not found in the scene registry."
 		);
 

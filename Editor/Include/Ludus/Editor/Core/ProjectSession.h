@@ -36,6 +36,7 @@ namespace Ludus::Editor::Core
 			Ludus::Engine::Core::Scene scene,
 			std::optional<std::filesystem::path> sceneSavePath = std::nullopt
 		);
+		Ludus::Engine::Core::SceneId GetPresentedSceneId() const;
 
 		void StartSimulation(Ludus::Engine::Runtime::IHostContext& hostContext);
 		void PauseSimulation(Ludus::Engine::Runtime::IHostContext& hostContext);

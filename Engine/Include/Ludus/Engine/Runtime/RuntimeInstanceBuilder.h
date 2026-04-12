@@ -43,6 +43,7 @@ namespace Ludus::Engine::Runtime
 		bool m_UseDefaultPhysics2D = false;
 		bool m_UseDefaultMainRenderView = false;
 		bool m_UseDefaultRendering2D = false;
+		bool m_UseDefaultSceneManagement = false;
 		bool m_UseDefaultScripting = false;
 
 	public:
@@ -66,6 +67,7 @@ namespace Ludus::Engine::Runtime
 		RuntimeInstanceBuilder& UseDefaultPhysics2D();
 		RuntimeInstanceBuilder& UseDefaultMainRenderView();
 		RuntimeInstanceBuilder& UseDefaultRendering2D();
+		RuntimeInstanceBuilder& UseDefaultSceneManagement();
 		RuntimeInstanceBuilder& UseDefaultScripting();
 
 		RuntimeInstanceBuilder& Configure(RuntimeInstanceBuilderCommand command);

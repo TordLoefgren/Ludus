@@ -139,6 +139,7 @@ namespace Ludus::Engine::Runtime
 		auto runtime = Ludus::Engine::Runtime::RuntimeInstanceBuilder::Create()
 			.UseDefaultPhysics2D()
 			.UseDefaultRendering2D()
+			.UseDefaultSceneManagement()
 			.UseDefaultScripting()
 			.UseDefaultMainRenderView()
 			.WithRenderPresentationSettings(std::move(renderPresentationSettings))
