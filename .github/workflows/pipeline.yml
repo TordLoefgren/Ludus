@@ -26,7 +26,7 @@ jobs:
         Configuration: [ Debug, Release ]
 
     name: Build & test - ${{ matrix.Platform }} / ${{ matrix.Configuration }}
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
 
     env:
       Configuration: ${{ matrix.Configuration }}
@@ -42,6 +42,8 @@ jobs:
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
+        with:
+          vs-version: '[18.0,19.0)'
 
       - name: Cache vcpkg installed tree
         uses: actions/cache@v4
