@@ -7,6 +7,7 @@
 #include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 #include <Ludus/Editor/Commands/Requests/ProjectTransitionContext.h>
 #include <Ludus/Editor/Core/ProjectTemplates.h>
+#include <Ludus/Editor/Core/RecentlyOpenedProject.h>
 #include <Ludus/Editor/Core/SceneQueries.h>
 #include <Ludus/Editor/Panels/PanelHelpers.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
@@ -19,10 +20,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 			const std::filesystem::path& projectRoot,
 			std::string_view projectName,
 			Ludus::Editor::Core::PendingProjectTransition& pendingProjectTransition,
-			Ludus::Engine::Persistence::IScenePersistence& scenePersistence,
-			Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence,
-			Ludus::Engine::Persistence::IRuntimeLaunchSettingsPersistence& runtimeLaunchSettingsPersistence,
-			Ludus::Editor::Persistence::IProjectManifestPersistence& projectManifestPersistence
+			Ludus::Editor::Core::EditorPersistenceContext& persistence
 		)
 		{
 			Ludus::Editor::Persistence::ProjectPaths::EnsureProjectLayoutExists(projectRoot);
@@ -30,7 +28,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 			// Create default scene.
 			const auto scene = Ludus::Editor::Core::ProjectTemplates::CreateDefaultScene();
 			const auto scenePath = Ludus::Editor::Persistence::ProjectPaths::SceneFile(projectRoot, scene.Name);
-			scenePersistence.Save(
+			persistence.Scene.Save(
 				scene,
 				scenePath
 			);
@@ -42,7 +40,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 				{ }
 			);
 			const auto runtimeManifestPath = Ludus::Engine::Persistence::Paths::RuntimeManifestFile(projectRoot, projectName);
-			runtimeManifestPersistence.Save(
+			persistence.RuntimeManifest.Save(
 				runtimeManifest,
 				runtimeManifestPath
 			);
@@ -50,7 +48,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 			// Create runtime settings.
 			const auto runtimeLaunchSettings = Ludus::Engine::Runtime::RuntimeLaunchSettings();
 			const auto runtimeLaunchSettingsPath = Ludus::Engine::Persistence::Paths::RuntimeLaunchSettingsFile(projectRoot, projectName);
-			runtimeLaunchSettingsPersistence.Save(
+			persistence.RuntimeLaunchSettings.Save(
 				runtimeLaunchSettings,
 				runtimeLaunchSettingsPath
 			);
@@ -60,7 +58,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 				projectRoot,
 				runtimeManifestPath
 			);
-			projectManifestPersistence.Save(
+			persistence.ProjectManifest.Save(
 				projectManifest,
 				Ludus::Editor::Persistence::ProjectPaths::ProjectManifestFile(projectRoot, projectName)
 			);
@@ -76,6 +74,18 @@ namespace Ludus::Editor::Commands::Requests::Projects
 		{
 			Ludus::Editor::Panels::RefreshContentPanel(projectRoot, context.PanelRegistry);
 		}
+
+		void RefreshRecentlyOpenedProjects(
+			const std::filesystem::path& projectRoot,
+			std::string_view projectName,
+			ProjectTransitionContext context
+		)
+		{
+			context.Preferences.AddRecentlyOpenedProject(
+				projectName,
+				Ludus::Editor::Persistence::ProjectPaths::ProjectManifestFile(projectRoot, projectName)
+			);
+		}
 	}
 
 	void CreateProjectAction(const std::string& name, ProjectTransitionContext context)
@@ -87,13 +97,11 @@ namespace Ludus::Editor::Commands::Requests::Projects
 			projectRoot,
 			name,
 			context.Shell.State.PendingProjectTransition,
-			context.ScenePersistence,
-			context.RuntimeManifestPersistence,
-			context.RuntimeLaunchSettingsPersistence,
-			context.ProjectManifestPersistence
+			context.Persistence
 		);
 
 		RefreshContentPanel(projectRoot, context);
+		RefreshRecentlyOpenedProjects(projectRoot, name, context);
 	}
 
 	void CreateProjectAsAction(const std::filesystem::path& path, const std::string& name, ProjectTransitionContext context)
@@ -104,22 +112,23 @@ namespace Ludus::Editor::Commands::Requests::Projects
 			path,
 			name,
 			context.Shell.State.PendingProjectTransition,
-			context.ScenePersistence,
-			context.RuntimeManifestPersistence,
-			context.RuntimeLaunchSettingsPersistence,
-			context.ProjectManifestPersistence
+			context.Persistence
 		);
 
 		RefreshContentPanel(path, context);
+		RefreshRecentlyOpenedProjects(path, name, context);
 	}
 
 	void OpenProjectAction(const std::filesystem::path& path, ProjectTransitionContext context)
 	{
-		auto projectManifest = context.ProjectManifestPersistence.Load(path);
+		auto projectManifest = context.Persistence.ProjectManifest.Load(path);
 		const auto projectRoot = projectManifest.ProjectRoot;
+		const auto projectName = projectManifest.RuntimeManifestPath.filename().stem().stem().string();
+
 		context.Shell.State.PendingProjectTransition = Ludus::Editor::Core::PendingProjectTransition::OpenProject({ std::move(projectManifest) });
 
 		RefreshContentPanel(projectRoot, context);
+		RefreshRecentlyOpenedProjects(projectRoot, projectName, context);
 	}
 
 	void CloseProjectAction(ProjectSessionCommandContext& context)
@@ -156,7 +165,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 			}
 
 			const auto activeSceneId = editorState.GetActiveSceneId();
-			context.ScenePersistence.Save(
+			context.Persistence.Scene.Save(
 				context.ProjectSession.RuntimeState.GetEditorScene(activeSceneId),
 				editorState.GetActiveSceneSavePath()
 			);
@@ -168,7 +177,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 
 		if (editorState.IsProjectManifestDirty())
 		{
-			context.ProjectManifestPersistence.Save(
+			context.Persistence.ProjectManifest.Save(
 				persistence.GetProjectManifest(),
 				persistence.GetProjectManifestPath()
 			);
@@ -178,7 +187,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 
 		if (editorState.IsRuntimeManifestDirty())
 		{
-			context.RuntimeManifestPersistence.Save(
+			context.Persistence.RuntimeManifest.Save(
 				persistence.GetRuntimeManifest(),
 				persistence.GetRuntimeManifestPath()
 			);
@@ -188,7 +197,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 
 		if (editorState.IsRuntimeLaunchSettingsDirty())
 		{
-			context.RuntimeLaunchSettingsPersistence.Save(
+			context.Persistence.RuntimeLaunchSettings.Save(
 				persistence.GetRuntimeLaunchSettings(),
 				persistence.GetRuntimeLaunchSettingsPath()
 			);

@@ -12,6 +12,7 @@
 #include <Ludus/Editor/Build/MSBuild/ScriptBuildSettings.h>
 #include <Ludus/Editor/Persistence/BuildPaths.h>
 #include <Ludus/Editor/Persistence/RepositoryPaths.h>
+#include <Ludus/Engine/Persistence/IRuntimeManifestPersistence.h>
 
 namespace
 {
@@ -26,9 +27,13 @@ namespace
 
 namespace Ludus::Editor::Build::MSBuild
 {
-	MSBuildPipeline::MSBuildPipeline()
-		: m_Context(), m_RuntimeHostPipeline(m_Context), m_ScriptPipeline(m_Context)
-	{ }
+	MSBuildPipeline::MSBuildPipeline(
+		const Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence
+	) :
+		m_Context(),
+		m_RuntimeHostPipeline(m_Context, runtimeManifestPersistence),
+		m_ScriptPipeline(m_Context)
+	{}
 
 	void MSBuildPipeline::Initialize()
 	{

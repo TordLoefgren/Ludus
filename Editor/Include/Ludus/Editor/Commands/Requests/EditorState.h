@@ -19,5 +19,6 @@ namespace Ludus::Editor::Commands::Requests::EditorState
 
 	void CloseApplication(StartupCommandContext& context);
 	void SetExecutionFlag(const RequestCommand::SetExecutionFlag& command, StartupCommandContext& context);
+	void SetTheme(const RequestCommand::SetTheme& command, StartupCommandContext& context);
 	void UnsetExecutionFlag(const RequestCommand::UnsetExecutionFlag& command, StartupCommandContext& context);
 }

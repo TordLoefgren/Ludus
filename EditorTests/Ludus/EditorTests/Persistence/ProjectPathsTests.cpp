@@ -34,6 +34,18 @@ namespace Ludus::EditorTests::Persistence
 		ASSERT_EQ(path, expected);
 	}
 
+	TEST(ProjectPaths, EditorRoot_Should_ReturnEditorDirectoryUnderLudusRoot)
+	{
+		// Arrange.
+		const auto expected = ProjectPaths::LudusRoot() / "Editor";
+
+		// Act.
+		const auto path = ProjectPaths::EditorRoot();
+
+		// Assert.
+		ASSERT_EQ(path, expected);
+	}
+
 	TEST(ProjectPaths, ProjectsRoot_Should_ReturnProjectsDirectoryUnderLudusRoot)
 	{
 		// Arrange.
@@ -170,6 +182,18 @@ namespace Ludus::EditorTests::Persistence
 
 		// Assert.
 		ASSERT_TRUE(error.empty());
+	}
+
+	TEST(ProjectPaths, EditorPreferencesFile_Should_ReturnPreferencesFileUnderEditorRoot)
+	{
+		// Arrange.
+		const auto expected = ProjectPaths::EditorRoot() / "editor.preferences.ludus";
+
+		// Act.
+		const auto path = ProjectPaths::EditorPreferencesFile();
+
+		// Assert.
+		ASSERT_EQ(path, expected);
 	}
 
 	TEST(ProjectPaths, ScriptsDirectory_Should_ReturnScriptsPath)

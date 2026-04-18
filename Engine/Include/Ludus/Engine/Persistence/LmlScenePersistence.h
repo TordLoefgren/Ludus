@@ -12,7 +12,7 @@ namespace Ludus::Engine::Persistence
 	public:
 		LmlScenePersistence() = default;
 
-		void Save(const Ludus::Engine::Core::Scene& scene, const std::filesystem::path& path) override;
-		Ludus::Engine::Core::Scene Load(const std::filesystem::path& path) override;
+		void Save(const Ludus::Engine::Core::Scene& scene, const std::filesystem::path& path) const override;
+		Ludus::Engine::Core::Scene Load(const std::filesystem::path& path) const override;
 	};
 }

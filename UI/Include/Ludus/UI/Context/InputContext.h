@@ -12,6 +12,7 @@ namespace Ludus::UI::Context::InputContext
 	bool WantCaptureMouse();
 	bool WantCaptureKeyboard();
 
+	bool IsItemActive();
 	bool IsAnyItemActive();
 	bool IsAnyItemHovered();
 	bool IsItemHovered();

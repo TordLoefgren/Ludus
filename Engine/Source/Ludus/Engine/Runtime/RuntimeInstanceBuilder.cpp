@@ -9,8 +9,9 @@
 #include <Ludus/Engine/Core/ExecutionFlags.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Graphics/MainRenderViewSystem.h>
-#include <Ludus/Engine/Graphics/RenderingSystem2D.h>
 #include <Ludus/Engine/Graphics/RenderViewSystem.h>
+#include <Ludus/Engine/Graphics/RenderingSystem2D.h>
+#include <Ludus/Engine/Persistence/EnginePersistence.h>
 #include <Ludus/Engine/Physics/Core/PhysicsSystem2D.h>
 #include <Ludus/Engine/Runtime/ISystem.h>
 #include <Ludus/Engine/Runtime/RuntimeInstance.h>
@@ -81,7 +82,7 @@ namespace Ludus::Engine::Runtime
 
 			runtime->AddSystem(
 				{
-					Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::BeginFrame, SystemPhaseOrder::Before },
+					Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::BeginFrame, SystemPhaseOrder::Before, constraints },
 					Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::Render, SystemPhaseOrder::Before, constraints }
 				},
 				std::move(renderViewSystem)
@@ -96,7 +97,7 @@ namespace Ludus::Engine::Runtime
 			);
 
 			runtime->AddSystem(
-				Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::Render, SystemPhaseOrder::Before },
+				Ludus::Engine::Runtime::SystemDescriptor { SystemPhase::Render, SystemPhaseOrder::Before, constraints },
 				std::move(renderingSystem)
 			);
 		}
@@ -104,6 +105,7 @@ namespace Ludus::Engine::Runtime
 		if (m_UseDefaultSceneManagement)
 		{
 			auto sceneSystem = std::make_unique<Ludus::Engine::Runtime::SceneSystem>(
+				runtime->GetHostContext().GetEnginePersistence().Scene(),
 				runtime->GetSceneRegistry(),
 				runtime->GetSceneRuntimeState()
 			);

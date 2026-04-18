@@ -11,7 +11,7 @@ namespace Ludus::Editor::Persistence
 	public:
 		virtual ~IProjectManifestPersistence() = default;
 
-		virtual void Save(const Ludus::Editor::Core::ProjectManifest& projectManifest, const std::filesystem::path& path) = 0;
-		virtual Ludus::Editor::Core::ProjectManifest Load(const std::filesystem::path& path) = 0;
+		virtual void Save(const Ludus::Editor::Core::ProjectManifest& projectManifest, const std::filesystem::path& path) const = 0;
+		virtual Ludus::Editor::Core::ProjectManifest Load(const std::filesystem::path& path) const = 0;
 	};
 }

@@ -11,7 +11,7 @@ namespace Ludus::Engine::Persistence
 	public:
 		virtual ~IScenePersistence() = default;
 
-		virtual void Save(const Ludus::Engine::Core::Scene& scene, const std::filesystem::path& path) = 0;
-		virtual Ludus::Engine::Core::Scene Load(const std::filesystem::path& path) = 0;
+		virtual void Save(const Ludus::Engine::Core::Scene& scene, const std::filesystem::path& path) const = 0;
+		virtual Ludus::Engine::Core::Scene Load(const std::filesystem::path& path) const = 0;
 	};
 }

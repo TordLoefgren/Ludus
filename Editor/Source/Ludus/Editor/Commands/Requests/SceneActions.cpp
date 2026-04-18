@@ -42,12 +42,12 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 			const std::filesystem::path& path
 		)
 		{
-			context.ScenePersistence.Save(context.ProjectSession.RuntimeState.GetEditorScene(id), path);
+			context.Persistence.Scene.Save(context.ProjectSession.RuntimeState.GetEditorScene(id), path);
 		}
 
 		void SaveRuntimeManifest(ProjectSessionCommandContext& context)
 		{
-			context.RuntimeManifestPersistence.Save(
+			context.Persistence.RuntimeManifest.Save(
 				context.ProjectSession.Persistence.GetRuntimeManifest(),
 				context.ProjectSession.Persistence.GetRuntimeManifestPath()
 			);
@@ -88,7 +88,7 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 
 	void OpenSceneAction(const std::filesystem::path& path, ProjectSessionCommandContext& context)
 	{
-		auto scene = context.ScenePersistence.Load(path);
+		auto scene = context.Persistence.Scene.Load(path);
 		context.ProjectSession.SetActiveScene(std::move(scene), path);
 	}
 

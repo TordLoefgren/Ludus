@@ -31,6 +31,7 @@
     <ClInclude Include="Include\Ludus\Engine\Components\ScriptComponent.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Enums\EnumBits.h" />
     <ClInclude Include="Include\Ludus\Engine\Core\Id.h" />
+    <ClInclude Include="Include\Ludus\Engine\Persistence\EnginePersistence.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\PendingSceneTransition.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\SceneRuntimeState.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\SceneSystem.h" />

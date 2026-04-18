@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 
+#include <Ludus/Engine/Persistence/EnginePersistence.h>
 #include <Ludus/Engine/Runtime/ApplicationHost.h>
 #include <Ludus/Engine/Runtime/RuntimeOptions.h>
 #include <Ludus/Engine/Runtime/SystemDescriptor.h>
@@ -18,6 +19,7 @@ namespace Ludus::Engine::Runtime
 	class ApplicationHostBuilder
 	{
 	private:
+		Ludus::Engine::Persistence::EnginePersistence m_EnginePersistence = Ludus::Engine::Persistence::EnginePersistence::DefaultText();
 		Ludus::Engine::Runtime::RuntimeOptions m_RuntimeOptions;
 		Ludus::Engine::Windowing::WindowOptions m_WindowOptions;
 
@@ -28,8 +30,9 @@ namespace Ludus::Engine::Runtime
 
 		std::unique_ptr<Ludus::Engine::Runtime::ApplicationHost> Build();
 
-		ApplicationHostBuilder& WithRuntimeOptions(Ludus::Engine::Runtime::RuntimeOptions runtimeOptions);
-		ApplicationHostBuilder& WithWindowOptions(Ludus::Engine::Windowing::WindowOptions windowOptions);
+		ApplicationHostBuilder& WithEnginePersistence(Ludus::Engine::Persistence::EnginePersistence enginePersistence);
+		ApplicationHostBuilder& WithRuntimeOptions(const Ludus::Engine::Runtime::RuntimeOptions& runtimeOptions);
+		ApplicationHostBuilder& WithWindowOptions(const Ludus::Engine::Windowing::WindowOptions& windowOptions);
 
 		ApplicationHostBuilder& Configure(ApplicationHostBuilderCommand command);
 

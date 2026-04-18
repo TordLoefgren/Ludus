@@ -24,20 +24,20 @@ namespace Ludus::Editor::Persistence
 	class ProjectSessionLoader
 	{
 	private:
-		Ludus::Engine::Persistence::IScenePersistence& m_ScenePersistence;
-		Ludus::Engine::Persistence::IRuntimeManifestPersistence& m_RuntimeManifestPersistence;
-		Ludus::Engine::Persistence::IRuntimeLaunchSettingsPersistence& m_RuntimeLaunchSettingsPersistence;
-		Ludus::Editor::Persistence::IProjectManifestPersistence& m_ProjectManifestPersistence;
+		const Ludus::Engine::Persistence::IScenePersistence& m_ScenePersistence;
+		const Ludus::Engine::Persistence::IRuntimeManifestPersistence& m_RuntimeManifestPersistence;
+		const Ludus::Engine::Persistence::IRuntimeLaunchSettingsPersistence& m_RuntimeLaunchSettingsPersistence;
+		const Ludus::Editor::Persistence::IProjectManifestPersistence& m_ProjectManifestPersistence;
 
 	public:
 		ProjectSessionLoader(
-			Ludus::Engine::Persistence::IScenePersistence& scenePersistence,
-			Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence,
-			Ludus::Engine::Persistence::IRuntimeLaunchSettingsPersistence& runtimeLaunchSettingsPersistence,
-			Ludus::Editor::Persistence::IProjectManifestPersistence& projectManifestPersistence
+			const Ludus::Engine::Persistence::IScenePersistence& scenePersistence,
+			const Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence,
+			const Ludus::Engine::Persistence::IRuntimeLaunchSettingsPersistence& runtimeLaunchSettingsPersistence,
+			const Ludus::Editor::Persistence::IProjectManifestPersistence& projectManifestPersistence
 		);
 
-		LoadedProjectData Load(const std::filesystem::path& projectManifestPath);
-		LoadedProjectData Load(Ludus::Editor::Core::ProjectManifest projectManifest);
+		LoadedProjectData Load(const std::filesystem::path& projectManifestPath) const;
+		LoadedProjectData Load(Ludus::Editor::Core::ProjectManifest projectManifest) const;
 	};
 }

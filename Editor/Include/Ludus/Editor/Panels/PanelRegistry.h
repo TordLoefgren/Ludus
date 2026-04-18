@@ -80,13 +80,10 @@ namespace Ludus::Editor::Panels
 
 			const auto previousSize = m_Panels.size();
 
-			std::erase_if(
-				m_Panels,
-				[this](const std::unique_ptr<IPanel>& panel)
+			std::erase_if(m_Panels, [this](const std::unique_ptr<IPanel>& panel)
 			{
 				return std::ranges::find(m_ScheduledRemovals, panel->GetHandle()) != m_ScheduledRemovals.end();
-			}
-			);
+			});
 
 			m_ScheduledRemovals.clear();
 			return m_Panels.size() != previousSize;

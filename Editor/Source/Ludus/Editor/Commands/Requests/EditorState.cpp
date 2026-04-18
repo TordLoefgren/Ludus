@@ -80,6 +80,11 @@ namespace Ludus::Editor::Commands::Requests::EditorState
 		SetExecutionFlagAction(command.Flag, context);
 	}
 
+	void SetTheme(const RequestCommand::SetTheme& command, StartupCommandContext& context)
+	{
+		SetThemeAction(command.ThemeId, context);
+	}
+
 	void UnsetExecutionFlag(const RequestCommand::UnsetExecutionFlag& command, StartupCommandContext& context)
 	{
 		UnsetExecutionFlagAction(command.Flag, context);

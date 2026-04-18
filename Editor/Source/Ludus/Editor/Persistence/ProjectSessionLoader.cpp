@@ -17,23 +17,23 @@
 namespace Ludus::Editor::Persistence
 {
 	ProjectSessionLoader::ProjectSessionLoader(
-		Ludus::Engine::Persistence::IScenePersistence& scenePersistence,
-		Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence,
-		Ludus::Engine::Persistence::IRuntimeLaunchSettingsPersistence& runtimeLaunchSettingsPersistence,
-		Ludus::Editor::Persistence::IProjectManifestPersistence& projectManifestPersistence
+		const Ludus::Engine::Persistence::IScenePersistence& scenePersistence,
+		const Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence,
+		const Ludus::Engine::Persistence::IRuntimeLaunchSettingsPersistence& runtimeLaunchSettingsPersistence,
+		const Ludus::Editor::Persistence::IProjectManifestPersistence& projectManifestPersistence
 	) :
 		m_ScenePersistence(scenePersistence),
 		m_RuntimeManifestPersistence(runtimeManifestPersistence),
 		m_RuntimeLaunchSettingsPersistence(runtimeLaunchSettingsPersistence),
 		m_ProjectManifestPersistence(projectManifestPersistence)
-	{ }
+	{}
 
-	LoadedProjectData ProjectSessionLoader::Load(const std::filesystem::path& projectManifestPath)
+	LoadedProjectData ProjectSessionLoader::Load(const std::filesystem::path& projectManifestPath) const
 	{
 		return Load(m_ProjectManifestPersistence.Load(projectManifestPath));
 	}
 
-	LoadedProjectData ProjectSessionLoader::Load(Ludus::Editor::Core::ProjectManifest projectManifest)
+	LoadedProjectData ProjectSessionLoader::Load(Ludus::Editor::Core::ProjectManifest projectManifest) const
 	{
 		const auto runtimeName = projectManifest.ProjectRoot.filename().string();
 		auto runtimeManifest = m_RuntimeManifestPersistence.Load(projectManifest.RuntimeManifestPath);

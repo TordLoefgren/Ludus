@@ -35,7 +35,9 @@ namespace Ludus::Editor::Core
 			host->AddUpdateSystem<Ludus::Editor::Core::EditorSystem>(
 				*host,
 				std::move(m_EditorConfiguration),
-				std::move(m_StartupOptions)
+				std::move(m_EditorPersistence),
+				std::move(m_EditorPreferences),
+				std::move(m_EditorStartupOptions)
 			);
 		}
 
@@ -54,16 +56,30 @@ namespace Ludus::Editor::Core
 		return *this;
 	}
 
-	EditorHostBuilder& EditorHostBuilder::WithRuntimeOptions(Ludus::Engine::Runtime::RuntimeOptions runtimeOptions)
+	EditorHostBuilder& EditorHostBuilder::WithEditorPersistence(Ludus::Editor::Persistence::EditorPersistence editorPersistence)
 	{
-		m_RuntimeOptions = std::move(runtimeOptions);
+		m_EditorPersistence = std::move(editorPersistence);
 
 		return *this;
 	}
 
-	EditorHostBuilder& EditorHostBuilder::WithStartupOptions(EditorStartupOptions startupOptions)
+	EditorHostBuilder& EditorHostBuilder::WithEditorPreferences(Ludus::Editor::Core::EditorPreferences editorPreferences)
 	{
-		m_StartupOptions = std::move(startupOptions);
+		m_EditorPreferences = std::move(editorPreferences);
+
+		return *this;
+	}
+
+	EditorHostBuilder& EditorHostBuilder::WithEditorStartupOptions(EditorStartupOptions startupOptions)
+	{
+		m_EditorStartupOptions = std::move(startupOptions);
+
+		return *this;
+	}
+
+	EditorHostBuilder& EditorHostBuilder::WithRuntimeOptions(Ludus::Engine::Runtime::RuntimeOptions runtimeOptions)
+	{
+		m_RuntimeOptions = std::move(runtimeOptions);
 
 		return *this;
 	}

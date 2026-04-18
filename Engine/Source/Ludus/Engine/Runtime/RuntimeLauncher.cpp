@@ -6,16 +6,14 @@
 #include <vector>
 
 #include <Ludus/Engine/Debug/Debug.h>
-#include <Ludus/Engine/Persistence/LmlRuntimeLaunchSettingsPersistence.h>
-#include <Ludus/Engine/Persistence/LmlRuntimeManifestPersistence.h>
-#include <Ludus/Engine/Persistence/LmlScenePersistence.h>
+#include <Ludus/Engine/Persistence/EnginePersistence.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Platform/Paths.h>
 #include <Ludus/Engine/Runtime/ApplicationHostBuilder.h>
 #include <Ludus/Engine/Runtime/RuntimeEnvironment.h>
 #include <Ludus/Engine/Runtime/RuntimeInstanceBuilder.h>
-#include <Ludus/Engine/Runtime/RuntimeLauncher.h>
 #include <Ludus/Engine/Runtime/RuntimeLaunchSettings.h>
+#include <Ludus/Engine/Runtime/RuntimeLauncher.h>
 #include <Ludus/Engine/Runtime/RuntimeManifest.h>
 #include <Ludus/Engine/Windowing/WindowOptions.h>
 
@@ -38,7 +36,7 @@ namespace
 	}
 
 	Ludus::Engine::Core::Scene LoadEntryScene(
-		Ludus::Engine::Persistence::IScenePersistence& scenePersistence,
+		const Ludus::Engine::Persistence::IScenePersistence& scenePersistence,
 		const Ludus::Engine::Runtime::RuntimeEnvironment& runtimeEnvironment,
 		const Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest
 	)
@@ -113,27 +111,28 @@ namespace
 
 namespace Ludus::Engine::Runtime
 {
-	int RunDefaultRuntime(std::string_view runtimeName)
+	int RuntimeLauncher::Run(std::string_view runtimeName)
 	{
 		auto runtimeEnvironment = BuildRuntimeEnvironment(runtimeName);
+		auto enginePersistence = Ludus::Engine::Persistence::EnginePersistence::DefaultText();
 
-		Ludus::Engine::Persistence::LmlRuntimeManifestPersistence runtimeManifestPersistence;
-		const auto runtimeManifest = runtimeManifestPersistence.Load(runtimeEnvironment.RuntimeManifestPath);
+		const auto runtimeManifest = enginePersistence
+			.RuntimeManifest()
+			.Load(runtimeEnvironment.RuntimeManifestPath);
 
-		Ludus::Engine::Persistence::LmlScenePersistence scenePersistence;
 		auto entryScene = ::LoadEntryScene(
-			scenePersistence,
+			enginePersistence.Scene(),
 			runtimeEnvironment,
 			runtimeManifest
 		);
 
-		Ludus::Engine::Persistence::LmlRuntimeLaunchSettingsPersistence runtimeLaunchSettingsPersistence;
-		const auto runtimeLaunchSettings = runtimeLaunchSettingsPersistence.Load(runtimeEnvironment.RuntimeLaunchSettingsPath);
-		auto windowOptions = ToWindowOptions(runtimeLaunchSettings, runtimeName);
-		auto renderPresentationSettings = ToRenderPresentationSettings(runtimeLaunchSettings);
+		const auto runtimeLaunchSettings = enginePersistence
+			.RuntimeLaunchSettings()
+			.Load(runtimeEnvironment.RuntimeLaunchSettingsPath);
 
 		auto host = Ludus::Engine::Runtime::ApplicationHostBuilder::Create()
-			.WithWindowOptions(std::move(windowOptions))
+			.WithEnginePersistence(std::move(enginePersistence))
+			.WithWindowOptions(ToWindowOptions(runtimeLaunchSettings, runtimeName))
 			.Build();
 
 		auto runtime = Ludus::Engine::Runtime::RuntimeInstanceBuilder::Create()
@@ -142,7 +141,7 @@ namespace Ludus::Engine::Runtime
 			.UseDefaultSceneManagement()
 			.UseDefaultScripting()
 			.UseDefaultMainRenderView()
-			.WithRenderPresentationSettings(std::move(renderPresentationSettings))
+			.WithRenderPresentationSettings(ToRenderPresentationSettings(runtimeLaunchSettings))
 			.WithRuntimeEnvironment(std::move(runtimeEnvironment))
 			.WithRuntimeManifest(runtimeManifest)
 			.WithEntryScene(std::move(entryScene))

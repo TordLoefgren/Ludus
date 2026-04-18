@@ -27,6 +27,7 @@ namespace Ludus::UI::Scope
 		int m_StyleCount = 0;
 
 	public:
+		explicit StyleVarScope(StyleVar style);
 		explicit StyleVarScope(std::initializer_list<StyleVar> styles);
 
 		~StyleVarScope();
@@ -93,6 +94,7 @@ namespace Ludus::UI::Scope
 		int m_StyleCount = 0;
 
 	public:
+		explicit StyleColorScope(StyleColor style);
 		explicit StyleColorScope(std::initializer_list<StyleColor> styles);
 
 		~StyleColorScope();

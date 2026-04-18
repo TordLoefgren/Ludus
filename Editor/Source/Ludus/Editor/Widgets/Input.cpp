@@ -61,9 +61,9 @@ namespace Ludus::Editor::Widgets
 		bool changed = false;
 
 		const auto cellPaddingX = Ludus::UI::Context::ThemeContext::GetActiveMetrics().CellPadding.X;
-		Ludus::UI::Scope::StyleVarScope cellPaddingScope({
+		Ludus::UI::Scope::StyleVarScope cellPaddingScope(
 			Ludus::UI::Scope::StyleVar::Vector(Ludus::UI::Scope::Variable::CellPadding, { cellPaddingX, 0.0f })
-			});
+		);
 
 		if (Ludus::UI::Scope::TableScope table(id, 2); table)
 		{

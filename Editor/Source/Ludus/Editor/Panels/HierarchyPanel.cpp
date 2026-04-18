@@ -271,7 +271,7 @@ namespace Ludus::Editor::Panels
 	bool HierarchyPanel::UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
 		auto windowTitle = CreateWindowTitleWithIcon(ICON_DIAGRAM_PROJECT, "Hierarchy");
-		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
+		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::Flags::Panel); window)
 		{
 			auto& registry = context.ProjectSession.RuntimeState.GetActiveSceneRegistry();
 

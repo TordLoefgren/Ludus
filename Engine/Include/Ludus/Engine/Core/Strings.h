@@ -1,11 +1,15 @@
 #pragma once
 
+#include <algorithm>
+#include <filesystem>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 
 namespace Ludus::Engine::Core::Strings
 {
+	inline const std::string_view DefaultEllipsis = "...";
+
 	inline std::string ReplaceAll(std::string value, std::string_view from, std::string_view to)
 	{
 		if (from.empty())
@@ -60,5 +64,53 @@ namespace Ludus::Engine::Core::Strings
 		}
 
 		text.replace(contentStart, contentLength, region);
+	}
+
+	inline std::string NormalizeFileExtension(std::string_view extension)
+	{
+		while (!extension.empty() && (extension.front() == '*' || extension.front() == '.'))
+		{
+			extension.remove_prefix(1);
+		}
+
+		return std::string(extension);
+	}
+
+	inline std::string EllipsizeAt(
+		std::string_view text,
+		std::size_t leftCount,
+		std::size_t rightCount = 0,
+		std::string_view ellipsis = DefaultEllipsis
+	)
+	{
+		if (text.empty())
+		{
+			return std::string(text);
+		}
+
+		leftCount = std::min(leftCount, text.size());
+		rightCount = std::min(rightCount, text.size() - leftCount);
+
+		if (leftCount + rightCount >= text.size())
+		{
+			return std::string(text);
+		}
+
+		if (ellipsis.empty())
+		{
+			return std::string(text.substr(0, leftCount)) + std::string(text.substr(text.size() - rightCount));
+		}
+
+		std::string result;
+		result.reserve(leftCount + ellipsis.size() + rightCount);
+		result.append(text.substr(0, leftCount));
+		result.append(ellipsis);
+
+		if (rightCount > 0)
+		{
+			result.append(text.substr(text.size() - rightCount));
+		}
+
+		return result;
 	}
 }

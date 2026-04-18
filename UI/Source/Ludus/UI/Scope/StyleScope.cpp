@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <initializer_list>
+#include <utility>
 #include <variant>
 
 #include <Ludus/Engine/Graphics/Color.h>
@@ -14,6 +15,10 @@ namespace Ludus::UI::Scope
 
 		return { r, g, b, a };
 	}
+
+	StyleVarScope::StyleVarScope(StyleVar style)
+		: StyleVarScope({ std::move(style) })
+	{}
 
 	StyleVarScope::StyleVarScope(std::initializer_list<StyleVar> styles)
 	{
@@ -41,6 +46,10 @@ namespace Ludus::UI::Scope
 	{
 		ImGui::PopStyleVar(m_StyleCount);
 	}
+
+	StyleColorScope::StyleColorScope(StyleColor style)
+		: StyleColorScope({ std::move(style) })
+	{}
 
 	StyleColorScope::StyleColorScope(std::initializer_list<StyleColor> styles)
 	{

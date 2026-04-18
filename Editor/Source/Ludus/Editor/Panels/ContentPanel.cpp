@@ -12,7 +12,7 @@ namespace Ludus::Editor::Panels
 {
 	bool ContentPanel::UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
-		const auto flags = Ludus::Editor::Core::Constants::PanelFlags | Ludus::UI::Flags::Window::HorizontalScrollbar;
+		const auto flags = Ludus::Editor::Core::Constants::Flags::Panel | Ludus::UI::Flags::Window::HorizontalScrollbar;
 		auto windowTitle = CreateWindowTitleWithIcon(ICON_FOLDER_CLOSED, "Content");
 
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, flags); window)

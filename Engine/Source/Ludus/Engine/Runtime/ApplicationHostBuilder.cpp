@@ -6,8 +6,8 @@
 #include <vector>
 
 #include <Ludus/Engine/Core/ExecutionFlags.h>
-#include <Ludus/Engine/Graphics/RenderingSystem2D.h>
 #include <Ludus/Engine/Graphics/RenderViewSystem.h>
+#include <Ludus/Engine/Graphics/RenderingSystem2D.h>
 #include <Ludus/Engine/Physics/Core/PhysicsSystem2D.h>
 #include <Ludus/Engine/Runtime/ApplicationHost.h>
 #include <Ludus/Engine/Runtime/ApplicationHostBuilder.h>
@@ -20,6 +20,7 @@ namespace Ludus::Engine::Runtime
 	std::unique_ptr<Ludus::Engine::Runtime::ApplicationHost> ApplicationHostBuilder::Build()
 	{
 		auto host = ApplicationHost::Create(
+			std::move(m_EnginePersistence),
 			m_RuntimeOptions,
 			m_WindowOptions
 		);
@@ -38,13 +39,19 @@ namespace Ludus::Engine::Runtime
 		return *this;
 	}
 
-	ApplicationHostBuilder& ApplicationHostBuilder::WithRuntimeOptions(const Ludus::Engine::Runtime::RuntimeOptions runtimeOptions)
+	ApplicationHostBuilder& ApplicationHostBuilder::WithEnginePersistence(Ludus::Engine::Persistence::EnginePersistence enginePersistence)
+	{
+		m_EnginePersistence = std::move(enginePersistence);
+		return *this;
+	}
+
+	ApplicationHostBuilder& ApplicationHostBuilder::WithRuntimeOptions(const Ludus::Engine::Runtime::RuntimeOptions& runtimeOptions)
 	{
 		m_RuntimeOptions = runtimeOptions;
 		return *this;
 	}
 
-	ApplicationHostBuilder& ApplicationHostBuilder::WithWindowOptions(const Ludus::Engine::Windowing::WindowOptions windowOptions)
+	ApplicationHostBuilder& ApplicationHostBuilder::WithWindowOptions(const Ludus::Engine::Windowing::WindowOptions& windowOptions)
 	{
 		m_WindowOptions = windowOptions;
 		return *this;

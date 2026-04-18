@@ -1,7 +1,6 @@
 #include "pch.h"
 
 #include <filesystem>
-#include <memory>
 #include <optional>
 #include <type_traits>
 #include <utility>
@@ -9,7 +8,6 @@
 
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Persistence/IScenePersistence.h>
-#include <Ludus/Engine/Persistence/LmlScenePersistence.h>
 #include <Ludus/Engine/Runtime/PendingSceneTransition.h>
 #include <Ludus/Engine/Runtime/SceneRuntimeState.h>
 #include <Ludus/Engine/Runtime/SceneSystem.h>
@@ -37,25 +35,14 @@ namespace Ludus::Engine::Runtime
 	}
 
 	SceneSystem::SceneSystem(
+		const Ludus::Engine::Persistence::IScenePersistence& scenePersistence,
 		Ludus::Engine::Core::SceneRegistry& sceneRegistry,
 		Ludus::Engine::Runtime::SceneRuntimeState& sceneRuntimeState
 	) :
-		SceneSystem(
-			sceneRegistry,
-			sceneRuntimeState,
-			std::make_unique<Ludus::Engine::Persistence::LmlScenePersistence>()
-		)
-	{ }
-
-	SceneSystem::SceneSystem(
-		Ludus::Engine::Core::SceneRegistry& sceneRegistry,
-		Ludus::Engine::Runtime::SceneRuntimeState& sceneRuntimeState,
-		std::unique_ptr<Ludus::Engine::Persistence::IScenePersistence> scenePersistence
-	) :
+		m_ScenePersistence(scenePersistence),
 		m_SceneRegistry(sceneRegistry),
-		m_SceneRuntimeState(sceneRuntimeState),
-		m_ScenePersistence(std::move(scenePersistence))
-	{ }
+		m_SceneRuntimeState(sceneRuntimeState)
+	{}
 
 	SceneSystem::~SceneSystem() = default;
 
@@ -67,7 +54,7 @@ namespace Ludus::Engine::Runtime
 			return;
 		}
 
-		auto scene = m_ScenePersistence->Load(*path);
+		auto scene = m_ScenePersistence.Load(*path);
 		m_SceneRegistry.Clear();
 		const auto sceneId = m_SceneRegistry.AddScene(std::move(scene));
 

@@ -37,21 +37,23 @@ namespace Ludus::EngineTests::Runtime
 	{
 	public:
 		Scene LoadedScene;
-		std::filesystem::path LastLoadedPath;
-		std::uint32_t LoadCallCount = 0;
+
+		// IScenePersistence is a const interface, which means we have to make the properties mutable explicitly.
+		mutable std::filesystem::path LastLoadedPath;
+		mutable std::uint32_t LoadCallCount = 0;
 
 		explicit TestScenePersistence(Scene loadedScene)
 			: LoadedScene(std::move(loadedScene))
-		{ }
+		{}
 
-		virtual void Save(const Scene& scene, const std::filesystem::path& path) override
+		virtual void Save(const Scene& scene, const std::filesystem::path& path) const override
 		{
 			(void)scene;
 			(void)path;
 			FAIL() << "Save should not be called by SceneSystem transition tests.";
 		}
 
-		virtual Scene Load(const std::filesystem::path& path) override
+		virtual Scene Load(const std::filesystem::path& path) const override
 		{
 			LastLoadedPath = path;
 			++LoadCallCount;
@@ -78,17 +80,16 @@ namespace Ludus::EngineTests::Runtime
 		sceneRuntimeState.Presentation.CurrentSceneId = initialSceneId;
 		sceneRuntimeState.PendingTransition = PendingSceneTransition::LoadScene("Scenes/Gameplay.scene.ludus");
 
-		auto testPersistence = std::make_unique<TestScenePersistence>(Scene { SceneId { 42 }, "Gameplay" });
-		auto* testPersistencePtr = testPersistence.get();
+		TestScenePersistence testPersistence(Scene { SceneId { 42 }, "Gameplay" });
 
-		SceneSystem sceneSystem(sceneRegistry, sceneRuntimeState, std::move(testPersistence));
+		SceneSystem sceneSystem(testPersistence, sceneRegistry, sceneRuntimeState);
 
 		// Act.
 		sceneSystem.BeginFrame();
 
 		// Assert.
-		ASSERT_EQ(testPersistencePtr->LoadCallCount, 1u);
-		ASSERT_EQ(testPersistencePtr->LastLoadedPath, std::filesystem::path("Scenes/Gameplay.scene.ludus"));
+		ASSERT_EQ(testPersistence.LoadCallCount, 1u);
+		ASSERT_EQ(testPersistence.LastLoadedPath, std::filesystem::path("Scenes/Gameplay.scene.ludus"));
 		ASSERT_TRUE(std::holds_alternative<PendingSceneTransition::None>(sceneRuntimeState.PendingTransition.Data));
 		ASSERT_EQ(sceneRuntimeState.Presentation.CurrentSceneId, SceneId { 42 });
 		ASSERT_EQ(sceneRegistry.View().size(), 1u);

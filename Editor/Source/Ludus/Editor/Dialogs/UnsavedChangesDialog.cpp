@@ -20,7 +20,7 @@ namespace Ludus::Editor::Dialogs
 		Ludus::Editor::Commands::Requests::DeferredAction deferredAction
 	) :
 		m_DeferredAction(std::move(deferredAction))
-	{ }
+	{}
 
 	UnsavedChangesDialog::Outcome UnsavedChangesDialog::Draw()
 	{
@@ -37,23 +37,23 @@ namespace Ludus::Editor::Dialogs
 		{
 			Ludus::UI::Widgets::TextUnformatted("Save changes?");
 
-			if (Ludus::UI::Widgets::Button("Save", Ludus::Editor::Core::Constants::ModalActionButtonSize))
+			if (Ludus::UI::Widgets::Button("Save", Ludus::Editor::Core::Constants::Shared::ModalActionButtonSize))
 			{
 				m_IsOpen = false;
 				return Outcome::Confirm(UnsavedChangesResult::Save);
 			}
 
-			Ludus::UI::Context::LayoutContext::SameLine(0.0f, Ludus::Editor::Core::Constants::StandardInlineSpacing);
+			Ludus::UI::Context::LayoutContext::SameLine(0.0f, Ludus::Editor::Core::Constants::Shared::StandardInlineSpacing);
 
-			if (Ludus::UI::Widgets::Button("Don't save", Ludus::Editor::Core::Constants::ModalActionButtonSize))
+			if (Ludus::UI::Widgets::Button("Don't save", Ludus::Editor::Core::Constants::Shared::ModalActionButtonSize))
 			{
 				m_IsOpen = false;
 				return Outcome::Confirm(UnsavedChangesResult::DontSave);
 			}
 
-			Ludus::UI::Context::LayoutContext::SameLine(0.0f, Ludus::Editor::Core::Constants::StandardInlineSpacing);
+			Ludus::UI::Context::LayoutContext::SameLine(0.0f, Ludus::Editor::Core::Constants::Shared::StandardInlineSpacing);
 
-			if (Ludus::UI::Widgets::Button("Cancel", Ludus::Editor::Core::Constants::ModalActionButtonSize))
+			if (Ludus::UI::Widgets::Button("Cancel", Ludus::Editor::Core::Constants::Shared::ModalActionButtonSize))
 			{
 				m_IsOpen = false;
 				return Outcome::Confirm(UnsavedChangesResult::Cancel);

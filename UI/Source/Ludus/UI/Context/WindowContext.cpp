@@ -51,6 +51,12 @@ namespace Ludus::UI::Context::WindowContext
 		return { availableSpace.x, availableSpace.y };
 	}
 
+	Ludus::Engine::Math::Vector2D GetCursorScreenPosition()
+	{
+		const auto cursorScreenPosition = ImGui::GetCursorScreenPos();
+		return { cursorScreenPosition.x, cursorScreenPosition.y };
+	}
+
 	Ludus::Engine::Math::Vector2D GetWindowContentRegionMin()
 	{
 		const auto contentRegionMin = ImGui::GetWindowContentRegionMin();

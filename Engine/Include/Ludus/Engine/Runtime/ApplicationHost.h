@@ -8,6 +8,7 @@
 #include <Ludus/Engine/Events/EventHandler.h>
 #include <Ludus/Engine/Graphics/GLContext.h>
 #include <Ludus/Engine/Graphics/RenderTarget.h>
+#include <Ludus/Engine/Persistence/EnginePersistence.h>
 #include <Ludus/Engine/Runtime/IHostContext.h>
 #include <Ludus/Engine/Runtime/RuntimeOptions.h>
 #include <Ludus/Engine/Runtime/SystemScheduler.h>
@@ -33,6 +34,7 @@ namespace Ludus::Engine::Runtime
 	class ApplicationHost : public Ludus::Engine::Events::EventHandler, public IHostContext
 	{
 	private:
+		const Ludus::Engine::Persistence::EnginePersistence m_Persistence;
 		Ludus::Engine::Events::EventBus m_EventBus;
 		Ludus::Engine::Core::Enums::FlagSet m_ExecutionFlags;
 		Ludus::Engine::Windowing::Input m_Input;
@@ -48,6 +50,7 @@ namespace Ludus::Engine::Runtime
 		virtual bool ProcessEvent(const Ludus::Engine::Events::Event& event) override;
 
 		ApplicationHost(
+			Ludus::Engine::Persistence::EnginePersistence enginePersistence,
 			Ludus::Engine::Runtime::RuntimeOptions runtimeOptions,
 			Ludus::Engine::Windowing::WindowOptions windowOptions
 		);
@@ -56,6 +59,7 @@ namespace Ludus::Engine::Runtime
 		~ApplicationHost();
 
 		static std::unique_ptr<ApplicationHost> Create(
+			Ludus::Engine::Persistence::EnginePersistence enginePersistence = Ludus::Engine::Persistence::EnginePersistence::DefaultText(),
 			Ludus::Engine::Runtime::RuntimeOptions runtimeOptions = Ludus::Engine::Runtime::RuntimeOptions(),
 			Ludus::Engine::Windowing::WindowOptions windowOptions = Ludus::Engine::Windowing::WindowOptions()
 		);
@@ -77,6 +81,8 @@ namespace Ludus::Engine::Runtime
 		virtual GLFWwindow* GetWindowHandle() const override;
 
 		virtual Ludus::Engine::Windowing::Input& GetInput() override;
+
+		virtual const Ludus::Engine::Persistence::EnginePersistence& GetEnginePersistence() const override;
 
 		virtual Ludus::Engine::Graphics::RenderTarget& GetMainRenderTarget() override;
 

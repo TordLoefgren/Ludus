@@ -11,6 +11,8 @@
 #include <filesystem>
 #include <string_view>
 
+#include <Ludus/Engine/Core/Strings.h>
+
 #include "WinText.h"
 
 // Windows classic samples - Common File Dialogs.
@@ -33,21 +35,17 @@ namespace Ludus::Engine::Platform::Modals
 
 	static UINT FileTypeIndexFromExtension(std::string_view extension)
 	{
-		// Normalize extension parameter.
-		if (!extension.empty() && extension.front() == '.')
-		{
-			extension.remove_prefix(1);
-		}
+		const auto normalizedExtension = Ludus::Engine::Core::Strings::NormalizeFileExtension(extension);
 
-		if (extension == "project.ludus")
+		if (normalizedExtension == "project.ludus")
 		{
 			return INDEX_LUDUSPROJECT;
 		}
-		if (extension == "runtime.ludus")
+		if (normalizedExtension == "runtime.ludus")
 		{
 			return INDEX_LUDUSRUNTIME;
 		}
-		if (extension == "scene.ludus")
+		if (normalizedExtension == "scene.ludus")
 		{
 			return INDEX_LUDUSSCENE;
 		}
@@ -121,7 +119,8 @@ namespace Ludus::Engine::Platform::Modals
 						hr = openDialog->SetFileTypeIndex(filterIndex);
 						if (SUCCEEDED(hr))
 						{
-							auto defaultExtensionWide = Ludus::Engine::Platform::Windows::Detail::Utf8ToWide(defaultExtension);
+							const auto normalizedExtension = Ludus::Engine::Core::Strings::NormalizeFileExtension(defaultExtension);
+							auto defaultExtensionWide = Ludus::Engine::Platform::Windows::Detail::Utf8ToWide(normalizedExtension);
 							if (!defaultExtensionWide.empty())
 							{
 								hr = openDialog->SetDefaultExtension(defaultExtensionWide.c_str());
@@ -207,7 +206,8 @@ namespace Ludus::Engine::Platform::Modals
 						hr = saveDialog->SetFileTypeIndex(filterIndex);
 						if (SUCCEEDED(hr))
 						{
-							std::wstring defExtW = Ludus::Engine::Platform::Windows::Detail::Utf8ToWide(defaultExtension);
+							const auto normalizedExtension = Ludus::Engine::Core::Strings::NormalizeFileExtension(defaultExtension);
+							std::wstring defExtW = Ludus::Engine::Platform::Windows::Detail::Utf8ToWide(normalizedExtension);
 							if (!defExtW.empty())
 							{
 								hr = saveDialog->SetDefaultExtension(defExtW.c_str());

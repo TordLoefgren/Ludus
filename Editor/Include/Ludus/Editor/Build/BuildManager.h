@@ -7,8 +7,18 @@
 #include <Ludus/Editor/Build/BuildCommand.h>
 #include <Ludus/Editor/Build/BuildConfiguration.h>
 #include <Ludus/Editor/Build/BuildTarget.h>
-#include <Ludus/Editor/Build/IBuildPipeline.h>
-#include <Ludus/Editor/Build/IPackagePipeline.h>
+
+namespace Ludus::Editor::Build
+{
+	struct IBuildPipeline;
+	struct IPackagePipeline;
+}
+
+namespace Ludus::Engine::Persistence
+{
+	class IRuntimeLaunchSettingsPersistence;
+	class IRuntimeManifestPersistence;
+}
 
 namespace Ludus::Editor::Build
 {
@@ -18,12 +28,22 @@ namespace Ludus::Editor::Build
 		std::unique_ptr<IBuildPipeline> m_BuildPipeline;
 		std::unique_ptr<IPackagePipeline> m_PackagePipeline;
 
-	public:
-		explicit BuildManager(
+		BuildManager(
 			std::unique_ptr<IBuildPipeline> buildPipeline,
 			std::unique_ptr<IPackagePipeline> packagePipeline
 		);
-		BuildManager();
+
+	public:
+		static BuildManager Create(
+			const Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence,
+			const Ludus::Engine::Persistence::IRuntimeLaunchSettingsPersistence& runtimeLaunchSettingsPersistence
+		);
+		~BuildManager();
+
+		BuildManager(const BuildManager&) = delete;
+		BuildManager& operator=(const BuildManager&) = delete;
+		BuildManager(BuildManager&&) noexcept;
+		BuildManager& operator=(BuildManager&&) noexcept;
 
 		void Initialize();
 

@@ -20,5 +20,6 @@ namespace Ludus::Editor::Commands::Requests::EditorState
 
 	void CloseApplicationAction(StartupCommandContext& context);
 	void SetExecutionFlagAction(Ludus::Editor::Core::EditorExecutionFlags flag, StartupCommandContext& context);
+	void SetThemeAction(Ludus::UI::Theme::ThemeId themeId, StartupCommandContext& context);
 	void UnsetExecutionFlagAction(Ludus::Editor::Core::EditorExecutionFlags flag, StartupCommandContext& context);
 }

@@ -22,6 +22,7 @@
     <ClInclude Include="Include\Ludus\UI\Elements\ActionTreeNode.h" />
     <ClInclude Include="Include\Ludus\UI\Elements\ContentBrowser.h" />
     <ClInclude Include="Include\Ludus\UI\Context\ThemeContext.h" />
+    <ClInclude Include="Include\Ludus\UI\Scope\ChildScope.h" />
     <ClInclude Include="Include\Ludus\UI\Scope\DisabledScope.h" />
     <ClInclude Include="Include\Ludus\UI\Backend\Fonts.h" />
     <ClInclude Include="Include\Ludus\UI\Context\ImageContext.h" />
@@ -37,6 +38,7 @@
     <ClInclude Include="Include\Ludus\UI\Theme\ThemeMetrics.h" />
     <ClInclude Include="Include\Ludus\UI\Theme\ThemePalette.h" />
     <ClInclude Include="Include\Ludus\UI\Theme\Themes.h" />
+    <ClInclude Include="Include\Ludus\UI\Types\DrawList.h" />
     <ClInclude Include="Include\Ludus\UI\Widgets\Demo.h" />
     <ClInclude Include="Include\Ludus\UI\Widgets\Headers.h" />
     <ClInclude Include="Include\Ludus\UI\Widgets\Color.h" />
@@ -90,6 +92,7 @@
     <ClCompile Include="Source\Ludus\UI\Elements\ContentBrowser.cpp" />
     <ClCompile Include="Source\Ludus\UI\Backend\ImGuiTheme.cpp" />
     <ClCompile Include="Source\Ludus\UI\Context\ThemeContext.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Scope\ChildScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\DisabledScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Context\PopupContext.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\IDScope.cpp" />
@@ -105,6 +108,7 @@
     <ClCompile Include="Source\Ludus\UI\Scope\ComboScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Scope\StyleScope.cpp" />
     <ClCompile Include="Source\Ludus\UI\Theme\Themes.cpp" />
+    <ClCompile Include="Source\Ludus\UI\Types\DrawList.cpp" />
     <ClCompile Include="Source\Ludus\UI\Widgets\Demo.cpp" />
     <ClCompile Include="Source\Ludus\UI\Widgets\Headers.cpp" />
     <ClCompile Include="Source\Ludus\UI\Widgets\Color.cpp" />

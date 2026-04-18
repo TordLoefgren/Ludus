@@ -19,11 +19,9 @@ namespace Ludus::Editor::Commands::Requests
 		{
 			return {
 				.Shell = context.Shell,
-				.ScenePersistence = context.ScenePersistence,
-				.RuntimeManifestPersistence = context.RuntimeManifestPersistence,
-				.RuntimeLaunchSettingsPersistence = context.RuntimeLaunchSettingsPersistence,
-				.ProjectManifestPersistence = context.ProjectManifestPersistence,
-				.PanelRegistry = context.PanelRegistry
+				.Preferences = context.Preferences,
+				.PanelRegistry = context.PanelRegistry,
+				.Persistence = context.Persistence
 			};
 		}
 	}

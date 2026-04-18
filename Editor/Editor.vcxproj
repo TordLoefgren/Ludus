@@ -31,12 +31,14 @@
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\ProjectActions.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\SceneActions.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Commands\Requests\Scripts.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Core\EditorLauncher.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\EditorSession.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\ProjectSessionEditorState.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\ProjectSessionPersistence.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Core\ProjectSessionRuntimeState.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Dialogs\RenameSceneDialog.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Dialogs\UnsavedChangesDialog.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Persistence\LmlEditorPreferencesPersistence.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Persistence\ProjectSessionLoader.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Serialization\ProjectManifestSchema.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Persistence\LmlProjectManifestPersistence.cpp" />
@@ -66,6 +68,7 @@
     <ClCompile Include="Source\Ludus\Editor\Panels\ImGuiDemoPanel.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\InspectorPanel.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Panels\ViewportPanel.cpp" />
+    <ClCompile Include="Source\Ludus\Editor\Widgets\Buttons.cpp" />
     <ClCompile Include="Source\Ludus\Editor\Widgets\Input.cpp" />
     <ClCompile Include="Source\Ludus\Editor\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -98,6 +101,9 @@
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\SceneActions.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Scripts.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\StartupCommandContext.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorLauncher.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorPersistenceContext.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorPreferences.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSession.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorShell.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ProjectSession.h" />
@@ -137,6 +143,7 @@
     <ClInclude Include="Include\Ludus\Editor\Core\EditorConfiguration.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorExecutionFlags.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ExecutionManager.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\RecentlyOpenedProject.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\SceneQueries.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\SelectionManager.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorState.h" />
@@ -171,6 +178,11 @@
     <ClInclude Include="Include\Ludus\Editor\Panels\ContentPanel.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelKind.h" />
     <ClInclude Include="Include\Ludus\Editor\Panels\PanelHelpers.h" />
+    <ClInclude Include="Include\Ludus\Editor\Persistence\EditorPersistence.h" />
+    <ClInclude Include="Include\Ludus\Editor\Persistence\IEditorPreferencesPersistence.h" />
+    <ClInclude Include="Include\Ludus\Editor\Persistence\LmlEditorPreferencesPersistence.h" />
+    <ClInclude Include="Include\Ludus\Editor\Widgets\Buttons.h" />
+    <ClInclude Include="Include\Ludus\Editor\Widgets\Layout.h" />
     <ClInclude Include="Include\Ludus\Editor\Widgets\Input.h" />
     <ClInclude Include="Include\Ludus\Editor\Persistence\IProjectManifestPersistence.h" />
     <ClInclude Include="Include\Ludus\Editor\Persistence\LmlProjectManifestPersistence.h" />
@@ -182,6 +194,7 @@
     <ClInclude Include="Source\Ludus\Editor\pch.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\WelcomeWindow.h" />
     <ClInclude Include="Include\Ludus\Editor\Persistence\ProjectSessionLoader.h" />
+    <ClInclude Include="Include\Ludus\Editor\Serialization\EditorPreferencesSchema.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\LudusIcon.png" />

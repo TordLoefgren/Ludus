@@ -4,5 +4,8 @@
 
 namespace Ludus::Engine::Runtime
 {
-	int RunDefaultRuntime(std::string_view runtimeName);
+	struct RuntimeLauncher
+	{
+		static int Run(std::string_view runtimeName);
+	};
 }
