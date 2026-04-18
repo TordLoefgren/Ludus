@@ -4,8 +4,8 @@
 #include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/Requests/DeferredAction.h>
 #include <Ludus/Editor/Commands/Requests/ProjectActions.h>
-#include <Ludus/Editor/Commands/Requests/Projects.h>
 #include <Ludus/Editor/Commands/Requests/ProjectTransitionContext.h>
+#include <Ludus/Editor/Commands/Requests/Projects.h>
 #include <Ludus/Editor/Commands/StartupCommandContext.h>
 
 namespace Ludus::Editor::Commands::Requests::Projects
@@ -16,11 +16,9 @@ namespace Ludus::Editor::Commands::Requests::Projects
 		{
 			return {
 				.Shell = context.Shell,
-				.ScenePersistence = context.ScenePersistence,
-				.RuntimeManifestPersistence = context.RuntimeManifestPersistence,
-				.RuntimeLaunchSettingsPersistence = context.RuntimeLaunchSettingsPersistence,
-				.ProjectManifestPersistence = context.ProjectManifestPersistence,
-				.PanelRegistry = context.PanelRegistry
+				.Preferences = context.Preferences,
+				.PanelRegistry = context.PanelRegistry,
+				.Persistence = context.Persistence
 			};
 		}
 	}

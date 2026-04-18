@@ -21,7 +21,7 @@ namespace Ludus::Editor::Dialogs
 {
 	RenameSceneDialog::RenameSceneDialog(Ludus::Engine::Core::SceneId sceneId, std::filesystem::path currentPath)
 		: m_SceneId(sceneId), m_CurrentPath(currentPath)
-	{ }
+	{}
 
 	RenameSceneDialog::Outcome RenameSceneDialog::Draw()
 	{
@@ -47,7 +47,7 @@ namespace Ludus::Editor::Dialogs
 				Ludus::UI::Widgets::TextUnformattedColor(m_Error.c_str(), Ludus::UI::Context::ThemeContext::Error());
 			}
 
-			if (Ludus::UI::Widgets::Button("Rename", Ludus::Editor::Core::Constants::ModalActionButtonSize))
+			if (Ludus::UI::Widgets::Button("Rename", Ludus::Editor::Core::Constants::Shared::ModalActionButtonSize))
 			{
 				m_Error = Ludus::Editor::Persistence::ProjectPaths::ValidateFileName(m_Name);
 				if (m_Error.empty())
@@ -62,9 +62,9 @@ namespace Ludus::Editor::Dialogs
 				}
 			}
 
-			Ludus::UI::Context::LayoutContext::SameLine(0.0f, Ludus::Editor::Core::Constants::StandardInlineSpacing);
+			Ludus::UI::Context::LayoutContext::SameLine(0.0f, Ludus::Editor::Core::Constants::Shared::StandardInlineSpacing);
 
-			if (Ludus::UI::Widgets::Button("Cancel", Ludus::Editor::Core::Constants::ModalActionButtonSize))
+			if (Ludus::UI::Widgets::Button("Cancel", Ludus::Editor::Core::Constants::Shared::ModalActionButtonSize))
 			{
 				m_Name.clear();
 				m_IsOpen = false;

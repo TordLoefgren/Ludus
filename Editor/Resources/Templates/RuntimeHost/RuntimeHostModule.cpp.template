@@ -2,5 +2,5 @@
 
 int main()
 {
-	return Ludus::Engine::Runtime::RunDefaultRuntime("${LUDUS_RUNTIME_NAME}");
+	return Ludus::Engine::Runtime::RuntimeLauncher::Run("${LUDUS_RUNTIME_NAME}");
 }

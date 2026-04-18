@@ -4,6 +4,31 @@
 
 namespace Ludus::UI::Flags
 {
+
+	enum class Button : int
+	{
+		None = 0,
+		MouseButtonLeft = 1 << 0,
+		MouseButtonRight = 1 << 1,
+		MouseButtonMiddle = 1 << 2,
+		MouseButtonMask_ = static_cast<int>(MouseButtonLeft) | static_cast<int>(MouseButtonRight) | static_cast<int>(MouseButtonMiddle),
+		EnableNav = 1 << 3,
+	};
+
+	enum class Child : int
+	{
+		None = 0,
+		Borders = 1 << 0,
+		AlwaysUseWindowPadding = 1 << 1,
+		ResizeX = 1 << 2,
+		ResizeY = 1 << 3,
+		AutoResizeX = 1 << 4,
+		AutoResizeY = 1 << 5,
+		AlwaysAutoResize = 1 << 6,
+		FrameStyle = 1 << 7,
+		NavFlattened = 1 << 8,
+	};
+
 	enum class ColorEdit : int
 	{
 		None = 0,
@@ -71,6 +96,24 @@ namespace Ludus::UI::Flags
 
 		// Internal
 		NoWindowMenuButton = 1 << 14
+	};
+
+	enum class Draw : int
+	{
+		None = 0,
+		Closed = 1 << 0,
+		RoundCornersTopLeft = 1 << 4,
+		RoundCornersTopRight = 1 << 5,
+		RoundCornersBottomLeft = 1 << 6,
+		RoundCornersBottomRight = 1 << 7,
+		RoundCornersNone = 1 << 8,
+		RoundCornersTop = static_cast<int>(RoundCornersTopLeft) | static_cast<int>(RoundCornersTopRight),
+		RoundCornersBottom = static_cast<int>(RoundCornersBottomLeft) | static_cast<int>(RoundCornersBottomRight),
+		RoundCornersLeft = static_cast<int>(RoundCornersBottomLeft) | static_cast<int>(RoundCornersTopLeft),
+		RoundCornersRight = static_cast<int>(RoundCornersBottomRight) | static_cast<int>(RoundCornersTopRight),
+		RoundCornersAll = static_cast<int>(RoundCornersTopLeft) | static_cast<int>(RoundCornersTopRight) | static_cast<int>(RoundCornersBottomLeft) | static_cast<int>(RoundCornersBottomRight),
+		RoundCornersDefault_ = RoundCornersAll,
+		RoundCornersMask_ = static_cast<int>(RoundCornersAll) | static_cast<int>(RoundCornersNone),
 	};
 
 	enum class Hovered : int
@@ -358,43 +401,54 @@ namespace Ludus::UI::Flags
 namespace Ludus::Engine::Core::Enums
 {
 	template<>
-	struct EnableBitMaskOperators<Ludus::UI::Flags::ColorEdit> : std::true_type { };
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Button> : std::true_type {};
+
 
 	template<>
-	struct EnableBitMaskOperators<Ludus::UI::Flags::Combo> : std::true_type { };
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Child> : std::true_type {};
 
 	template<>
-	struct EnableBitMaskOperators<Ludus::UI::Flags::DockNode> : std::true_type { };
+	struct EnableBitMaskOperators<Ludus::UI::Flags::ColorEdit> : std::true_type {};
 
 	template<>
-	struct EnableBitMaskOperators<Ludus::UI::Flags::Hovered> : std::true_type { };
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Combo> : std::true_type {};
 
 	template<>
-	struct EnableBitMaskOperators<Ludus::UI::Flags::InputText> : std::true_type { };
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Draw> : std::true_type {};
+
 
 	template<>
-	struct EnableBitMaskOperators<Ludus::UI::Flags::Popup> : std::true_type { };
+	struct EnableBitMaskOperators<Ludus::UI::Flags::DockNode> : std::true_type {};
 
 	template<>
-	struct EnableBitMaskOperators<Ludus::UI::Flags::TabBar> : std::true_type { };
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Hovered> : std::true_type {};
 
 	template<>
-	struct EnableBitMaskOperators<Ludus::UI::Flags::TabItem> : std::true_type { };
+	struct EnableBitMaskOperators<Ludus::UI::Flags::InputText> : std::true_type {};
 
 	template<>
-	struct EnableBitMaskOperators<Ludus::UI::Flags::Table> : std::true_type { };
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Popup> : std::true_type {};
 
 	template<>
-	struct EnableBitMaskOperators<Ludus::UI::Flags::TableColumn> : std::true_type { };
+	struct EnableBitMaskOperators<Ludus::UI::Flags::TabBar> : std::true_type {};
 
 	template<>
-	struct EnableBitMaskOperators<Ludus::UI::Flags::TreeNode> : std::true_type { };
+	struct EnableBitMaskOperators<Ludus::UI::Flags::TabItem> : std::true_type {};
 
 	template<>
-	struct EnableBitMaskOperators<Ludus::UI::Flags::Viewport> : std::true_type { };
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Table> : std::true_type {};
 
 	template<>
-	struct EnableBitMaskOperators<Ludus::UI::Flags::Window> : std::true_type { };
+	struct EnableBitMaskOperators<Ludus::UI::Flags::TableColumn> : std::true_type {};
+
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::TreeNode> : std::true_type {};
+
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Viewport> : std::true_type {};
+
+	template<>
+	struct EnableBitMaskOperators<Ludus::UI::Flags::Window> : std::true_type {};
 }
 
 #pragma endregion

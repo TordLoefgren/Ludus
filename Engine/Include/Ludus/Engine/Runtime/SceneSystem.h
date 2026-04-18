@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include <Ludus/Engine/Runtime/ISystem.h>
 
 namespace Ludus::Engine::Core
@@ -24,20 +22,15 @@ namespace Ludus::Engine::Runtime
 	class SceneSystem final : public Ludus::Engine::Runtime::ISystem
 	{
 	private:
+		const Ludus::Engine::Persistence::IScenePersistence& m_ScenePersistence;
 		Ludus::Engine::Core::SceneRegistry& m_SceneRegistry;
 		Ludus::Engine::Runtime::SceneRuntimeState& m_SceneRuntimeState;
-		std::unique_ptr<Ludus::Engine::Persistence::IScenePersistence> m_ScenePersistence;
 
 	public:
 		SceneSystem(
+			const Ludus::Engine::Persistence::IScenePersistence& scenePersistence,
 			Ludus::Engine::Core::SceneRegistry& sceneRegistry,
 			Ludus::Engine::Runtime::SceneRuntimeState& sceneRuntimeState
-		);
-
-		SceneSystem(
-			Ludus::Engine::Core::SceneRegistry& sceneRegistry,
-			Ludus::Engine::Runtime::SceneRuntimeState& sceneRuntimeState,
-			std::unique_ptr<Ludus::Engine::Persistence::IScenePersistence> scenePersistence
 		);
 
 		~SceneSystem();

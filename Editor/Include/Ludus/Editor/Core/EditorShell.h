@@ -1,17 +1,20 @@
 #pragma once
 
+#include <utility>
+
 #include <Ludus/Editor/Build/BuildManager.h>
 #include <Ludus/Editor/Core/EditorState.h>
 
 namespace Ludus::Editor::Core
 {
-	struct EditorShell
+	class EditorShell
 	{
+	public:
 		Ludus::Editor::Build::BuildManager Build;
 		EditorState State;
 
-		EditorShell()
-			: Build(), State()
+		explicit EditorShell(Ludus::Editor::Build::BuildManager buildManager)
+			: Build(std::move(buildManager)), State()
 		{
 			Build.Initialize();
 		}

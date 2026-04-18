@@ -72,7 +72,7 @@ namespace Ludus::Editor::Panels
 			std::filesystem::path path;
 			if (Ludus::Engine::Platform::Modals::SaveFileDialog(
 				path,
-				"scene.ludus",
+				Ludus::Engine::Persistence::Paths::Constants::SceneExtension,
 				Ludus::Engine::Persistence::Paths::ScenesDirectory(projectRoot),
 				"Untitled"
 			))
@@ -105,7 +105,7 @@ namespace Ludus::Editor::Panels
 						std::filesystem::path path;
 						if (Ludus::Engine::Platform::Modals::OpenFileDialog(
 							path,
-							"scene.ludus",
+							Ludus::Engine::Persistence::Paths::Constants::SceneExtension,
 							Ludus::Engine::Persistence::Paths::ScenesDirectory(projectRoot)
 						))
 						{
@@ -158,7 +158,7 @@ namespace Ludus::Editor::Panels
 					std::filesystem::path path;
 					if (Ludus::Engine::Platform::Modals::OpenFileDialog(
 						path,
-						"project.ludus",
+						Ludus::Editor::Persistence::ProjectPaths::Constants::ProjectManifestExtension,
 						Ludus::Editor::Persistence::ProjectPaths::ProjectsRoot()
 					))
 					{
@@ -326,8 +326,8 @@ namespace Ludus::Editor::Panels
 
 	void DockPanel::DrawToolBar(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
-		const auto buttonWidth = Ludus::Editor::Core::Constants::ToolbarButtonExtent;
-		const auto spacing = Ludus::Editor::Core::Constants::StandardInlineSpacing;
+		const auto buttonWidth = Ludus::Editor::Core::Constants::Shared::ToolbarButtonExtent;
+		const auto spacing = Ludus::Editor::Core::Constants::Shared::StandardInlineSpacing;
 		const auto buttonCount = 2;
 
 		const auto totalWidth = buttonCount * buttonWidth + (buttonCount - 1) * spacing;
@@ -416,7 +416,7 @@ namespace Ludus::Editor::Panels
 
 		// The dock panel should never close, as it enables docking for all other panels.
 		auto windowTitle = CreateWindowTitle("DockPanel");
-		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), nullptr, Ludus::Editor::Core::Constants::DockPanelWindowFlags); window)
+		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), nullptr, Ludus::Editor::Core::Constants::Flags::DockPanelWindow); window)
 		{
 			DrawMenuBar(context);
 			DrawToolBar(context);

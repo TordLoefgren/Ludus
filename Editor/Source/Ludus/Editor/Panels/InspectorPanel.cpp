@@ -521,7 +521,7 @@ namespace Ludus::Editor::Panels
 	bool InspectorPanel::UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
 		auto windowTitle = CreateWindowTitleWithIcon(ICON_SLIDERS, "Inspector");
-		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::PanelFlags); window)
+		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, Ludus::Editor::Core::Constants::Flags::Panel); window)
 		{
 			auto& selection = context.ProjectSession.EditorState.GetSelection();
 			if (!selection.HasEntity())

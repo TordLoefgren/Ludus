@@ -14,6 +14,8 @@
 #include <Ludus/Editor/Build/RuntimePackage/RuntimeHostPackagePipeline.h>
 #include <Ludus/Editor/Persistence/BuildPaths.h>
 #include <Ludus/Engine/FileSystem/FileSystem.h>
+#include <Ludus/Engine/Persistence/IRuntimeLaunchSettingsPersistence.h>
+#include <Ludus/Engine/Persistence/IRuntimeManifestPersistence.h>
 
 namespace Ludus::Editor::Build
 {
@@ -26,12 +28,24 @@ namespace Ludus::Editor::Build
 		m_PackagePipeline = std::move(packagePipeline);
 	}
 
-	BuildManager::BuildManager()
-		: BuildManager(
-			std::make_unique<Ludus::Editor::Build::MSBuild::MSBuildPipeline>(),
-			std::make_unique<Ludus::Editor::Build::RuntimePackage::RuntimeHostPackagePipeline>()
-		)
-	{ }
+	BuildManager BuildManager::Create(
+		const Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence,
+		const Ludus::Engine::Persistence::IRuntimeLaunchSettingsPersistence& runtimeLaunchSettingsPersistence
+	)
+	{
+		return BuildManager(
+			std::make_unique<Ludus::Editor::Build::MSBuild::MSBuildPipeline>(runtimeManifestPersistence),
+			std::make_unique<Ludus::Editor::Build::RuntimePackage::RuntimeHostPackagePipeline>(
+				runtimeManifestPersistence,
+				runtimeLaunchSettingsPersistence
+			)
+		);
+	}
+
+	BuildManager::~BuildManager() = default;
+
+	BuildManager::BuildManager(BuildManager&&) noexcept = default;
+	BuildManager& BuildManager::operator=(BuildManager&&) noexcept = default;
 
 	void BuildManager::Initialize()
 	{

@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <Ludus/Engine/Events/WindowEvents.h>
+#include <Ludus/Engine/Persistence/EnginePersistence.h>
 #include <Ludus/Engine/Runtime/ApplicationHost.h>
 #include <Ludus/Engine/Runtime/RuntimeInstance.h>
 
@@ -54,9 +55,12 @@ namespace Ludus::Engine::Runtime
 	}
 
 	ApplicationHost::ApplicationHost(
+		Ludus::Engine::Persistence::EnginePersistence enginePersistence,
 		Ludus::Engine::Runtime::RuntimeOptions runtimeOptions,
 		Ludus::Engine::Windowing::WindowOptions windowOptions
-	) : m_EventBus(),
+	) :
+		m_Persistence(std::move(enginePersistence)),
+		m_EventBus(),
 		m_ExecutionFlags(runtimeOptions.ExecutionMask),
 		m_Input(),
 		m_Time(),
@@ -83,11 +87,12 @@ namespace Ludus::Engine::Runtime
 	ApplicationHost::~ApplicationHost() = default;
 
 	std::unique_ptr<ApplicationHost> ApplicationHost::Create(
+		Ludus::Engine::Persistence::EnginePersistence enginePersistence,
 		Ludus::Engine::Runtime::RuntimeOptions runtimeOptions,
 		Ludus::Engine::Windowing::WindowOptions windowOptions
 	)
 	{
-		auto host = std::unique_ptr<ApplicationHost>(new ApplicationHost(runtimeOptions, windowOptions));
+		auto host = std::unique_ptr<ApplicationHost>(new ApplicationHost(std::move(enginePersistence), runtimeOptions, windowOptions));
 		return host;
 	}
 
@@ -108,6 +113,7 @@ namespace Ludus::Engine::Runtime
 	{
 		if (m_Runtime)
 		{
+			m_Runtime->Shutdown();
 			m_Runtime = nullptr;
 		}
 	}
@@ -186,15 +192,15 @@ namespace Ludus::Engine::Runtime
 
 		m_Scheduler.DetachSystems();
 
-		if (m_Runtime)
-		{
-			m_Runtime->Shutdown();
-		}
-
 		DetachRuntime();
 	}
 
 #pragma region Host Context
+
+	const Ludus::Engine::Persistence::EnginePersistence& ApplicationHost::GetEnginePersistence() const
+	{
+		return m_Persistence;
+	}
 
 	Ludus::Engine::Math::Size<int> ApplicationHost::GetFramebufferSize() const
 	{

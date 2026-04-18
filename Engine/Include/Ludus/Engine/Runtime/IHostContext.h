@@ -19,6 +19,11 @@ namespace Ludus::Engine::Events
 	struct EventHandler;
 }
 
+namespace Ludus::Engine::Persistence
+{
+	class EnginePersistence;
+}
+
 namespace Ludus::Engine::Runtime
 {
 	class RuntimeInstance;
@@ -41,9 +46,11 @@ namespace Ludus::Engine::Runtime
 		virtual void AttachRuntime(RuntimeInstance* runtime) = 0;
 		virtual void DetachRuntime() = 0;
 
+		virtual const Ludus::Engine::Persistence::EnginePersistence& GetEnginePersistence() const = 0;
 		virtual Ludus::Engine::Math::Size<int> GetFramebufferSize() const = 0;
 		virtual Ludus::Engine::Math::Size<int> GetWindowSize() const = 0;
 		virtual GLFWwindow* GetWindowHandle() const = 0;
+
 		virtual Ludus::Engine::Graphics::RenderTarget& GetMainRenderTarget() = 0;
 		virtual Ludus::Engine::Core::Enums::FlagSet& GetExecutionFlags() = 0;
 		virtual Ludus::Engine::Windowing::Input& GetInput() = 0;

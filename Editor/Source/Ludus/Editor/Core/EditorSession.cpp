@@ -121,14 +121,14 @@ namespace Ludus::Editor::Core
 	}
 
 	EditorSession::EditorSession(
+		const Ludus::Editor::Persistence::ProjectSessionLoader& projectSessionLoader,
 		Ludus::Engine::Runtime::IHostContext& hostContext,
-		Ludus::Editor::Core::EditorShell& shell,
-		Ludus::Editor::Persistence::ProjectSessionLoader& projectSessionLoader
+		Ludus::Editor::Core::EditorShell& shell
 	) :
 		m_HostContext(hostContext),
 		m_Shell(shell),
 		m_ProjectSessionLoader(projectSessionLoader)
-	{ }
+	{}
 
 	void EditorSession::ApplyTransitions(
 		Ludus::Editor::Core::PendingProjectTransition& pendingTransition,

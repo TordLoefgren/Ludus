@@ -13,10 +13,7 @@
 
 namespace Ludus::Editor::Persistence
 {
-	void LmlProjectManifestPersistence::Save(
-		const Ludus::Editor::Core::ProjectManifest& projectManifest,
-		const std::filesystem::path& path
-	)
+	void LmlProjectManifestPersistence::Save(const Ludus::Editor::Core::ProjectManifest& projectManifest, const std::filesystem::path& path) const
 	{
 		Ludus::Engine::Serialization::Core::DomDocument document;
 		Ludus::Engine::Serialization::Core::DomTokenStreamWriter writer { document };
@@ -27,7 +24,7 @@ namespace Ludus::Editor::Persistence
 		Ludus::Engine::FileSystem::WriteAllText(path, text);
 	}
 
-	Ludus::Editor::Core::ProjectManifest LmlProjectManifestPersistence::Load(const std::filesystem::path& path)
+	Ludus::Editor::Core::ProjectManifest LmlProjectManifestPersistence::Load(const std::filesystem::path& path) const
 	{
 		const auto text = Ludus::Engine::FileSystem::ReadAllText(path);
 		Ludus::Engine::Serialization::Codecs::LmlDomCodec codec;

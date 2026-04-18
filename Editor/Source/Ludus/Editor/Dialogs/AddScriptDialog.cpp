@@ -37,7 +37,7 @@ namespace Ludus::Editor::Dialogs
 		m_EntityId(entityId),
 		m_ScriptNames(std::move(scriptNames)),
 		m_ScriptReferences(std::move(scriptReferences))
-	{ }
+	{}
 
 	AddScriptDialog::Outcome AddScriptDialog::Draw()
 	{
@@ -124,7 +124,7 @@ namespace Ludus::Editor::Dialogs
 					m_ActiveTab == AddScriptTab::Select && m_SelectName == "None"
 				);
 
-				if (Ludus::UI::Widgets::Button("Create", Ludus::Editor::Core::Constants::ModalActionButtonSize))
+				if (Ludus::UI::Widgets::Button("Create", Ludus::Editor::Core::Constants::Shared::ModalActionButtonSize))
 				{
 					if (m_ActiveTab == AddScriptTab::Create)
 					{
@@ -152,9 +152,9 @@ namespace Ludus::Editor::Dialogs
 				}
 			}
 
-			Ludus::UI::Context::LayoutContext::SameLine(0.0f, Ludus::Editor::Core::Constants::StandardInlineSpacing);
+			Ludus::UI::Context::LayoutContext::SameLine(0.0f, Ludus::Editor::Core::Constants::Shared::StandardInlineSpacing);
 
-			if (Ludus::UI::Widgets::Button("Cancel", Ludus::Editor::Core::Constants::ModalActionButtonSize))
+			if (Ludus::UI::Widgets::Button("Cancel", Ludus::Editor::Core::Constants::Shared::ModalActionButtonSize))
 			{
 				m_CreateName.clear();
 				m_SelectName.clear();

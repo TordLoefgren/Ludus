@@ -13,7 +13,7 @@
 
 namespace Ludus::Engine::Persistence
 {
-	void LmlRuntimeLaunchSettingsPersistence::Save(const Ludus::Engine::Runtime::RuntimeLaunchSettings& runtimeLaunchSettings, const std::filesystem::path& path)
+	void LmlRuntimeLaunchSettingsPersistence::Save(const Ludus::Engine::Runtime::RuntimeLaunchSettings& runtimeLaunchSettings, const std::filesystem::path& path) const
 	{
 		Ludus::Engine::Serialization::Core::DomDocument document;
 		Ludus::Engine::Serialization::Core::DomTokenStreamWriter writer { document };
@@ -24,7 +24,7 @@ namespace Ludus::Engine::Persistence
 		Ludus::Engine::FileSystem::WriteAllText(path, text);
 	}
 
-	Ludus::Engine::Runtime::RuntimeLaunchSettings LmlRuntimeLaunchSettingsPersistence::Load(const std::filesystem::path& path)
+	Ludus::Engine::Runtime::RuntimeLaunchSettings LmlRuntimeLaunchSettingsPersistence::Load(const std::filesystem::path& path) const
 	{
 		const auto text = Ludus::Engine::FileSystem::ReadAllText(path);
 		Ludus::Engine::Serialization::Codecs::LmlDomCodec codec;

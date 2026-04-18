@@ -11,7 +11,7 @@ namespace Ludus::Editor::Persistence
 	public:
 		LmlProjectManifestPersistence() = default;
 
-		void Save(const Ludus::Editor::Core::ProjectManifest& projectManifest, const std::filesystem::path& path) override;
-		Ludus::Editor::Core::ProjectManifest Load(const std::filesystem::path& path) override;
+		void Save(const Ludus::Editor::Core::ProjectManifest& projectManifest, const std::filesystem::path& path) const override;
+		Ludus::Editor::Core::ProjectManifest Load(const std::filesystem::path& path) const override;
 	};
 }

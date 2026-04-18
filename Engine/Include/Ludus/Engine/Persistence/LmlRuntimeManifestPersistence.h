@@ -12,7 +12,7 @@ namespace Ludus::Engine::Persistence
 	public:
 		LmlRuntimeManifestPersistence() = default;
 
-		void Save(const Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest, const std::filesystem::path& path) override;
-		Ludus::Engine::Runtime::RuntimeManifest Load(const std::filesystem::path& path) override;
+		void Save(const Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest, const std::filesystem::path& path) const override;
+		Ludus::Engine::Runtime::RuntimeManifest Load(const std::filesystem::path& path) const override;
 	};
 }

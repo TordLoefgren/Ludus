@@ -11,7 +11,7 @@ namespace Ludus::Engine::Persistence
 	public:
 		virtual ~IRuntimeManifestPersistence() = default;
 
-		virtual void Save(const Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest, const std::filesystem::path& path) = 0;
-		virtual Ludus::Engine::Runtime::RuntimeManifest Load(const std::filesystem::path& path) = 0;
+		virtual void Save(const Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest, const std::filesystem::path& path) const = 0;
+		virtual Ludus::Engine::Runtime::RuntimeManifest Load(const std::filesystem::path& path) const = 0;
 	};
 }

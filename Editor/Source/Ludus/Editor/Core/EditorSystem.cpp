@@ -4,16 +4,21 @@
 #include <utility>
 #include <vector>
 
+#include <Ludus/Editor/Build/BuildManager.h>
 #include <Ludus/Editor/Commands/EditCommand.h>
 #include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 #include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/StartupCommandContext.h>
 #include <Ludus/Editor/Commands/UICommand.h>
+#include <Ludus/Editor/Core/EditorConfiguration.h>
 #include <Ludus/Editor/Core/EditorExecutionFlags.h>
+#include <Ludus/Editor/Core/EditorPreferences.h>
 #include <Ludus/Editor/Core/EditorSystem.h>
+#include <Ludus/Editor/Persistence/EditorPersistence.h>
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Events/Event.h>
 #include <Ludus/Engine/Events/EventType.h>
+#include <Ludus/Engine/Persistence/EnginePersistence.h>
 
 namespace Ludus::Editor::Core
 {
@@ -52,41 +57,50 @@ namespace Ludus::Editor::Core
 
 	EditorSystem::EditorSystem(
 		Ludus::Engine::Runtime::IHostContext& hostContext,
-		Ludus::Editor::Core::EditorConfiguration editorConfiguration,
+		EditorConfiguration editorConfiguration,
+		Ludus::Editor::Persistence::EditorPersistence editorPersistence,
+		EditorPreferences editorPreferences,
 		EditorStartupOptions editorStartupOptions
 	) :
-		m_EditorConfiguration(std::move(editorConfiguration)),
-		m_EditorStartupOptions(std::move(editorStartupOptions)),
-		m_HostContext(hostContext),
-		m_ScenePersistence(),
-		m_RuntimeManifestPersistence(),
-		m_RuntimeLaunchSettingsPersistence(),
-		m_ProjectManifestPersistence(),
-		m_ProjectSessionLoader(
-			m_ScenePersistence,
-			m_RuntimeManifestPersistence,
-			m_RuntimeLaunchSettingsPersistence,
-			m_ProjectManifestPersistence
+		m_EditorPersistence(std::move(editorPersistence)),
+		m_Persistence(
+			m_EditorPersistence.EditorPreferences(),
+			m_EditorPersistence.ProjectManifest(),
+			hostContext.GetEnginePersistence().RuntimeLaunchSettings(),
+			hostContext.GetEnginePersistence().RuntimeManifest(),
+			hostContext.GetEnginePersistence().Scene()
 		),
+		m_ProjectSessionLoader(
+			m_Persistence.Scene,
+			m_Persistence.RuntimeManifest,
+			m_Persistence.RuntimeLaunchSettings,
+			m_Persistence.ProjectManifest
+		),
+		m_EditorConfiguration(std::move(editorConfiguration)),
+		m_EditorPreferences(std::move(editorPreferences)),
+		m_EditorStartupOptions(std::move(editorStartupOptions)),
+		m_Shell(Ludus::Editor::Build::BuildManager::Create(
+			m_Persistence.RuntimeManifest,
+			m_Persistence.RuntimeLaunchSettings
+		)),
+		m_HostContext(hostContext),
 		m_Session(
+			m_ProjectSessionLoader,
 			m_HostContext,
-			m_Shell,
-			m_ProjectSessionLoader
+			m_Shell
 		),
 		m_PanelRegistry(),
-		m_WelcomeWindow()
-	{ }
+		m_WelcomeWindow(m_EditorPreferences.RecentlyOpenedProjects)
+	{}
 
 	Ludus::Editor::Commands::StartupCommandContext EditorSystem::CreateStartupCommandContext()
 	{
 		return {
 			.Shell = m_Shell,
 			.HostContext = m_HostContext,
-			.ScenePersistence = m_ScenePersistence,
-			.RuntimeManifestPersistence = m_RuntimeManifestPersistence,
-			.RuntimeLaunchSettingsPersistence = m_RuntimeLaunchSettingsPersistence,
-			.ProjectManifestPersistence = m_ProjectManifestPersistence,
-			.PanelRegistry = m_PanelRegistry
+			.Preferences = m_EditorPreferences,
+			.PanelRegistry = m_PanelRegistry,
+			.Persistence = m_Persistence
 		};
 	}
 
@@ -96,13 +110,11 @@ namespace Ludus::Editor::Core
 
 		return {
 			.Shell = m_Shell,
-			.ProjectSession = *m_ProjectSession,
 			.HostContext = m_HostContext,
-			.ScenePersistence = m_ScenePersistence,
-			.RuntimeManifestPersistence = m_RuntimeManifestPersistence,
-			.RuntimeLaunchSettingsPersistence = m_RuntimeLaunchSettingsPersistence,
-			.ProjectManifestPersistence = m_ProjectManifestPersistence,
-			.PanelRegistry = m_PanelRegistry
+			.ProjectSession = *m_ProjectSession,
+			.Preferences = m_EditorPreferences,
+			.PanelRegistry = m_PanelRegistry,
+			.Persistence = m_Persistence
 		};
 	}
 
@@ -229,6 +241,16 @@ namespace Ludus::Editor::Core
 		m_HostContext.SetWindowTitle(title);
 	}
 
+	void Ludus::Editor::Core::EditorSystem::ApplyEditorPreferences()
+	{
+		if (m_Shell.State.Theme.ActiveThemeId != m_EditorPreferences.ActiveThemeId)
+		{
+			m_Shell.State.Commands.AddRequestCommand(
+				Ludus::Editor::Commands::RequestCommand::SetTheme { m_EditorPreferences.ActiveThemeId }
+			);
+		}
+	}
+
 	void Ludus::Editor::Core::EditorSystem::ApplyStartupOptions()
 	{
 		if (m_EditorStartupOptions.StartupProjectPath)
@@ -260,7 +282,10 @@ namespace Ludus::Editor::Core
 	void Ludus::Editor::Core::EditorSystem::OnAttachImpl()
 	{
 		m_HostContext.SubscribeWindowCloseEvent(*this);
+
+		ApplyEditorPreferences();
 		ApplyStartupOptions();
+
 		RegisterPanels();
 	}
 

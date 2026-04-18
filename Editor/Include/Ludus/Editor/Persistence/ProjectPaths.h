@@ -12,6 +12,7 @@ namespace Ludus::Editor::Persistence::ProjectPaths
 	namespace Constants
 	{
 		inline constexpr std::string_view LudusDirectory = "Ludus";
+		inline constexpr std::string_view EditorDirectory = "Editor";
 		inline constexpr std::string_view ProjectsDirectory = "Projects";
 		inline constexpr std::string_view SourceDirectory = "Source";
 		inline constexpr std::string_view InvalidFileNameCharacters = "<>:\"/\\|?*";
@@ -20,12 +21,18 @@ namespace Ludus::Editor::Persistence::ProjectPaths
 		inline constexpr std::string_view ScriptsSolutionFile = "Scripts.sln";
 		inline constexpr std::string_view CppExtension = ".cpp";
 		inline constexpr std::string_view ProjectManifestExtension = ".project.ludus";
+		inline constexpr std::string_view EditorPreferencesFile = "editor.preferences.ludus";
 		inline constexpr std::string_view ScriptsDirectory = "Scripts";
 	}
 
 	inline std::filesystem::path LudusRoot()
 	{
 		return Ludus::Engine::Platform::Paths::LocalAppData() / std::string(Constants::LudusDirectory);
+	}
+
+	inline std::filesystem::path EditorRoot()
+	{
+		return LudusRoot() / std::string(Constants::EditorDirectory);
 	}
 
 	inline std::filesystem::path ProjectsRoot()
@@ -110,6 +117,11 @@ namespace Ludus::Editor::Persistence::ProjectPaths
 		return { };
 	}
 
+	inline std::filesystem::path EditorPreferencesFile()
+	{
+		return EditorRoot() / std::string(Constants::EditorPreferencesFile);
+	}
+
 	inline std::filesystem::path ProjectManifestFile(std::string_view projectName)
 	{
 		return std::string(projectName) + std::string(Constants::ProjectManifestExtension);
@@ -148,6 +160,11 @@ namespace Ludus::Editor::Persistence::ProjectPaths
 	inline std::filesystem::path ScriptsSolutionFile(const std::filesystem::path& projectRoot)
 	{
 		return ScriptsSourceDirectory(projectRoot) / std::string(Constants::ScriptsSolutionFile);
+	}
+
+	inline void EnsureEditorRootExists()
+	{
+		std::filesystem::create_directories(EditorRoot());
 	}
 
 	inline void EnsureProjectsRootExists()

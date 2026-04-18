@@ -13,6 +13,11 @@ namespace Ludus::Editor::Core
 		std::optional<std::filesystem::path> StartupProjectPath;
 		bool EnableImGuiDemo = false;
 
+		static EditorStartupOptions Default()
+		{
+			return { };
+		}
+
 		static EditorStartupOptions FromCommandLineArgs(int argc, char* argv[])
 		{
 			EditorStartupOptions options { };

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <filesystem>
-#include <optional>
 #include <string_view>
 
 #include <Ludus/Editor/Build/BuildCommand.h>
@@ -9,12 +8,18 @@
 #include <Ludus/Editor/Build/MSBuild/MSBuildContext.h>
 #include <Ludus/Editor/Build/MSBuild/RuntimeHostBuildSettings.h>
 
+namespace Ludus::Engine::Persistence
+{
+	class IRuntimeManifestPersistence;
+}
+
 namespace Ludus::Editor::Build::MSBuild
 {
 	struct MSBuildRuntimeHostPipeline
 	{
 	private:
 		MSBuildContext& m_Context;
+		const Ludus::Engine::Persistence::IRuntimeManifestPersistence& m_RuntimeManifestPersistence;
 
 		void CopyTemplateToDestinationIfMissing(
 			const std::filesystem::path& templateRoot,
@@ -38,7 +43,10 @@ namespace Ludus::Editor::Build::MSBuild
 		);
 
 	public:
-		MSBuildRuntimeHostPipeline(MSBuildContext& context);
+		MSBuildRuntimeHostPipeline(
+			MSBuildContext& context,
+			const Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence
+		);
 
 		void RunBuild(
 			const std::filesystem::path& projectRoot,

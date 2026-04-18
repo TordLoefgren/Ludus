@@ -11,6 +11,11 @@
 #include <Ludus/Editor/Build/MSBuild/MSBuildRuntimeHostPipeline.h>
 #include <Ludus/Editor/Build/MSBuild/MSBuildScriptPipeline.h>
 
+namespace Ludus::Engine::Persistence
+{
+	class IRuntimeManifestPersistence;
+}
+
 namespace Ludus::Editor::Build::MSBuild
 {
 	struct MSBuildPipeline final : public IBuildPipeline
@@ -21,7 +26,7 @@ namespace Ludus::Editor::Build::MSBuild
 		MSBuildScriptPipeline m_ScriptPipeline;
 
 	public:
-		MSBuildPipeline();
+		explicit MSBuildPipeline(const Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence);
 
 		virtual void Initialize() override;
 

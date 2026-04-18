@@ -76,7 +76,7 @@ namespace Ludus::Editor::Commands
 			void operator()(const RequestCommand::SetExecutionFlag& command) const { Requests::EditorState::SetExecutionFlag(command, Context); }
 			void operator()(const RequestCommand::UnsetExecutionFlag& command) const { Requests::EditorState::UnsetExecutionFlag(command, Context); }
 			void operator()(const RequestCommand::SetPanelVisibility&) const { LUDUS_ASSERT(false, "SetPanelVisibility is unavailable during startup."); }
-			void operator()(const RequestCommand::SetTheme&) const { LUDUS_ASSERT(false, "SetTheme is unavailable during startup."); }
+			void operator()(const RequestCommand::SetTheme& command) const { Requests::EditorState::SetTheme(command, Context); }
 			void operator()(const RequestCommand::CloseApplication&) const { Requests::EditorState::CloseApplication(Context); }
 			void operator()(const RequestCommand::ResolveUnsavedChanges&) const { LUDUS_ASSERT(false, "ResolveUnsavedChanges is unavailable during startup."); }
 

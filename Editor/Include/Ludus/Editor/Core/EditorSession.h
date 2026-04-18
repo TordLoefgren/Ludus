@@ -13,17 +13,17 @@ namespace Ludus::Editor::Core
 	class EditorSession
 	{
 	private:
+		const Ludus::Editor::Persistence::ProjectSessionLoader& m_ProjectSessionLoader;
 		Ludus::Engine::Runtime::IHostContext& m_HostContext;
 		Ludus::Editor::Core::EditorShell& m_Shell;
-		Ludus::Editor::Persistence::ProjectSessionLoader& m_ProjectSessionLoader;
 
 		Ludus::Editor::Core::ProjectSession LoadProjectSession(Ludus::Editor::Core::ProjectManifest projectManifest);
 
 	public:
 		EditorSession(
+			const Ludus::Editor::Persistence::ProjectSessionLoader& projectSessionLoader,
 			Ludus::Engine::Runtime::IHostContext& hostContext,
-			Ludus::Editor::Core::EditorShell& shell,
-			Ludus::Editor::Persistence::ProjectSessionLoader& projectSessionLoader
+			Ludus::Editor::Core::EditorShell& shell
 		);
 
 		void ApplyTransitions(

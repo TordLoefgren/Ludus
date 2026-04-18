@@ -36,7 +36,7 @@ namespace Ludus::Editor::Panels
 		m_Target(std::nullopt),
 		m_PreviousTargetSize(),
 		m_DisplayMode(displayMode)
-	{ }
+	{}
 
 	Ludus::Engine::Math::Vector2D ViewportPanel::GetViewportAspectSize(float targetAspectRatio)
 	{
@@ -164,19 +164,17 @@ namespace Ludus::Editor::Panels
 
 	bool ViewportPanel::UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
-		auto flags = Ludus::Editor::Core::Constants::PanelFlags
+		auto flags = Ludus::Editor::Core::Constants::Flags::Panel
 			| Ludus::UI::Flags::Window::NoScrollbar
 			| Ludus::UI::Flags::Window::NoScrollWithMouse;
 
 		// While simulation is active, suppress UI navigation inputs in all viewport windows.
-		const auto isNavigationInputLocked =
-			context.ProjectSession.RuntimeState.IsSimulationActive();
-		if (isNavigationInputLocked)
+		if (context.ProjectSession.RuntimeState.IsSimulationActive())
 		{
 			flags |= Ludus::UI::Flags::Window::NoNavInputs;
 		}
 
-		Ludus::UI::Scope::StyleVarScope styleVar({ Ludus::UI::Scope::StyleVar::Vector(Ludus::UI::Scope::Variable::WindowPadding, { 0.0f, 0.0f }) });
+		Ludus::UI::Scope::StyleVarScope styleVar(Ludus::UI::Scope::StyleVar::Vector(Ludus::UI::Scope::Variable::WindowPadding, { 0.0f, 0.0f }));
 
 		auto windowTitle = CreateUniqueWindowTitle(m_Title);
 		if (Ludus::UI::Scope::WindowScope window(windowTitle.c_str(), &m_Open, flags); window)

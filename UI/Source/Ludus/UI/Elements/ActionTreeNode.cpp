@@ -39,9 +39,9 @@ namespace Ludus::UI::Elements
 		const auto headerTopY = ImGui::GetItemRectMin().y;
 
 		{
-			Ludus::UI::Scope::StyleVarScope styleVar({
+			Ludus::UI::Scope::StyleVarScope styleVar(
 				Ludus::UI::Scope::StyleVar::Float(Ludus::UI::Scope::Variable::FrameBorderSize, 0.0f)
-				});
+			);
 
 			Ludus::UI::Scope::StyleColorScope colorScope({
 				{ Ludus::UI::Scope::Color::Button, Ludus::Engine::Graphics::Colors::Transparent },

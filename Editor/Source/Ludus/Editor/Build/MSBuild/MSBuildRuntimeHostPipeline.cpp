@@ -13,7 +13,7 @@
 #include <Ludus/Engine/Core/Strings.h>
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/FileSystem/FileSystem.h>
-#include <Ludus/Engine/Persistence/LmlRuntimeManifestPersistence.h>
+#include <Ludus/Engine/Persistence/IRuntimeManifestPersistence.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Platform/Guid.h>
 #include <Ludus/Engine/Platform/Process.h>
@@ -54,12 +54,12 @@ namespace
 	}
 
 	void StageRuntimeHostManifest(
+		const Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence,
 		const std::filesystem::path& manifestFrom,
 		const std::filesystem::path& outputRoot,
 		std::string_view runtimeName
 	)
 	{
-		Ludus::Engine::Persistence::LmlRuntimeManifestPersistence runtimeManifestPersistence;
 		auto runtimeManifest = runtimeManifestPersistence.Load(manifestFrom);
 
 		Ludus::Editor::Build::RewriteScenePathsForPackagedRuntime(runtimeManifest);
@@ -163,9 +163,13 @@ namespace Ludus::Editor::Build::MSBuild
 		Ludus::Engine::FileSystem::WriteAllText(modulePath, text);
 	}
 
-	MSBuildRuntimeHostPipeline::MSBuildRuntimeHostPipeline(MSBuildContext& context)
-		: m_Context(context)
-	{ }
+	MSBuildRuntimeHostPipeline::MSBuildRuntimeHostPipeline(
+		MSBuildContext& context,
+		const Ludus::Engine::Persistence::IRuntimeManifestPersistence& runtimeManifestPersistence
+	) :
+		m_Context(context),
+		m_RuntimeManifestPersistence(runtimeManifestPersistence)
+	{}
 
 	void MSBuildRuntimeHostPipeline::RunBuild(
 		const std::filesystem::path& projectRoot,
@@ -250,6 +254,7 @@ namespace Ludus::Editor::Build::MSBuild
 		);
 
 		StageRuntimeHostManifest(
+			m_RuntimeManifestPersistence,
 			Ludus::Engine::Persistence::Paths::RuntimeManifestFile(projectRoot, projectName),
 			runtimeHostOutputDirectory,
 			projectName

@@ -33,6 +33,8 @@ namespace Ludus::UI::Context::WindowContext
 
 	Ludus::Engine::Math::Vector2D GetCursorPosition();
 
+	Ludus::Engine::Math::Vector2D GetCursorScreenPosition();
+
 	Ludus::Engine::Math::Vector2D GetContentRegionAvailable();
 
 	Ludus::Engine::Math::Vector2D GetWindowContentRegionMin();

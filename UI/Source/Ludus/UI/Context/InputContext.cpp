@@ -12,11 +12,11 @@ namespace
 	{
 		switch (mouseButton)
 		{
-		case Ludus::Engine::Windowing::MouseButton::Left:   return ImGuiMouseButton_Left;
-		case Ludus::Engine::Windowing::MouseButton::Right:  return ImGuiMouseButton_Right;
-		case Ludus::Engine::Windowing::MouseButton::Middle: return ImGuiMouseButton_Middle;
-		default:
-			throw std::runtime_error("Unexpected MouseButton value.");
+			case Ludus::Engine::Windowing::MouseButton::Left:   return ImGuiMouseButton_Left;
+			case Ludus::Engine::Windowing::MouseButton::Right:  return ImGuiMouseButton_Right;
+			case Ludus::Engine::Windowing::MouseButton::Middle: return ImGuiMouseButton_Middle;
+			default:
+				throw std::runtime_error("Unexpected MouseButton value.");
 		}
 	}
 }
@@ -39,6 +39,7 @@ namespace Ludus::UI::Context::InputContext
 	bool WantCaptureKeyboard() { return ImGui::GetIO().WantCaptureKeyboard; }
 
 	bool IsAnyItemHovered() { return ImGui::IsAnyItemHovered(); }
+	bool IsItemActive() { return ImGui::IsItemActive(); }
 	bool IsAnyItemActive() { return ImGui::IsAnyItemActive(); }
 	bool IsItemHovered() { return ImGui::IsItemHovered(); }
 	bool IsMouseClicked(Ludus::Engine::Windowing::MouseButton mouseButton) { return ImGui::IsMouseClicked(ToImGuiMouseButton(mouseButton)); }

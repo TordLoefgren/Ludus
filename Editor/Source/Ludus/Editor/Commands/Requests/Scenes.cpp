@@ -54,7 +54,7 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 			std::filesystem::path path;
 			if (Ludus::Engine::Platform::Modals::SaveFileDialog(
 				path,
-				"scene.ludus",
+				Ludus::Engine::Persistence::Paths::Constants::SceneExtension,
 				Ludus::Engine::Persistence::Paths::ScenesDirectory(context.ProjectSession.Persistence.GetProjectRoot()),
 				"Untitled"
 			))
