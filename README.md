@@ -81,9 +81,10 @@ After building, run `EditorHost` from the selected output directory.
 ## Requirements
 
 - Windows 10/11
-- Visual Studio 2022
+- Visual Studio 2026
 - Desktop development with C++
-- C++20 toolset
+- MSVC Build Tools v145
+- Windows SDK
 - `vcpkg`
 
 
