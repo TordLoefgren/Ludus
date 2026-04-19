@@ -98,6 +98,8 @@
     <ClInclude Include="Include\Ludus\Editor\Core\EditorPreferences.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorSession.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\EditorShell.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorShortcutContext.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\EditorShortcuts.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ProjectSession.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ProjectSessionContext.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\PendingProjectTransition.h" />

@@ -57,6 +57,7 @@ namespace Ludus::Editor::Core
 		void FlushCommands();
 		void UpdateDialogs();
 		void UpdatePanels();
+		void UpdateShortcuts();
 		void UpdateWindowTitle();
 
 		void UpdateStartup();

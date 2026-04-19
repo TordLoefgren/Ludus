@@ -37,6 +37,7 @@ namespace Ludus::UI::Context::InputContext
 
 	bool WantCaptureMouse() { return ImGui::GetIO().WantCaptureMouse; }
 	bool WantCaptureKeyboard() { return ImGui::GetIO().WantCaptureKeyboard; }
+	bool WantTextInput() { return ImGui::GetIO().WantTextInput; }
 
 	bool IsAnyItemHovered() { return ImGui::IsAnyItemHovered(); }
 	bool IsItemActive() { return ImGui::IsItemActive(); }

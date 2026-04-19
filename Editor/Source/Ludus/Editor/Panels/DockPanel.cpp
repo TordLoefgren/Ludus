@@ -12,6 +12,7 @@
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Core/EditorExecutionFlags.h>
 #include <Ludus/Editor/Core/ExecutionMode.h>
+#include <Ludus/Editor/Core/ProjectSessionContext.h>
 #include <Ludus/Editor/Panels/DockPanel.h>
 #include <Ludus/Editor/Panels/PanelRegistry.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
@@ -115,7 +116,7 @@ namespace Ludus::Editor::Panels
 
 					Ludus::UI::Context::LayoutContext::Separator();
 
-					if (Ludus::UI::Widgets::MenuItem("Save"))
+					if (Ludus::UI::Widgets::MenuItem("Save", "Ctrl+S"))
 					{
 						const auto activeSceneId = context.ProjectSession.EditorState.GetActiveSceneId();
 						if (!context.ProjectSession.RuntimeState.GetEditorSceneRegistry().Contains(activeSceneId))
@@ -166,7 +167,7 @@ namespace Ludus::Editor::Panels
 					}
 				}
 
-				if (Ludus::UI::Widgets::MenuItem("Save Project"))
+				if (Ludus::UI::Widgets::MenuItem("Save Project", "Ctrl+Shift+S"))
 				{
 					context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::SaveProject { });
 				}
@@ -232,7 +233,7 @@ namespace Ludus::Editor::Panels
 							);
 						}
 
-						if (Ludus::UI::Widgets::MenuItem("Rebuild"))
+						if (Ludus::UI::Widgets::MenuItem("Rebuild", "Ctrl+Shift+B"))
 						{
 							context.Shell.State.Commands.AddRequestCommand(Ludus::Editor::Commands::RequestCommand::RunTargetBuildCommand
 								{ Ludus::Editor::Build::BuildTarget::Scripts, Ludus::Editor::Build::BuildCommand::Rebuild, Ludus::Editor::Build::BuildConfiguration::Debug }

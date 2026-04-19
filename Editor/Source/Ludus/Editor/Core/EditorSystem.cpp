@@ -13,7 +13,9 @@
 #include <Ludus/Editor/Core/EditorConfiguration.h>
 #include <Ludus/Editor/Core/EditorExecutionFlags.h>
 #include <Ludus/Editor/Core/EditorPreferences.h>
+#include <Ludus/Editor/Core/EditorShortcuts.h>
 #include <Ludus/Editor/Core/EditorSystem.h>
+#include <Ludus/Editor/Core/ProjectSessionContext.h>
 #include <Ludus/Editor/Persistence/EditorPersistence.h>
 #include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/Events/Event.h>
@@ -309,6 +311,18 @@ namespace Ludus::Editor::Core
 		return true;
 	}
 
+	void EditorSystem::UpdateShortcuts()
+	{
+		EditorShortcutContext shortcutContext {
+			.Shell = m_Shell,
+			.HostContext = m_HostContext,
+			.PanelRegistry = m_PanelRegistry,
+			.ProjectSession = m_ProjectSession ? &*m_ProjectSession : nullptr
+		};
+
+		Ludus::Editor::Core::DelegateShortcutCommands(shortcutContext);
+	}
+
 	void EditorSystem::UpdateStartup()
 	{
 		UpdateWindowTitle();
@@ -330,7 +344,7 @@ namespace Ludus::Editor::Core
 			throw std::runtime_error("No active project session available.");
 		}
 
-		// Resolve transition-based commands.
+		// Resolve transition-based and shortcut-based commands.
 		FlushCommands();
 		UpdateWindowTitle();
 
@@ -352,6 +366,8 @@ namespace Ludus::Editor::Core
 		(void)deltaTime;
 
 		m_Session.ApplyTransitions(m_Shell.State.PendingProjectTransition, m_ProjectSession);
+
+		UpdateShortcuts();
 
 		if (m_Shell.State.Mode == Ludus::Editor::Core::EditorMode::Startup)
 		{

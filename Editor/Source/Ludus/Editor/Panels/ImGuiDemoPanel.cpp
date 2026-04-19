@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <Ludus/Editor/Core/EditorExecutionFlags.h>
+#include <Ludus/Editor/Core/ProjectSessionContext.h>
 #include <Ludus/Editor/Panels/ImGuiDemoPanel.h>
 #include <Ludus/UI/Widgets/Demo.h>
 
