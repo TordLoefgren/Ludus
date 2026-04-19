@@ -17,7 +17,7 @@ namespace Ludus::Editor::Core
 		Ludus::Editor::Commands::CommandManager Commands;
 		Ludus::Editor::Dialogs::DialogManager Dialogs;
 		Ludus::Editor::Core::ExecutionManager Execution;
-		Ludus::Editor::Core::PendingProjectTransition PendingProjectTransition = PendingProjectTransition::NoneState();
 		Ludus::Editor::Core::EditorMode Mode = Ludus::Editor::Core::EditorMode::Startup;
+		Ludus::Editor::Core::PendingProjectTransition PendingProjectTransition = PendingProjectTransition::NoneState();
 	};
 }

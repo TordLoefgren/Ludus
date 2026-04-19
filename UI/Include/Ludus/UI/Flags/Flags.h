@@ -403,7 +403,6 @@ namespace Ludus::Engine::Core::Enums
 	template<>
 	struct EnableBitMaskOperators<Ludus::UI::Flags::Button> : std::true_type {};
 
-
 	template<>
 	struct EnableBitMaskOperators<Ludus::UI::Flags::Child> : std::true_type {};
 
