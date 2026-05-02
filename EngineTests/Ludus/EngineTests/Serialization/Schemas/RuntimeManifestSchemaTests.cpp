@@ -24,8 +24,11 @@ namespace Ludus::EngineTests::Serialization::Schemas
 	using RuntimeManifestSchema = Ludus::Engine::Serialization::Schemas::RuntimeManifestSchema;
 	using SceneReference = Ludus::Engine::Runtime::SceneReference;
 	using ScriptReference = Ludus::Engine::Runtime::ScriptReference;
+	using AssetReference = Ludus::Engine::Runtime::AssetReference;
+	using AssetType = Ludus::Engine::Core::AssetType;
 	using SceneId = Ludus::Engine::Core::SceneId;
 	using ScriptId = Ludus::Engine::Core::ScriptId;
+	using AssetId = Ludus::Engine::Core::AssetId;
 	using Token = Ludus::Engine::Serialization::Core::Token;
 
 	using Ludus::Engine::Serialization::Core::AsArray;
@@ -69,6 +72,19 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		};
 	}
 
+	static AssetReference MakeAssetReference(
+		AssetId id,
+		AssetType type,
+		std::string_view path
+	)
+	{
+		return {
+			.Id = id,
+			.Type = type,
+			.Path = std::filesystem::path(path)
+		};
+	}
+
 	static RuntimeManifest MakeRuntimeManifest()
 	{
 		return RuntimeManifest::Create(
@@ -80,6 +96,9 @@ namespace Ludus::EngineTests::Serialization::Schemas
 			{
 				MakeScriptReference({ 10 }, "PlayerScript"),
 				MakeScriptReference({ 20 }, "CameraScript")
+			},
+			{
+				MakeAssetReference({ 100 }, AssetType::Texture2D, "Assets/Sprites/Player.png")
 			}
 		);
 	}
@@ -156,6 +175,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		ASSERT_EQ(loadedManifest.EntrySceneId, manifest.EntrySceneId);
 		ASSERT_EQ(loadedManifest.Scenes.size(), manifest.Scenes.size());
 		ASSERT_EQ(loadedManifest.Scripts.size(), manifest.Scripts.size());
+		ASSERT_EQ(loadedManifest.Assets.size(), manifest.Assets.size());
 
 		for (size_t i = 0; i < manifest.Scenes.size(); ++i)
 		{
@@ -168,6 +188,13 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		{
 			ASSERT_EQ(loadedManifest.Scripts[i].Id, manifest.Scripts[i].Id);
 			ASSERT_EQ(loadedManifest.Scripts[i].Name, manifest.Scripts[i].Name);
+		}
+
+		for (size_t i = 0; i < manifest.Assets.size(); ++i)
+		{
+			ASSERT_EQ(loadedManifest.Assets[i].Id, manifest.Assets[i].Id);
+			ASSERT_EQ(loadedManifest.Assets[i].Type, manifest.Assets[i].Type);
+			ASSERT_EQ(loadedManifest.Assets[i].Path, manifest.Assets[i].Path);
 		}
 	}
 
@@ -217,6 +244,128 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		writer.Emit(Token::EndArray { });
 		writer.Emit(Token::Key { "Scripts" });
 		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::EndObject { });
+		DomTokenStreamReader reader(document);
+
+		// Act.
+		const auto result = RuntimeManifestSchema::Deserialize(reader);
+
+		// Assert.
+		ASSERT_FALSE(result.HasValue());
+	}
+
+	TEST(RuntimeManifestSchema, Deserialize_LoadsEmptyAssets_When_AssetsKeyIsMissing)
+	{
+		// Arrange.
+		DomDocument document;
+		DomTokenStreamWriter writer(document);
+		writer.Emit(Token::StartObject { });
+		WriteVersion(writer, RuntimeManifest::CurrentVersion.Major, RuntimeManifest::CurrentVersion.Minor, RuntimeManifest::CurrentVersion.Patch);
+		writer.Emit(Token::Key { "EntrySceneId" });
+		writer.Emit(Token::Uint { 1 });
+		writer.Emit(Token::Key { "Scenes" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::StartObject { });
+		writer.Emit(Token::Key { "Id" });
+		writer.Emit(Token::Uint { 1 });
+		writer.Emit(Token::Key { "Name" });
+		writer.Emit(Token::String { "Scene" });
+		writer.Emit(Token::Key { "Path" });
+		writer.Emit(Token::String { "Scenes/Scene.scene.ludus" });
+		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::Key { "Scripts" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::EndObject { });
+		DomTokenStreamReader reader(document);
+
+		// Act.
+		const auto result = RuntimeManifestSchema::Deserialize(reader);
+
+		// Assert.
+		ASSERT_TRUE(result.HasValue());
+		ASSERT_TRUE(result.GetValue().Assets.empty());
+	}
+
+	TEST(RuntimeManifestSchema, Deserialize_Fails_When_AssetTypeIsUnknown)
+	{
+		// Arrange.
+		DomDocument document;
+		DomTokenStreamWriter writer(document);
+		writer.Emit(Token::StartObject { });
+		WriteVersion(writer, RuntimeManifest::CurrentVersion.Major, RuntimeManifest::CurrentVersion.Minor, RuntimeManifest::CurrentVersion.Patch);
+		writer.Emit(Token::Key { "EntrySceneId" });
+		writer.Emit(Token::Uint { 1 });
+		writer.Emit(Token::Key { "Scenes" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::StartObject { });
+		writer.Emit(Token::Key { "Id" });
+		writer.Emit(Token::Uint { 1 });
+		writer.Emit(Token::Key { "Name" });
+		writer.Emit(Token::String { "Scene" });
+		writer.Emit(Token::Key { "Path" });
+		writer.Emit(Token::String { "Scenes/Scene.scene.ludus" });
+		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::Key { "Scripts" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::Key { "Assets" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::StartObject { });
+		writer.Emit(Token::Key { "Id" });
+		writer.Emit(Token::Uint { 100 });
+		writer.Emit(Token::Key { "Type" });
+		writer.Emit(Token::String { "Unknown" });
+		writer.Emit(Token::Key { "Path" });
+		writer.Emit(Token::String { "Assets/Sprites/Player.png" });
+		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::EndObject { });
+		DomTokenStreamReader reader(document);
+
+		// Act.
+		const auto result = RuntimeManifestSchema::Deserialize(reader);
+
+		// Assert.
+		ASSERT_FALSE(result.HasValue());
+	}
+
+	TEST(RuntimeManifestSchema, Deserialize_Fails_When_AssetTypeStringIsInvalid)
+	{
+		// Arrange.
+		DomDocument document;
+		DomTokenStreamWriter writer(document);
+		writer.Emit(Token::StartObject { });
+		WriteVersion(writer, RuntimeManifest::CurrentVersion.Major, RuntimeManifest::CurrentVersion.Minor, RuntimeManifest::CurrentVersion.Patch);
+		writer.Emit(Token::Key { "EntrySceneId" });
+		writer.Emit(Token::Uint { 1 });
+		writer.Emit(Token::Key { "Scenes" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::StartObject { });
+		writer.Emit(Token::Key { "Id" });
+		writer.Emit(Token::Uint { 1 });
+		writer.Emit(Token::Key { "Name" });
+		writer.Emit(Token::String { "Scene" });
+		writer.Emit(Token::Key { "Path" });
+		writer.Emit(Token::String { "Scenes/Scene.scene.ludus" });
+		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::Key { "Scripts" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::Key { "Assets" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::StartObject { });
+		writer.Emit(Token::Key { "Id" });
+		writer.Emit(Token::Uint { 100 });
+		writer.Emit(Token::Key { "Type" });
+		writer.Emit(Token::String { "Texture3D" });
+		writer.Emit(Token::Key { "Path" });
+		writer.Emit(Token::String { "Assets/Sprites/Player.png" });
+		writer.Emit(Token::EndObject { });
 		writer.Emit(Token::EndArray { });
 		writer.Emit(Token::EndObject { });
 		DomTokenStreamReader reader(document);

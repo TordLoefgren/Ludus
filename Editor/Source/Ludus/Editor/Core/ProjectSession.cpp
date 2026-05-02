@@ -47,7 +47,8 @@ namespace Ludus::Editor::Core
 		auto runtimeManifestCopy = Ludus::Engine::Runtime::RuntimeManifest::Create(
 			runtimeManifest.EntrySceneId,
 			runtimeManifest.Scenes,
-			runtimeManifest.Scripts
+			runtimeManifest.Scripts,
+			runtimeManifest.Assets
 		);
 
 		return ProjectSession(

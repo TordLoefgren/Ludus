@@ -27,10 +27,12 @@ namespace Ludus::Engine::Core
 	struct EntityIdTag;
 	struct SceneIdTag;
 	struct ScriptIdTag;
+	struct AssetIdTag;
 
 	using EntityId = Id<EntityIdTag>;
 	using SceneId = Id<SceneIdTag>;
 	using ScriptId = Id<ScriptIdTag>;
+	using AssetId = Id<AssetIdTag>;
 }
 
 template<>
@@ -55,6 +57,15 @@ template<>
 struct std::hash<Ludus::Engine::Core::ScriptId>
 {
 	std::size_t operator()(const Ludus::Engine::Core::ScriptId& id) const noexcept
+	{
+		return std::hash<std::uint64_t> {}(id.Value);
+	}
+};
+
+template<>
+struct std::hash<Ludus::Engine::Core::AssetId>
+{
+	std::size_t operator()(const Ludus::Engine::Core::AssetId& id) const noexcept
 	{
 		return std::hash<std::uint64_t> {}(id.Value);
 	}
