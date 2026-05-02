@@ -6,9 +6,9 @@ namespace Ludus::Engine::Graphics
 	{
 		float R, G, B, A;
 
-		constexpr Color() : R(0.0f), G(0.0f), B(0.0f), A(0.0f) { }
-		constexpr Color(float r, float g, float b) : R(r), G(g), B(b), A(1.0f) { }
-		constexpr Color(float r, float g, float b, float a) : R(r), G(g), B(b), A(a) { }
+		constexpr Color() : R(0.0f), G(0.0f), B(0.0f), A(0.0f) {}
+		constexpr Color(float r, float g, float b) : R(r), G(g), B(b), A(1.0f) {}
+		constexpr Color(float r, float g, float b, float a) : R(r), G(g), B(b), A(a) {}
 
 		constexpr Color WithAlpha(float alpha) const
 		{

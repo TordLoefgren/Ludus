@@ -74,6 +74,7 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Ludus\EngineTests\Core\AssetManagerTests.cpp" />
     <ClCompile Include="Ludus\EngineTests\Core\ExpectedTests.cpp" />
     <ClCompile Include="Ludus\EngineTests\Core\RandomTests.cpp" />
     <ClCompile Include="Ludus\EngineTests\Events\EventBusTests.cpp" />

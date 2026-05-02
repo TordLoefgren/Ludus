@@ -5,6 +5,7 @@
 #include <string_view>
 #include <utility>
 
+#include <Ludus/Engine/Core/AssetType.h>
 #include <Ludus/Engine/FileSystem/FileSystem.h>
 #include <Ludus/Engine/Runtime/RuntimeManifest.h>
 #include <Ludus/Engine/Serialization/Core/TokenRead.h>
@@ -15,6 +16,7 @@ namespace Ludus::Engine::Serialization::Schemas
 	using Token = Ludus::Engine::Serialization::Core::Token;
 	using SceneReference = Ludus::Engine::Runtime::SceneReference;
 	using ScriptReference = Ludus::Engine::Runtime::ScriptReference;
+	using AssetReference = Ludus::Engine::Runtime::AssetReference;
 
 	void RuntimeManifestSchema::Serialize(ITokenStreamWriter& writer, const RuntimeManifest& runtimeManifest)
 	{
@@ -42,6 +44,7 @@ namespace Ludus::Engine::Serialization::Schemas
 
 			writer.Emit(Token::Key { "Id" });
 			writer.Emit(Token::Uint { scene.Id.Value });
+
 			writer.Emit(Token::Key { "Name" });
 			writer.Emit(Token::String { scene.Name });
 
@@ -63,8 +66,32 @@ namespace Ludus::Engine::Serialization::Schemas
 
 			writer.Emit(Token::Key { "Id" });
 			writer.Emit(Token::Uint { script.Id.Value });
+
 			writer.Emit(Token::Key { "Name" });
 			writer.Emit(Token::String { script.Name });
+
+			writer.Emit(Token::EndObject { });
+		}
+
+		writer.Emit(Token::EndArray { });
+
+		writer.Emit(Token::Key { "Assets" });
+		writer.Emit(Token::StartArray { });
+
+		for (const auto& asset : runtimeManifest.Assets)
+		{
+			writer.Emit(Token::StartObject { });
+
+			writer.Emit(Token::Key { "Id" });
+			writer.Emit(Token::Uint { asset.Id.Value });
+
+			const std::string assetType = Ludus::Engine::Core::Enums::GetDisplayName(asset.Type);
+			writer.Emit(Token::Key { "Type" });
+			writer.Emit(Token::String { assetType });
+
+			writer.Emit(Token::Key { "Path" });
+			const auto assetPath = Ludus::Engine::FileSystem::ToPortablePathString(asset.Path);
+			writer.Emit(Token::String { assetPath });
 
 			writer.Emit(Token::EndObject { });
 		}
@@ -225,6 +252,71 @@ namespace Ludus::Engine::Serialization::Schemas
 						}
 
 						runtimeManifest.Scripts.emplace_back(std::move(script));
+					}
+
+					Ludus::Engine::Serialization::Core::ConsumeAs<Token::EndArray>(reader);
+					return;
+				}
+				if (key == "Assets")
+				{
+					Ludus::Engine::Serialization::Core::ConsumeAs<Token::StartArray>(reader);
+
+					while (!Ludus::Engine::Serialization::Core::Is<Token::EndArray>(reader.Peek()))
+					{
+						AssetReference asset;
+						bool hasId = false;
+						bool hasType = false;
+						bool hasPath = false;
+
+						Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view assetKey)
+						{
+							if (assetKey == "Id")
+							{
+								asset.Id = { Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader) };
+								if (!asset.Id.IsValid())
+								{
+									throw SerializationException("RuntimeManifest asset id is invalid.");
+								}
+								hasId = true;
+								return;
+							}
+							if (assetKey == "Type")
+							{
+								std::string assetTypeValue = std::string(
+									Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data);
+								Ludus::Engine::Core::AssetType parsed;
+								if (!Ludus::Engine::Core::TryParse(assetTypeValue, parsed))
+								{
+									throw SerializationException("RuntimeManifest asset type is invalid.");
+								}
+
+								if (parsed == Ludus::Engine::Core::AssetType::Unknown)
+								{
+									throw SerializationException("RuntimeManifest asset type cannot be Unknown.");
+								}
+
+								asset.Type = parsed;
+								hasType = true;
+								return;
+							}
+							if (assetKey == "Path")
+							{
+								asset.Path = std::filesystem::path(
+									std::string(Ludus::Engine::Serialization::Core::ConsumeAs<Token::String>(reader).Data)
+								);
+								hasPath = true;
+								return;
+							}
+
+							Ludus::Engine::Serialization::Core::SkipValue(reader);
+						});
+
+						if (!hasId || !hasType || !hasPath)
+						{
+							throw SerializationException("RuntimeManifest asset entry is incomplete.");
+						}
+
+						runtimeManifest.Assets.emplace_back(std::move(asset));
 					}
 
 					Ludus::Engine::Serialization::Core::ConsumeAs<Token::EndArray>(reader);

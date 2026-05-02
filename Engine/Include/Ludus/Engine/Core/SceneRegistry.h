@@ -50,9 +50,10 @@ namespace Ludus::Engine::Core
 			{
 				sceneId = CreateUniqueId();
 			}
-			else
+
+			if (Contains(sceneId))
 			{
-				LUDUS_ASSERT(!Contains(sceneId), "Cannot add a scene with a duplicate id.");
+				throw std::exception("Cannot add a scene with a duplicate id.");
 			}
 
 			scene.Id = sceneId;

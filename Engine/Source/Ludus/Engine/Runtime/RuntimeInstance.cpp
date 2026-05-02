@@ -6,12 +6,12 @@
 #include <Ludus/Engine/Core/RenderViewRegistry.h>
 #include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
 #include <Ludus/Engine/Debug/Debug.h>
-#include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderPresentationSettings.h>
+#include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
 #include <Ludus/Engine/Runtime/IHostContext.h>
-#include <Ludus/Engine/Runtime/InitialSceneMode.h>
 #include <Ludus/Engine/Runtime/ISystem.h>
+#include <Ludus/Engine/Runtime/InitialSceneMode.h>
 #include <Ludus/Engine/Runtime/RuntimeEnvironment.h>
 #include <Ludus/Engine/Runtime/RuntimeInstance.h>
 #include <Ludus/Engine/Runtime/SystemScheduler.h>
@@ -31,6 +31,8 @@ namespace Ludus::Engine::Runtime
 		m_RuntimeManifest(std::move(runtimeManifest)),
 		m_RuntimeEnvironment(std::move(runtimeEnvironment)),
 		m_HostContext(hostContext),
+		m_AssetRegistry(m_RuntimeManifest),
+		m_AssetManager(m_AssetRegistry, m_RuntimeEnvironment.RuntimeRootDirectory),
 		m_RenderPresentationSettings(std::move(renderPresentationSettings)),
 		m_RenderingConfiguration(std::move(renderingConfiguration)),
 		m_PhysicsConfiguration(std::move(physicsConfiguration)),

@@ -53,7 +53,7 @@ namespace Ludus::Engine::Graphics
 		auto slot = m_Face->glyph;
 		auto bitmap = m_Face->glyph->bitmap;
 
-		auto texture = Texture::FromMemory(bitmap.width, bitmap.rows, bitmap.buffer);
+		auto texture = Texture::FromR8(bitmap.width, bitmap.rows, bitmap.buffer);
 
 		Glyph glyph
 		{

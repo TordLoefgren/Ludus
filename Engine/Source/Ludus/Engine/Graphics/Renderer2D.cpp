@@ -50,7 +50,7 @@ namespace Ludus::Engine::Graphics
 	}
 
 	Renderer2D::~Renderer2D()
-	{ }
+	{}
 
 #pragma endregion
 

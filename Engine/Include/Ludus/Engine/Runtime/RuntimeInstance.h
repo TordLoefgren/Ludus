@@ -4,12 +4,14 @@
 #include <memory>
 #include <utility>
 
+#include <Ludus/Engine/Core/AssetManager.h>
+#include <Ludus/Engine/Core/AssetRegistry.h>
 #include <Ludus/Engine/Core/Enums/FlagSet.h>
 #include <Ludus/Engine/Core/RenderViewRegistry.h>
 #include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
 #include <Ludus/Engine/Core/Scene.h>
-#include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Graphics/RenderPresentationSettings.h>
+#include <Ludus/Engine/Graphics/RenderingConfiguration2D.h>
 #include <Ludus/Engine/Physics/Core/PhysicsConfiguration2D.h>
 #include <Ludus/Engine/Runtime/IHostContext.h>
 #include <Ludus/Engine/Runtime/InitialSceneMode.h>
@@ -28,6 +30,8 @@ namespace Ludus::Engine::Runtime
 		const RuntimeEnvironment m_RuntimeEnvironment;
 		IHostContext& m_HostContext;
 
+		Ludus::Engine::Core::AssetRegistry m_AssetRegistry;
+		Ludus::Engine::Core::AssetManager m_AssetManager;
 		Ludus::Engine::Graphics::RenderPresentationSettings m_RenderPresentationSettings;
 		Ludus::Engine::Graphics::RenderingConfiguration2D m_RenderingConfiguration;
 		Ludus::Engine::Physics::Core::PhysicsConfiguration2D m_PhysicsConfiguration;
@@ -73,6 +77,12 @@ namespace Ludus::Engine::Runtime
 		void Run(SystemPhase phase, Ludus::Engine::Core::Enums::FlagSet& executionFlags, float time = 0.0f);
 
 #pragma region Getters
+
+		Ludus::Engine::Core::AssetRegistry& GetAssetRegistry() { return m_AssetRegistry; }
+		const Ludus::Engine::Core::AssetRegistry& GetAssetRegistry() const { return m_AssetRegistry; }
+
+		Ludus::Engine::Core::AssetManager& GetAssetManager() { return m_AssetManager; }
+		const Ludus::Engine::Core::AssetManager& GetAssetManager() const { return m_AssetManager; }
 
 		Ludus::Engine::Physics::Core::PhysicsConfiguration2D& GetPhysicsConfiguration() { return m_PhysicsConfiguration; }
 		const Ludus::Engine::Physics::Core::PhysicsConfiguration2D& GetPhysicsConfiguration() const { return m_PhysicsConfiguration; }
