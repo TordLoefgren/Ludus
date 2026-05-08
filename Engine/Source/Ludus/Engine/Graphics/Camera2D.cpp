@@ -10,10 +10,10 @@ namespace Ludus::Engine::Graphics
 {
 	Camera2D::Camera2D()
 		: m_Position(0.0f, 0.0f), m_ViewportSize(1.0f, 1.0f), m_Projection({ }), m_Rotation(0.0f), m_OrthographicSize(10.0f)
-	{ }
+	{}
 
 	Camera2D::~Camera2D()
-	{ }
+	{}
 
 	void Camera2D::SetPosition(Ludus::Engine::Math::Vector2D position) { m_Position = { position.X, position.Y }; }
 

@@ -48,6 +48,12 @@ namespace Ludus::Editor::Core
 			const Ludus::Engine::Runtime::RuntimeLaunchSettings& runtimeLaunchSettings
 		);
 
+		bool AddOrUpdateAssetReference(
+			Ludus::Engine::Core::AssetId id,
+			Ludus::Engine::Core::AssetType type,
+			std::filesystem::path path
+		);
+
 		bool AddOrUpdateSceneReference(
 			Ludus::Engine::Core::SceneId id,
 			std::string name,

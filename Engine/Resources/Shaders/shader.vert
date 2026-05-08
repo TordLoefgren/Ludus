@@ -6,15 +6,17 @@ layout (location = 0) in vec2 a_WorldPosition;
 layout (location = 1) in vec2 a_LocalPosition;	// [-0.5, 0.5]
 layout (location = 2) in vec4 a_Color;
 layout (location = 3) in vec2 a_TexCoord;
-layout (location = 4) in int a_Shape;
-layout (location = 5) in int a_Fill;
-layout (location = 6) in int a_TexSlot;
+layout (location = 4) in int a_Fill;
+layout (location = 5) in int a_Mode;
+layout (location = 6) in int a_Shape;
+layout (location = 7) in int a_TexSlot;
 
 out vec4 v_Color;
 out vec2 v_TexCoord;
 out vec2 v_LocalPosition;
-flat out int v_Shape;
 flat out int v_Fill;
+flat out int v_Mode;
+flat out int v_Shape;
 flat out int v_TexSlot;
 
 uniform mat4 u_ViewProjection;
@@ -25,7 +27,8 @@ void main()
 	v_Color = a_Color;
 	v_TexCoord = a_TexCoord;
 	v_LocalPosition = a_LocalPosition;
-	v_Shape = a_Shape;
 	v_Fill = a_Fill;
+	v_Mode = a_Mode;
+	v_Shape = a_Shape;
 	v_TexSlot = a_TexSlot;
 }

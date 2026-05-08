@@ -25,15 +25,15 @@ namespace Ludus::Editor::Commands
 
 	struct RequestCommand
 	{
-		struct AddViewport { };
+		struct AddViewport {};
 		struct SetExecutionMode { Ludus::Editor::Core::ExecutionMode Mode; };
 		struct SetExecutionFlag { Ludus::Editor::Core::EditorExecutionFlags Flag; };
 		struct UnsetExecutionFlag { Ludus::Editor::Core::EditorExecutionFlags Flag; };
 		struct SetPanelVisibility { Ludus::Editor::Panels::PanelKind PanelKind; bool IsVisible; };
 		struct SetTheme { Ludus::UI::Theme::ThemeId ThemeId; };
-		struct CloseApplication { };
+		struct CloseApplication {};
 
-		struct CreateScene { };
+		struct CreateScene {};
 		struct CreateSceneAs { std::filesystem::path Path; };
 		struct OpenScene { std::filesystem::path Path; };
 		struct SaveScene { Ludus::Engine::Core::SceneId SceneId; };
@@ -43,8 +43,8 @@ namespace Ludus::Editor::Commands
 		struct CreateProject { std::string Name; };
 		struct CreateProjectAs { std::string Name; std::filesystem::path Path; };
 		struct OpenProject { std::filesystem::path Path; };
-		struct SaveProject { };
-		struct CloseProject { };
+		struct SaveProject {};
+		struct CloseProject {};
 
 		struct CreateScript { Ludus::Engine::Core::SceneId SceneId; EntityReference EntityReference; std::string Name; };
 
@@ -55,7 +55,7 @@ namespace Ludus::Editor::Commands
 			Ludus::Editor::Build::BuildConfiguration BuildConfiguration;
 		};
 		struct BuildRuntime { Ludus::Editor::Build::BuildConfiguration BuildConfiguration; };
-		struct CleanRuntime { };
+		struct CleanRuntime {};
 
 		struct ResolveUnsavedChanges { Ludus::Editor::Commands::Requests::DeferredAction DeferredAction; Ludus::Editor::Dialogs::UnsavedChangesResult Result; };
 
@@ -71,7 +71,7 @@ namespace Ludus::Editor::Commands
 		Variant Data;
 
 		template<typename T>
-		RequestCommand(T value) : Data(std::move(value)) { }
+		RequestCommand(T value) : Data(std::move(value)) {}
 	};
 
 	void Execute(const RequestCommand& command, StartupCommandContext& context);

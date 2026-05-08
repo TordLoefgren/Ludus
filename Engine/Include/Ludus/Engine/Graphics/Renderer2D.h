@@ -13,6 +13,7 @@
 #include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
 #include <Ludus/Engine/Graphics/Shader.h>
 #include <Ludus/Engine/Graphics/Texture.h>
+#include <Ludus/Engine/Graphics/TextureRegion.h>
 #include <Ludus/Engine/Graphics/Vertex.h>
 #include <Ludus/Engine/Graphics/VertexArrayObject.h>
 #include <Ludus/Engine/Math/Vector2D.h>
@@ -33,6 +34,26 @@ namespace Ludus::Engine::Graphics
 	class Renderer2D
 	{
 	private:
+		enum class RenderFill : int
+		{
+			Fill = 0,
+			Stroke = 1
+		};
+
+		enum class RenderMode : int
+		{
+			SolidShape = 0,
+			TexturedSprite = 1,
+			TextGlyph = 2,
+			Line = 3
+		};
+
+		enum class RenderShape : int
+		{
+			Quad = 0,
+			Circle = 1
+		};
+
 		VertexArrayObject m_VertexArray;
 		VertexBufferObject m_VertexBuffer;
 		ElementBufferObject m_ElementBuffer;
@@ -45,10 +66,21 @@ namespace Ludus::Engine::Graphics
 		int m_TexturesCount;
 		std::vector<const Texture*> m_Textures;
 
-		void DrawQuadInternal(const Ludus::Engine::Components::Transform2DComponent& transform, Color color, Texture* texture, int shape, int fill, bool flipU = false, bool flipV = false);
+		void DrawQuadInternal(
+			const Ludus::Engine::Components::Transform2DComponent& transform,
+			Color color,
+			Texture* texture,
+			TextureRegion textureRegion,
+			RenderFill fill,
+			RenderMode mode,
+			RenderShape shape,
+			bool flipU = false,
+			bool flipV = false
+		);
 
-		bool WouldOverflow(int vertexCount, int indexCount) const;
-		bool WouldExceedTextureSlots() const;
+		bool WouldOverflowQuadBatch(int vertexCount = 4, int indexCount = 6) const;
+		bool WouldOverflowLineBatch(int vertexCount = 2) const;
+		bool WouldExceedTextureSlots(Texture* texture) const;
 
 		int GetTextureSlot(Texture* texture);
 		int GetIndexCount() const;
@@ -67,10 +99,11 @@ namespace Ludus::Engine::Graphics
 		void BeginScene(const Camera2D& camera);
 		void EndScene();
 
+		void DrawSprite(const Ludus::Engine::Components::Transform2DComponent& transform, Color color = Colors::White, Texture* texture = nullptr, TextureRegion textureRegion = { }, bool flipU = false, bool flipV = false);
 		void DrawQuad(const Ludus::Engine::Components::Transform2DComponent& transform, Color color = Colors::White, Texture* texture = nullptr, bool fill = true);
-		void DrawLine(float x1, float y1, float x2, float y2, Color color = Colors::White);
 		void DrawCircle(const Ludus::Engine::Components::Transform2DComponent& transform, Color color = Colors::White, bool fill = true);
 		void DrawText(const Ludus::Engine::Components::Transform2DComponent& transform, std::string_view text, Color color = Colors::White, HorizontalTextAlignment horizontalTextAlignment = HorizontalTextAlignment::Left);
+		void DrawLine(float x1, float y1, float x2, float y2, Color color = Colors::White);
 
 		void Clear() const;
 		void Flush();

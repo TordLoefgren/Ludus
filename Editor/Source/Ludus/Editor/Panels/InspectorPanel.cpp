@@ -40,6 +40,7 @@
 #include <Ludus/UI/Scope/FontScope.h>
 #include <Ludus/UI/Scope/IDScope.h>
 #include <Ludus/UI/Scope/MenuScope.h>
+#include <Ludus/UI/Scope/PopupScope.h>
 #include <Ludus/UI/Scope/StyleScope.h>
 #include <Ludus/UI/Scope/TableScope.h>
 #include <Ludus/UI/Scope/TreeNodeScope.h>
@@ -119,7 +120,7 @@ namespace Ludus::Editor::Panels
 		Ludus::UI::Elements::ActionTreeNode DrawComponentHeaderWithMenu(
 			Ludus::Editor::Core::ProjectSessionContext& context,
 			const char* label,
-			TComponent component
+			const TComponent& component
 		)
 		{
 			const std::string treeNodeId = std::string(label) + "_ActionTreeNode";
@@ -479,7 +480,60 @@ namespace Ludus::Editor::Panels
 				DrawInspectorLabel("Fill");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
 				changed |= Ludus::UI::Widgets::Checkbox("##Sprite2D_Panel_Fill", &component.Fill);
+
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				DrawInspectorLabel("Flip X");
 				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
+				changed |= Ludus::UI::Widgets::Checkbox("##Sprite2D_Panel_FlipX", &component.FlipX);
+
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				DrawInspectorLabel("Flip Y");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
+				changed |= Ludus::UI::Widgets::Checkbox("##Sprite2D_Panel_FlipY", &component.FlipY);
+
+				Ludus::UI::Context::TableContext::TableNextRowFirstColumn();
+				DrawInspectorLabel("Texture");
+				Ludus::UI::Context::TableContext::TableSetColumnIndex(1);
+
+				const auto& assetReferences = context.ProjectSession.Persistence.GetAssets();
+
+				std::vector<std::string> assetNames;
+				assetNames.reserve(assetReferences.size());
+
+				std::vector<const char*> items;
+				items.reserve(assetReferences.size() + 1);
+
+				items.push_back("None");
+
+				auto currentIndex = 0;
+
+				for (auto i = 0; i < static_cast<int>(assetReferences.size()); i++)
+				{
+					const auto& reference = assetReferences[static_cast<size_t>(i)];
+
+					assetNames.push_back(reference.Path.filename().string());
+					items.push_back(assetNames.back().c_str());
+
+					if (reference.Id == component.TextureId)
+					{
+						currentIndex = i + 1;
+					}
+				}
+
+				if (ComboFill("##Asset_Panel_Name", &currentIndex, items))
+				{
+					if (currentIndex == 0)
+					{
+						component.TextureId = Ludus::Engine::Core::AssetId::Invalid();
+					}
+					else
+					{
+						const auto& selected = assetReferences[static_cast<size_t>(currentIndex - 1)];
+						component.TextureId = selected.Id;
+					}
+
+					changed = true;
+				}
 			}
 		}
 

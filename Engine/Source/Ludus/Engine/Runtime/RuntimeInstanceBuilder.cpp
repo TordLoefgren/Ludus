@@ -91,6 +91,7 @@ namespace Ludus::Engine::Runtime
 			auto renderingSystem = std::make_unique<Ludus::Engine::Graphics::RenderingSystem2D>(
 				m_RenderingOptions,
 				runtime->GetRenderingConfiguration(),
+				runtime->GetAssetManager(),
 				runtime->GetRenderViewRegistry(),
 				runtime->GetSceneRegistry(),
 				runtime->GetRuntimeEnvironment()

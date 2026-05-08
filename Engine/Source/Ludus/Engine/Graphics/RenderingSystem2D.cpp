@@ -1,25 +1,28 @@
 #include "pch.h"
 
+#include <Ludus/Engine/Core/AssetManager.h>
 #include <Ludus/Engine/Core/RenderViewRegistry.h>
 #include <Ludus/Engine/Core/SceneRegistry.h>
 #include <Ludus/Engine/Graphics/CameraSource.h>
 #include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Graphics/RenderContext2D.h>
-#include <Ludus/Engine/Graphics/RenderingSystem2D.h>
 #include <Ludus/Engine/Graphics/RenderTarget.h>
 #include <Ludus/Engine/Graphics/RenderView2D.h>
+#include <Ludus/Engine/Graphics/RenderingSystem2D.h>
 
 namespace Ludus::Engine::Graphics
 {
 	RenderingSystem2D::RenderingSystem2D(
 		RenderingOptions renderingOptions,
 		RenderingConfiguration2D& renderingConfiguration,
+		Ludus::Engine::Core::AssetManager& assetManager,
 		Ludus::Engine::Core::RenderViewRegistry& renderViewRegistry,
 		Ludus::Engine::Core::SceneRegistry& sceneRegistry,
 		const Ludus::Engine::Runtime::RuntimeEnvironment& runtimeEnvironment
 	) :
 		m_RenderingOptions(renderingOptions),
 		m_RenderingConfiguration(renderingConfiguration),
+		m_AssetManager(assetManager),
 		m_RenderViewRegistry(renderViewRegistry),
 		m_SceneRegistry(sceneRegistry),
 		m_Shader(runtimeEnvironment.ShadersDirectory),
@@ -49,7 +52,7 @@ namespace Ludus::Engine::Graphics
 			m_Renderer.BeginScene(renderView.Camera);
 			m_Renderer.Clear();
 
-			m_RenderingPipeline.Execute({ m_SceneRegistry, renderView }, m_Renderer);
+			m_RenderingPipeline.Execute({ m_AssetManager, m_SceneRegistry, renderView }, m_Renderer);
 
 			m_Renderer.EndScene();
 

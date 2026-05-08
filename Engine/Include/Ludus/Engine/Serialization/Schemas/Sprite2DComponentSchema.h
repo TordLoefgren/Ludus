@@ -44,10 +44,31 @@ namespace Ludus::Engine::Serialization::Schemas
 				writer.Emit(Token::EndObject { });
 			}
 
-			// Texture field requires texture id instead of pointer.
+			writer.Emit(Token::Key { "TextureId" });
+			writer.Emit(Token::Uint { sprite.TextureId.Value });
+
+			{
+				writer.Emit(Token::Key { "SourceRect" });
+				writer.Emit(Token::StartObject { });
+				writer.Emit(Token::Key { "X" });
+				writer.Emit(Token::Int { sprite.SourceRect.X });
+				writer.Emit(Token::Key { "Y" });
+				writer.Emit(Token::Int { sprite.SourceRect.Y });
+				writer.Emit(Token::Key { "Width" });
+				writer.Emit(Token::Int { sprite.SourceRect.Width });
+				writer.Emit(Token::Key { "Height" });
+				writer.Emit(Token::Int { sprite.SourceRect.Height });
+				writer.Emit(Token::EndObject { });
+			}
 
 			writer.Emit(Token::Key { "Fill" });
 			writer.Emit(Token::Bool { sprite.Fill });
+
+			writer.Emit(Token::Key { "FlipX" });
+			writer.Emit(Token::Bool { sprite.FlipX });
+
+			writer.Emit(Token::Key { "FlipY" });
+			writer.Emit(Token::Bool { sprite.FlipY });
 
 			writer.Emit(Token::EndObject { });
 		}
@@ -77,8 +98,7 @@ namespace Ludus::Engine::Serialization::Schemas
 					}
 					if (key == "Color")
 					{
-						Ludus::Engine::Serialization::Core::ReadObject(reader,
-							[&](std::string_view colorKey)
+						Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view colorKey)
 						{
 							if (colorKey == "R")
 							{
@@ -105,9 +125,53 @@ namespace Ludus::Engine::Serialization::Schemas
 						});
 						return;
 					}
+					if (key == "TextureId")
+					{
+						sprite.TextureId = { Ludus::Engine::Serialization::Core::ConsumeUint64Like(reader) };
+						return;
+					}
+					if (key == "SourceRect")
+					{
+						Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view sourceRectKey)
+						{
+							if (sourceRectKey == "X")
+							{
+								sprite.SourceRect.X = Ludus::Engine::Serialization::Core::ConsumeIntLike(reader);
+								return;
+							}
+							if (sourceRectKey == "Y")
+							{
+								sprite.SourceRect.Y = Ludus::Engine::Serialization::Core::ConsumeIntLike(reader);
+								return;
+							}
+							if (sourceRectKey == "Width")
+							{
+								sprite.SourceRect.Width = Ludus::Engine::Serialization::Core::ConsumeIntLike(reader);
+								return;
+							}
+							if (sourceRectKey == "Height")
+							{
+								sprite.SourceRect.Height = Ludus::Engine::Serialization::Core::ConsumeIntLike(reader);
+								return;
+							}
+
+							Ludus::Engine::Serialization::Core::SkipValue(reader);
+						});
+						return;
+					}
 					if (key == "Fill")
 					{
 						sprite.Fill = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Bool>(reader).Data;
+						return;
+					}
+					if (key == "FlipX")
+					{
+						sprite.FlipX = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Bool>(reader).Data;
+						return;
+					}
+					if (key == "FlipY")
+					{
+						sprite.FlipY = Ludus::Engine::Serialization::Core::ConsumeAs<Token::Bool>(reader).Data;
 						return;
 					}
 

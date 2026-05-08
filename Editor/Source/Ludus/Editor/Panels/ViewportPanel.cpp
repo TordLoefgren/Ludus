@@ -133,8 +133,8 @@ namespace Ludus::Editor::Panels
 
 			const auto worldSize = m_Camera.GetWorldRect().Size;
 
-			const auto worldUnitPerPixelX = worldSize.X / viewportSize.X;
-			const auto worldUnitPerPixelY = worldSize.Y / viewportSize.Y;
+			const auto worldUnitPerPixelX = worldSize.Width / viewportSize.X;
+			const auto worldUnitPerPixelY = worldSize.Height / viewportSize.Y;
 
 			const auto mouseDelta = input.GetMouseDelta();
 			const auto worldDeltaX = mouseDelta.X * worldUnitPerPixelX;

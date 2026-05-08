@@ -8,8 +8,9 @@ namespace Ludus::Engine::Graphics
 		float LocalPosition[2];
 		float Color[4];
 		float TexCoords[2];
-		int Shape;
 		int Fill;
+		int Mode;
+		int Shape;
 		int TexSlot;
 	};
 }

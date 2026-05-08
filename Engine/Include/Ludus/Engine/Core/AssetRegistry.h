@@ -25,6 +25,11 @@ namespace Ludus::Engine::Core
 				throw std::runtime_error("Cannot register an asset with an invalid id.");
 			}
 
+			if (BuiltInAssetIds::IsBuiltIn(assetReference.Id))
+			{
+				throw std::runtime_error("Cannot register a built-in asset id in the project asset registry.");
+			}
+
 			if (assetReference.Type == Ludus::Engine::Core::AssetType::Unknown)
 			{
 				throw std::runtime_error("Cannot register an asset with unknown asset type.");

@@ -2,6 +2,7 @@
 
 #include <Ludus/Editor/Core/Axis.h>
 #include <Ludus/Editor/Widgets/Input.h>
+#include <Ludus/Engine/Math/RectInt.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/TableContext.h>

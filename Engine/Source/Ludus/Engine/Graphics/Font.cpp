@@ -9,7 +9,7 @@
 namespace Ludus::Engine::Graphics
 {
 	Font::Font(std::filesystem::path fontPath)
-		: m_GlyphMap(), m_FT_Library(nullptr), m_Face(nullptr), m_PixelSize(48)
+		: m_GlyphMap(), m_FT_Library(nullptr), m_Face(nullptr), m_PixelSize(128)
 	{
 		if (FT_Init_FreeType(&m_FT_Library))
 		{

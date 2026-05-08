@@ -57,6 +57,19 @@ namespace Ludus::Engine::Runtime
 			};
 		}
 
+		const AssetReference* TryGetAssetReference(Ludus::Engine::Core::AssetId id) const
+		{
+			for (const auto& assetReference : Assets)
+			{
+				if (assetReference.Id == id)
+				{
+					return &assetReference;
+				}
+			}
+
+			return nullptr;
+		}
+
 		const ScriptReference* TryGetScriptReference(Ludus::Engine::Core::ScriptId id) const
 		{
 			for (const auto& scriptReference : Scripts)

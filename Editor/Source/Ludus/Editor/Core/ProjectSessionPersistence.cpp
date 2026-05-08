@@ -12,12 +12,18 @@
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/Random.h>
+#include <Ludus/Engine/FileSystem/FileSystem.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Runtime/RuntimeLaunchSettings.h>
 #include <Ludus/Engine/Runtime/RuntimeManifest.h>
 
 namespace Ludus::Editor::Core
 {
+	namespace
+	{
+		namespace FileSystem = Ludus::Engine::FileSystem;
+	}
+
 	ProjectSessionPersistence::ProjectSessionPersistence(
 		Ludus::Editor::Core::ProjectManifest projectManifest,
 		Ludus::Engine::Runtime::RuntimeManifest runtimeManifest,
@@ -26,7 +32,7 @@ namespace Ludus::Editor::Core
 		m_ProjectManifest(std::move(projectManifest)),
 		m_RuntimeManifest(std::move(runtimeManifest)),
 		m_RuntimeLaunchSettings(std::move(runtimeLaunchSettings))
-	{ }
+	{}
 
 	ProjectSessionPersistence ProjectSessionPersistence::Create(
 		Ludus::Editor::Core::ProjectManifest projectManifest,
@@ -59,6 +65,130 @@ namespace Ludus::Editor::Core
 		);
 	}
 
+	bool ProjectSessionPersistence::UpdateRuntimeLaunchSettings(
+		const Ludus::Engine::Runtime::RuntimeLaunchSettings& runtimeLaunchSettings
+	)
+	{
+		if (runtimeLaunchSettings == m_RuntimeLaunchSettings)
+		{
+			return false;
+		}
+
+		m_RuntimeLaunchSettings = runtimeLaunchSettings;
+
+		return true;
+	}
+
+#pragma region Assets
+
+	bool ProjectSessionPersistence::AddOrUpdateAssetReference(
+		Ludus::Engine::Core::AssetId id,
+		Ludus::Engine::Core::AssetType type,
+		std::filesystem::path path
+	)
+	{
+		if (!id.IsValid())
+		{
+			throw std::runtime_error("Cannot register an asset with an invalid id.");
+		}
+
+		if (Ludus::Engine::Core::BuiltInAssetIds::IsBuiltIn(id))
+		{
+			throw std::runtime_error("Cannot register a built-in asset id in the runtime manifest.");
+		}
+
+		if (type == Ludus::Engine::Core::AssetType::Unknown)
+		{
+			throw std::runtime_error("Cannot register an asset with unknown asset type.");
+		}
+
+		path = FileSystem::NormalizePortablePath(path);
+		if (path.empty())
+		{
+			throw std::runtime_error("Cannot register an asset with an empty path.");
+		}
+
+		for (auto& assetReference : m_RuntimeManifest.Assets)
+		{
+			if (assetReference.Id == id)
+			{
+				if (assetReference.Type == type && FileSystem::NormalizePortablePath(assetReference.Path) == path)
+				{
+					return false;
+				}
+
+				assetReference.Type = type;
+				assetReference.Path = std::move(path);
+
+				return true;
+			}
+		}
+
+		m_RuntimeManifest.Assets.push_back({ id, type, std::move(path) });
+
+		return true;
+	}
+
+	bool ProjectSessionPersistence::RemoveAssetReference(Ludus::Engine::Core::AssetId id)
+	{
+		auto& assets = m_RuntimeManifest.Assets;
+		for (auto iter = assets.begin(); iter != assets.end(); ++iter)
+		{
+			if (iter->Id == id)
+			{
+				assets.erase(iter);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool ProjectSessionPersistence::HasAssetReference(Ludus::Engine::Core::AssetId id) const
+	{
+		for (const auto& assetReference : m_RuntimeManifest.Assets)
+		{
+			if (assetReference.Id == id)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool ProjectSessionPersistence::HasAssetReference(const std::filesystem::path& path) const
+	{
+		const auto normalizedPath = FileSystem::NormalizePortablePath(path);
+
+		for (const auto& assetReference : m_RuntimeManifest.Assets)
+		{
+			if (FileSystem::NormalizePortablePath(assetReference.Path) == normalizedPath)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	Ludus::Engine::Core::AssetId ProjectSessionPersistence::AllocateAssetId() const
+	{
+		auto random = Ludus::Engine::Core::Random();
+		auto id = Ludus::Engine::Core::AssetId { random.NextId() };
+
+		while (HasAssetReference(id) || Ludus::Engine::Core::BuiltInAssetIds::IsBuiltIn(id))
+		{
+			id = Ludus::Engine::Core::AssetId { random.NextId() };
+		}
+
+		return id;
+	}
+
+#pragma endregion
+
+#pragma region Scenes
+
 	std::optional<std::filesystem::path> ProjectSessionPersistence::TryGetScenePath(Ludus::Engine::Core::SceneId sceneId) const
 	{
 		std::filesystem::path scenePath;
@@ -86,11 +216,13 @@ namespace Ludus::Editor::Core
 		std::filesystem::path path
 	)
 	{
+		path = FileSystem::NormalizePortablePath(path);
+
 		for (auto& sceneReference : m_RuntimeManifest.Scenes)
 		{
 			if (sceneReference.Id == id)
 			{
-				if (sceneReference.Name == name && sceneReference.Path == path)
+				if (sceneReference.Name == name && FileSystem::NormalizePortablePath(sceneReference.Path) == path)
 				{
 					return false;
 				}
@@ -106,6 +238,10 @@ namespace Ludus::Editor::Core
 
 		return true;
 	}
+
+#pragma endregion
+
+#pragma region Scripts
 
 	bool ProjectSessionPersistence::AddOrUpdateScriptReference(Ludus::Engine::Core::ScriptId id, std::string name)
 	{
@@ -194,17 +330,6 @@ namespace Ludus::Editor::Core
 		return names;
 	}
 
-	bool ProjectSessionPersistence::UpdateRuntimeLaunchSettings(
-		const Ludus::Engine::Runtime::RuntimeLaunchSettings& runtimeLaunchSettings
-	)
-	{
-		if (runtimeLaunchSettings == m_RuntimeLaunchSettings)
-		{
-			return false;
-		}
+#pragma endregion
 
-		m_RuntimeLaunchSettings = runtimeLaunchSettings;
-
-		return true;
-	}
 }
