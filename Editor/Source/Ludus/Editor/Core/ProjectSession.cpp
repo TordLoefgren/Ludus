@@ -11,6 +11,8 @@
 #include <Ludus/Editor/Core/ProjectSessionRuntimeState.h>
 #include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/Scene.h>
+#include <Ludus/Engine/FileSystem/FileSystem.h>
+#include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/Engine/Runtime/RuntimeInstanceBuilder.h>
 
 namespace Ludus::Editor::Core
@@ -111,6 +113,21 @@ namespace Ludus::Editor::Core
 		{
 			RuntimeState.ApplyRuntimeLaunchSettings(runtimeLaunchSettings);
 			EditorState.SetRuntimeLaunchSettingsDirty(true);
+		}
+
+		return changed;
+	}
+
+	bool ProjectSession::AddOrUpdateAssetReference(
+		Ludus::Engine::Core::AssetId id,
+		Ludus::Engine::Core::AssetType type,
+		std::filesystem::path path
+	)
+	{
+		const auto changed = Persistence.AddOrUpdateAssetReference(id, type, path);
+		if (changed)
+		{
+			EditorState.SetRuntimeManifestDirty(true);
 		}
 
 		return changed;

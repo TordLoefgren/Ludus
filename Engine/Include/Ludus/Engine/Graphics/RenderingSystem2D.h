@@ -10,6 +10,7 @@
 
 namespace Ludus::Engine::Core
 {
+	class AssetManager;
 	struct RenderViewRegistry;
 	struct SceneRegistry;
 }
@@ -20,6 +21,7 @@ namespace Ludus::Engine::Graphics
 	{
 		RenderingOptions m_RenderingOptions;
 		RenderingConfiguration2D& m_RenderingConfiguration;
+		Ludus::Engine::Core::AssetManager& m_AssetManager;
 		Ludus::Engine::Core::RenderViewRegistry& m_RenderViewRegistry;
 		Ludus::Engine::Core::SceneRegistry& m_SceneRegistry;
 		Shader m_Shader;
@@ -30,6 +32,7 @@ namespace Ludus::Engine::Graphics
 		RenderingSystem2D(
 			RenderingOptions renderingOptions,
 			RenderingConfiguration2D& renderingConfiguration,
+			Ludus::Engine::Core::AssetManager& assetManager,
 			Ludus::Engine::Core::RenderViewRegistry& renderViewRegistry,
 			Ludus::Engine::Core::SceneRegistry& sceneRegistry,
 			const Ludus::Engine::Runtime::RuntimeEnvironment& runtimeEnvironment

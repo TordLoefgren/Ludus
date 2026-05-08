@@ -16,6 +16,7 @@
 #include <Ludus/Engine/Graphics/HorizontalTextAlignment.h>
 #include <Ludus/Engine/Graphics/Shape.h>
 #include <Ludus/Engine/Graphics/Texture.h>
+#include <Ludus/Engine/Math/RectInt.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/Engine/Physics/Core/BodyType.h>
 
@@ -116,11 +117,14 @@ namespace Ludus::Engine::Core
 			EntityId id,
 			Ludus::Engine::Graphics::Shape shape = Ludus::Engine::Graphics::Shape::Quad,
 			Ludus::Engine::Graphics::Color color = Ludus::Engine::Graphics::Colors::White,
-			Ludus::Engine::Graphics::Texture* texture = nullptr,
-			bool fill = true
+			AssetId textureId = { AssetId::Invalid() },
+			Ludus::Engine::Math::RectInt sourceRect = Ludus::Engine::Math::RectInt::Empty(),
+			bool fill = true,
+			bool flipX = false,
+			bool flipY = false
 		)
 		{
-			Sprites.Add(id, shape, color, texture, fill);
+			Sprites.Add(id, shape, color, textureId, sourceRect, fill, flipX, flipY);
 		}
 
 		void AttachSprite(Ludus::Engine::Components::Sprite2DComponent component) { Sprites.Add(component); }

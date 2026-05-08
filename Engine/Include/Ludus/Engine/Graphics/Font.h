@@ -21,6 +21,8 @@ namespace Ludus::Engine::Graphics
 		explicit Font(std::filesystem::path fontPath);
 		~Font();
 
+		int GetPixelSize() const { return m_PixelSize; }
+
 		const Glyph* GetGlyph(const char character);
 		float MeasureTextWidth(std::string_view text);
 	};

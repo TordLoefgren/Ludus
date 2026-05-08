@@ -199,19 +199,17 @@ namespace Ludus::Editor::Panels
 			// Assets.
 			if (Ludus::UI::Scope::MenuScope assetsMenu("Assets"); assetsMenu)
 			{
-				if (Ludus::UI::Widgets::MenuItem("Show All Projects"))
-				{
-					Ludus::Engine::Platform::Paths::OpenFolder(
-						Ludus::Editor::Persistence::ProjectPaths::ProjectsRoot()
-					);
-				}
-
-				Ludus::UI::Context::LayoutContext::Separator();
-
 				if (Ludus::UI::Widgets::MenuItem("Show in Explorer"))
 				{
 					Ludus::Engine::Platform::Paths::OpenFolder(
 						Ludus::Engine::Persistence::Paths::AssetsDirectory(projectRoot)
+					);
+				}
+
+				if (Ludus::UI::Widgets::MenuItem("Show All Projects"))
+				{
+					Ludus::Engine::Platform::Paths::OpenFolder(
+						Ludus::Editor::Persistence::ProjectPaths::ProjectsRoot()
 					);
 				}
 			}

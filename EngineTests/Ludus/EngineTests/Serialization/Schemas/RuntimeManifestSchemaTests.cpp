@@ -376,4 +376,48 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		// Assert.
 		ASSERT_FALSE(result.HasValue());
 	}
+
+	TEST(RuntimeManifestSchema, Deserialize_Fails_When_AssetIdUsesBuiltInRange)
+	{
+		// Arrange.
+		DomDocument document;
+		DomTokenStreamWriter writer(document);
+		writer.Emit(Token::StartObject { });
+		WriteVersion(writer, RuntimeManifest::CurrentVersion.Major, RuntimeManifest::CurrentVersion.Minor, RuntimeManifest::CurrentVersion.Patch);
+		writer.Emit(Token::Key { "EntrySceneId" });
+		writer.Emit(Token::Uint { 1 });
+		writer.Emit(Token::Key { "Scenes" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::StartObject { });
+		writer.Emit(Token::Key { "Id" });
+		writer.Emit(Token::Uint { 1 });
+		writer.Emit(Token::Key { "Name" });
+		writer.Emit(Token::String { "Scene" });
+		writer.Emit(Token::Key { "Path" });
+		writer.Emit(Token::String { "Scenes/Scene.scene.ludus" });
+		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::Key { "Scripts" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::Key { "Assets" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::StartObject { });
+		writer.Emit(Token::Key { "Id" });
+		writer.Emit(Token::Uint { Ludus::Engine::Core::BuiltInAssetIds::MissingTexture.Value });
+		writer.Emit(Token::Key { "Type" });
+		writer.Emit(Token::String { "Texture2D" });
+		writer.Emit(Token::Key { "Path" });
+		writer.Emit(Token::String { "Assets/Sprites/Player.png" });
+		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::EndObject { });
+		DomTokenStreamReader reader(document);
+
+		// Act.
+		const auto result = RuntimeManifestSchema::Deserialize(reader);
+
+		// Assert.
+		ASSERT_FALSE(result.HasValue());
+	}
 }

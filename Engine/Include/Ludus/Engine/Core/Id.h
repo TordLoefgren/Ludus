@@ -3,6 +3,7 @@
 #include <compare>
 #include <cstdint>
 #include <functional>
+#include <limits>
 
 namespace Ludus::Engine::Core
 {
@@ -33,6 +34,23 @@ namespace Ludus::Engine::Core
 	using SceneId = Id<SceneIdTag>;
 	using ScriptId = Id<ScriptIdTag>;
 	using AssetId = Id<AssetIdTag>;
+
+	namespace BuiltInAssetIds
+	{
+		inline constexpr std::uint64_t ReservedCount = 64;
+		inline constexpr std::uint64_t ReservedStart = std::numeric_limits<std::uint64_t>::max() - ReservedCount + 1;
+		inline constexpr AssetId MissingTexture { std::numeric_limits<std::uint64_t>::max() };
+
+		inline constexpr bool IsBuiltIn(AssetId id)
+		{
+			return id.Value >= ReservedStart;
+		}
+
+		inline constexpr bool IsMissingTexture(AssetId id)
+		{
+			return id == MissingTexture;
+		}
+	}
 }
 
 template<>

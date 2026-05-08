@@ -277,6 +277,10 @@ namespace Ludus::Engine::Serialization::Schemas
 								{
 									throw SerializationException("RuntimeManifest asset id is invalid.");
 								}
+								if (Ludus::Engine::Core::BuiltInAssetIds::IsBuiltIn(asset.Id))
+								{
+									throw SerializationException("RuntimeManifest asset id cannot use the built-in asset range.");
+								}
 								hasId = true;
 								return;
 							}

@@ -68,6 +68,33 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 		{
 			context.ProjectSession.EditorState.SetRuntimeManifestDirty(false);
 		}
+
+		bool ContainsUnresolvedReferences(
+			const Ludus::Engine::Core::Scene& scene,
+			const Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest,
+			std::string& errorMessage
+		)
+		{
+			if (Ludus::Editor::Core::SceneQueries::ContainsUnresolvedAssetReferences(
+				scene,
+				runtimeManifest
+			))
+			{
+				errorMessage = "Scene cannot be saved while it contains unresolved asset references.";
+				return true;
+			}
+
+			if (Ludus::Editor::Core::SceneQueries::ContainsUnresolvedScriptReferences(
+				scene,
+				runtimeManifest
+			))
+			{
+				errorMessage = "Scene cannot be saved while it contains unresolved script references.";
+				return true;
+			}
+
+			return false;
+		}
 	}
 
 	void CreateSceneAction(ProjectSessionCommandContext& context)
@@ -95,12 +122,11 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 	void SaveSceneAction(Ludus::Engine::Core::SceneId sceneId, ProjectSessionCommandContext& context)
 	{
 		const auto& scene = context.ProjectSession.RuntimeState.GetEditorScene(sceneId);
-		if (Ludus::Editor::Core::SceneQueries::ContainsUnresolvedScriptReferences(
-			scene,
-			context.ProjectSession.Persistence.GetRuntimeManifest()
-		))
+		const auto& runtimeManifest = context.ProjectSession.Persistence.GetRuntimeManifest();
+		std::string errorMessage;
+		if (ContainsUnresolvedReferences(scene, runtimeManifest, errorMessage))
 		{
-			LUDUS_LOG_WARN("Scene cannot be saved while it contains unresolved script references.");
+			LUDUS_LOG_WARN(errorMessage);
 			return;
 		}
 
@@ -116,12 +142,11 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 	)
 	{
 		const auto& scene = context.ProjectSession.RuntimeState.GetEditorScene(sceneId);
-		if (Ludus::Editor::Core::SceneQueries::ContainsUnresolvedScriptReferences(
-			scene,
-			context.ProjectSession.Persistence.GetRuntimeManifest()
-		))
+		const auto& runtimeManifest = context.ProjectSession.Persistence.GetRuntimeManifest();
+		std::string errorMessage;
+		if (ContainsUnresolvedReferences(scene, runtimeManifest, errorMessage))
 		{
-			LUDUS_LOG_WARN("Scene cannot be saved while it contains unresolved script references.");
+			LUDUS_LOG_WARN(errorMessage);
 			return;
 		}
 
@@ -142,12 +167,11 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 	)
 	{
 		auto& scene = context.ProjectSession.RuntimeState.GetEditorScene(sceneId);
-		if (Ludus::Editor::Core::SceneQueries::ContainsUnresolvedScriptReferences(
-			scene,
-			context.ProjectSession.Persistence.GetRuntimeManifest()
-		))
+		const auto& runtimeManifest = context.ProjectSession.Persistence.GetRuntimeManifest();
+		std::string errorMessage;
+		if (ContainsUnresolvedReferences(scene, runtimeManifest, errorMessage))
 		{
-			LUDUS_LOG_WARN("Scene cannot be saved while it contains unresolved script references.");
+			LUDUS_LOG_WARN(errorMessage);
 			return;
 		}
 

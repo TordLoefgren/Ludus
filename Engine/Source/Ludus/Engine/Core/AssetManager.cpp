@@ -46,6 +46,11 @@ namespace Ludus::Engine::Core
 			return { nullptr, false };
 		}
 
+		if (BuiltInAssetIds::IsMissingTexture(id))
+		{
+			return { &m_MissingTexture, true };
+		}
+
 		auto* cachedTexture = m_TextureCache.TryGet(id);
 		if (cachedTexture != nullptr)
 		{

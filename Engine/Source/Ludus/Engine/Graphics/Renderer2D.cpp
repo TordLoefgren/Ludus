@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include <algorithm>
+
 #include <Ludus/Engine/Graphics/GL.h>
 #include <Ludus/Engine/Graphics/Renderer2D.h>
 
@@ -76,7 +78,7 @@ namespace Ludus::Engine::Graphics
 		Flush();
 	}
 
-	void Renderer2D::DrawQuadInternal(const Ludus::Engine::Components::Transform2DComponent& transform, Color color, Texture* texture, int shape, int fill, bool flipU, bool flipV)
+	void Renderer2D::DrawQuadInternal(const Ludus::Engine::Components::Transform2DComponent& transform, Color color, Texture* texture, TextureRegion textureRegion, RenderFill fill, RenderMode mode, RenderShape shape, bool flipU, bool flipV)
 	{
 		auto [r, g, b, a] = color;
 		auto textureSlot = GetTextureSlot(texture);
@@ -95,27 +97,27 @@ namespace Ludus::Engine::Graphics
 			local[i] = glm::vec2(UnitQuad[i].x, UnitQuad[i].y);
 		}
 
-		glm::vec2 uv[4] = { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } };
+		auto left = textureRegion.Left;
+		auto top = textureRegion.Top;
+		auto right = textureRegion.Right;
+		auto bottom = textureRegion.Bottom;
+
 		if (flipU)
 		{
-			for (auto& t : uv)
-			{
-				t.x = 1.0f - t.x;
-			}
+			std::swap(left, right);
 		}
 
 		if (flipV)
 		{
-			for (auto& t : uv)
-			{
-				t.y = 1.0f - t.y;
-			}
+			std::swap(top, bottom);
 		}
 
-		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 0] = { { world[0].x, world[0].y }, { local[0].x, local[0].y }, { r, g, b, a }, uv[0].x, uv[0].y, shape, fill, textureSlot };
-		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 1] = { { world[1].x, world[1].y }, { local[1].x, local[1].y }, { r, g, b, a }, uv[1].x, uv[1].y, shape, fill, textureSlot };
-		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 2] = { { world[2].x, world[2].y }, { local[2].x, local[2].y }, { r, g, b, a }, uv[2].x, uv[2].y, shape, fill, textureSlot };
-		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 3] = { { world[3].x, world[3].y }, { local[3].x, local[3].y }, { r, g, b, a }, uv[3].x, uv[3].y, shape, fill, textureSlot };
+		glm::vec2 uv[4] = { { left, bottom }, { right, bottom }, { right, top }, { left, top } };
+
+		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 0] = { { world[0].x, world[0].y }, { local[0].x, local[0].y }, { r, g, b, a }, uv[0].x, uv[0].y, static_cast<int>(fill), static_cast<int>(mode), static_cast<int>(shape), textureSlot };
+		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 1] = { { world[1].x, world[1].y }, { local[1].x, local[1].y }, { r, g, b, a }, uv[1].x, uv[1].y, static_cast<int>(fill), static_cast<int>(mode), static_cast<int>(shape), textureSlot };
+		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 2] = { { world[2].x, world[2].y }, { local[2].x, local[2].y }, { r, g, b, a }, uv[2].x, uv[2].y, static_cast<int>(fill), static_cast<int>(mode), static_cast<int>(shape), textureSlot };
+		m_State.m_QuadVertices[m_State.m_QuadVertexCursor + 3] = { { world[3].x, world[3].y }, { local[3].x, local[3].y }, { r, g, b, a }, uv[3].x, uv[3].y, static_cast<int>(fill), static_cast<int>(mode), static_cast<int>(shape), textureSlot };
 
 		auto offset = m_State.m_QuadVertexCursor;
 
@@ -130,61 +132,75 @@ namespace Ludus::Engine::Graphics
 		m_State.m_QuadIndexCursor += 6;
 	}
 
-	void Renderer2D::DrawQuad(const Ludus::Engine::Components::Transform2DComponent& transform, Color color, Texture* texture, bool fill)
+	void Renderer2D::DrawSprite(const Ludus::Engine::Components::Transform2DComponent& transform, Color color, Texture* texture, TextureRegion textureRegion, bool flipU, bool flipV)
 	{
-		if (WouldOverflow(4, 6))
+		if (WouldOverflowQuadBatch() || WouldExceedTextureSlots(texture))
 		{
 			Flush();
 		}
 
-		DrawQuadInternal(transform, color, texture, 0, fill ? 0 : 1);
+		DrawQuadInternal(transform, color, texture, textureRegion, RenderFill::Fill, RenderMode::TexturedSprite, RenderShape::Quad, flipU, flipV);
+	}
+
+	void Renderer2D::DrawQuad(const Ludus::Engine::Components::Transform2DComponent& transform, Color color, Texture* texture, bool fill)
+	{
+		if (WouldOverflowQuadBatch() || WouldExceedTextureSlots(texture))
+		{
+			Flush();
+		}
+
+		DrawQuadInternal(transform, color, texture, { }, fill ? RenderFill::Fill : RenderFill::Stroke, RenderMode::SolidShape, RenderShape::Quad);
 	}
 
 	void Renderer2D::DrawCircle(const Ludus::Engine::Components::Transform2DComponent& transform, Color color, bool fill)
 	{
-		if (WouldOverflow(4, 6))
+		if (WouldOverflowQuadBatch())
 		{
 			Flush();
 		}
 
-		DrawQuadInternal(transform, color, nullptr, 1, fill ? 0 : 1);
+		DrawQuadInternal(transform, color, nullptr, { }, fill ? RenderFill::Fill : RenderFill::Stroke, RenderMode::SolidShape, RenderShape::Circle);
 	}
 
 	void Renderer2D::DrawText(const Ludus::Engine::Components::Transform2DComponent& transform, std::string_view string, Color color, HorizontalTextAlignment horizontalTextAlignment)
 	{
 		auto position = transform.Position;
 
+		const float scaleX = transform.Scale.X / static_cast<float>(m_Font.GetPixelSize());
+		const float scaleY = transform.Scale.Y / static_cast<float>(m_Font.GetPixelSize());
+
 		if (horizontalTextAlignment != HorizontalTextAlignment::Right)
 		{
-			const auto widthPixels = m_Font.MeasureTextWidth(string) * transform.Scale.X;
+			const auto textWidthWorld = m_Font.MeasureTextWidth(string) * scaleX;
 
 			if (horizontalTextAlignment == HorizontalTextAlignment::Center)
 			{
-				position.X -= 0.5f * widthPixels;
+				position.X -= 0.5f * textWidthWorld;
 			}
 			else
 			{
-				position.X -= widthPixels;
+				position.X -= textWidthWorld;
 			}
 		}
 
 		for (char character : string)
 		{
-			const Glyph* glyph = m_Font.GetGlyph(character);
+			const auto* glyph = m_Font.GetGlyph(character);
 			if (!glyph)
 			{
 				continue;
 			}
 
-			if (WouldOverflow(4, 6) || WouldExceedTextureSlots())
+			auto texture = &const_cast<Glyph*>(glyph)->Texture;
+			if (WouldOverflowQuadBatch() || WouldExceedTextureSlots(texture))
 			{
 				Flush();
 			}
 
-			const float x = position.X + glyph->BearingX * transform.Scale.X;
-			const float y = position.Y + (glyph->BearingY - glyph->Rows) * transform.Scale.Y;
-			const float width = glyph->Width * transform.Scale.X;
-			const float height = glyph->Rows * transform.Scale.Y;
+			const float x = position.X + glyph->BearingX * scaleX;
+			const float y = position.Y + (glyph->BearingY - glyph->Rows) * scaleY;
+			const float width = glyph->Width * scaleX;
+			const float height = glyph->Rows * scaleY;
 
 			const Ludus::Engine::Math::Vector2D quadCenter { x + width * 0.5f, y + height * 0.5f };
 			const Ludus::Engine::Math::Vector2D quadScale { width, height };
@@ -192,20 +208,22 @@ namespace Ludus::Engine::Graphics
 			DrawQuadInternal(
 				Ludus::Engine::Components::Transform2DComponent(transform.OwnerId, quadCenter, quadScale, transform.Rotation),
 				color,
-				&const_cast<Glyph*>(glyph)->Texture,
-				0,
+				texture,
+				{ },
+				RenderFill::Fill,
+				RenderMode::TextGlyph,
+				RenderShape::Quad,
 				false,
-				false,
-				true // FreeType bitmaps are flipped vertically.
+				false
 			);
 
-			position.X += (glyph->Advance / 64.0f) * transform.Scale.X;
+			position.X += (glyph->Advance / 64.0f) * scaleX;
 		}
 	}
 
 	void Renderer2D::DrawLine(float x1, float y1, float x2, float y2, Color color)
 	{
-		if (WouldOverflow(2, 0))
+		if (WouldOverflowLineBatch())
 		{
 			Flush();
 		}
@@ -213,8 +231,8 @@ namespace Ludus::Engine::Graphics
 		auto [r, g, b, a] = color;
 		auto textureSlot = 0;
 
-		m_State.m_LineVertices[m_State.m_LineVertexCursor + 0] = { { x1, y1 }, { 0.0f, 0.0f }, { r, g, b, a }, { 0.0f, 0.0f }, 0, 0, textureSlot };
-		m_State.m_LineVertices[m_State.m_LineVertexCursor + 1] = { { x2, y2 }, { 0.0f, 0.0f }, { r, g, b, a }, { 1.0f, 0.0f }, 0, 0, textureSlot };
+		m_State.m_LineVertices[m_State.m_LineVertexCursor + 0] = { { x1, y1 }, { 0.0f, 0.0f }, { r, g, b, a }, { 0.0f, 0.0f }, static_cast<int>(RenderFill::Fill), static_cast<int>(RenderMode::Line), static_cast<int>(RenderShape::Quad), textureSlot };
+		m_State.m_LineVertices[m_State.m_LineVertexCursor + 1] = { { x2, y2 }, { 0.0f, 0.0f }, { r, g, b, a }, { 1.0f, 0.0f }, static_cast<int>(RenderFill::Fill), static_cast<int>(RenderMode::Line), static_cast<int>(RenderShape::Quad), textureSlot };
 
 		m_State.m_LineVertexCursor += 2;
 	}
@@ -273,14 +291,32 @@ namespace Ludus::Engine::Graphics
 		m_Shader.Unbind();
 	}
 
-	bool Renderer2D::WouldOverflow(int vertexCount, int indexCount) const
+	bool Renderer2D::WouldOverflowQuadBatch(int vertexCount, int indexCount) const
 	{
 		return (m_State.m_QuadVertexCursor + vertexCount > static_cast<int>(m_State.m_QuadVertices.size())) ||
 			(m_State.m_QuadIndexCursor + indexCount > static_cast<int>(m_State.m_QuadIndices.size()));
 	}
 
-	bool Renderer2D::WouldExceedTextureSlots() const
+	bool Renderer2D::WouldOverflowLineBatch(int vertexCount) const
 	{
+		return (m_State.m_LineVertexCursor + vertexCount > static_cast<int>(m_State.m_LineVertices.size()));
+	}
+
+	bool Renderer2D::WouldExceedTextureSlots(Texture* texture) const
+	{
+		if (!texture)
+		{
+			return false;
+		}
+
+		for (int i = 0; i < m_TexturesCount; i++)
+		{
+			if (m_Textures[i] == texture)
+			{
+				return false;
+			}
+		}
+
 		return m_TexturesCount >= m_MaxTextures;
 	}
 

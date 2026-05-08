@@ -39,5 +39,6 @@ namespace Ludus::Engine::FileSystem
 	void RemoveDirectoryIfEmpty(const std::filesystem::path& path);
 
 	std::string ToPortablePathString(const std::filesystem::path& path);
+	std::filesystem::path NormalizePortablePath(const std::filesystem::path& path);
 	bool ArePathsEqual(const std::filesystem::path& left, const std::filesystem::path& right);
 }

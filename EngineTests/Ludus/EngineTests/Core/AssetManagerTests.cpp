@@ -169,6 +169,22 @@ namespace Ludus::EngineTests::Core
 		ASSERT_EQ(assetManager.Loader->GetLoadCount(m_RuntimeRootDirectory / "Assets/Missing.png"), 0);
 	}
 
+	TEST_F(AssetManagerFixture, GetTexture2D_When_AssetIdIsBuiltInMissingTexture_ReturnsFallbackWithoutCachingFailure)
+	{
+		// Arrange.
+		const auto runtimeManifest = RuntimeManifest::Create();
+		const auto assetRegistry = AssetRegistry(runtimeManifest);
+		auto assetManager = CreateAssetManager(assetRegistry);
+
+		// Act.
+		const auto result = assetManager.Manager->GetTexture2D(Ludus::Engine::Core::BuiltInAssetIds::MissingTexture);
+
+		// Assert.
+		ASSERT_NE(result.Texture, nullptr);
+		ASSERT_TRUE(result.IsFallback);
+		ASSERT_FALSE(assetManager.Manager->HasFailedTextureLoad(Ludus::Engine::Core::BuiltInAssetIds::MissingTexture));
+	}
+
 	TEST_F(AssetManagerFixture, GetTexture2D_When_TextureFileIsMissing_ReturnsFallbackAndCachesFailure)
 	{
 		// Arrange.
@@ -224,5 +240,21 @@ namespace Ludus::EngineTests::Core
 		ASSERT_EQ(first.Texture->Width(), 64);
 		ASSERT_EQ(first.Texture->Height(), 32);
 		ASSERT_EQ(assetManager.Loader->GetLoadCount(fullPath), 1);
+	}
+
+	TEST(AssetRegistry, Construct_When_ManifestContainsBuiltInAssetId_ThrowsRuntimeError)
+	{
+		// Arrange.
+		const auto runtimeManifest = RuntimeManifest::Create(
+			Ludus::Engine::Core::SceneId::Invalid(),
+			std::vector<Ludus::Engine::Runtime::SceneReference> { },
+			std::vector<Ludus::Engine::Runtime::ScriptReference> { },
+			std::vector<AssetReference> {
+			MakeTextureAssetReference(Ludus::Engine::Core::BuiltInAssetIds::MissingTexture, "Assets/Missing.png")
+		}
+		);
+
+		// Act & Assert.
+		ASSERT_THROW((void)AssetRegistry { runtimeManifest }, std::runtime_error);
 	}
 }

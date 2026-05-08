@@ -13,7 +13,6 @@
 #include <Ludus/UI/Icons/FontAwesome.h>
 #include <Ludus/UI/Scope/StyleScope.h>
 #include <Ludus/UI/Widgets/Buttons.h>
-#include <Ludus/UI/Widgets/Menu.h>
 #include <Ludus/UI/Widgets/Selection.h>
 #include <Ludus/UI/Widgets/Text.h>
 
@@ -33,8 +32,11 @@ namespace Ludus::UI::Elements
 	}
 
 	ContentBrowser::ContentBrowser()
-		: m_RootEntries(), m_CurrentDirectoryPath(), m_SelectedPath(), m_PendingOpenedFilePath()
-	{ }
+		: m_RootEntries(),
+		m_CurrentDirectoryPath(),
+		m_SelectedPath(),
+		m_PendingOpenedFilePath()
+	{}
 
 	void ContentBrowser::FromDirectory(const std::filesystem::path& directory)
 	{
@@ -351,17 +353,23 @@ namespace Ludus::UI::Elements
 
 	void ContentBrowser::DrawDirectoryContents(std::vector<Entry>& entries, const std::vector<int>& directoryPath)
 	{
-		std::vector<int> itemPath = directoryPath;
-
-		for (size_t i = 0; i < entries.size(); i++)
+		for (size_t i = 0; i < entries.size();)
 		{
 			auto& entry = entries[i];
+
+			std::vector<int> itemPath = directoryPath;
 			itemPath.push_back(static_cast<int>(i));
 
 			const auto isSelected = IsSelected(itemPath);
 			const auto icon = entry.IsDirectory ? ICON_FOLDER_CLOSED : ICON_FILE;
 			const auto label = std::string(icon) + " " + entry.Name + "##" + entry.Path.generic_string();
+
 			if (Ludus::UI::Widgets::Selectable(label.c_str(), isSelected))
+			{
+				m_SelectedPath = itemPath;
+			}
+
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 			{
 				m_SelectedPath = itemPath;
 			}
@@ -379,7 +387,7 @@ namespace Ludus::UI::Elements
 				}
 			}
 
-			itemPath.pop_back();
+			i++;
 		}
 	}
 }

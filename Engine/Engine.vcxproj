@@ -29,6 +29,8 @@
     <ClInclude Include="Include\Ludus\Engine\Graphics\Texture2DResult.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\ITextureLoader.h" />
     <ClInclude Include="Include\Ludus\Engine\Graphics\TextureLoader.h" />
+    <ClInclude Include="Include\Ludus\Engine\Graphics\TextureRegion.h" />
+    <ClInclude Include="Include\Ludus\Engine\Math\RectInt.h" />
     <ClInclude Include="Include\Ludus\Engine\Persistence\EnginePersistence.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\PendingSceneTransition.h" />
     <ClInclude Include="Include\Ludus\Engine\Runtime\SceneRuntimeState.h" />
