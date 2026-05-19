@@ -5,14 +5,17 @@
 #include <functional>
 #include <ranges>
 
+#include <Ludus/Engine/FileSystem/FileSystem.h>
 #include <Ludus/UI/Context/ImageContext.h>
 #include <Ludus/UI/Context/LayoutContext.h>
 #include <Ludus/UI/Context/SelectionContext.h>
 #include <Ludus/UI/Elements/ContentBrowser.h>
 #include <Ludus/UI/Flags/Flags.h>
 #include <Ludus/UI/Icons/FontAwesome.h>
+#include <Ludus/UI/Scope/PopupScope.h>
 #include <Ludus/UI/Scope/StyleScope.h>
 #include <Ludus/UI/Widgets/Buttons.h>
+#include <Ludus/UI/Widgets/Menu.h>
 #include <Ludus/UI/Widgets/Selection.h>
 #include <Ludus/UI/Widgets/Text.h>
 
@@ -28,6 +31,30 @@ namespace Ludus::UI::Elements
 			}
 
 			return left.Name < right.Name;
+		}
+
+		const ContentBrowser::Entry* TryFindEntryByPath(
+			const std::vector<ContentBrowser::Entry>& entries,
+			const std::filesystem::path& path
+		)
+		{
+			for (const auto& entry : entries)
+			{
+				if (Ludus::Engine::FileSystem::ArePathsEqual(entry.Path, path))
+				{
+					return &entry;
+				}
+
+				if (entry.IsDirectory)
+				{
+					if (const auto* found = TryFindEntryByPath(entry.Children, path))
+					{
+						return found;
+					}
+				}
+			}
+
+			return nullptr;
 		}
 	}
 
@@ -46,45 +73,30 @@ namespace Ludus::UI::Elements
 			return;
 		}
 
-		const auto previousCurrentDirectoryPath = TryGetPathFromIndices(m_CurrentDirectoryPath);
-		const auto previousSelectedPath = TryGetPathFromIndices(m_SelectedPath);
+		const auto previousCurrentDirectoryPath = m_CurrentDirectoryPath;
+		const auto previousSelectedPath = m_SelectedPath;
 
 		m_RootEntries.clear();
+		m_CurrentDirectoryPath.clear();
+		m_SelectedPath.clear();
 		m_PendingOpenedFilePath.reset();
 		m_SyncTreeExpansionToCurrentDirectory = false;
 
 		m_RootEntries.push_back(BuildTree(directory));
+		const auto rootPath = m_RootEntries.front().Path;
 
-		if (previousCurrentDirectoryPath)
+		if (!previousCurrentDirectoryPath.empty() && TryGetDirectoryEntries(previousCurrentDirectoryPath))
 		{
-			if (const auto restoredCurrentDirectoryPath = TryFindIndicesFromPath(*previousCurrentDirectoryPath); restoredCurrentDirectoryPath)
-			{
-				m_CurrentDirectoryPath = *restoredCurrentDirectoryPath;
-			}
-			else
-			{
-				m_CurrentDirectoryPath.clear();
-			}
+			m_CurrentDirectoryPath = previousCurrentDirectoryPath;
 		}
 		else
 		{
-			m_CurrentDirectoryPath.clear();
+			m_CurrentDirectoryPath = rootPath;
 		}
 
-		if (previousSelectedPath)
+		if (!previousSelectedPath.empty() && TryFindEntryByPath(m_RootEntries, previousSelectedPath))
 		{
-			if (const auto restoredSelectedPath = TryFindIndicesFromPath(*previousSelectedPath); restoredSelectedPath)
-			{
-				m_SelectedPath = *restoredSelectedPath;
-			}
-			else
-			{
-				m_SelectedPath.clear();
-			}
-		}
-		else
-		{
-			m_SelectedPath.clear();
+			m_SelectedPath = previousSelectedPath;
 		}
 	}
 
@@ -131,12 +143,15 @@ namespace Ludus::UI::Elements
 		return value;
 	}
 
-	void ContentBrowser::Update()
+	void ContentBrowser::Update(
+		const PresentationCallback& presentationCallback,
+		const ContextMenuCallback& contextMenuCallback,
+		const BackgroundContextMenuCallback& backgroundContextMenuCallback
+	)
 	{
 		ImGui::BeginChild("##ContentBrowserTree", ImVec2(260.0f, 0.0f), ImGuiChildFlags_Borders);
 		{
-			std::vector<int> workingPath;
-			DrawDirectoryTree(m_RootEntries, workingPath);
+			DrawDirectoryTree(m_RootEntries);
 		}
 		ImGui::EndChild();
 		m_SyncTreeExpansionToCurrentDirectory = false;
@@ -147,174 +162,57 @@ namespace Ludus::UI::Elements
 		{
 			if (auto* entries = TryGetDirectoryEntries(m_CurrentDirectoryPath))
 			{
-				DrawDirectoryContents(*entries, m_CurrentDirectoryPath);
+				DrawDirectoryContents(*entries, presentationCallback, contextMenuCallback);
+			}
+
+			if (backgroundContextMenuCallback && !m_CurrentDirectoryPath.empty())
+			{
+				const auto popupFlags = Ludus::UI::Flags::Popup::MouseButtonRight | Ludus::UI::Flags::Popup::NoOpenOverItems;
+				if (Ludus::UI::Scope::PopupContextWindowScope popup("##ContentBrowserBackgroundMenu", popupFlags); popup)
+				{
+					backgroundContextMenuCallback({ m_CurrentDirectoryPath });
+				}
 			}
 		}
 		ImGui::EndChild();
 	}
 
-	std::vector<ContentBrowser::Entry>* ContentBrowser::TryGetDirectoryEntries(std::vector<int> path)
-	{
-		auto* current = &m_RootEntries;
-
-		for (const auto index : path)
-		{
-			if (index < 0 || index >= static_cast<int>(current->size()))
-			{
-				return nullptr;
-			}
-
-			auto& entry = current->at(static_cast<size_t>(index));
-			if (!entry.IsDirectory)
-			{
-				return nullptr;
-			}
-
-			current = &entry.Children;
-		}
-
-		return current;
-	}
-
-	const std::vector<ContentBrowser::Entry>* ContentBrowser::TryGetDirectoryEntries(std::vector<int> path) const
-	{
-		auto* current = &m_RootEntries;
-
-		for (const auto index : path)
-		{
-			if (index < 0 || index >= static_cast<int>(current->size()))
-			{
-				return nullptr;
-			}
-
-			const auto& entry = current->at(static_cast<size_t>(index));
-			if (!entry.IsDirectory)
-			{
-				return nullptr;
-			}
-
-			current = &entry.Children;
-		}
-
-		return current;
-	}
-
-	std::optional<std::filesystem::path> ContentBrowser::TryGetPathFromIndices(const std::vector<int>& path) const
+	const std::vector<ContentBrowser::Entry>* ContentBrowser::TryGetDirectoryEntries(const std::filesystem::path& path) const
 	{
 		if (path.empty())
 		{
-			return std::nullopt;
+			return &m_RootEntries;
 		}
 
-		const auto* current = &m_RootEntries;
-		const Entry* resolvedEntry = nullptr;
-
-		for (const auto index : path)
+		auto* entry = TryFindEntryByPath(m_RootEntries, path);
+		if (entry == nullptr || !entry->IsDirectory)
 		{
-			if (index < 0 || index >= static_cast<int>(current->size()))
-			{
-				return std::nullopt;
-			}
-
-			const auto& entry = current->at(static_cast<size_t>(index));
-			resolvedEntry = &entry;
-			current = &entry.Children;
+			return nullptr;
 		}
 
-		if (resolvedEntry == nullptr)
-		{
-			return std::nullopt;
-		}
-
-		return resolvedEntry->Path;
+		return &entry->Children;
 	}
 
-	std::optional<std::vector<int>> ContentBrowser::TryFindIndicesFromPath(const std::filesystem::path& path) const
+	bool ContentBrowser::IsSelected(const std::filesystem::path& path) const
 	{
-		if (path.empty())
-		{
-			return std::nullopt;
-		}
-
-		auto normalizePath = [](std::filesystem::path value)
-		{
-			value = std::filesystem::absolute(value).lexically_normal();
-			value.make_preferred();
-			return value;
-		};
-
-		const auto targetPath = normalizePath(path);
-		std::vector<int> currentIndices;
-
-		std::function<bool(const std::vector<Entry>&)> findPath = [&](const std::vector<Entry>& entries)
-		{
-			for (size_t i = 0; i < entries.size(); i++)
-			{
-				currentIndices.push_back(static_cast<int>(i));
-				const auto& entry = entries[i];
-				const auto entryPath = normalizePath(entry.Path);
-
-				std::error_code errorCode;
-				if (entryPath == targetPath || std::filesystem::equivalent(entryPath, targetPath, errorCode))
-				{
-					return true;
-				}
-
-				if (!entry.Children.empty() && findPath(entry.Children))
-				{
-					return true;
-				}
-
-				currentIndices.pop_back();
-			}
-
-			return false;
-		};
-
-		if (findPath(m_RootEntries))
-		{
-			return currentIndices;
-		}
-
-		return std::nullopt;
+		return !m_SelectedPath.empty() && Ludus::Engine::FileSystem::ArePathsEqual(m_SelectedPath, path);
 	}
 
-	bool ContentBrowser::IsSelected(const std::vector<int>& path) const
+	bool ContentBrowser::IsCurrentDirectoryAncestorPath(const std::filesystem::path& path) const
 	{
-		return m_SelectedPath == path;
+		return Ludus::Engine::FileSystem::IsAncestorPath(path, m_CurrentDirectoryPath);
 	}
 
-	bool ContentBrowser::IsCurrentDirectoryAncestorPath(const std::vector<int>& path) const
+	void ContentBrowser::DrawDirectoryTree(const std::vector<Entry>& entries)
 	{
-		if (path.empty() || path.size() > m_CurrentDirectoryPath.size())
+		for (const auto& entry : entries)
 		{
-			return false;
-		}
-
-		for (size_t i = 0; i < path.size(); i++)
-		{
-			if (path[i] != m_CurrentDirectoryPath[i])
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	void ContentBrowser::DrawDirectoryTree(const std::vector<Entry>& entries, std::vector<int>& workingPath)
-	{
-		for (size_t i = 0; i < entries.size(); i++)
-		{
-			const auto& entry = entries[i];
 			if (!entry.IsDirectory)
 			{
 				continue;
 			}
 
-			workingPath.push_back(static_cast<int>(i));
-
-			if (m_SyncTreeExpansionToCurrentDirectory && IsCurrentDirectoryAncestorPath(workingPath))
+			if (m_SyncTreeExpansionToCurrentDirectory && IsCurrentDirectoryAncestorPath(entry.Path))
 			{
 				ImGui::SetNextItemOpen(true, ImGuiCond_Always);
 			}
@@ -333,52 +231,89 @@ namespace Ludus::UI::Elements
 			const auto flags = ImGuiTreeNodeFlags_OpenOnArrow
 				| ImGuiTreeNodeFlags_OpenOnDoubleClick
 				| (isLeaf ? (ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen) : 0)
-				| (workingPath == m_CurrentDirectoryPath ? ImGuiTreeNodeFlags_Selected : 0);
+				| (Ludus::Engine::FileSystem::ArePathsEqual(entry.Path, m_CurrentDirectoryPath) ? ImGuiTreeNodeFlags_Selected : 0);
 
 			const bool opened = ImGui::TreeNodeEx(entry.Path.generic_string().c_str(), flags, "%s %s", ICON_FOLDER_OPEN, entry.Name.c_str());
 			if (ImGui::IsItemClicked())
 			{
-				m_CurrentDirectoryPath = workingPath;
+				m_CurrentDirectoryPath = entry.Path;
 			}
 
 			if (opened && !isLeaf)
 			{
-				DrawDirectoryTree(entry.Children, workingPath);
+				DrawDirectoryTree(entry.Children);
 				ImGui::TreePop();
 			}
-
-			workingPath.pop_back();
 		}
 	}
 
-	void ContentBrowser::DrawDirectoryContents(std::vector<Entry>& entries, const std::vector<int>& directoryPath)
+	void ContentBrowser::DrawDirectoryContents(
+		const std::vector<Entry>& entries,
+		const PresentationCallback& presentationCallback,
+		const ContextMenuCallback& contextMenuCallback
+	)
 	{
-		for (size_t i = 0; i < entries.size();)
+		for (auto& entry : entries)
 		{
-			auto& entry = entries[i];
+			const auto isSelected = IsSelected(entry.Path);
+			const EntryContext entryContext
+			{
+				.Path = entry.Path,
+				.IsDirectory = entry.IsDirectory,
+				.IsSelected = isSelected
+			};
 
-			std::vector<int> itemPath = directoryPath;
-			itemPath.push_back(static_cast<int>(i));
+			auto presentation = EntryPresentation();
+			if (presentationCallback)
+			{
+				presentation = presentationCallback(entryContext);
+			}
 
-			const auto isSelected = IsSelected(itemPath);
-			const auto icon = entry.IsDirectory ? ICON_FOLDER_CLOSED : ICON_FILE;
+			const auto icon = presentation.Icon != nullptr
+				? presentation.Icon
+				: (entry.IsDirectory ? ICON_FOLDER_CLOSED : ICON_FILE);
 			const auto label = std::string(icon) + " " + entry.Name + "##" + entry.Path.generic_string();
-
-			if (Ludus::UI::Widgets::Selectable(label.c_str(), isSelected))
+			const auto textColor = presentation.TextColor.value_or(
+				presentation.IsEnabled
+				? Ludus::UI::Scope::GetStyleColor(Ludus::UI::Scope::Color::Text)
+				: Ludus::UI::Scope::GetStyleColor(Ludus::UI::Scope::Color::TextDisabled)
+			);
 			{
-				m_SelectedPath = itemPath;
+				Ludus::UI::Scope::StyleColorScope textColorScope(
+					{ Ludus::UI::Scope::Color::Text, textColor }
+				);
+
+				if (!presentation.IsEnabled)
+				{
+					ImGui::BeginDisabled();
+				}
+
+				if (Ludus::UI::Widgets::Selectable(label.c_str(), isSelected) && presentation.IsEnabled)
+				{
+					m_SelectedPath = entry.Path;
+				}
+
+				if (!presentation.IsEnabled)
+				{
+					ImGui::EndDisabled();
+				}
 			}
 
-			if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+			if (presentation.IsEnabled && ImGui::IsItemClicked(ImGuiMouseButton_Right))
 			{
-				m_SelectedPath = itemPath;
+				m_SelectedPath = entry.Path;
 			}
 
-			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+			if (presentation.Tooltip && ImGui::IsItemHovered())
+			{
+				ImGui::SetTooltip("%s", presentation.Tooltip->c_str());
+			}
+
+			if (presentation.IsEnabled && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 			{
 				if (entry.IsDirectory)
 				{
-					m_CurrentDirectoryPath = itemPath;
+					m_CurrentDirectoryPath = entry.Path;
 					m_SyncTreeExpansionToCurrentDirectory = true;
 				}
 				else
@@ -387,7 +322,13 @@ namespace Ludus::UI::Elements
 				}
 			}
 
-			i++;
+			if (Ludus::UI::Scope::PopupContextItemScope contextItem; contextItem)
+			{
+				if (contextMenuCallback)
+				{
+					contextMenuCallback(entryContext);
+				}
+			}
 		}
 	}
 }

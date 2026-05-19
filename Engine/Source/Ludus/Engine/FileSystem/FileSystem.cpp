@@ -240,4 +240,36 @@ namespace Ludus::Engine::FileSystem
 
 		return left.lexically_normal() == right.lexically_normal();
 	}
+
+	bool IsAncestorPath(const std::filesystem::path& ancestor, const std::filesystem::path& path)
+	{
+		if (ancestor.empty() || path.empty())
+		{
+			return false;
+		}
+
+		const auto normalizedAncestor = NormalizePortablePath(ancestor);
+		const auto normalizedPath = NormalizePortablePath(path);
+
+		auto ancestorIter = normalizedAncestor.begin();
+		auto pathIter = normalizedPath.begin();
+
+		while (ancestorIter != normalizedAncestor.end())
+		{
+			if (pathIter == normalizedPath.end() || *ancestorIter != *pathIter)
+			{
+				return false;
+			}
+
+			++ancestorIter;
+			++pathIter;
+		}
+
+		return true;
+	}
+
+	bool HasLogicalExtension(const std::filesystem::path& path, std::string_view extension)
+	{
+		return path.filename().string().ends_with(extension);
+	}
 }
