@@ -41,4 +41,6 @@ namespace Ludus::Engine::FileSystem
 	std::string ToPortablePathString(const std::filesystem::path& path);
 	std::filesystem::path NormalizePortablePath(const std::filesystem::path& path);
 	bool ArePathsEqual(const std::filesystem::path& left, const std::filesystem::path& right);
+	bool IsAncestorPath(const std::filesystem::path& ancestor, const std::filesystem::path& path);
+	bool HasLogicalExtension(const std::filesystem::path& path, std::string_view extension);
 }
