@@ -1,8 +1,12 @@
 #pragma once
 
 #include <filesystem>
+#include <stdexcept>
 #include <string>
 #include <string_view>
+
+#include <Ludus/Engine/FileSystem/FileSystem.h>
+#include <Ludus/Engine/Runtime/RuntimeManifest.h>
 
 namespace Ludus::Engine::Persistence::Paths
 {
@@ -43,22 +47,12 @@ namespace Ludus::Engine::Persistence::Paths
 		return ScenesDirectory(runtimeRootDirectory) / (std::string(sceneName) + std::string(Constants::SceneExtension));
 	}
 
-	inline std::filesystem::path RuntimeSceneFile(const std::filesystem::path& runtimeRootDirectory, const std::filesystem::path& scenePath)
-	{
-		return ScenesDirectory(runtimeRootDirectory) / scenePath.filename();
-	}
-
-	inline std::filesystem::path RuntimeRelativeSceneFile(const std::filesystem::path& scenePath)
-	{
-		return std::filesystem::path(std::string(Constants::ScenesDirectory)) / scenePath.filename();
-	}
-
 	inline std::filesystem::path ResolveRuntimeScenePath(
 		const std::filesystem::path& runtimeRootDirectory,
 		const std::filesystem::path& scenePath
 	)
 	{
-		return scenePath.is_absolute() ? scenePath : runtimeRootDirectory / scenePath;
+		return Ludus::Engine::FileSystem::ResolvePathFromRoot(runtimeRootDirectory, scenePath);
 	}
 
 	inline std::filesystem::path ShadersDirectory(const std::filesystem::path& runtimeRootDirectory)
@@ -101,5 +95,73 @@ namespace Ludus::Engine::Persistence::Paths
 	inline std::filesystem::path ScriptsDllFile(const std::filesystem::path& runtimeRootDirectory)
 	{
 		return runtimeRootDirectory / std::string(Constants::ScriptsModuleFile);
+	}
+
+	inline bool IsValidRuntimeAssetPath(const std::filesystem::path& path)
+	{
+		return Ludus::Engine::FileSystem::IsRelativePathUnderDirectory(path, Constants::AssetsDirectory);
+	}
+
+	inline bool IsValidRuntimeScenePath(const std::filesystem::path& path)
+	{
+		if (!Ludus::Engine::FileSystem::IsRelativePathUnderDirectory(path, Constants::ScenesDirectory))
+		{
+			return false;
+		}
+
+		return Ludus::Engine::FileSystem::HasLogicalExtension(path, Constants::SceneExtension);
+	}
+
+	inline std::filesystem::path NormalizeRuntimeAssetPathOrEmpty(
+		const std::filesystem::path& runtimeRootDirectory,
+		const std::filesystem::path& path
+	)
+	{
+		const auto normalizedPath = Ludus::Engine::FileSystem::NormalizePathRelativeToRootOrEmpty(runtimeRootDirectory, path);
+
+		if (!IsValidRuntimeAssetPath(normalizedPath))
+		{
+			return { };
+		}
+
+		return normalizedPath;
+	}
+
+	inline std::filesystem::path NormalizeRuntimeScenePathOrEmpty(
+		const std::filesystem::path& runtimeRootDirectory,
+		const std::filesystem::path& path
+	)
+	{
+		const auto normalizedPath = Ludus::Engine::FileSystem::NormalizePathRelativeToRootOrEmpty(runtimeRootDirectory, path);
+
+		if (!IsValidRuntimeScenePath(normalizedPath))
+		{
+			return { };
+		}
+
+		return normalizedPath;
+	}
+
+	inline void ValidateRuntimeManifestPaths(const Ludus::Engine::Runtime::RuntimeManifest& runtimeManifest)
+	{
+		for (const auto& asset : runtimeManifest.Assets)
+		{
+			if (!IsValidRuntimeAssetPath(asset.Path))
+			{
+				throw std::runtime_error(
+					"Runtime manifest contains an asset path outside the runtime Assets directory."
+				);
+			}
+		}
+
+		for (const auto& scene : runtimeManifest.Scenes)
+		{
+			if (!IsValidRuntimeScenePath(scene.Path))
+			{
+				throw std::runtime_error(
+					"Runtime manifest contains a scene path outside the runtime Scenes directory."
+				);
+			}
+		}
 	}
 }

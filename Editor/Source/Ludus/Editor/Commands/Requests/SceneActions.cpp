@@ -9,6 +9,8 @@
 #include <Ludus/Editor/Panels/PanelHelpers.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/Engine/Core/Id.h>
+#include <Ludus/Engine/FileSystem/FileSystem.h>
+#include <Ludus/Engine/Persistence/Paths.h>
 
 namespace Ludus::Editor::Commands::Requests::Scenes
 {
@@ -34,6 +36,17 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 			}
 
 			return *scenePath;
+		}
+
+		std::filesystem::path RequireResolvedScenePath(
+			Ludus::Engine::Core::SceneId id,
+			ProjectSessionCommandContext& context
+		)
+		{
+			return Ludus::Engine::FileSystem::ResolvePathFromRoot(
+				context.ProjectSession.Persistence.GetProjectRoot(),
+				RequireScenePath(id, context)
+			);
 		}
 
 		void SaveSceneToPath(
@@ -95,6 +108,25 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 
 			return false;
 		}
+
+		bool TryNormalizeScenePathRelativeToProject(
+			const std::filesystem::path& path,
+			ProjectSessionCommandContext& context,
+			std::filesystem::path& out
+		)
+		{
+			out = Ludus::Engine::Persistence::Paths::NormalizeRuntimeScenePathOrEmpty(
+				context.ProjectSession.Persistence.GetProjectRoot(),
+				path
+			);
+			if (!out.empty())
+			{
+				return true;
+			}
+
+			LUDUS_LOG_WARN("Scene path must be inside the project Scenes directory.");
+			return false;
+		}
 	}
 
 	void CreateSceneAction(ProjectSessionCommandContext& context)
@@ -106,17 +138,34 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 
 	void CreateSceneAsAction(const std::filesystem::path& path, ProjectSessionCommandContext& context)
 	{
+		std::filesystem::path relativePath;
+		if (!TryNormalizeScenePathRelativeToProject(path, context, relativePath))
+		{
+			return;
+		}
+
 		// Remove ".scene.ludus" to get the scene name.
 		const auto name = path.filename().stem().stem().string();
 		auto scene = Ludus::Editor::Core::ProjectTemplates::CreateDefaultScene(name);
-		context.ProjectSession.SetActiveScene(std::move(scene), path);
+		context.ProjectSession.SetActiveScene(std::move(scene), relativePath);
 		context.ProjectSession.MarkActiveSceneDirty();
 	}
 
 	void OpenSceneAction(const std::filesystem::path& path, ProjectSessionCommandContext& context)
 	{
-		auto scene = context.Persistence.Scene.Load(path);
-		context.ProjectSession.SetActiveScene(std::move(scene), path);
+		std::filesystem::path relativePath;
+		if (!TryNormalizeScenePathRelativeToProject(path, context, relativePath))
+		{
+			return;
+		}
+
+		auto scene = context.Persistence.Scene.Load(
+			Ludus::Engine::FileSystem::ResolvePathFromRoot(
+				context.ProjectSession.Persistence.GetProjectRoot(),
+				relativePath
+			)
+		);
+		context.ProjectSession.SetActiveScene(std::move(scene), relativePath);
 	}
 
 	void SaveSceneAction(Ludus::Engine::Core::SceneId sceneId, ProjectSessionCommandContext& context)
@@ -131,7 +180,7 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 		}
 
 		const auto scenePath = RequireScenePath(sceneId, context);
-		SaveSceneToPath(context, sceneId, scenePath);
+		SaveSceneToPath(context, sceneId, RequireResolvedScenePath(sceneId, context));
 		CommitSceneSave(context, scenePath);
 	}
 
@@ -150,13 +199,26 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 			return;
 		}
 
-		context.ProjectSession.AddOrUpdateSceneReference(scene.Id, scene.Name, path);
+		std::filesystem::path relativePath;
+		if (!TryNormalizeScenePathRelativeToProject(path, context, relativePath))
+		{
+			return;
+		}
+
+		context.ProjectSession.AddOrUpdateSceneReference(scene.Id, scene.Name, relativePath);
 
 		// SaveSceneAs also persists the runtime manifest because the scene reference path has changed.
-		SaveSceneToPath(context, sceneId, path);
+		SaveSceneToPath(
+			context,
+			sceneId,
+			Ludus::Engine::FileSystem::ResolvePathFromRoot(
+				context.ProjectSession.Persistence.GetProjectRoot(),
+				relativePath
+			)
+		);
 		SaveRuntimeManifest(context);
 
-		CommitSceneSave(context, path);
+		CommitSceneSave(context, relativePath);
 		CommitRuntimeManifestSave(context);
 	}
 
@@ -175,26 +237,45 @@ namespace Ludus::Editor::Commands::Requests::Scenes
 			return;
 		}
 
-		const auto newName = Ludus::Editor::Persistence::ProjectPaths::SceneName(path);
+		std::filesystem::path relativePath;
+		if (!TryNormalizeScenePathRelativeToProject(path, context, relativePath))
+		{
+			return;
+		}
+
+		const auto newName = Ludus::Editor::Persistence::ProjectPaths::SceneName(relativePath);
 		const auto previousPath = context.ProjectSession.Persistence.TryGetScenePath(sceneId);
 
-		context.ProjectSession.AddOrUpdateSceneReference(scene.Id, newName, path);
+		context.ProjectSession.AddOrUpdateSceneReference(scene.Id, newName, relativePath);
 		scene.Name = newName;
 
 		// RenameScene also persists the runtime manifest because the scene reference path has changed.
-		SaveSceneToPath(context, sceneId, path);
+		SaveSceneToPath(
+			context,
+			sceneId,
+			Ludus::Engine::FileSystem::ResolvePathFromRoot(
+				context.ProjectSession.Persistence.GetProjectRoot(),
+				relativePath
+			)
+		);
 		SaveRuntimeManifest(context);
 
-		if (previousPath && *previousPath != path)
+		if (previousPath && *previousPath != relativePath)
 		{
 			std::error_code errorCode;
-			if (!std::filesystem::remove(*previousPath, errorCode))
+			if (!std::filesystem::remove(
+				Ludus::Engine::FileSystem::ResolvePathFromRoot(
+					context.ProjectSession.Persistence.GetProjectRoot(),
+					*previousPath
+				),
+				errorCode
+			))
 			{
 				LUDUS_LOG_WARN("Failed to remove previous scene: " + errorCode.message());
 			}
 		}
 
-		CommitSceneSave(context, path);
+		CommitSceneSave(context, relativePath);
 		CommitRuntimeManifestSave(context);
 	}
 }

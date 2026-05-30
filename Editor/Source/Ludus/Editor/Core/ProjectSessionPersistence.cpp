@@ -3,7 +3,6 @@
 #include <filesystem>
 #include <optional>
 #include <string>
-#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -19,10 +18,7 @@
 
 namespace Ludus::Editor::Core
 {
-	namespace
-	{
-		namespace FileSystem = Ludus::Engine::FileSystem;
-	}
+	namespace FileSystem = Ludus::Engine::FileSystem;
 
 	ProjectSessionPersistence::ProjectSessionPersistence(
 		Ludus::Editor::Core::ProjectManifest projectManifest,
@@ -102,7 +98,10 @@ namespace Ludus::Editor::Core
 			throw std::runtime_error("Cannot register an asset with unknown asset type.");
 		}
 
-		path = FileSystem::NormalizePortablePath(path);
+		path = Ludus::Engine::Persistence::Paths::NormalizeRuntimeAssetPathOrEmpty(
+			GetProjectRoot(),
+			std::move(path)
+		);
 		if (path.empty())
 		{
 			throw std::runtime_error("Cannot register an asset with an empty path.");
@@ -159,7 +158,14 @@ namespace Ludus::Editor::Core
 
 	bool ProjectSessionPersistence::HasAssetReference(const std::filesystem::path& path) const
 	{
-		const auto normalizedPath = FileSystem::NormalizePortablePath(path);
+		const auto normalizedPath = Ludus::Engine::Persistence::Paths::NormalizeRuntimeAssetPathOrEmpty(
+			GetProjectRoot(),
+			path
+		);
+		if (normalizedPath.empty())
+		{
+			return false;
+		}
 
 		for (const auto& assetReference : m_RuntimeManifest.Assets)
 		{
@@ -216,7 +222,16 @@ namespace Ludus::Editor::Core
 		std::filesystem::path path
 	)
 	{
-		path = FileSystem::NormalizePortablePath(path);
+		path = Ludus::Engine::Persistence::Paths::NormalizeRuntimeScenePathOrEmpty(
+			GetProjectRoot(),
+			std::move(path)
+		);
+		if (path.empty())
+		{
+			throw std::runtime_error(
+				"Cannot register a scene outside the project Scenes directory."
+			);
+		}
 
 		for (auto& sceneReference : m_RuntimeManifest.Scenes)
 		{

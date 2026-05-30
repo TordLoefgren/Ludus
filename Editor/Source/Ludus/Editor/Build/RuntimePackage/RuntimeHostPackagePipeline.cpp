@@ -2,7 +2,6 @@
 
 #include <filesystem>
 
-#include <Ludus/Editor/Build/RuntimeManifestBuildHelpers.h>
 #include <Ludus/Editor/Build/RuntimePackage/RuntimeHostPackagePipeline.h>
 #include <Ludus/Editor/Persistence/BuildPaths.h>
 #include <Ludus/Engine/FileSystem/FileSystem.h>
@@ -22,7 +21,7 @@ namespace
 	{
 		auto runtimeManifest = runtimeManifestPersistence.Load(manifestFrom);
 
-		Ludus::Editor::Build::RewriteScenePathsForPackagedRuntime(runtimeManifest);
+		Ludus::Engine::Persistence::Paths::ValidateRuntimeManifestPaths(runtimeManifest);
 
 		runtimeManifestPersistence.Save(
 			runtimeManifest,
