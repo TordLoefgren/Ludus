@@ -6,7 +6,6 @@
 #include <Ludus/Editor/Build/BuildConfiguration.h>
 #include <Ludus/Editor/Build/BuildPlatform.h>
 #include <Ludus/Editor/Build/MSBuild/MSBuildRuntimeHostPipeline.h>
-#include <Ludus/Editor/Build/RuntimeManifestBuildHelpers.h>
 #include <Ludus/Editor/Persistence/BuildPaths.h>
 #include <Ludus/Editor/Persistence/RepositoryPaths.h>
 #include <Ludus/Engine/Core/Enums/EnumTraits.h>
@@ -62,7 +61,7 @@ namespace
 	{
 		auto runtimeManifest = runtimeManifestPersistence.Load(manifestFrom);
 
-		Ludus::Editor::Build::RewriteScenePathsForPackagedRuntime(runtimeManifest);
+		Ludus::Engine::Persistence::Paths::ValidateRuntimeManifestPaths(runtimeManifest);
 
 		runtimeManifestPersistence.Save(
 			runtimeManifest,

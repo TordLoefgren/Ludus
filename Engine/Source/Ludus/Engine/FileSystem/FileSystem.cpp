@@ -230,15 +230,55 @@ namespace Ludus::Engine::FileSystem
 		return std::filesystem::path(ToPortablePathString(path));
 	}
 
-	bool ArePathsEqual(const std::filesystem::path& left, const std::filesystem::path& right)
+	std::filesystem::path ResolvePathFromRoot(const std::filesystem::path& root, const std::filesystem::path& relativePath)
 	{
-		std::error_code errorCode;
-		if (std::filesystem::equivalent(left, right, errorCode))
+		return root / relativePath;
+	}
+
+	std::filesystem::path NormalizePathRelativeToRootOrEmpty(const std::filesystem::path& root, const std::filesystem::path& path)
+	{
+		auto normalizedPath = NormalizePortablePath(path);
+		if (normalizedPath.empty())
 		{
-			return true;
+			return { };
 		}
 
-		return left.lexically_normal() == right.lexically_normal();
+		const auto normalizedRoot = NormalizePortablePath(root);
+		if (normalizedRoot.empty())
+		{
+			return { };
+		}
+
+		if (normalizedPath.is_absolute())
+		{
+			const auto relativePath = NormalizePortablePath(normalizedPath.lexically_relative(normalizedRoot));
+			if (!relativePath.empty() && !relativePath.is_absolute() && !relativePath.native().starts_with('.'))
+			{
+				return relativePath;
+			}
+
+			return { };
+		}
+
+		const auto rootName = normalizedRoot.filename().generic_string();
+		auto iter = normalizedPath.begin();
+		if (!rootName.empty() && iter != normalizedPath.end() && iter->generic_string() == rootName)
+		{
+			std::filesystem::path trimmedPath;
+			for (++iter; iter != normalizedPath.end(); ++iter)
+			{
+				trimmedPath /= *iter;
+			}
+
+			return NormalizePortablePath(trimmedPath);
+		}
+
+		if (!normalizedPath.is_absolute() && !normalizedPath.native().starts_with('.'))
+		{
+			return normalizedPath;
+		}
+
+		return { };
 	}
 
 	bool IsAncestorPath(const std::filesystem::path& ancestor, const std::filesystem::path& path)
@@ -266,6 +306,34 @@ namespace Ludus::Engine::FileSystem
 		}
 
 		return true;
+	}
+
+	bool IsRelativePathUnderDirectory(const std::filesystem::path& path, std::string_view directoryName)
+	{
+		const auto normalizedPath = NormalizePortablePath(path);
+
+		if (normalizedPath.empty())
+		{
+			return false;
+		}
+
+		if (normalizedPath.is_absolute())
+		{
+			return false;
+		}
+
+		return IsAncestorPath(std::filesystem::path(directoryName), normalizedPath);
+	}
+
+	bool ArePathsEqual(const std::filesystem::path& left, const std::filesystem::path& right)
+	{
+		std::error_code errorCode;
+		if (std::filesystem::equivalent(left, right, errorCode))
+		{
+			return true;
+		}
+
+		return left.lexically_normal() == right.lexically_normal();
 	}
 
 	bool HasLogicalExtension(const std::filesystem::path& path, std::string_view extension)

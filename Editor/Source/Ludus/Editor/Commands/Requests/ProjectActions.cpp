@@ -11,6 +11,8 @@
 #include <Ludus/Editor/Core/SceneQueries.h>
 #include <Ludus/Editor/Panels/PanelHelpers.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
+#include <Ludus/Engine/FileSystem/FileSystem.h>
+#include <Ludus/Engine/Persistence/Paths.h>
 
 namespace Ludus::Editor::Commands::Requests::Projects
 {
@@ -28,6 +30,11 @@ namespace Ludus::Editor::Commands::Requests::Projects
 			// Create default scene.
 			const auto scene = Ludus::Editor::Core::ProjectTemplates::CreateDefaultScene();
 			const auto scenePath = Ludus::Editor::Persistence::ProjectPaths::SceneFile(projectRoot, scene.Name);
+			const auto relativeScenePath =
+				Ludus::Engine::Persistence::Paths::NormalizeRuntimeScenePathOrEmpty(
+					projectRoot,
+					scenePath
+				);
 			persistence.Scene.Save(
 				scene,
 				scenePath
@@ -36,7 +43,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 			// Create runtime manifest.
 			const auto runtimeManifest = Ludus::Engine::Runtime::RuntimeManifest::Create(
 				scene.Id,
-				{ { scene.Id, scene.Name, scenePath } },
+				{ { scene.Id, scene.Name, relativeScenePath } },
 				{ }
 			);
 			const auto runtimeManifestPath = Ludus::Engine::Persistence::Paths::RuntimeManifestFile(projectRoot, projectName);
@@ -141,6 +148,7 @@ namespace Ludus::Editor::Commands::Requests::Projects
 	void SaveProjectAction(ProjectSessionCommandContext& context)
 	{
 		auto& editorState = context.ProjectSession.EditorState;
+		auto& persistence = context.ProjectSession.Persistence;
 		if (!editorState.HasUnsavedChanges())
 		{
 			return;
@@ -167,13 +175,14 @@ namespace Ludus::Editor::Commands::Requests::Projects
 			const auto activeSceneId = editorState.GetActiveSceneId();
 			context.Persistence.Scene.Save(
 				context.ProjectSession.RuntimeState.GetEditorScene(activeSceneId),
-				editorState.GetActiveSceneSavePath()
+				Ludus::Engine::FileSystem::ResolvePathFromRoot(
+					persistence.GetProjectRoot(),
+					editorState.GetActiveSceneSavePath()
+				)
 			);
 
 			editorState.SetSceneDirty(false);
 		}
-
-		auto& persistence = context.ProjectSession.Persistence;
 
 		if (editorState.IsProjectManifestDirty())
 		{

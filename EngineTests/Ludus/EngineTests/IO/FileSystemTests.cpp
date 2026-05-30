@@ -268,4 +268,43 @@ namespace Ludus::EngineTests::FileSystem
 		ASSERT_EQ(names.size(), 2u);
 		ASSERT_EQ(std::count(names.begin(), names.end(), "config.json"), 2);
 	}
+
+	TEST(IO, ResolvePathFromRoot_Should_ReturnPathUnderRoot)
+	{
+		// Arrange.
+		const auto root = std::filesystem::path("C:/Projects/Sandbox");
+
+		// Act.
+		const auto path = FileSystem::ResolvePathFromRoot(root, "Scenes/Main.scene.ludus");
+
+		// Assert.
+		ASSERT_EQ(path, root / "Scenes" / "Main.scene.ludus");
+	}
+
+	TEST(IO, IsRelativePathUnderDirectory_Should_ReturnTrue_WhenPathIsUnderDirectory)
+	{
+		// Arrange & Act.
+		const auto isUnderDirectory = FileSystem::IsRelativePathUnderDirectory("Assets/Player.png", "Assets");
+
+		// Assert.
+		ASSERT_TRUE(isUnderDirectory);
+	}
+
+	TEST(IO, IsRelativePathUnderDirectory_Should_ReturnFalse_WhenPathIsAbsolute)
+	{
+		// Arrange & Act.
+		const auto isUnderDirectory = FileSystem::IsRelativePathUnderDirectory("C:/Projects/Sandbox/Assets/Player.png", "Assets");
+
+		// Assert.
+		ASSERT_FALSE(isUnderDirectory);
+	}
+
+	TEST(IO, IsRelativePathUnderDirectory_Should_ReturnFalse_WhenPathIsOutsideDirectory)
+	{
+		// Arrange & Act.
+		const auto isUnderDirectory = FileSystem::IsRelativePathUnderDirectory("Scenes/Main.scene.ludus", "Assets");
+
+		// Assert.
+		ASSERT_FALSE(isUnderDirectory);
+	}
 }

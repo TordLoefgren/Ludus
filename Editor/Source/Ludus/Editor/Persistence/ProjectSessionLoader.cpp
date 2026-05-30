@@ -8,6 +8,7 @@
 #include <Ludus/Editor/Persistence/ProjectSessionLoader.h>
 #include <Ludus/Engine/Core/Scene.h>
 #include <Ludus/Engine/Debug/Debug.h>
+#include <Ludus/Engine/FileSystem/FileSystem.h>
 #include <Ludus/Engine/Persistence/IRuntimeLaunchSettingsPersistence.h>
 #include <Ludus/Engine/Persistence/IRuntimeManifestPersistence.h>
 #include <Ludus/Engine/Persistence/IScenePersistence.h>
@@ -37,6 +38,9 @@ namespace Ludus::Editor::Persistence
 	{
 		const auto runtimeName = projectManifest.ProjectRoot.filename().string();
 		auto runtimeManifest = m_RuntimeManifestPersistence.Load(projectManifest.RuntimeManifestPath);
+
+		Ludus::Engine::Persistence::Paths::ValidateRuntimeManifestPaths(runtimeManifest);
+
 		auto runtimeLaunchSettings = m_RuntimeLaunchSettingsPersistence.Load(
 			Ludus::Engine::Persistence::Paths::RuntimeLaunchSettingsFile(projectManifest.ProjectRoot, runtimeName)
 		);
@@ -59,7 +63,12 @@ namespace Ludus::Editor::Persistence
 			throw std::runtime_error("Runtime manifest entry scene was not found.");
 		}
 
-		auto scene = m_ScenePersistence.Load(entrySceneReference->Path);
+		auto scene = m_ScenePersistence.Load(
+			Ludus::Engine::FileSystem::ResolvePathFromRoot(
+				projectManifest.ProjectRoot,
+				entrySceneReference->Path
+			)
+		);
 
 		for (const auto& script : scene.EntityComponentSystem.Scripts.View())
 		{

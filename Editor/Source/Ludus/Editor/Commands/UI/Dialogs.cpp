@@ -60,7 +60,7 @@ namespace Ludus::Editor::Commands::UI::Dialogs
 
 		Ludus::Editor::Dialogs::RenameSceneDialog dialog(
 			command.SceneId,
-			*scenePath
+			context.ProjectSession.Persistence.GetProjectRoot() / *scenePath
 		);
 		context.Shell.State.Dialogs.Open(dialog);
 	}

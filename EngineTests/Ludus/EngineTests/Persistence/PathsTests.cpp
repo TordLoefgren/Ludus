@@ -1,8 +1,11 @@
 #include "pch.h"
 
 #include <filesystem>
+#include <stdexcept>
 
+#include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Persistence/Paths.h>
+#include <Ludus/Engine/Runtime/RuntimeManifest.h>
 
 namespace Ludus::EngineTests::Persistence
 {
@@ -68,18 +71,6 @@ namespace Ludus::EngineTests::Persistence
 		ASSERT_EQ(path, runtimeRootDirectory / "Scenes" / "MainMenu.scene.ludus");
 	}
 
-	TEST(Paths, RuntimeRelativeSceneFile_Should_ReturnScenePathRelativeToRuntimeRoot)
-	{
-		// Arrange.
-		const auto scenePath = std::filesystem::path("C:/Projects/Sandbox/Scenes/MainMenu.scene.ludus");
-
-		// Act.
-		const auto path = Ludus::Engine::Persistence::Paths::RuntimeRelativeSceneFile(scenePath);
-
-		// Assert.
-		ASSERT_EQ(path, std::filesystem::path("Scenes") / "MainMenu.scene.ludus");
-	}
-
 	TEST(Paths, ShadersDirectory_Should_ReturnShadersPath)
 	{
 		// Arrange.
@@ -114,5 +105,88 @@ namespace Ludus::EngineTests::Persistence
 
 		// Assert.
 		ASSERT_EQ(path, runtimeRootDirectory / "Scripts.dll");
+	}
+
+	TEST(Paths, IsValidRuntimeAssetPath_Should_ReturnTrue_WhenPathIsUnderAssets)
+	{
+		// Arrange & Act.
+		const auto isValid = Ludus::Engine::Persistence::Paths::IsValidRuntimeAssetPath("Assets/Player.png");
+
+		// Assert.
+		ASSERT_TRUE(isValid);
+	}
+
+	TEST(Paths, IsValidRuntimeAssetPath_Should_ReturnFalse_WhenPathIsOutsideAssets)
+	{
+		// Arrange & Act.
+		const auto isValid = Ludus::Engine::Persistence::Paths::IsValidRuntimeAssetPath("Scenes/Main.scene.ludus");
+
+		// Assert.
+		ASSERT_FALSE(isValid);
+	}
+
+	TEST(Paths, IsValidRuntimeScenePath_Should_ReturnTrue_WhenPathIsSceneUnderScenes)
+	{
+		// Arrange & Act.
+		const auto isValid = Ludus::Engine::Persistence::Paths::IsValidRuntimeScenePath("Scenes/Main.scene.ludus");
+
+		// Assert.
+		ASSERT_TRUE(isValid);
+	}
+
+	TEST(Paths, IsValidRuntimeScenePath_Should_ReturnFalse_WhenPathHasWrongExtension)
+	{
+		// Arrange & Act.
+		const auto isValid = Ludus::Engine::Persistence::Paths::IsValidRuntimeScenePath("Scenes/Main.txt");
+
+		// Assert.
+		ASSERT_FALSE(isValid);
+	}
+
+	TEST(Paths, NormalizeRuntimeScenePathOrEmpty_Should_ReturnRelativeScenePath)
+	{
+		// Arrange.
+		const auto runtimeRootDirectory = std::filesystem::path("C:/Projects/Sandbox");
+
+		// Act.
+		const auto path = Ludus::Engine::Persistence::Paths::NormalizeRuntimeScenePathOrEmpty(
+			runtimeRootDirectory,
+			runtimeRootDirectory / "Scenes" / "Main.scene.ludus"
+		);
+
+		// Assert.
+		ASSERT_EQ(path, std::filesystem::path("Scenes") / "Main.scene.ludus");
+	}
+
+	TEST(Paths, NormalizeRuntimeAssetPathOrEmpty_Should_ReturnEmpty_WhenPathIsOutsideAssets)
+	{
+		// Arrange.
+		const auto runtimeRootDirectory = std::filesystem::path("C:/Projects/Sandbox");
+
+		// Act.
+		const auto path = Ludus::Engine::Persistence::Paths::NormalizeRuntimeAssetPathOrEmpty(
+			runtimeRootDirectory,
+			runtimeRootDirectory / "Scenes" / "Main.scene.ludus"
+		);
+
+		// Assert.
+		ASSERT_TRUE(path.empty());
+	}
+
+	TEST(Paths, ValidateRuntimeManifestPaths_Should_Throw_WhenScenePathIsInvalid)
+	{
+		// Arrange.
+		auto runtimeManifest = Ludus::Engine::Runtime::RuntimeManifest();
+		runtimeManifest.Scenes.push_back({
+			Ludus::Engine::Core::SceneId { 1 },
+			"Main",
+			"Assets/Main.scene.ludus"
+			});
+
+		// Act & Assert.
+		ASSERT_THROW(
+			Ludus::Engine::Persistence::Paths::ValidateRuntimeManifestPaths(runtimeManifest),
+			std::runtime_error
+		);
 	}
 }
