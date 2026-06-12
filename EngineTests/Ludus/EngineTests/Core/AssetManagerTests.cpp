@@ -257,4 +257,23 @@ namespace Ludus::EngineTests::Core
 		// Act & Assert.
 		ASSERT_THROW((void)AssetRegistry { runtimeManifest }, std::runtime_error);
 	}
+
+	TEST(AssetRegistry, RegisterAsset_AddsReferenceAfterConstruction)
+	{
+		// Arrange.
+		const auto runtimeManifest = RuntimeManifest::Create();
+		auto assetRegistry = AssetRegistry(runtimeManifest);
+		const auto assetReference = MakeTextureAssetReference(
+			AssetId { 1 },
+			std::filesystem::path("Assets") / "Texture.png"
+		);
+
+		// Act.
+		assetRegistry.RegisterAsset(assetReference);
+
+		// Assert.
+		ASSERT_TRUE(assetRegistry.Contains(assetReference.Id));
+		ASSERT_EQ(assetRegistry.GetAsset(assetReference.Id).Type, AssetType::Texture2D);
+		ASSERT_EQ(assetRegistry.GetAsset(assetReference.Id).Path, assetReference.Path);
+	}
 }

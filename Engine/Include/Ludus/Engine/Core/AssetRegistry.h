@@ -63,6 +63,11 @@ namespace Ludus::Engine::Core
 			}
 		}
 
+		void RegisterAsset(Ludus::Engine::Runtime::AssetReference assetReference)
+		{
+			CommitAsset(std::move(assetReference));
+		}
+
 		std::span<const Ludus::Engine::Runtime::AssetReference> View() const
 		{
 			return { m_References.data(), m_References.size() };

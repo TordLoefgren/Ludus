@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include <Ludus/Engine/Core/AssetRegistry.h>
 #include <Ludus/Engine/Core/Id.h>
 #include <Ludus/Engine/Core/RenderViewRequestRegistry.h>
 #include <Ludus/Engine/Core/Scene.h>
@@ -47,6 +48,8 @@ namespace Ludus::Editor::Core
 		bool IsSimulationActive() const { return m_SimulationRuntime != nullptr; }
 
 		Ludus::Engine::Core::Scene& GetEditorScene(Ludus::Engine::Core::SceneId id) const;
+		Ludus::Engine::Core::AssetRegistry& GetEditorAssetRegistry() { return m_EditorRuntime->GetAssetRegistry(); }
+		const Ludus::Engine::Core::AssetRegistry& GetEditorAssetRegistry() const { return m_EditorRuntime->GetAssetRegistry(); }
 
 		Ludus::Engine::Core::SceneRegistry& GetEditorSceneRegistry() { return m_EditorRuntime->GetSceneRegistry(); }
 		const Ludus::Engine::Core::SceneRegistry& GetEditorSceneRegistry() const { return m_EditorRuntime->GetSceneRegistry(); }

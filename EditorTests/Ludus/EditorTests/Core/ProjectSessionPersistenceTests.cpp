@@ -175,4 +175,72 @@ namespace Ludus::EditorTests::Core
 		ASSERT_EQ(persistence.GetAssets().size(), 1);
 		ASSERT_EQ(persistence.GetAssets().front().Path, std::filesystem::path("Assets") / "Missing.png");
 	}
+
+	TEST(ProjectSessionPersistence, IncludeAsset_RegistersCandidateAndRefreshClassifiesItAsRegistered)
+	{
+		// Arrange.
+		const auto tempDirectoryScope = CreateTestDirectory();
+		const auto projectRoot = tempDirectoryScope.Path / "Sandbox";
+		const auto candidatePath = Ludus::Engine::Persistence::Paths::AssetsDirectory(projectRoot) / "Candidate.png";
+		std::filesystem::create_directories(candidatePath.parent_path());
+		FileSystem::WriteAllText(candidatePath, "");
+
+		auto persistence = CreatePersistence(projectRoot, { });
+		const auto before = persistence.RefreshAssets();
+		ASSERT_NE(
+			FindEntry(
+				before,
+				EditorCore::AssetRefreshClassification::Candidate,
+				std::filesystem::path("Assets") / "Candidate.png"
+			),
+			nullptr
+		);
+
+		// Act.
+		const auto included = persistence.IncludeAsset(
+			Ludus::Engine::Core::AssetType::Texture2D,
+			candidatePath
+		);
+		const auto after = persistence.RefreshAssets();
+
+		// Assert.
+		ASSERT_TRUE(included);
+		ASSERT_EQ(persistence.GetAssets().size(), 1);
+		ASSERT_TRUE(persistence.GetAssets().front().Id.IsValid());
+		ASSERT_EQ(persistence.GetAssets().front().Type, Ludus::Engine::Core::AssetType::Texture2D);
+		ASSERT_EQ(persistence.GetAssets().front().Path, std::filesystem::path("Assets") / "Candidate.png");
+		ASSERT_EQ(after.RegisteredCount, 1);
+		ASSERT_EQ(after.CandidateCount, 0);
+		ASSERT_NE(
+			FindEntry(
+				after,
+				EditorCore::AssetRefreshClassification::Registered,
+				std::filesystem::path("Assets") / "Candidate.png"
+			),
+			nullptr
+		);
+	}
+
+	TEST(ProjectSessionPersistence, IncludeAsset_DoesNotRegisterDuplicatePath)
+	{
+		// Arrange.
+		const auto tempDirectoryScope = CreateTestDirectory();
+		const auto projectRoot = tempDirectoryScope.Path / "Sandbox";
+		const auto candidatePath = Ludus::Engine::Persistence::Paths::AssetsDirectory(projectRoot) / "Candidate.png";
+		std::filesystem::create_directories(candidatePath.parent_path());
+		FileSystem::WriteAllText(candidatePath, "");
+
+		auto persistence = CreatePersistence(projectRoot, { });
+		ASSERT_TRUE(persistence.IncludeAsset(Ludus::Engine::Core::AssetType::Texture2D, candidatePath));
+
+		// Act.
+		const auto includedAgain = persistence.IncludeAsset(
+			Ludus::Engine::Core::AssetType::Texture2D,
+			candidatePath
+		);
+
+		// Assert.
+		ASSERT_FALSE(includedAgain);
+		ASSERT_EQ(persistence.GetAssets().size(), 1);
+	}
 }

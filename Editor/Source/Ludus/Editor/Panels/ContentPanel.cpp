@@ -22,6 +22,11 @@ namespace Ludus::Editor::Panels
 	{
 		namespace EditorCore = Ludus::Editor::Core;
 
+		bool IsCandidateAsset(const std::optional<EditorCore::AssetRefreshEntry>& classification)
+		{
+			return classification && classification->Classification == EditorCore::AssetRefreshClassification::Candidate;
+		}
+
 		Ludus::UI::Elements::ContentBrowser::EntryPresentation CreateAssetEntryPresentation(
 			const EditorCore::ProjectSessionPersistence& persistence,
 			const Ludus::UI::Elements::ContentBrowser::EntryContext& entry
@@ -69,14 +74,15 @@ namespace Ludus::Editor::Panels
 
 			}, [&](const Ludus::UI::Elements::ContentBrowser::EntryContext& entry)
 			{
-				// Callback to populate the context menu for an entry in the content browser.
+				const auto classification = EditorCore::TryClassifyAssetFile(
+					context.ProjectSession.Persistence,
+					entry.Path
+				);
 				const auto isSceneFile =
 					!entry.IsDirectory &&
-					Ludus::Engine::FileSystem::HasLogicalExtension(
-						entry.Path,
-						Ludus::Engine::Persistence::Paths::Constants::SceneExtension
-					);
+					Ludus::Engine::FileSystem::HasLogicalExtension(entry.Path, Ludus::Engine::Persistence::Paths::Constants::SceneExtension);
 				const auto canOpen = isSceneFile;
+				const auto canIncludeInProject = !entry.IsDirectory && IsCandidateAsset(classification);
 				const auto canDelete = !entry.IsDirectory && !isSceneFile;
 
 				if (Ludus::UI::Widgets::MenuItem("Open", nullptr, false, canOpen))
@@ -86,14 +92,17 @@ namespace Ludus::Editor::Panels
 					);
 				}
 
+				if (Ludus::UI::Widgets::MenuItem("Include in Project", nullptr, false, canIncludeInProject))
+				{
+					context.Shell.State.Commands.AddRequestCommand(
+						Ludus::Editor::Commands::RequestCommand::IncludeAsset { entry.Path }
+					);
+				}
+
 				if (Ludus::UI::Widgets::MenuItem("Delete", nullptr, false, canDelete))
 				{
 					pendingDeletePath = entry.Path;
 				}
-			}, [&](const Ludus::UI::Elements::ContentBrowser::DirectoryContext& directory)
-			{
-				// Callback to populate the background context menu for the current directory.
-				(void)directory;
 			});
 
 			if (pendingDeletePath)

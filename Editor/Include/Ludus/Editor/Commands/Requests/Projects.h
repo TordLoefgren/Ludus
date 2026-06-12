@@ -20,4 +20,5 @@ namespace Ludus::Editor::Commands::Requests::Projects
 	void SaveProject(ProjectSessionCommandContext& context);
 	void CloseProject(ProjectSessionCommandContext& context);
 	void RefreshAssets(ProjectSessionCommandContext& context);
+	void IncludeAsset(const RequestCommand::IncludeAsset& command, ProjectSessionCommandContext& context);
 }
