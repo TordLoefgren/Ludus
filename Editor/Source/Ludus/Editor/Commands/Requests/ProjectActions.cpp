@@ -1,16 +1,19 @@
 #include "pch.h"
 
 #include <filesystem>
+#include <format>
 #include <string>
 #include <string_view>
 
 #include <Ludus/Editor/Commands/ProjectSessionCommandContext.h>
 #include <Ludus/Editor/Commands/Requests/ProjectTransitionContext.h>
+#include <Ludus/Editor/Core/AssetRefresh.h>
 #include <Ludus/Editor/Core/ProjectTemplates.h>
 #include <Ludus/Editor/Core/RecentlyOpenedProject.h>
 #include <Ludus/Editor/Core/SceneQueries.h>
 #include <Ludus/Editor/Panels/PanelHelpers.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
+#include <Ludus/Engine/Debug/Debug.h>
 #include <Ludus/Engine/FileSystem/FileSystem.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 
@@ -80,6 +83,25 @@ namespace Ludus::Editor::Commands::Requests::Projects
 		)
 		{
 			Ludus::Editor::Panels::RefreshContentPanel(projectRoot, context.PanelRegistry);
+		}
+
+		void RefreshContentPanel(ProjectSessionCommandContext& context)
+		{
+			Ludus::Editor::Panels::RefreshContentPanel(
+				context.ProjectSession.Persistence.GetProjectRoot(),
+				context.PanelRegistry
+			);
+		}
+
+		void LogAssetRefreshSummary(const Ludus::Editor::Core::AssetRefreshSummary& summary)
+		{
+			LUDUS_LOG_INFO(std::format(
+				"Asset refresh: {} registered, {} candidates, {} missing source, {} unsupported.",
+				summary.RegisteredCount,
+				summary.CandidateCount,
+				summary.MissingSourceCount,
+				summary.UnsupportedCount
+			));
 		}
 
 		void RefreshRecentlyOpenedProjects(
@@ -213,5 +235,11 @@ namespace Ludus::Editor::Commands::Requests::Projects
 
 			editorState.SetRuntimeLaunchSettingsDirty(false);
 		}
+	}
+
+	void RefreshAssetsAction(ProjectSessionCommandContext& context)
+	{
+		LogAssetRefreshSummary(context.ProjectSession.RefreshAssets());
+		RefreshContentPanel(context);
 	}
 }

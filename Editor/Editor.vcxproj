@@ -129,6 +129,7 @@
     <ClInclude Include="Include\Ludus\Editor\Commands\Requests\Scenes.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\UICommand.h" />
     <ClInclude Include="Include\Ludus\Editor\Commands\UI\Dialogs.h" />
+    <ClInclude Include="Include\Ludus\Editor\Core\AssetRefresh.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ActivePanelState.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\ActiveThemeState.h" />
     <ClInclude Include="Include\Ludus\Editor\Core\Axis.h" />

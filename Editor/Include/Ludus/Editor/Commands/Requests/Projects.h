@@ -19,4 +19,5 @@ namespace Ludus::Editor::Commands::Requests::Projects
 	void OpenProject(const RequestCommand::OpenProject& command, ProjectSessionCommandContext& context);
 	void SaveProject(ProjectSessionCommandContext& context);
 	void CloseProject(ProjectSessionCommandContext& context);
+	void RefreshAssets(ProjectSessionCommandContext& context);
 }

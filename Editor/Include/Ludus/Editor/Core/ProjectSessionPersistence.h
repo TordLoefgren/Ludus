@@ -13,6 +13,8 @@
 
 namespace Ludus::Editor::Core
 {
+	struct AssetRefreshSummary;
+
 	class ProjectSessionPersistence
 	{
 	private:
@@ -50,11 +52,13 @@ namespace Ludus::Editor::Core
 
 #pragma region Assets
 
+		const Ludus::Engine::Runtime::AssetReference* TryGetAssetReference(const std::filesystem::path& path) const;
 		bool AddOrUpdateAssetReference(Ludus::Engine::Core::AssetId id, Ludus::Engine::Core::AssetType type, std::filesystem::path path);
 		bool RemoveAssetReference(Ludus::Engine::Core::AssetId id);
 		bool HasAssetReference(Ludus::Engine::Core::AssetId id) const;
 		bool HasAssetReference(const std::filesystem::path& path) const;
 		Ludus::Engine::Core::AssetId AllocateAssetId() const;
+		AssetRefreshSummary RefreshAssets() const;
 
 #pragma endregion
 

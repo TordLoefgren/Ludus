@@ -86,4 +86,9 @@ namespace Ludus::Editor::Commands::Requests::Projects
 
 		ExecuteDeferredAction(action, context);
 	}
+
+	void RefreshAssets(ProjectSessionCommandContext& context)
+	{
+		RefreshAssetsAction(context);
+	}
 }
