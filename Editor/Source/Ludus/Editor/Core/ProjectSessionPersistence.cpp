@@ -211,6 +211,19 @@ namespace Ludus::Editor::Core
 		return true;
 	}
 
+	bool ProjectSessionPersistence::IncludeAsset(
+		Ludus::Engine::Core::AssetType type,
+		std::filesystem::path path
+	)
+	{
+		if (HasAssetReference(path))
+		{
+			return false;
+		}
+
+		return AddOrUpdateAssetReference(AllocateAssetId(), type, std::move(path));
+	}
+
 	bool ProjectSessionPersistence::RemoveAssetReference(Ludus::Engine::Core::AssetId id)
 	{
 		auto& assets = m_RuntimeManifest.Assets;

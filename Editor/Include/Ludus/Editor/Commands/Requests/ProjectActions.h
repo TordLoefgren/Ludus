@@ -15,4 +15,5 @@ namespace Ludus::Editor::Commands::Requests::Projects
 	void CloseProjectAction(ProjectSessionCommandContext& context);
 	void SaveProjectAction(ProjectSessionCommandContext& context);
 	void RefreshAssetsAction(ProjectSessionCommandContext& context);
+	void IncludeAssetAction(const std::filesystem::path& path, ProjectSessionCommandContext& context);
 }

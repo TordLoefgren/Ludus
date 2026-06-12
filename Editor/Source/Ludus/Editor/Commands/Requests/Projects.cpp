@@ -91,4 +91,9 @@ namespace Ludus::Editor::Commands::Requests::Projects
 	{
 		RefreshAssetsAction(context);
 	}
+
+	void IncludeAsset(const RequestCommand::IncludeAsset& command, ProjectSessionCommandContext& context)
+	{
+		IncludeAssetAction(command.Path, context);
+	}
 }

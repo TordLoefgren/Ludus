@@ -55,6 +55,7 @@ namespace Ludus::Editor::Core
 			Ludus::Engine::Core::AssetType type,
 			std::filesystem::path path
 		);
+		bool IncludeAsset(Ludus::Engine::Core::AssetType type, std::filesystem::path path);
 		AssetRefreshSummary RefreshAssets() const;
 
 		bool AddOrUpdateSceneReference(

@@ -54,6 +54,7 @@ namespace Ludus::Editor::Core
 
 		const Ludus::Engine::Runtime::AssetReference* TryGetAssetReference(const std::filesystem::path& path) const;
 		bool AddOrUpdateAssetReference(Ludus::Engine::Core::AssetId id, Ludus::Engine::Core::AssetType type, std::filesystem::path path);
+		bool IncludeAsset(Ludus::Engine::Core::AssetType type, std::filesystem::path path);
 		bool RemoveAssetReference(Ludus::Engine::Core::AssetId id);
 		bool HasAssetReference(Ludus::Engine::Core::AssetId id) const;
 		bool HasAssetReference(const std::filesystem::path& path) const;

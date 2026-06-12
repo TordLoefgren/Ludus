@@ -34,6 +34,7 @@ namespace Ludus::Editor::Commands
 			void operator()(const RequestCommand::SaveProject&) const { Requests::Projects::SaveProject(Context); }
 			void operator()(const RequestCommand::CloseProject&) const { Requests::Projects::CloseProject(Context); }
 			void operator()(const RequestCommand::RefreshAssets&) const { Requests::Projects::RefreshAssets(Context); }
+			void operator()(const RequestCommand::IncludeAsset& command) const { Requests::Projects::IncludeAsset(command, Context); }
 			void operator()(const RequestCommand::CreateScript& command) const { Requests::Scripts::CreateScript(command, Context); }
 			void operator()(const RequestCommand::RunTargetBuildCommand& command) const { Requests::Builds::RunTargetBuildCommand(command, Context); }
 			void operator()(const RequestCommand::BuildRuntime& command) const { Requests::Builds::BuildRuntime(command, Context); }
@@ -62,6 +63,7 @@ namespace Ludus::Editor::Commands
 			void operator()(const RequestCommand::OpenProject& command) const { Requests::Projects::OpenProject(command, Context); }
 			void operator()(const RequestCommand::SaveProject&) const { LUDUS_ASSERT(false, "SaveProject is unavailable during startup."); }
 			void operator()(const RequestCommand::RefreshAssets&) const { LUDUS_ASSERT(false, "RefreshAssets is unavailable during startup."); }
+			void operator()(const RequestCommand::IncludeAsset&) const { LUDUS_ASSERT(false, "IncludeAsset is unavailable during startup."); }
 			void operator()(const RequestCommand::AddViewport&) const { LUDUS_ASSERT(false, "AddViewport is unavailable during startup."); }
 			void operator()(const RequestCommand::CreateScene&) const { LUDUS_ASSERT(false, "CreateScene is unavailable during startup."); }
 			void operator()(const RequestCommand::CreateSceneAs&) const { LUDUS_ASSERT(false, "CreateSceneAs is unavailable during startup."); }

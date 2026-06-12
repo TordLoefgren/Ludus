@@ -242,4 +242,28 @@ namespace Ludus::Editor::Commands::Requests::Projects
 		LogAssetRefreshSummary(context.ProjectSession.RefreshAssets());
 		RefreshContentPanel(context);
 	}
+
+	void IncludeAssetAction(const std::filesystem::path& path, ProjectSessionCommandContext& context)
+	{
+		const auto classification = Ludus::Editor::Core::TryClassifyAssetFile(
+			context.ProjectSession.Persistence,
+			path
+		);
+		if (!classification || classification->Classification != Ludus::Editor::Core::AssetRefreshClassification::Candidate)
+		{
+			throw std::runtime_error("Asset is no longer a candidate for inclusion: " + path.string());
+		}
+
+		if (classification->Type != Ludus::Engine::Core::AssetType::Texture2D)
+		{
+			throw std::runtime_error("Only candidate texture assets can be included: " + path.string());
+		}
+
+		if (!context.ProjectSession.IncludeAsset(classification->Type, path))
+		{
+			throw std::runtime_error("Asset could not be included in the project: " + path.string());
+		}
+
+		RefreshContentPanel(context);
+	}
 }

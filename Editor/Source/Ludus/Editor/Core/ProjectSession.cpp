@@ -134,6 +134,33 @@ namespace Ludus::Editor::Core
 		return changed;
 	}
 
+	bool ProjectSession::IncludeAsset(Ludus::Engine::Core::AssetType type, std::filesystem::path path)
+	{
+		if (!Persistence.IncludeAsset(type, path))
+		{
+			return false;
+		}
+
+		const auto* assetReference = Persistence.TryGetAssetReference(path);
+		if (assetReference == nullptr)
+		{
+			throw std::runtime_error("Included asset reference could not be resolved.");
+		}
+
+		try
+		{
+			RuntimeState.GetEditorAssetRegistry().RegisterAsset(*assetReference);
+		}
+		catch (...)
+		{
+			Persistence.RemoveAssetReference(assetReference->Id);
+			throw;
+		}
+
+		EditorState.SetRuntimeManifestDirty(true);
+		return true;
+	}
+
 	AssetRefreshSummary ProjectSession::RefreshAssets() const
 	{
 		return Persistence.RefreshAssets();
