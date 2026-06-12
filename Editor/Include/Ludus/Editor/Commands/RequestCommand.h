@@ -45,6 +45,7 @@ namespace Ludus::Editor::Commands
 		struct OpenProject { std::filesystem::path Path; };
 		struct SaveProject {};
 		struct CloseProject {};
+		struct RefreshAssets {};
 
 		struct CreateScript { Ludus::Engine::Core::SceneId SceneId; EntityReference EntityReference; std::string Name; };
 
@@ -62,7 +63,7 @@ namespace Ludus::Editor::Commands
 		using Variant = std::variant<
 			AddViewport, SetExecutionMode, SetExecutionFlag, UnsetExecutionFlag, SetPanelVisibility, SetTheme, CloseApplication,
 			CreateScene, CreateSceneAs, OpenScene, SaveScene, SaveSceneAs, RenameScene,
-			CreateProject, CreateProjectAs, OpenProject, SaveProject, CloseProject,
+			CreateProject, CreateProjectAs, OpenProject, SaveProject, CloseProject, RefreshAssets,
 			CreateScript,
 			RunTargetBuildCommand, BuildRuntime, CleanRuntime,
 			ResolveUnsavedChanges

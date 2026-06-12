@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <utility>
 
+#include <Ludus/Editor/Core/AssetRefresh.h>
 #include <Ludus/Editor/Core/ProjectSession.h>
 #include <Ludus/Editor/Core/ProjectSessionEditorState.h>
 #include <Ludus/Editor/Core/ProjectSessionPersistence.h>
@@ -131,6 +132,11 @@ namespace Ludus::Editor::Core
 		}
 
 		return changed;
+	}
+
+	AssetRefreshSummary ProjectSession::RefreshAssets() const
+	{
+		return Persistence.RefreshAssets();
 	}
 
 	bool ProjectSession::AddOrUpdateSceneReference(

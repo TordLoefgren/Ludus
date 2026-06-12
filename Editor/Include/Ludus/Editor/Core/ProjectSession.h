@@ -19,6 +19,8 @@
 
 namespace Ludus::Editor::Core
 {
+	struct AssetRefreshSummary;
+
 	struct ProjectSession
 	{
 		ProjectSessionPersistence Persistence;
@@ -53,6 +55,7 @@ namespace Ludus::Editor::Core
 			Ludus::Engine::Core::AssetType type,
 			std::filesystem::path path
 		);
+		AssetRefreshSummary RefreshAssets() const;
 
 		bool AddOrUpdateSceneReference(
 			Ludus::Engine::Core::SceneId id,

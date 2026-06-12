@@ -3,9 +3,11 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
+#include <Ludus/Editor/Core/AssetRefresh.h>
 #include <Ludus/Editor/Core/ProjectManifest.h>
 #include <Ludus/Editor/Core/ProjectSessionPersistence.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
@@ -19,6 +21,87 @@
 namespace Ludus::Editor::Core
 {
 	namespace FileSystem = Ludus::Engine::FileSystem;
+
+	namespace
+	{
+		void AddRefreshEntry(AssetRefreshSummary& summary, AssetRefreshEntry entry)
+		{
+			switch (entry.Classification)
+			{
+				case AssetRefreshClassification::Registered:
+					++summary.RegisteredCount;
+					break;
+				case AssetRefreshClassification::Candidate:
+					++summary.CandidateCount;
+					break;
+				case AssetRefreshClassification::MissingSource:
+					++summary.MissingSourceCount;
+					break;
+				case AssetRefreshClassification::Unsupported:
+					++summary.UnsupportedCount;
+					break;
+				default:
+					throw std::runtime_error("Unsupported asset refresh classification.");
+			}
+
+			summary.Entries.push_back(std::move(entry));
+		}
+		std::optional<Ludus::Engine::Core::AssetType> TryGetSupportedAssetType(const std::filesystem::path& path)
+		{
+			using Ludus::Engine::Core::AssetType;
+
+			if (FileSystem::HasLogicalExtension(path, ".png")
+				|| FileSystem::HasLogicalExtension(path, ".jpg")
+				|| FileSystem::HasLogicalExtension(path, ".jpeg")
+				|| FileSystem::HasLogicalExtension(path, ".bmp"))
+			{
+				return AssetType::Texture2D;
+			}
+
+			return std::nullopt;
+		}
+
+	}
+
+	std::optional<AssetRefreshEntry> TryClassifyAssetFile(
+		const ProjectSessionPersistence& persistence,
+		const std::filesystem::path& path
+	)
+	{
+		const auto manifestPath = Ludus::Engine::Persistence::Paths::NormalizeRuntimeAssetPathOrEmpty(
+			persistence.GetProjectRoot(),
+			path
+		);
+		if (manifestPath.empty())
+		{
+			return std::nullopt;
+		}
+
+		if (const auto* assetReference = persistence.TryGetAssetReference(path))
+		{
+			return AssetRefreshEntry {
+				.Path = path,
+				.ManifestPath = manifestPath,
+				.Id = assetReference->Id,
+				.Type = assetReference->Type,
+				.Classification = AssetRefreshClassification::Registered
+			};
+		}
+
+		if (FileSystem::HasLogicalExtension(path, ".ludus"))
+		{
+			return std::nullopt;
+		}
+
+		const auto supportedType = TryGetSupportedAssetType(path);
+
+		return AssetRefreshEntry {
+			.Path = path,
+			.ManifestPath = manifestPath,
+			.Type = supportedType.value_or(Ludus::Engine::Core::AssetType::Unknown),
+			.Classification = supportedType ? AssetRefreshClassification::Candidate : AssetRefreshClassification::Unsupported
+		};
+	}
 
 	ProjectSessionPersistence::ProjectSessionPersistence(
 		Ludus::Editor::Core::ProjectManifest projectManifest,
@@ -156,7 +239,7 @@ namespace Ludus::Editor::Core
 		return false;
 	}
 
-	bool ProjectSessionPersistence::HasAssetReference(const std::filesystem::path& path) const
+	const Ludus::Engine::Runtime::AssetReference* ProjectSessionPersistence::TryGetAssetReference(const std::filesystem::path& path) const
 	{
 		const auto normalizedPath = Ludus::Engine::Persistence::Paths::NormalizeRuntimeAssetPathOrEmpty(
 			GetProjectRoot(),
@@ -164,18 +247,23 @@ namespace Ludus::Editor::Core
 		);
 		if (normalizedPath.empty())
 		{
-			return false;
+			return nullptr;
 		}
 
 		for (const auto& assetReference : m_RuntimeManifest.Assets)
 		{
 			if (FileSystem::NormalizePortablePath(assetReference.Path) == normalizedPath)
 			{
-				return true;
+				return &assetReference;
 			}
 		}
 
-		return false;
+		return nullptr;
+	}
+
+	bool ProjectSessionPersistence::HasAssetReference(const std::filesystem::path& path) const
+	{
+		return TryGetAssetReference(path) != nullptr;
 	}
 
 	Ludus::Engine::Core::AssetId ProjectSessionPersistence::AllocateAssetId() const
@@ -189,6 +277,61 @@ namespace Ludus::Editor::Core
 		}
 
 		return id;
+	}
+
+	AssetRefreshSummary ProjectSessionPersistence::RefreshAssets() const
+	{
+		AssetRefreshSummary summary;
+		const auto& projectRoot = GetProjectRoot();
+		const auto assetsDirectory = Ludus::Engine::Persistence::Paths::AssetsDirectory(projectRoot);
+		const auto options = std::filesystem::directory_options::skip_permission_denied;
+		std::unordered_set<std::string> existingManifestPaths;
+
+		if (std::filesystem::exists(assetsDirectory) && std::filesystem::is_directory(assetsDirectory))
+		{
+			for (const auto& entry : std::filesystem::recursive_directory_iterator(assetsDirectory, options))
+			{
+				if (!entry.is_regular_file())
+				{
+					continue;
+				}
+
+				auto classification = TryClassifyAssetFile(*this, entry.path());
+				if (!classification)
+				{
+					continue;
+				}
+
+				if (classification->Classification == AssetRefreshClassification::Registered)
+				{
+					existingManifestPaths.insert(FileSystem::NormalizePortablePath(classification->ManifestPath).generic_string());
+				}
+
+				AddRefreshEntry(summary, std::move(*classification));
+			}
+		}
+
+		for (const auto& assetReference : m_RuntimeManifest.Assets)
+		{
+			const auto manifestPath = FileSystem::NormalizePortablePath(assetReference.Path);
+			if (existingManifestPaths.contains(manifestPath.generic_string()))
+			{
+				continue;
+			}
+
+			AddRefreshEntry(
+				summary,
+				{
+					.Path = FileSystem::ResolvePathFromRoot(projectRoot, manifestPath),
+					.ManifestPath = manifestPath,
+					.Id = assetReference.Id,
+					.Type = assetReference.Type,
+					.Classification = AssetRefreshClassification::MissingSource
+				}
+			);
+		}
+
+		return summary;
 	}
 
 #pragma endregion

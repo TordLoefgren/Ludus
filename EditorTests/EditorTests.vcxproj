@@ -73,6 +73,7 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Ludus\EditorTests\Core\ProjectSessionPersistenceTests.cpp" />
     <ClCompile Include="Ludus\EditorTests\Persistence\BuildPathsTests.cpp" />
     <ClCompile Include="Ludus\EditorTests\Persistence\LmlProjectManifestPersistenceTests.cpp" />
     <ClCompile Include="Ludus\EditorTests\Persistence\ProjectPathsTests.cpp" />

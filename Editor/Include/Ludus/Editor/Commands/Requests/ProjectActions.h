@@ -14,4 +14,5 @@ namespace Ludus::Editor::Commands::Requests::Projects
 	void OpenProjectAction(const std::filesystem::path& path, ProjectTransitionContext context);
 	void CloseProjectAction(ProjectSessionCommandContext& context);
 	void SaveProjectAction(ProjectSessionCommandContext& context);
+	void RefreshAssetsAction(ProjectSessionCommandContext& context);
 }

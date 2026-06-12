@@ -4,9 +4,11 @@
 #include <system_error>
 
 #include <Ludus/Editor/Commands/RequestCommand.h>
+#include <Ludus/Editor/Core/AssetRefresh.h>
 #include <Ludus/Editor/Core/Constants.h>
 #include <Ludus/Editor/Panels/ContentPanel.h>
 #include <Ludus/Engine/FileSystem/FileSystem.h>
+#include <Ludus/Engine/Graphics/Color.h>
 #include <Ludus/Engine/Persistence/Paths.h>
 #include <Ludus/UI/Context/ScrollContext.h>
 #include <Ludus/UI/Icons/FontAwesome.h>
@@ -16,6 +18,42 @@
 
 namespace Ludus::Editor::Panels
 {
+	namespace
+	{
+		namespace EditorCore = Ludus::Editor::Core;
+
+		Ludus::UI::Elements::ContentBrowser::EntryPresentation CreateAssetEntryPresentation(
+			const EditorCore::ProjectSessionPersistence& persistence,
+			const Ludus::UI::Elements::ContentBrowser::EntryContext& entry
+		)
+		{
+			Ludus::UI::Elements::ContentBrowser::EntryPresentation presentation;
+			if (entry.IsDirectory)
+			{
+				return presentation;
+			}
+
+			const auto classification = EditorCore::TryClassifyAssetFile(persistence, entry.Path);
+			if (!classification)
+			{
+				return presentation;
+			}
+
+			if (classification->Classification == EditorCore::AssetRefreshClassification::Candidate)
+			{
+				presentation.TextColor = Ludus::Engine::Graphics::Colors::Orange;
+				presentation.Tooltip = "Not included in project";
+			}
+			else if (classification->Classification == EditorCore::AssetRefreshClassification::Unsupported)
+			{
+				presentation.TextColor = Ludus::Engine::Graphics::Colors::Gray;
+				presentation.Tooltip = "Unsupported asset file";
+			}
+
+			return presentation;
+		}
+	}
+
 	bool ContentPanel::UpdateImpl(Ludus::Editor::Core::ProjectSessionContext& context)
 	{
 		const auto flags = Ludus::Editor::Core::Constants::Flags::Panel | Ludus::UI::Flags::Window::HorizontalScrollbar;
@@ -27,9 +65,7 @@ namespace Ludus::Editor::Panels
 
 			m_ContentBrowser.Update([&](const Ludus::UI::Elements::ContentBrowser::EntryContext& entry)
 			{
-				// Callback to customize how each content browser entry is presented.
-				Ludus::UI::Elements::ContentBrowser::EntryPresentation presentation;
-				return presentation;
+				return CreateAssetEntryPresentation(context.ProjectSession.Persistence, entry);
 
 			}, [&](const Ludus::UI::Elements::ContentBrowser::EntryContext& entry)
 			{

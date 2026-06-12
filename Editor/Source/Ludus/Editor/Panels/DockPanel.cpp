@@ -199,6 +199,15 @@ namespace Ludus::Editor::Panels
 			// Assets.
 			if (Ludus::UI::Scope::MenuScope assetsMenu("Assets"); assetsMenu)
 			{
+				if (Ludus::UI::Widgets::MenuItem("Refresh Assets"))
+				{
+					context.Shell.State.Commands.AddRequestCommand(
+						Ludus::Editor::Commands::RequestCommand::RefreshAssets { }
+					);
+				}
+
+				Ludus::UI::Context::LayoutContext::Separator();
+
 				if (Ludus::UI::Widgets::MenuItem("Show in Explorer"))
 				{
 					Ludus::Engine::Platform::Paths::OpenFolder(
