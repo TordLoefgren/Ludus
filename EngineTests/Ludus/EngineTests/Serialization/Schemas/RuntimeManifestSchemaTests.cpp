@@ -103,35 +103,31 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		);
 	}
 
-	static void WriteVersion(DomTokenStreamWriter& writer, int64_t major, int64_t minor, int64_t patch)
+	static void WriteSchemaRevision(
+		DomTokenStreamWriter& writer,
+		int64_t revision = RuntimeManifest::CurrentSchemaRevision
+	)
 	{
-		writer.Emit(Token::Key { "Version" });
-		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Major" });
-		writer.Emit(Token::Int { major });
-		writer.Emit(Token::Key { "Minor" });
-		writer.Emit(Token::Int { minor });
-		writer.Emit(Token::Key { "Patch" });
-		writer.Emit(Token::Int { patch });
-		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::Key { "SchemaRevision" });
+		writer.Emit(Token::Int { revision });
 	}
 
-	TEST(RuntimeManifestSchema, Serialize_WritesVersion_When_RuntimeManifestIsSerialized)
+	TEST(RuntimeManifestSchema, Serialize_WritesSchemaRevision_When_RuntimeManifestIsSerialized)
 	{
 		// Arrange.
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
-		const RuntimeManifest manifest = MakeRuntimeManifest();
+		const auto manifest = MakeRuntimeManifest();
 
 		// Act.
 		RuntimeManifestSchema::Serialize(writer, manifest);
 
 		// Assert.
 		const auto& manifestObject = AsObject(*document.GetRoot());
-		const auto& versionObject = AsObject(*FindMember(manifestObject, "Version"));
-		ASSERT_EQ(std::get<uint64_t>(AsValue(*FindMember(versionObject, "Major"))), manifest.Version.Major);
-		ASSERT_EQ(std::get<uint64_t>(AsValue(*FindMember(versionObject, "Minor"))), manifest.Version.Minor);
-		ASSERT_EQ(std::get<uint64_t>(AsValue(*FindMember(versionObject, "Patch"))), manifest.Version.Patch);
+		ASSERT_EQ(
+			std::get<uint64_t>(AsValue(*FindMember(manifestObject, "SchemaRevision"))),
+			manifest.SchemaRevision
+		);
 	}
 
 	TEST(RuntimeManifestSchema, Serialize_WritesIds_When_RuntimeManifestHasReferences)
@@ -172,6 +168,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		// Assert.
 		ASSERT_TRUE(result.HasValue());
 		const auto& loadedManifest = result.GetValue();
+		ASSERT_EQ(loadedManifest.SchemaRevision, manifest.SchemaRevision);
 		ASSERT_EQ(loadedManifest.EntrySceneId, manifest.EntrySceneId);
 		ASSERT_EQ(loadedManifest.Scenes.size(), manifest.Scenes.size());
 		ASSERT_EQ(loadedManifest.Scripts.size(), manifest.Scripts.size());
@@ -198,7 +195,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		}
 	}
 
-	TEST(RuntimeManifestSchema, Deserialize_Fails_When_VersionMissing)
+	TEST(RuntimeManifestSchema, Deserialize_Fails_When_SchemaRevisionMissing)
 	{
 		// Arrange.
 		DomDocument document;
@@ -222,13 +219,71 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		ASSERT_FALSE(result.HasValue());
 	}
 
+	TEST(RuntimeManifestSchema, Deserialize_Fails_When_SchemaRevisionIsUnsupported)
+	{
+		// Arrange.
+		DomDocument document;
+		DomTokenStreamWriter writer(document);
+		writer.Emit(Token::StartObject { });
+		WriteSchemaRevision(writer, 2);
+		writer.Emit(Token::Key { "EntrySceneId" });
+		writer.Emit(Token::Uint { 0 });
+		writer.Emit(Token::Key { "Scenes" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::Key { "Scripts" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::EndObject { });
+		DomTokenStreamReader reader(document);
+
+		// Act.
+		const auto result = RuntimeManifestSchema::Deserialize(reader);
+
+		// Assert.
+		ASSERT_FALSE(result.HasValue());
+	}
+
+	TEST(RuntimeManifestSchema, Deserialize_Fails_When_LegacyVersionIsUsed)
+	{
+		// Arrange.
+		DomDocument document;
+		DomTokenStreamWriter writer(document);
+		writer.Emit(Token::StartObject { });
+		writer.Emit(Token::Key { "Version" });
+		writer.Emit(Token::StartObject { });
+		writer.Emit(Token::Key { "Major" });
+		writer.Emit(Token::Int { 0 });
+		writer.Emit(Token::Key { "Minor" });
+		writer.Emit(Token::Int { 3 });
+		writer.Emit(Token::Key { "Patch" });
+		writer.Emit(Token::Int { 0 });
+		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::Key { "EntrySceneId" });
+		writer.Emit(Token::Uint { 0 });
+		writer.Emit(Token::Key { "Scenes" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::Key { "Scripts" });
+		writer.Emit(Token::StartArray { });
+		writer.Emit(Token::EndArray { });
+		writer.Emit(Token::EndObject { });
+		DomTokenStreamReader reader(document);
+
+		// Act.
+		const auto result = RuntimeManifestSchema::Deserialize(reader);
+
+		// Assert.
+		ASSERT_FALSE(result.HasValue());
+	}
+
 	TEST(RuntimeManifestSchema, Deserialize_Fails_When_EntrySceneIdDoesNotMatchSceneReference)
 	{
 		// Arrange.
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		WriteVersion(writer, RuntimeManifest::CurrentVersion.Major, RuntimeManifest::CurrentVersion.Minor, RuntimeManifest::CurrentVersion.Patch);
+		WriteSchemaRevision(writer);
 		writer.Emit(Token::Key { "EntrySceneId" });
 		writer.Emit(Token::Uint { 99 });
 		writer.Emit(Token::Key { "Scenes" });
@@ -261,7 +316,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		WriteVersion(writer, RuntimeManifest::CurrentVersion.Major, RuntimeManifest::CurrentVersion.Minor, RuntimeManifest::CurrentVersion.Patch);
+		WriteSchemaRevision(writer);
 		writer.Emit(Token::Key { "EntrySceneId" });
 		writer.Emit(Token::Uint { 1 });
 		writer.Emit(Token::Key { "Scenes" });
@@ -295,7 +350,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		WriteVersion(writer, RuntimeManifest::CurrentVersion.Major, RuntimeManifest::CurrentVersion.Minor, RuntimeManifest::CurrentVersion.Patch);
+		WriteSchemaRevision(writer);
 		writer.Emit(Token::Key { "EntrySceneId" });
 		writer.Emit(Token::Uint { 1 });
 		writer.Emit(Token::Key { "Scenes" });
@@ -339,7 +394,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		WriteVersion(writer, RuntimeManifest::CurrentVersion.Major, RuntimeManifest::CurrentVersion.Minor, RuntimeManifest::CurrentVersion.Patch);
+		WriteSchemaRevision(writer);
 		writer.Emit(Token::Key { "EntrySceneId" });
 		writer.Emit(Token::Uint { 1 });
 		writer.Emit(Token::Key { "Scenes" });
@@ -383,7 +438,7 @@ namespace Ludus::EngineTests::Serialization::Schemas
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		WriteVersion(writer, RuntimeManifest::CurrentVersion.Major, RuntimeManifest::CurrentVersion.Minor, RuntimeManifest::CurrentVersion.Patch);
+		WriteSchemaRevision(writer);
 		writer.Emit(Token::Key { "EntrySceneId" });
 		writer.Emit(Token::Uint { 1 });
 		writer.Emit(Token::Key { "Scenes" });

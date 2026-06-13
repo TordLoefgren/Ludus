@@ -1,10 +1,13 @@
 #pragma once
 
+#include <Ludus/Engine/Core/Version.h>
 #include <Ludus/Engine/Math/Vector2D.h>
 #include <Ludus/UI/Flags/Flags.h>
 
 namespace Ludus::Editor::Core::Constants
 {
+	inline constexpr Ludus::Engine::Core::Version CurrentVersion { 0, 2, 0 };
+
 	namespace Shared
 	{
 		inline constexpr float StandardInlineSpacing = 6.0f;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
 #include <string>
 #include <utility>
@@ -7,7 +8,6 @@
 
 #include <Ludus/Engine/Core/AssetType.h>
 #include <Ludus/Engine/Core/Id.h>
-#include <Ludus/Engine/Core/Version.h>
 
 namespace Ludus::Engine::Runtime
 {
@@ -33,9 +33,9 @@ namespace Ludus::Engine::Runtime
 
 	struct RuntimeManifest
 	{
-		inline static constexpr Ludus::Engine::Core::Version CurrentVersion = { 0, 2, 0 };
+		inline static constexpr std::uint32_t CurrentSchemaRevision = 1;
 
-		Ludus::Engine::Core::Version Version = CurrentVersion;
+		std::uint32_t SchemaRevision = CurrentSchemaRevision;
 		Ludus::Engine::Core::SceneId EntrySceneId { Ludus::Engine::Core::SceneId::Invalid() };
 		std::vector<SceneReference> Scenes;
 		std::vector<ScriptReference> Scripts;
@@ -49,7 +49,7 @@ namespace Ludus::Engine::Runtime
 		)
 		{
 			return {
-				.Version = CurrentVersion,
+				.SchemaRevision = CurrentSchemaRevision,
 				.EntrySceneId = entrySceneId,
 				.Scenes = std::move(scenes),
 				.Scripts = std::move(scripts),

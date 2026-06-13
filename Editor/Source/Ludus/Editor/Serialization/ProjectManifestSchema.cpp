@@ -18,15 +18,8 @@ namespace Ludus::Editor::Serialization::Schemas
 	{
 		writer.Emit(Token::StartObject { });
 
-		writer.Emit(Token::Key { "Version" });
-		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Major" });
-		writer.Emit(Token::Uint { projectManifest.Version.Major });
-		writer.Emit(Token::Key { "Minor" });
-		writer.Emit(Token::Uint { projectManifest.Version.Minor });
-		writer.Emit(Token::Key { "Patch" });
-		writer.Emit(Token::Uint { projectManifest.Version.Patch });
-		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::Key { "SchemaRevision" });
+		writer.Emit(Token::Uint { projectManifest.SchemaRevision });
 
 		writer.Emit(Token::Key { "ProjectRoot" });
 		const auto projectRoot = Ludus::Engine::FileSystem::ToPortablePathString(projectManifest.ProjectRoot);
@@ -45,48 +38,21 @@ namespace Ludus::Editor::Serialization::Schemas
 
 		try
 		{
-			bool hasVersion = false;
+			bool hasSchemaRevision = false;
 			bool hasProjectRoot = false;
 			bool hasRuntimeManifestPath = false;
 
 			Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 			{
-				if (key == "Version")
+				if (key == "SchemaRevision")
 				{
-					bool hasMajor = false;
-					bool hasMinor = false;
-					bool hasPatch = false;
-
-					Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view versionKey)
+					projectManifest.SchemaRevision = Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader);
+					if (projectManifest.SchemaRevision != ProjectManifest::CurrentSchemaRevision)
 					{
-						if (versionKey == "Major")
-						{
-							projectManifest.Version.Major = Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader);
-							hasMajor = true;
-							return;
-						}
-						if (versionKey == "Minor")
-						{
-							projectManifest.Version.Minor = Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader);
-							hasMinor = true;
-							return;
-						}
-						if (versionKey == "Patch")
-						{
-							projectManifest.Version.Patch = Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader);
-							hasPatch = true;
-							return;
-						}
-
-						Ludus::Engine::Serialization::Core::SkipValue(reader);
-					});
-
-					if (!hasMajor || !hasMinor || !hasPatch)
-					{
-						throw SerializationException("ProjectManifest version is incomplete.");
+						throw SerializationException("ProjectManifest schema revision is not supported.");
 					}
 
-					hasVersion = true;
+					hasSchemaRevision = true;
 					return;
 				}
 				if (key == "RuntimeManifestPath")
@@ -109,9 +75,9 @@ namespace Ludus::Editor::Serialization::Schemas
 				Ludus::Engine::Serialization::Core::SkipValue(reader);
 			});
 
-			if (!hasVersion)
+			if (!hasSchemaRevision)
 			{
-				throw SerializationException("ProjectManifest version not found.");
+				throw SerializationException("ProjectManifest schema revision not found.");
 			}
 
 			if (!hasRuntimeManifestPath)

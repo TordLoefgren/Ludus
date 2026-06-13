@@ -1,24 +1,23 @@
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
 #include <utility>
-
-#include <Ludus/Engine/Core/Version.h>
 
 namespace Ludus::Editor::Core
 {
 	struct ProjectManifest
 	{
-		inline static constexpr Ludus::Engine::Core::Version CurrentVersion = { 0, 2, 0 };
+		inline static constexpr std::uint32_t CurrentSchemaRevision = 1;
 
-		Ludus::Engine::Core::Version Version = CurrentVersion;
+		std::uint32_t SchemaRevision = CurrentSchemaRevision;
 		std::filesystem::path ProjectRoot;
 		std::filesystem::path RuntimeManifestPath;
 
 		static ProjectManifest Create(std::filesystem::path projectRoot, std::filesystem::path runtimeManifestPath)
 		{
 			return {
-				.Version = CurrentVersion,
+				.SchemaRevision = CurrentSchemaRevision,
 				.ProjectRoot = std::move(projectRoot),
 				.RuntimeManifestPath = std::move(runtimeManifestPath)
 			};

@@ -6,7 +6,6 @@
 #include <Ludus/Editor/Commands/RequestCommand.h>
 #include <Ludus/Editor/Commands/UICommand.h>
 #include <Ludus/Editor/Core/Constants.h>
-#include <Ludus/Editor/Core/ProjectManifest.h>
 #include <Ludus/Editor/Core/WelcomeWindow.h>
 #include <Ludus/Editor/Persistence/ProjectPaths.h>
 #include <Ludus/Editor/Widgets/Buttons.h>
@@ -316,7 +315,7 @@ namespace Ludus::Editor::Core
 		void DrawWelcomeFooter(const Ludus::Engine::Math::Vector2D& windowSize)
 		{
 			const std::string version = Ludus::Engine::Core::Version::ToString(
-				Ludus::Editor::Core::ProjectManifest::CurrentVersion
+				Ludus::Editor::Core::Constants::CurrentVersion
 			);
 
 			const auto footerTextColor = Ludus::UI::Scope::StyleColor(
