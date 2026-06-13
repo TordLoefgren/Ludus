@@ -40,13 +40,13 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		return nullptr;
 	}
 
-	TEST(ProjectManifestSchema, Serialize_WritesVersionProjectRootAndRuntimeManifestPath_When_ProjectManifestIsValid)
+	TEST(ProjectManifestSchema, Serialize_WritesSchemaRevisionProjectRootAndRuntimeManifestPath_When_ProjectManifestIsValid)
 	{
 		// Arrange.
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		ProjectManifest manifest;
-		manifest.Version = { 7, 8, 9 };
+		manifest.SchemaRevision = 7;
 		manifest.ProjectRoot = std::filesystem::path("Projects/Game");
 		manifest.RuntimeManifestPath = std::filesystem::path("Game.runtime.ludus");
 
@@ -58,18 +58,18 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		ASSERT_NE(root, nullptr);
 
 		const auto& manifestObject = AsObject(*root);
-		const auto* versionNode = FindMember(manifestObject, "Version");
+		const auto* schemaRevisionNode = FindMember(manifestObject, "SchemaRevision");
 		const auto* projectRootNode = FindMember(manifestObject, "ProjectRoot");
 		const auto* runtimeManifestPathNode = FindMember(manifestObject, "RuntimeManifestPath");
 
-		ASSERT_NE(versionNode, nullptr);
+		ASSERT_NE(schemaRevisionNode, nullptr);
 		ASSERT_NE(projectRootNode, nullptr);
 		ASSERT_NE(runtimeManifestPathNode, nullptr);
 
-		const auto& versionObject = AsObject(*versionNode);
-		ASSERT_EQ(std::get<uint64_t>(AsValue(*FindMember(versionObject, "Major"))), manifest.Version.Major);
-		ASSERT_EQ(std::get<uint64_t>(AsValue(*FindMember(versionObject, "Minor"))), manifest.Version.Minor);
-		ASSERT_EQ(std::get<uint64_t>(AsValue(*FindMember(versionObject, "Patch"))), manifest.Version.Patch);
+		ASSERT_EQ(
+			std::get<uint64_t>(AsValue(*schemaRevisionNode)),
+			manifest.SchemaRevision
+		);
 
 		const auto projectRoot = std::get<std::string>(AsValue(*projectRootNode));
 		ASSERT_EQ(projectRoot, "Projects/Game");
@@ -96,7 +96,7 @@ namespace Ludus::EditorTests::Serialization::Schemas
 
 		const auto& manifestObject = AsObject(*root);
 		ASSERT_EQ(manifestObject.size(), 3u);
-		ASSERT_NE(FindMember(manifestObject, "Version"), nullptr);
+		ASSERT_NE(FindMember(manifestObject, "SchemaRevision"), nullptr);
 		ASSERT_NE(FindMember(manifestObject, "ProjectRoot"), nullptr);
 		ASSERT_NE(FindMember(manifestObject, "RuntimeManifestPath"), nullptr);
 		ASSERT_EQ(FindMember(manifestObject, "Scenes"), nullptr);
@@ -104,21 +104,14 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		ASSERT_EQ(FindMember(manifestObject, "EntrySceneId"), nullptr);
 	}
 
-	TEST(ProjectManifestSchema, Deserialize_ReadsVersionProjectRootAndRuntimeManifestPath_When_ArchiveIsValid)
+	TEST(ProjectManifestSchema, Deserialize_ReadsProjectRootAndRuntimeManifestPath_When_ArchiveIsValid)
 	{
 		// Arrange.
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Version" });
-		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Major" });
-		writer.Emit(Token::Int { 7 });
-		writer.Emit(Token::Key { "Minor" });
-		writer.Emit(Token::Int { 8 });
-		writer.Emit(Token::Key { "Patch" });
-		writer.Emit(Token::Int { 9 });
-		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::Key { "SchemaRevision" });
+		writer.Emit(Token::Int { ProjectManifest::CurrentSchemaRevision });
 		writer.Emit(Token::Key { "ProjectRoot" });
 		writer.Emit(Token::String { "Projects/Game" });
 		writer.Emit(Token::Key { "RuntimeManifestPath" });
@@ -133,9 +126,7 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		ASSERT_TRUE(result.HasValue());
 
 		const auto& manifest = result.GetValue();
-		ASSERT_EQ(manifest.Version.Major, 7u);
-		ASSERT_EQ(manifest.Version.Minor, 8u);
-		ASSERT_EQ(manifest.Version.Patch, 9u);
+		ASSERT_EQ(manifest.SchemaRevision, ProjectManifest::CurrentSchemaRevision);
 		ASSERT_EQ(manifest.ProjectRoot, std::filesystem::path("Projects/Game"));
 		ASSERT_EQ(manifest.RuntimeManifestPath, std::filesystem::path("Game.runtime.ludus"));
 	}
@@ -158,9 +149,7 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		ASSERT_TRUE(result.HasValue());
 
 		const auto& loadedManifest = result.GetValue();
-		ASSERT_EQ(loadedManifest.Version.Major, manifest.Version.Major);
-		ASSERT_EQ(loadedManifest.Version.Minor, manifest.Version.Minor);
-		ASSERT_EQ(loadedManifest.Version.Patch, manifest.Version.Patch);
+		ASSERT_EQ(loadedManifest.SchemaRevision, manifest.SchemaRevision);
 		ASSERT_EQ(loadedManifest.ProjectRoot, manifest.ProjectRoot);
 		ASSERT_EQ(loadedManifest.RuntimeManifestPath, manifest.RuntimeManifestPath);
 	}
@@ -180,12 +169,63 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		ASSERT_FALSE(result.HasValue());
 	}
 
-	TEST(ProjectManifestSchema, Deserialize_Fails_When_VersionMissing)
+	TEST(ProjectManifestSchema, Deserialize_Fails_When_SchemaRevisionMissing)
 	{
 		// Arrange.
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
+		writer.Emit(Token::Key { "ProjectRoot" });
+		writer.Emit(Token::String { "Projects/Game" });
+		writer.Emit(Token::Key { "RuntimeManifestPath" });
+		writer.Emit(Token::String { "Game.runtime.ludus" });
+		writer.Emit(Token::EndObject { });
+		DomTokenStreamReader reader(document);
+
+		// Act.
+		const auto result = ProjectManifestSchema::Deserialize(reader);
+
+		// Assert.
+		ASSERT_FALSE(result.HasValue());
+	}
+
+	TEST(ProjectManifestSchema, Deserialize_Fails_When_SchemaRevisionIsUnsupported)
+	{
+		// Arrange.
+		DomDocument document;
+		DomTokenStreamWriter writer(document);
+		writer.Emit(Token::StartObject { });
+		writer.Emit(Token::Key { "SchemaRevision" });
+		writer.Emit(Token::Int { 2 });
+		writer.Emit(Token::Key { "ProjectRoot" });
+		writer.Emit(Token::String { "Projects/Game" });
+		writer.Emit(Token::Key { "RuntimeManifestPath" });
+		writer.Emit(Token::String { "Game.runtime.ludus" });
+		writer.Emit(Token::EndObject { });
+		DomTokenStreamReader reader(document);
+
+		// Act.
+		const auto result = ProjectManifestSchema::Deserialize(reader);
+
+		// Assert.
+		ASSERT_FALSE(result.HasValue());
+	}
+
+	TEST(ProjectManifestSchema, Deserialize_Fails_When_LegacyVersionIsUsed)
+	{
+		// Arrange.
+		DomDocument document;
+		DomTokenStreamWriter writer(document);
+		writer.Emit(Token::StartObject { });
+		writer.Emit(Token::Key { "Version" });
+		writer.Emit(Token::StartObject { });
+		writer.Emit(Token::Key { "Major" });
+		writer.Emit(Token::Int { 0 });
+		writer.Emit(Token::Key { "Minor" });
+		writer.Emit(Token::Int { 3 });
+		writer.Emit(Token::Key { "Patch" });
+		writer.Emit(Token::Int { 0 });
+		writer.Emit(Token::EndObject { });
 		writer.Emit(Token::Key { "ProjectRoot" });
 		writer.Emit(Token::String { "Projects/Game" });
 		writer.Emit(Token::Key { "RuntimeManifestPath" });
@@ -206,15 +246,8 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Version" });
-		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Major" });
-		writer.Emit(Token::Int { 0 });
-		writer.Emit(Token::Key { "Minor" });
-		writer.Emit(Token::Int { 2 });
-		writer.Emit(Token::Key { "Patch" });
-		writer.Emit(Token::Int { 0 });
-		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::Key { "SchemaRevision" });
+		writer.Emit(Token::Int { ProjectManifest::CurrentSchemaRevision });
 		writer.Emit(Token::Key { "ProjectRoot" });
 		writer.Emit(Token::String { "Projects/Game" });
 		writer.Emit(Token::EndObject { });
@@ -233,15 +266,8 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Version" });
-		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Major" });
-		writer.Emit(Token::Int { 0 });
-		writer.Emit(Token::Key { "Minor" });
-		writer.Emit(Token::Int { 3 });
-		writer.Emit(Token::Key { "Patch" });
-		writer.Emit(Token::Int { 0 });
-		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::Key { "SchemaRevision" });
+		writer.Emit(Token::Int { ProjectManifest::CurrentSchemaRevision });
 		writer.Emit(Token::Key { "RuntimeManifestPath" });
 		writer.Emit(Token::String { "Game.runtime.ludus" });
 		writer.Emit(Token::EndObject { });
@@ -260,15 +286,8 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Version" });
-		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Major" });
-		writer.Emit(Token::Int { 0 });
-		writer.Emit(Token::Key { "Minor" });
-		writer.Emit(Token::Int { 2 });
-		writer.Emit(Token::Key { "Patch" });
-		writer.Emit(Token::Int { 0 });
-		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::Key { "SchemaRevision" });
+		writer.Emit(Token::Int { ProjectManifest::CurrentSchemaRevision });
 		writer.Emit(Token::Key { "ProjectRoot" });
 		writer.Emit(Token::String { "Projects/Game" });
 		writer.Emit(Token::Key { "RuntimeManifestPath" });
@@ -289,15 +308,8 @@ namespace Ludus::EditorTests::Serialization::Schemas
 		DomDocument document;
 		DomTokenStreamWriter writer(document);
 		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Version" });
-		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Major" });
-		writer.Emit(Token::Int { 0 });
-		writer.Emit(Token::Key { "Minor" });
-		writer.Emit(Token::Int { 3 });
-		writer.Emit(Token::Key { "Patch" });
-		writer.Emit(Token::Int { 0 });
-		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::Key { "SchemaRevision" });
+		writer.Emit(Token::Int { ProjectManifest::CurrentSchemaRevision });
 		writer.Emit(Token::Key { "ProjectRoot" });
 		writer.Emit(Token::Int { 1 });
 		writer.Emit(Token::Key { "RuntimeManifestPath" });

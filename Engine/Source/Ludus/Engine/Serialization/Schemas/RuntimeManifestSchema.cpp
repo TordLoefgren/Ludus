@@ -22,15 +22,8 @@ namespace Ludus::Engine::Serialization::Schemas
 	{
 		writer.Emit(Token::StartObject { });
 
-		writer.Emit(Token::Key { "Version" });
-		writer.Emit(Token::StartObject { });
-		writer.Emit(Token::Key { "Major" });
-		writer.Emit(Token::Uint { runtimeManifest.Version.Major });
-		writer.Emit(Token::Key { "Minor" });
-		writer.Emit(Token::Uint { runtimeManifest.Version.Minor });
-		writer.Emit(Token::Key { "Patch" });
-		writer.Emit(Token::Uint { runtimeManifest.Version.Patch });
-		writer.Emit(Token::EndObject { });
+		writer.Emit(Token::Key { "SchemaRevision" });
+		writer.Emit(Token::Uint { runtimeManifest.SchemaRevision });
 
 		writer.Emit(Token::Key { "EntrySceneId" });
 		writer.Emit(Token::Uint { runtimeManifest.EntrySceneId.Value });
@@ -107,53 +100,20 @@ namespace Ludus::Engine::Serialization::Schemas
 
 		try
 		{
-			bool hasVersion = false;
+			bool hasSchemaRevision = false;
 			bool hasEntrySceneId = false;
 
 			Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view key)
 			{
-				if (key == "Version")
+				if (key == "SchemaRevision")
 				{
-					bool hasMajor = false;
-					bool hasMinor = false;
-					bool hasPatch = false;
-
-					Ludus::Engine::Serialization::Core::ReadObject(reader, [&](std::string_view versionKey)
+					runtimeManifest.SchemaRevision = Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader);
+					if (runtimeManifest.SchemaRevision != RuntimeManifest::CurrentSchemaRevision)
 					{
-						if (versionKey == "Major")
-						{
-							runtimeManifest.Version.Major = Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader);
-							hasMajor = true;
-							return;
-						}
-						if (versionKey == "Minor")
-						{
-							runtimeManifest.Version.Minor = Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader);
-							hasMinor = true;
-							return;
-						}
-						if (versionKey == "Patch")
-						{
-							runtimeManifest.Version.Patch = Ludus::Engine::Serialization::Core::ConsumeUint32Like(reader);
-							hasPatch = true;
-							return;
-						}
-
-						Ludus::Engine::Serialization::Core::SkipValue(reader);
-					});
-
-					if (!hasMajor || !hasMinor || !hasPatch)
-					{
-						throw SerializationException("RuntimeManifest version is incomplete.");
-					}
-					if (runtimeManifest.Version.Major != RuntimeManifest::CurrentVersion.Major ||
-						runtimeManifest.Version.Minor != RuntimeManifest::CurrentVersion.Minor ||
-						runtimeManifest.Version.Patch != RuntimeManifest::CurrentVersion.Patch)
-					{
-						throw SerializationException("RuntimeManifest version does not match the current schema version.");
+						throw SerializationException("RuntimeManifest schema revision is not supported.");
 					}
 
-					hasVersion = true;
+					hasSchemaRevision = true;
 					return;
 				}
 				if (key == "Scenes")
@@ -330,9 +290,9 @@ namespace Ludus::Engine::Serialization::Schemas
 				Ludus::Engine::Serialization::Core::SkipValue(reader);
 			});
 
-			if (!hasVersion)
+			if (!hasSchemaRevision)
 			{
-				throw SerializationException("RuntimeManifest version not found.");
+				throw SerializationException("RuntimeManifest schema revision not found.");
 			}
 			if (!hasEntrySceneId)
 			{
