@@ -1,51 +1,55 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.   
+All notable changes to this project will be documented in this file.
 
-The project uses [Semantic Versioning](https://semver.org/).
+The project follows [Semantic Versioning](https://semver.org/).
 
 
-## [v0.1.0] - 2025-10-19
+## [v0.3.0] - 2026-06-13
 
 ### Added
 
-- #### Ludus::Engine
-  - Added registries for game objects, transforms, and colliders.
-  - Introduced scene and object management system.
-  - Implemented deterministic time-step and timer utilities.
-  - Added random number generator with seed support.
-  - Introduced layer-based collision filtering.
-  - Added debug and assert functionality.
-	
-- #### Ludus::Graphics
-  - Implemented 2D renderer supporting quads, circles, lines, and text.
-  - Added shaders, textures, and buffer abstractions.
-  - Added color utilities and camera system.
-  - Introduced basic text alignment and glyph rendering.
+#### Editor
 
-- #### Ludus::Math
-  - Added core math primitives: vector, transform, and shape types.
-  - Introduced numeric constants and helper functions.
+- Added a welcome screen for creating projects and opening recent projects.
+- Added command-line selection of the project opened at editor startup.
+- Added an unsaved changes prompt for scene and project changes.
+- Added keyboard shortcuts for saving, building scripts, building runtimes, and controlling simulation.
+- Added persisted editor preferences, panel state, runtime launch settings, and shared editor themes.
+- Improved the inspector and hierarchy panels, including adding and removing entity components.
+- Prevented editor UI input from interfering with game input while simulation is running.
 
-- #### Ludus::Physics
-  - Implemented AABB collision detection and MTV resolution.
-  - Added broadphase and narrowphase collision steps.
-  - Added contact data structure for collision details.
+#### Runtime builds
 
-- #### Ludus::Platform
-  - Added window and input handling.
-  - Implemented keyboard input mapping and window configuration.
+- Added standalone Windows runtime building and packaging from the editor.
+- Added editor-built runtime packages containing the executable, manifest, scenes, assets, and scripts.
+- Added runtime-owned scene presentation and scene switching.
 
-- #### Infrastructure
-  - Added CI pipeline with GitHub Actions.
-  - Integrated unit testing using Doctest.
-  - Added repository structure, labels, and project templates.
-  - Introduced semantic versioning and release flow.
+#### Scripting
 
-- #### Demo Game - Pong (1972)
-  - Created full demo built on Ludus systems.
-  - Implemented game states: Menu, Playing, Paused, Score.
-  - Added AI and multiplayer modes.
+- Added C++ scripting with generated project and solution files.
+- Added script building from the editor and script loading at runtime.
+- Added scripting access to components and runtime scene transitions.
+
+#### Assets and rendering
+
+- Added stable asset identifiers and runtime texture loading with caching.
+- Added asset-backed sprite authoring and rendering.
+- Added visible fallback rendering for missing or invalid textures.
+- Added content-browser classification for registered, candidate, missing, and unsupported files.
+- Added manual inclusion of candidate texture files from the content panel.
+
+### Changed
+
+- Separated the editor, editor host, and game runtime so standalone games no longer depend on editor state.
+- Separated editor project data from the manifests used by standalone runtime builds.
+- Introduced independent integer revisions for project and runtime manifest schemas.
+- Changed asset and scene references to use project-relative paths.
+- Changed asset discovery so refreshing project files no longer modifies the project manifest.
+- Separated the scripting ABI from the user-facing scripting API.
+- Updated Windows builds to the MSVC v145 toolset and removed unused Win32 configurations.
+- Project and runtime manifests now require schema revision 1. Manifests created with earlier versions are not supported.
+- Reorganized previous changelog entries into consistent release categories.
 
 
 
@@ -53,62 +57,72 @@ The project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- #### Ludus::Editor
-  - Introduced Editor MVP with dockable panels and a framebuffer-backed viewport.
-  - Added core editor playback controls (Play / Pause / Stop).
-  - Added hierarchy panel MVP (create/select/remove entities).
-  - Added inspector panel MVP with live-editing support for selected entities/components.
-  - Added editor console panel and aggregate console output.
-  - Added request-command architecture for Editor actions and UI-driven workflows.
-  - Added editor session/state infrastructure and centralized editor context.
-  - Added editor grid render pass.
+#### Editor
 
-- #### Ludus::Engine::Core
-  - Introduced `Application` as the central application lifecycle abstraction.
-  - Added system-component interface and modular system registration.
-  - Separated game loop responsibilities into clearer phases and ownership boundaries.
-  - Added EventBus system with event dispatch and handler subscription.
-  - Added GLFW input callback events routed through the EventBus.
-  - Added Scene and SceneRegistry for multi-scene management.
-  - Added execution flags and system constraints for controlling runtime behavior.
+- Introduced the Editor MVP with dockable panels and a framebuffer-backed viewport.
+- Added play, pause, and stop controls.
+- Added hierarchy, inspector, console, and grid panels.
+- Added centralized command handling for Editor actions and UI input.
+- Added editor session state and selection handling.
 
-- #### Ludus::Engine::Graphics
-  - Introduced pass-based rendering pipeline architecture.
-  - Added multi-viewport rendering support (via view / render requests).
-  - Added orthographic camera units + viewport refactor and decoupled rendering responsibilities.
+#### Runtime and rendering
 
-- #### Ludus::Engine::Persistence / Serialization
-  - Added engine persistence interfaces for project and scene persistence.
-  - Implemented human-readable text format (LML) and codec.
-  - Added DOM-based persistence archives and object serializers.
-  - Added persistence IO utilities and tests.
-  - Added Editor project persistence layer (save/load projects and multiple scenes).
-  - Added platform + UI support for persistence workflows.
-  - Added Open File Dialog integration for opening projects/scenes.
-  - Restructured Persistence namespace and promoted Serialization to a top-level namespace.
+- Added modular system registration and clearer game-loop phases.
+- Added event dispatch and GLFW input events.
+- Added multi-scene management and execution controls.
+- Added pass-based and multi-viewport rendering.
+- Added orthographic camera units.
+
+#### Persistence
+
+- Added project and scene saving and loading.
+- Added the human-readable LML format.
+- Added file dialogs and menus for opening, saving, and loading projects and scenes.
 
 ### Changed
 
-- #### Architecture / Naming
-  - Renamed `GameObject` to `Entity` and continued component naming cleanup.
-  - Refactored editor systems for clearer panel interfaces and less direct ImGui coupling.
-  - Standardized world vs. local vertex attributes and explicit casting patterns.
-  - Added precompiled headers for improved build throughput and build iteration.
-
-
-- #### Infrastructure
-  - Migrated dependency management to vcpkg manifest mode.
-  - Updated CI pipeline for a public repository setup (GitHub-hosted runner; removed local runner).
-  - Cleaned up issue templates (removed redundant Status field / labels).
-  - Updated README structure and content for the current direction of the project.
-  - Renamed project folders and updated namespace structures.
+- Renamed `GameObject` to `Entity` and continued component naming cleanup.
+- Refactored editor systems to reduce direct ImGui coupling.
+- Standardized world and local vertex attributes.
+- Added precompiled headers to improve build times.
+- Migrated dependency management to vcpkg manifest mode.
+- Moved CI to GitHub-hosted runners.
+- Updated the README to reflect the Editor-first direction of Ludus.
 
 ### Removed
 
-- #### Repository
-  - Removed redundant projects (Pong and Lab) as the repo shifted focus to the editor workflow.
+- Removed the Pong and Lab projects as development shifted toward the editor.
 
-### Notes
 
-- This release represents a significant focus shift from demo-game delivery toward an Editor-first architecture.
-- Physics / collision improvements planned under the milestone were deprioritized in favor of editor and persistence work.
+
+## [v0.1.0] - 2025-10-19
+
+### Added
+
+#### Core
+
+- Added registries for game objects, transforms, and colliders.
+- Added scene and object management.
+- Added deterministic time steps, timers, seeded random numbers, debugging, and assertions.
+
+#### Graphics and math
+
+- Added 2D rendering for quads, circles, lines, and text.
+- Added shaders, textures, buffers, colors, cameras, and text alignment.
+- Added core vector, transform, and shape types.
+
+#### Physics
+
+- Added AABB collision detection and minimum translation vector resolution.
+- Added broadphase and narrowphase collision handling.
+- Added layer-based collision filtering and collision contact data.
+
+#### Platform and infrastructure
+
+- Added window, keyboard input, and window configuration support.
+- Added GitHub Actions CI and Doctest unit testing.
+- Established semantic versioning and the initial release process.
+
+#### Pong
+
+- Added a Pong demo with menu, play, pause, score, AI, and multiplayer modes.

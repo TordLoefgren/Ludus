@@ -5,11 +5,14 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/language-C++-00599C?style=flat&logo=c%2B%2B&logoColor=white">
-  <img src="https://img.shields.io/badge/rendering-OpenGL-blue?style=flat">
-  <img src="https://img.shields.io/badge/platform-Windows-lightgrey?style=flat">
-  <img src="https://img.shields.io/badge/status-Prototype-yellow?style=flat">
-  <img src="https://img.shields.io/badge/license-MIT-green?style=flat">
+  <img src="https://img.shields.io/badge/rendering-OpenGL-007ACC?style=flat&logo=opengl&logoColor=white">
+  <img src="https://img.shields.io/badge/platform-Windows-0078D6?style=flat&logo=windows11&logoColor=white">
+  <img src="https://img.shields.io/badge/version-v0.3.0-E76F00?style=flat">
+  <img src="https://img.shields.io/badge/status-Prototype-B8A600?style=flat">
+  <img src="https://img.shields.io/badge/license-MIT-3DA639?style=flat">
 </p>
+
+
 
 <p align="center"><i>
 A personal experiment in graphics, physics, and engine architecture design.
@@ -56,6 +59,14 @@ Simplified dependency view of the repository, showing the main architectural lay
 
 Ludus is in active development and currently focused on **2D** engine and editor features. Simple projects such as Pong can be created in the editor and exported as runnable Windows builds.
 
+Selected highlights introduced in version **0.3.0**:
+
+- a more consistent and easier-to-use editor, with improved project access, saving, and persistence
+- generated C++ scripting projects that can be opened, modified, and built from the editor
+- scripts that can be attached to entities and executed while simulating a project
+- standalone Windows games that can be built and packaged from the editor
+- texture files that can be added to projects and used on sprites
+
 <p align="center">
   <img src=".tools/assets/editor_snapshot.gif" alt="Ludus Editor showing a Pong project, with the editor occasionally switching between dark and light themes" width="900" />
 </p>
@@ -92,6 +103,8 @@ After building, run `EditorHost` from the selected output directory.
 ## Inspiration & References
 This project is influenced by several resources from the C++ and graphics programming community:
 
+- **Cem Yuksel / University of Utah** – _Introduction to Computer Graphics lecture series_<br>
+  https://www.youtube.com/playlist?list=PLplnkTzzqsZTfYh4UbhLGpI5kGd5oW_Hh
 - **The Cherno** – _Game engine series_  
   https://www.youtube.com/@TheCherno
 - **Games with Gabe** – _Coding a 2D Physics Engine series_  

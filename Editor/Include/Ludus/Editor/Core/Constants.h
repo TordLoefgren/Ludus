@@ -6,7 +6,7 @@
 
 namespace Ludus::Editor::Core::Constants
 {
-	inline constexpr Ludus::Engine::Core::Version CurrentVersion { 0, 2, 0 };
+	inline constexpr Ludus::Engine::Core::Version CurrentVersion { 0, 3, 0 };
 
 	namespace Shared
 	{

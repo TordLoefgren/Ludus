@@ -14,7 +14,7 @@ namespace Ludus::Engine::Core
 
 		static std::string ToString(Version version)
 		{
-			return std::format("v.{}.{}.{}", version.Major, version.Minor, version.Patch);
+			return std::format("v{}.{}.{}", version.Major, version.Minor, version.Patch);
 		}
 	};
 }
